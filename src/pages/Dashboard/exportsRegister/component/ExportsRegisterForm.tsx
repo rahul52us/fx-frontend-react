@@ -38,13 +38,36 @@ const ExposureForm = ({onClose, fetchData} : any) => {
     poNo: Yup.string().required("PO No is required"),
     invoiceNo: Yup.string().required("Invoice No is required"),
     partyName: Yup.string().required("Party Name is required"),
-    priority: Yup.string().required("Priority is required"),
+    priority: Yup.mixed().required("Priority is required"),
     paymentTerms: Yup.string().required("Payment terms is required"),
     bank: Yup.string().required("Bank is required"),
     remark: Yup.string().nullable(),
   });
 
+//   const data = {
+//     "exposureType": "confirmed_order",
+//     "exposureInputDate": "2025-06-13",
+//     "poDate": "2025-06-11",
+//     "blDate": "2025-06-27",
+//     "collectionDate": "2025-06-05",
+//     "currency": "IND",
+//     "poNo": "2342343",
+//     "invoiceNo": "asdqwd342133",
+//     "partyName": "namer",
+//     "bank": "bank name",
+//     "paymentTerms": "termss",
+//     "forwardContractNo": "3259887478s",
+//     "priority": "high",
+//     "remark": "remarkss",
+//     "bookedForwardRate": "33",
+//     "hedgedAmount": "43",
+//     "budgetRate": "33",
+//     "amount": "23433",
+//     "adjustmentAmount": "1233"
+// }
+
   const submitExportForm = async (values: any, toast: any, actions: any) => {
+    // console.log('values',values)
     try {
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/exportregister/form/",
@@ -111,8 +134,10 @@ const ExposureForm = ({onClose, fetchData} : any) => {
           //   // alert('Form submitted successfully!');
           //   actions.setSubmitting(false);
           // }}
-          onSubmit={(values, actions) =>
+          onSubmit={(values, actions) =>{
+            console.log('values',values)
             submitExportForm(values, toast, actions)
+          }
           }
         >
           {({
@@ -324,12 +349,14 @@ const ExposureForm = ({onClose, fetchData} : any) => {
                 <Flex justify={"end"}>
                   <Button
                     rounded={"full"}
+                    
                     fontWeight={500}
                     _hover={{
                       bg: "blue.600",
                       color: "white",
                       transform: "translateY(-2px)",
                     }}
+                    // onClick={submitExportForm}
                     transition={"transform 0.3s ease-in-out"}
                     bg={"blue.500"}
                     shadow={"xl"}

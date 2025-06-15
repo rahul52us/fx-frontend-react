@@ -39,6 +39,8 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import debounce from "lodash/debounce";
 import store from "../../../store/store";
+import { Field } from "formik";
+import { format } from "date-fns";
 
 interface CustomInputProps {
   type?:
@@ -140,7 +142,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
   //   }
   // }, [options, type]);
 
-
   const fetchSearchUsers = useCallback(async (query: string) => {
     if (query?.trim() === "") {
       return;
@@ -148,7 +149,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
     try {
       const response: any = await store.auth.getCompanyUsers({
         page: 1,
-        searchValue: query
+        searchValue: query,
       });
       setUserOptions(
         response.map((it: any) => ({
@@ -183,7 +184,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   }, [searchInput, debouncedFetchSearchUserResults]);
 
   const handleFileDrop = useCallback(
-    (event : any) => {
+    (event: any) => {
       event.preventDefault();
       event.stopPropagation();
       const files = event.dataTransfer.files;
@@ -193,7 +194,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
     },
     [name, onChange]
   );
-
 
   const handleTagAdd = (e?: React.KeyboardEvent<HTMLInputElement>) => {
     if ((!e || e.key === "Enter") && inputValue) {
@@ -473,13 +473,73 @@ const CustomInput: React.FC<CustomInputProps> = ({
             {...rest}
           />
         );
-      case "date":
+      // case "date":
+      //   return (
+      //     <div style={{ position: "relative" }}>
+      //       <SingleDatepicker
+      //         name={name}
+      //         date={value}
+      //         onDateChange={onChange ? onChange : () => {}}
+      //         maxDate={maxDate}
+      //         minDate={minDate}
+      //         disabled={disabled}
+      //         disabledDates={disabledDates}
+      //         usePortal={false}
+      //         configs={{
+      //           dateFormat: "dd-MM-yyyy",
+      //         }}
+      //         propsConfigs={{
+      //           dayOfMonthBtnProps: {
+      //             defaultBtnProps: {
+      //               _hover: {
+      //                 background: "blue.500",
+      //               },
+      //             },
+      //             selectedBtnProps: {
+      //               background: "blue.300",
+      //             },
+      //             todayBtnProps: {
+      //               border: "1px solid #38B2AC",
+      //             },
+      //           },
+      //           inputProps: {
+      //             size: "md",
+      //             fontSize: "14px",
+      //             placeholder: placeholder,
+      //           },
+      //         }}
+      //       />
+      //       {value && isClear && (
+      //         <Button
+      //           colorScheme="red"
+      //           variant="link"
+      //           onClick={() => onChange && onChange(undefined)}
+      //           style={{
+      //             position: "absolute",
+      //             top: "50%",
+      //             right: "0.2rem",
+      //             transform: "translateY(-50%)",
+      //           }}
+      //         >
+      //           <Icon as={RiCloseFill} />
+      //         </Button>
+      //       )}
+      //     </div>
+      //   );
+  case "date":
+  return (
+    <Field name={name}>
+      {({ field, form }: any) => {
+        const selectedDate = field.value ? new Date(field.value) : undefined;
         return (
           <div style={{ position: "relative" }}>
             <SingleDatepicker
               name={name}
-              date={value}
-              onDateChange={onChange ? onChange : () => {}}
+              date={selectedDate}
+              onDateChange={(date: Date | undefined) => {
+                const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+                form.setFieldValue(name, formattedDate);
+              }}
               maxDate={maxDate}
               minDate={minDate}
               disabled={disabled}
@@ -491,9 +551,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
               propsConfigs={{
                 dayOfMonthBtnProps: {
                   defaultBtnProps: {
-                    _hover: {
-                      background: "blue.500",
-                    },
+                    _hover: { background: "blue.500" },
                   },
                   selectedBtnProps: {
                     background: "blue.300",
@@ -509,11 +567,11 @@ const CustomInput: React.FC<CustomInputProps> = ({
                 },
               }}
             />
-            {value && isClear && (
+            {field.value && isClear && (
               <Button
                 colorScheme="red"
                 variant="link"
-                onClick={() => onChange && onChange(undefined)}
+                onClick={() => form.setFieldValue(name, "")}
                 style={{
                   position: "absolute",
                   top: "50%",
@@ -526,6 +584,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
             )}
           </div>
         );
+      }}
+    </Field>
+  );
       case "editor":
         return (
           <AdvancedEditor
@@ -664,98 +725,106 @@ const CustomInput: React.FC<CustomInputProps> = ({
             </Wrap>
           </Box>
         );
-        case "real-time-user-search":
-          return (
-            <Select
-              key={name}
-              name={name}
-              options={userOptions}
-              value={isMulti ? Array.isArray(value) ? value?.length > 0 ? value : null :  null : userOptions.find((opt : any) => opt?.value === value?.value)}
-              onChange={(selectedOption : any) => {
-                if (isMulti) {
-                  onChange && onChange(selectedOption.map((opt: any) => opt));
-                  setSearchInput(selectedOption ? selectedOption.label : "");
-                } else {
-                  onChange && onChange(selectedOption ? selectedOption : "");
-                }
-              }}
-              inputValue={searchInput}
-              onInputChange={(input) => setSearchInput(input)}
-              placeholder={placeholder}
-              isClearable={isClear ? true : undefined}
-              isMulti={isMulti}
-              isSearchable={isSearchable}
-              getOptionLabel={getOptionLabel}
-              getOptionValue={getOptionValue}
-              isDisabled={disabled}
-              styles={{
-                control: (baseStyles, state) => ({
-                  ...baseStyles,
-                  borderColor: state.isFocused ? "gray.200" : "gray.300",
-                  backgroundColor: colorMode === "light" ? "white" : "#2D3748",
-                  fontSize: "14px",
-                }),
-                option: (styles, { isSelected, isFocused }) => ({
-                  ...styles,
-                  backgroundColor:
-                    colorMode === "light"
-                      ? isSelected
-                        ? "#4299e1"
-                        : isFocused
-                        ? "gray.100"
-                        : "white"
-                      : isSelected
-                      ? "#2b6cb0"
+      case "real-time-user-search":
+        return (
+          <Select
+            key={name}
+            name={name}
+            options={userOptions}
+            value={
+              isMulti
+                ? Array.isArray(value)
+                  ? value?.length > 0
+                    ? value
+                    : null
+                  : null
+                : userOptions.find((opt: any) => opt?.value === value?.value)
+            }
+            onChange={(selectedOption: any) => {
+              if (isMulti) {
+                onChange && onChange(selectedOption.map((opt: any) => opt));
+                setSearchInput(selectedOption ? selectedOption.label : "");
+              } else {
+                onChange && onChange(selectedOption ? selectedOption : "");
+              }
+            }}
+            inputValue={searchInput}
+            onInputChange={(input) => setSearchInput(input)}
+            placeholder={placeholder}
+            isClearable={isClear ? true : undefined}
+            isMulti={isMulti}
+            isSearchable={isSearchable}
+            getOptionLabel={getOptionLabel}
+            getOptionValue={getOptionValue}
+            isDisabled={disabled}
+            styles={{
+              control: (baseStyles, state) => ({
+                ...baseStyles,
+                borderColor: state.isFocused ? "gray.200" : "gray.300",
+                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
+                fontSize: "14px",
+              }),
+              option: (styles, { isSelected, isFocused }) => ({
+                ...styles,
+                backgroundColor:
+                  colorMode === "light"
+                    ? isSelected
+                      ? "#4299e1"
                       : isFocused
-                      ? "gray.700"
-                      : "#2D3748",
-                  color: colorMode === "light" ? "black" : "white",
-                  padding: "8px 12px",
-                  ":hover": {
-                    backgroundColor:
-                      colorMode === "light" ? "#bee3f8" : "#2b6cb0",
-                  },
-                }),
-                menu: (baseStyles) => ({
-                  ...baseStyles,
-                  backgroundColor: colorMode === "light" ? "white" : "#2D3748",
-                  borderColor: colorMode === "light" ? "gray.200" : "#4A5568",
-                }),
-                multiValue: (styles) => ({
-                  ...styles,
-                  backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
-                  color: colorMode === "light" ? "black" : "white",
-                }),
-                multiValueLabel: (styles) => ({
-                  ...styles,
-                  color: colorMode === "light" ? "blue.400" : "blue.200",
-                }),
-                singleValue: (styles) => ({
-                  ...styles,
-                  color: colorMode === "light" ? "black" : "white",
-                }),
-                clearIndicator: (styles) => ({
-                  ...styles,
-                  color: colorMode === "light" ? "black" : "white",
-                }),
-                dropdownIndicator: (styles) => ({
-                  ...styles,
-                  color: colorMode === "light" ? "black" : "white",
-                }),
-                indicatorSeparator: (styles) => ({
-                  ...styles,
-                  backgroundColor: colorMode === "light" ? "gray.300" : "#4A5568",
-                }),
-              }}
-              components={{
-                IndicatorSeparator: null,
-                DropdownIndicator: () => (
-                  <div className="chakra-select__dropdown-indicator" />
-                ),
-              }}
-              menuPosition={isPortal ? "fixed" : undefined}
-            />
-          );
+                      ? "gray.100"
+                      : "white"
+                    : isSelected
+                    ? "#2b6cb0"
+                    : isFocused
+                    ? "gray.700"
+                    : "#2D3748",
+                color: colorMode === "light" ? "black" : "white",
+                padding: "8px 12px",
+                ":hover": {
+                  backgroundColor:
+                    colorMode === "light" ? "#bee3f8" : "#2b6cb0",
+                },
+              }),
+              menu: (baseStyles) => ({
+                ...baseStyles,
+                backgroundColor: colorMode === "light" ? "white" : "#2D3748",
+                borderColor: colorMode === "light" ? "gray.200" : "#4A5568",
+              }),
+              multiValue: (styles) => ({
+                ...styles,
+                backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
+                color: colorMode === "light" ? "black" : "white",
+              }),
+              multiValueLabel: (styles) => ({
+                ...styles,
+                color: colorMode === "light" ? "blue.400" : "blue.200",
+              }),
+              singleValue: (styles) => ({
+                ...styles,
+                color: colorMode === "light" ? "black" : "white",
+              }),
+              clearIndicator: (styles) => ({
+                ...styles,
+                color: colorMode === "light" ? "black" : "white",
+              }),
+              dropdownIndicator: (styles) => ({
+                ...styles,
+                color: colorMode === "light" ? "black" : "white",
+              }),
+              indicatorSeparator: (styles) => ({
+                ...styles,
+                backgroundColor: colorMode === "light" ? "gray.300" : "#4A5568",
+              }),
+            }}
+            components={{
+              IndicatorSeparator: null,
+              DropdownIndicator: () => (
+                <div className="chakra-select__dropdown-indicator" />
+              ),
+            }}
+            menuPosition={isPortal ? "fixed" : undefined}
+          />
+        );
 
       default:
         return (

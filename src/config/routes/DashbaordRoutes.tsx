@@ -8,6 +8,7 @@ import ImportRegister from "../../pages/Dashboard/importsRegister/ImportRegister
 import ForwardRegister from "../../pages/Dashboard/forwardRegister/ForwardRegister";
 import ForwardCancellation from "../../pages/Dashboard/forwardCancellation/ForwardCancellation";
 import PcFc from "../../pages/Dashboard/pcfc/Pcfc";
+import DailyExposureSheet from "../../pages/Dashboard/dailyExposureSheet/page";
 const VerifyInvitationPage = lazy(() => import("../component/common/VerifyInvitationPages/VerifyInvitationPage"))
 
 const PersonalDetails = lazy(
@@ -182,6 +183,11 @@ export const DashboardRoutes = [
   {
     element: <ImportRegister />,
     path: dashboard.importRegister,
+    privateRoutes: true,
+  },
+  {
+    element: <DailyExposureSheet />,
+    path: dashboard.dailyExposureSheet,
     privateRoutes: true,
   },
   {
