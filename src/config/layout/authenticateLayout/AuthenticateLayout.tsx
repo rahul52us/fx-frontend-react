@@ -23,15 +23,15 @@ const images = [
 
 const AuthenticateLayout = observer(() => {
   const {
-    auth: { restoreUser },
+    auth: { restoreUser, user },
   } = store;
   const navigate = useNavigate();
 
   useEffect(() => {
     if (restoreUser()) {
-      navigate("/");
+      navigate("/dashboard");
     }
-  }, [navigate, restoreUser]);
+  }, [navigate, restoreUser, user]);
 
   const settings = {
     dots: true,

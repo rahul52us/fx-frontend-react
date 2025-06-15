@@ -20,8 +20,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@chakra-ui/react";
-import PermissionDeniedPage from "../../component/commonPages/PermissionDeniedPage";
-import { authentication } from "../../constant/routes";
 
 const RedirectComponent = observer(() => {
   const navigate = useNavigate();
@@ -39,7 +37,7 @@ const RedirectComponent = observer(() => {
 
 const DashboardLayout = observer(() => {
   const {
-    auth: { restoreUser, user, checkPermission },
+    auth: { restoreUser, user },
     layout: {
       fullScreenMode,
       mediumScreenMode,
@@ -91,9 +89,7 @@ const DashboardLayout = observer(() => {
   }, [isCallapse, openDashSidebarFun]);
 
   return user ? (
-    <PermissionDeniedPage
-    show={!checkPermission('dashboard', 'view')}
-    onClick={() => navigate(authentication.login)}
+    <Box
     >
       <MainContainer isMobile={isMobile}>
         <Box ref={sidebarRef}>
@@ -137,7 +133,7 @@ const DashboardLayout = observer(() => {
           </ContentContainer>
         </Container>
       </MainContainer>
-    </PermissionDeniedPage>
+    </Box>
   ) : (
     <RedirectComponent />
   );

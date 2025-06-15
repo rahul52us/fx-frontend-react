@@ -1,54 +1,53 @@
-import { Route, Routes } from "react-router-dom";
-import { MainPublicRoutes } from "./MainPageRoutes";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { AuthenticateRoutes } from "./AuthenticateRoutes";
 import { DashboardRoutes } from "./DashbaordRoutes";
-import MainLayout from "../layout/MainLayout/MainLayout";
 import AuthenticateLayout from "../layout/authenticateLayout/AuthenticateLayout";
 import DashboardLayout from "../layout/dashboardLayout/DashboardLayout";
 import { observer } from "mobx-react-lite";
-import { mainPrivateRoutes } from "./PrivateMainRoutes";
-import PrivateMainLayout from "../layout/PrivateMainLayout/PrivateMainLayout";
-
 import store from "../../store/store";
-import WebLayout from "../layout/webLayout/WebLayout";
-import { WebRoutes } from "./webRoutes";
 
 const RouterIndex = observer(() => {
   const {
-    auth: { user },
+    auth: { restoreUser },
   } = store;
+
+  const location = useLocation();
+  const isAuthenticated = restoreUser();
 
   return (
     <Routes>
-      <Route element={<WebLayout />}>
-        {WebRoutes.map((item, index) => {
-          return <Route key={index} path={item.path} element={item.element} />;
-        })}
-      </Route>
-
-      <Route element={<PrivateMainLayout />}>
-        {mainPrivateRoutes.map((item, index) => {
-          return <Route key={index} path={item.path} element={item.element} />;
-        })}
-      </Route>
-      <Route element={<MainLayout />}>
-        {MainPublicRoutes.map((item, index) =>
-          user === null && item.publicRoute === false ? null : (
-            <Route key={index} path={item.path} element={item.element} />
+      {/* Root Redirect: if "/" hit */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Navigate to="/login" replace />
           )
-        )}
-      </Route>
+        }
+      />
 
+      {/* Public/Auth routes */}
       <Route element={<AuthenticateLayout />}>
-        {AuthenticateRoutes.map((item, index) => {
-          return <Route path={item.path} key={index} element={item.element} />;
-        })}
+        {AuthenticateRoutes.map((item, index) => (
+          <Route path={item.path} key={index} element={item.element} />
+        ))}
       </Route>
 
-      <Route element={<DashboardLayout />}>
-        {DashboardRoutes.map((item, index) => {
-          return <Route path={item.path} key={index} element={item.element} />;
-        })}
+      {/* Protected Dashboard routes */}
+      <Route
+        element={
+          isAuthenticated ? (
+            <DashboardLayout />
+          ) : (
+            <Navigate to="/login" replace state={{ from: location }} />
+          )
+        }
+      >
+        {DashboardRoutes.map((item, index) => (
+          <Route path={item.path} key={index} element={item.element} />
+        ))}
       </Route>
     </Routes>
   );
