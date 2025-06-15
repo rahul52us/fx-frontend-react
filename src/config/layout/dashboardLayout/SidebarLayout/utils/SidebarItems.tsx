@@ -1,8 +1,13 @@
+import { CalendarIcon } from "@chakra-ui/icons";
+import { BsFillForwardFill } from "react-icons/bs";
 import {
   FaChartPie,
   FaCog,
+  FaShip,
 } from "react-icons/fa";
-import { CalendarIcon } from "@chakra-ui/icons";
+import { ImCancelCircle } from "react-icons/im";
+import { IoDocumentText } from "react-icons/io5";
+import { MdLocalShipping } from "react-icons/md";
 import { dashboard } from "../../../../constant/routes";
 
 interface SidebarItem {
@@ -17,25 +22,9 @@ interface SidebarItem {
 const sidebarDatas: SidebarItem[] = [
   //  Blogs
   {
-    id: 501,
-    name: "Pcfc",
-    icon: <FaChartPie />,
-    url: dashboard.pcfc,
-    role: ["user","superadmin","manager","admin"],
-    children: [
-      {
-        id: 502,
-        name: "index",
-        icon: <CalendarIcon />,
-        url: `${dashboard.pcfc}`,
-        role: ["user","superadmin","manager","admin"],
-      }
-    ]
-  },
-  {
     id: 505,
-    name: "exportRegister",
-    icon: <FaChartPie />,
+    name: "Export Register",
+    icon: <MdLocalShipping />,
     url: dashboard.exportRegister,
     role: ["user","superadmin","manager","admin"],
     children: [
@@ -50,8 +39,8 @@ const sidebarDatas: SidebarItem[] = [
   },
   {
     id: 601,
-    name: "importRegister",
-    icon: <FaChartPie />,
+    name: "Import Register",
+    icon: <FaShip />,
     url: dashboard.importRegister,
     role: ["user","superadmin","manager","admin"],
     children: [
@@ -65,9 +54,41 @@ const sidebarDatas: SidebarItem[] = [
     ]
   },
   {
-    id: 605,
-    name: "forwardRegister",
+    id: 601,
+    name: "Daily Exposure",
     icon: <FaChartPie />,
+    url: dashboard.importRegister,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 602,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.dailyExposureSheet}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 501,
+    name: "Pcfc",
+    icon: <IoDocumentText />,
+    url: dashboard.pcfc,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 502,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.pcfc}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 605,
+    name: "Forward Register",
+    icon: <BsFillForwardFill />,
     url: dashboard.forwardRegister,
     role: ["user","superadmin","manager","admin"],
     children: [
@@ -82,8 +103,8 @@ const sidebarDatas: SidebarItem[] = [
   },
   {
     id: 700,
-    name: "forward Cancellation",
-    icon: <FaChartPie />,
+    name: "Forward Cancellation",
+    icon: <ImCancelCircle />,
     url: dashboard.forwardCancellation,
     role: ["user","superadmin","manager","admin"],
     children: [
@@ -124,4 +145,4 @@ const getSidebarDataByRole = (role: string[] = ["user"]): SidebarItem[] => {
 const userRole = ["user"]; // Example role
 const sidebarData = getSidebarDataByRole(userRole);
 
-export { sidebarData, getSidebarDataByRole };
+export { getSidebarDataByRole, sidebarData };

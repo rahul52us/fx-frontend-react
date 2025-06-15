@@ -6,20 +6,19 @@ import {
   Divider,
   Flex,
   Heading,
-  Image,
   SimpleGrid,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
-import BgImg from "../../../../../images/background_image.jpg";
+// import BgImg from "../../../../../images/background_image.jpg";
+import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import {
   conversionTypeOptions,
   exposureTypeOptions,
   monthsOptions,
   settlementTypeOptions,
 } from "../../../exportsRegister/component/utils/constant";
-import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 
 const DailyExposureSheetForm = () => {
   const validationSchema = Yup.object({
@@ -59,7 +58,7 @@ const DailyExposureSheetForm = () => {
   return (
     <Box bg="whiteAlpha.700" py={4}>
       {/* Background Image with Overlay */}
-      <div
+      {/* <div
         style={{
           position: "fixed",
           top: 0,
@@ -85,7 +84,7 @@ const DailyExposureSheetForm = () => {
             backgroundColor: "rgba(0, 0, 0, 0.4)",
           }}
         />
-      </div>
+      </div> */}
       <Box
         maxW="5xl"
         mx="auto"
@@ -95,7 +94,7 @@ const DailyExposureSheetForm = () => {
         boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
-          Forward Register
+          Daily Exposure Sheet
         </Heading>
         <Formik
           initialValues={{}}

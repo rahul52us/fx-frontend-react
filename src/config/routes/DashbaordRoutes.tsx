@@ -1,13 +1,14 @@
 import { lazy } from "react";
-import { dashboard } from "../constant/routes";
-import { WebsiteCustomisationRoutes } from "./component/schoolRoute";
 import AddBlogForm from "../../pages/Dashboard/Blog/component/forms/AddBlogForm";
 import EditBlogForm from "../../pages/Dashboard/Blog/component/forms/EditBlogForm";
+import DailyExposureSheetForm from "../../pages/Dashboard/dailyExposureSheet/components/DailyExposureSheetForm/DailyExposureSheetForm";
 import ExportRegister from "../../pages/Dashboard/exportsRegister/ExportRegister";
-import ImportRegister from "../../pages/Dashboard/importsRegister/ImportRegister";
-import ForwardRegister from "../../pages/Dashboard/forwardRegister/ForwardRegister";
 import ForwardCancellation from "../../pages/Dashboard/forwardCancellation/ForwardCancellation";
+import ForwardRegister from "../../pages/Dashboard/forwardRegister/ForwardRegister";
+import ImportRegister from "../../pages/Dashboard/importsRegister/ImportRegister";
 import PcFc from "../../pages/Dashboard/pcfc/Pcfc";
+import { dashboard } from "../constant/routes";
+import { WebsiteCustomisationRoutes } from "./component/schoolRoute";
 const VerifyInvitationPage = lazy(() => import("../component/common/VerifyInvitationPages/VerifyInvitationPage"))
 
 const PersonalDetails = lazy(
@@ -197,6 +198,11 @@ export const DashboardRoutes = [
   {
     element: <PcFc />,
     path: dashboard.pcfc,
+    privateRoutes: true,
+  },
+  {
+    element: <DailyExposureSheetForm />,
+    path: dashboard.dailyExposureSheet,
     privateRoutes: true,
   },
   {

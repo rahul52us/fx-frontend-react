@@ -116,7 +116,7 @@ const ImportRegisterTable = () => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Add Import Entry</DrawerHeader>
+          <DrawerHeader>Add Import Entrysss</DrawerHeader>
           <DrawerBody>
             <ImportRegistrationForm
               fetchData={fetchImportRegisterData}
