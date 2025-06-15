@@ -4,10 +4,7 @@ import { observer } from "mobx-react-lite";
 import HeaderProfile from "./HeaderProfile/HeaderProfile";
 import HeaderNotification from "./HeaderNotification/HeaderNotification";
 import HeaderThemeSwitch from "./HeaderThemeSwitch/HeaderThemeSwitch";
-import HeaderLanguageSwitch from "./HeaderLanguageSwitch/HeaderLanguageSwitch";
-import HeaderChatMessage from "./HeaderChatMessage/HeaderChatMessage";
 import store from "../../../../../../store/store";
-import CartContainer from "./CartContainer/CartContainer";
 
 const HeaderNavbar = observer(() => {
   const {
@@ -20,15 +17,15 @@ const HeaderNavbar = observer(() => {
       display="flex"
       justifyContent="space-around"
       alignItems="center"
-      width={isLargerThan1020 ? "28%" : "10%"}
+      width={isLargerThan1020 ? "18%" : "10%"}
     >
       {isLargerThan1020 ? (
         <>
-          <HeaderLanguageSwitch />
+          {/* <HeaderLanguageSwitch /> */}
           <HeaderThemeSwitch />
-          <HeaderChatMessage />
+          {/* <HeaderChatMessage /> */}
           <HeaderNotification />
-          <CartContainer />
+          {/* <CartContainer /> */}
           <HeaderProfile />
         </>
       ) : (

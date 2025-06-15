@@ -40,11 +40,7 @@ const SidebarLogo = observer(() => {
       >
         {isCallapse ? (
           <Text fontWeight={600} fontSize="lg">
-            {`${currentCompanyDetails?.company_name
-              ?.charAt(0)
-              .toUpperCase()}.${currentCompanyDetails?.company_name
-              ?.slice(-1)
-              .toUpperCase()}`}
+             Fx
           </Text>
         ) : (
           <Flex alignItems="center" columnGap={4} maxW="100%" px={2} ml={3}>
@@ -74,7 +70,7 @@ const SidebarLogo = observer(() => {
                 maxW="180px" // Set a maximum width to avoid overflow
                 isTruncated
               >
-                {currentCompanyDetails?.company_name}
+                FX
               </Text>
             </Tooltip>
           </Flex>

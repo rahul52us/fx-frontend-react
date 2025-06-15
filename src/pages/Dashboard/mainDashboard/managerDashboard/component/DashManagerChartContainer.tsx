@@ -44,7 +44,7 @@ const DashChartContainer = observer(() => {
 
   const coursesChartData = makeChartResponse(
     managersUsersCount.data,
-    "Member Counts",
+    "FX Data",
     "title",
     "count",
     barChartColors // Use the medium-light color palette for BarChart

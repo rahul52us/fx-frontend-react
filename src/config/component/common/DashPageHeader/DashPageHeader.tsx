@@ -90,7 +90,7 @@ const DashPageHeader = observer(
         <Helmet>
           <title>
             {title
-              ? `${showMainTitle ? `Edukatues | ` : ""}${title}`
+              ? `${showMainTitle ? `FX-Ntop | ` : ""}${title}`
               : metaData.name}
           </title>
           <meta name="description" content={metaData.description} />
