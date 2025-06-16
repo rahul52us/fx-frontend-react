@@ -44,3 +44,51 @@ export const dealTypeOptions = [
   { label: 'A', value: 'a' },
   { label: 'B', value: 'b' },
 ]
+
+
+// dummy data export register
+
+export const dummyExportRegisterData = [
+  {
+    exposureType: "Export",
+    exposureInputDate: "2025-06-01",
+    poDate: "2025-05-15",
+    blDate: "2025-05-20",
+    collectionDate: "2025-06-05",
+    amount: "100000",
+    adjustmentAmount: "5000",
+    currency: "USD",
+    budgetRate: "74.5",
+    hedgedAmount: "95000",
+    invoiceNo: "INV-001",
+    poNo: "PO-001",
+    partyName: "ABC Exports Pvt Ltd",
+    bank: "HDFC Bank",
+    paymentTerms: "NET30",
+    forwardContractNo: "FC-001",
+    priority: "High",
+    bookedForwardRate: "75.2",
+    remark: "First export shipment",
+  },
+  {
+    exposureType: "Import",
+    exposureInputDate: "2025-06-03",
+    poDate: "2025-05-18",
+    blDate: "2025-05-23",
+    collectionDate: "2025-06-08",
+    amount: "75000",
+    adjustmentAmount: "2000",
+    currency: "EUR",
+    budgetRate: "80.1",
+    hedgedAmount: "73000",
+    invoiceNo: "INV-002",
+    poNo: "PO-002",
+    partyName: "XYZ Imports Ltd",
+    bank: "ICICI Bank",
+    paymentTerms: "NET45",
+    forwardContractNo: "FC-002",
+    priority: "Medium",
+    bookedForwardRate: "81.0",
+    remark: "Urgent delivery required",
+  }
+];

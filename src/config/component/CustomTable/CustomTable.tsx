@@ -1,34 +1,36 @@
-import React from "react";
+import { DownloadIcon } from "@chakra-ui/icons";
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Box,
-  useBreakpointValue,
-  Tooltip,
+  Button,
   Flex,
   Heading,
   IconButton,
-  Button,
+  Input,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
-  Input,
+  MenuList,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
+  useBreakpointValue,
   useColorModeValue,
 } from "@chakra-ui/react";
-import TableLoader from "./TableLoader";
-import { formatDate } from "../../constant/dateUtils";
-import Pagination from "../pagination/Pagination";
-import CustomDateRange from "../CustomDateRange/CustomDateRange";
-import MultiDropdown from "../multiDropdown/MultiDropdown";
+import React, { useRef } from "react";
 import { FaEdit, FaEye } from "react-icons/fa";
+import { FcClearFilters } from "react-icons/fc";
 import { IoMdAdd, IoMdInformationCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
-import { FcClearFilters } from "react-icons/fc";
+import { formatDate } from "../../constant/dateUtils";
+import CustomDateRange from "../CustomDateRange/CustomDateRange";
+import MultiDropdown from "../multiDropdown/MultiDropdown";
+import Pagination from "../pagination/Pagination";
+import TableLoader from "./TableLoader";
+import { BiUpload } from "react-icons/bi";
 
 interface Column {
   headerName?: string;
@@ -426,7 +428,8 @@ const CustomTable: React.FC<CustomTableProps> = ({
 
   const boxBorder = useColorModeValue("gray.200", "gray.700");
   const mainBox = useColorModeValue("white", "gray.900");
-  
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   return (
     <Box
       rounded={12}
@@ -529,6 +532,40 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     Add
                   </MenuItem>
                 )}
+                {actions?.exportExcel?.show && (
+                  <MenuItem
+                    onClick={actions?.exportExcel?.function}
+                    icon={<DownloadIcon fontSize={"20px"} />}
+                    _hover={{ bg: menuItemHover }}
+                    p={"0.7rem"}
+                  >
+                    {actions?.exportExcel?.text || "Export Excel"}
+                  </MenuItem>
+                )}
+                {actions?.uploadFile?.show && (
+                  <Button
+                    as="label"
+                    ml={-3}
+                    htmlFor="file-upload"
+                    leftIcon={<BiUpload fontSize={"20px"} />}
+                    w={"100%"}
+                    bg={"transparent"}
+                    pl={4}
+                    fontWeight={400}
+                    _hover={{ bg: menuItemHover }}
+                  >
+                    Upload File
+                    <input
+                      id="file-upload"
+                      accept=".xlsx"
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={actions?.uploadFile?.function}
+                      style={{ display: "none" }}
+                    />
+                  </Button>
+                )}
+
                 {actions?.resetData?.show && (
                   <MenuItem
                     onClick={actions?.resetData?.function}
@@ -589,6 +626,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   position={column?.props?.isSticky ? "sticky" : "relative"}
                   right={column?.props?.isSticky ? "0" : undefined}
                   bg={headerBg}
+                  whiteSpace={"nowrap"}
                   fontSize="xs"
                   textTransform="uppercase"
                   letterSpacing="wider"
@@ -604,7 +642,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
           </Thead>
 
           <TableLoader loader={loading} show={data.length}>
-            <Tbody >
+            <Tbody>
               {data.map((row, rowIndex) => (
                 <Tr
                   key={rowIndex}

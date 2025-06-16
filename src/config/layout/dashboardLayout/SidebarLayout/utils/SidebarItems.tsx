@@ -9,6 +9,7 @@ import { ImCancelCircle } from "react-icons/im";
 import { IoDocumentText } from "react-icons/io5";
 import { MdLocalShipping } from "react-icons/md";
 import { dashboard } from "../../../../constant/routes";
+import PieChart from "../../../../component/charts/PieChart";
 
 interface SidebarItem {
   id: number;
@@ -20,6 +21,13 @@ interface SidebarItem {
 }
 
 const sidebarDatas: SidebarItem[] = [
+  {
+    id: 401,
+    name: "Dashboard",
+    icon: <PieChart />,
+    url: "/dashboard",
+    role: ["user", "admin", "superadmin", "manager"],
+  },
   //  Blogs
   {
     id: 505,

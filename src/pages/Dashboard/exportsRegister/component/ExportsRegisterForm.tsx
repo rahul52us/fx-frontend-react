@@ -4,37 +4,33 @@ import {
   Divider,
   Flex,
   SimpleGrid,
-  useToast,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
-import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
+import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import {
   currencyOptions,
   exposureTypeOptions,
   priorityOptions,
 } from "./utils/constant";
-import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 
-const ExposureForm = ({onClose, fetchData} : any) => {
-  const toast = useToast();
+const ExposureForm = ({submitExportForm} : any) => {
 
   const validationSchema = Yup.object({
     exposureType: Yup.mixed().required("Exposure Type is required"),
     exposureInputDate: Yup.string().required("Exposure Input Date is required"),
     poDate: Yup.string().required("PO Date is required"),
+    adjustmentAmount: Yup.string().required("Adjustment Amount is required"),
     blDate: Yup.string().required("BL Date is required"),
     collectionDate: Yup.string().required("Collection Date is required"),
-    amount: Yup.number()
-      .required("Amount is required")
-      .positive("Amount must be positive"),
-    bookedForwardRate: Yup.number()
-      .required("Amount is required")
-      .positive("Amount must be positive"),
+    amount: Yup.string()
+      .required("Amount is required"),
+    bookedForwardRate: Yup.string()
+      .required("Amount is required"),
     currency: Yup.mixed().required("Currency is required"),
-    budgetRate: Yup.number().nullable(),
-    hedgedAmount: Yup.number().nullable(),
+    budgetRate: Yup.string().nullable(),
+    hedgedAmount: Yup.string().nullable(),
     poNo: Yup.string().required("PO No is required"),
     invoiceNo: Yup.string().required("Invoice No is required"),
     partyName: Yup.string().required("Party Name is required"),
@@ -44,77 +40,7 @@ const ExposureForm = ({onClose, fetchData} : any) => {
     remark: Yup.string().nullable(),
   });
 
-//   const data = {
-//     "exposureType": "confirmed_order",
-//     "exposureInputDate": "2025-06-13",
-//     "poDate": "2025-06-11",
-//     "blDate": "2025-06-27",
-//     "collectionDate": "2025-06-05",
-//     "currency": "IND",
-//     "poNo": "2342343",
-//     "invoiceNo": "asdqwd342133",
-//     "partyName": "namer",
-//     "bank": "bank name",
-//     "paymentTerms": "termss",
-//     "forwardContractNo": "3259887478s",
-//     "priority": "high",
-//     "remark": "remarkss",
-//     "bookedForwardRate": "33",
-//     "hedgedAmount": "43",
-//     "budgetRate": "33",
-//     "amount": "23433",
-//     "adjustmentAmount": "1233"
-// }
-
-  const submitExportForm = async (values: any, toast: any, actions: any) => {
-    // console.log('values',values)
-    try {
-      const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/exportregister/form/",
-        values
-      );
-
-      if (response.status === 200 && response.data.status === "success") {
-        toast({
-          title: "Success",
-          description: response.data.message,
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top-right",
-        });
-        if(onClose)
-        {
-          onClose()
-        }
-        if(fetchData)
-        {
-          fetchData()
-        }
-        actions.resetForm();
-      } else {
-        toast({
-          title: "Submission failed",
-          description: "Unexpected server response.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-          position: "top-right",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Something went wrong.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-      });
-    } finally {
-      actions.setSubmitting(false);
-    }
-  };
+  
 
   return (
       <Box
@@ -136,9 +62,8 @@ const ExposureForm = ({onClose, fetchData} : any) => {
           // }}
           onSubmit={(values, actions) =>{
             console.log('values',values)
-            submitExportForm(values, toast, actions)
-          }
-          }
+            submitExportForm(values, actions)
+          }}
         >
           {({
             values,
@@ -209,7 +134,7 @@ const ExposureForm = ({onClose, fetchData} : any) => {
                   <CustomInput
                     label="Amount"
                     name="amount"
-                    type="number"
+                    type="text"
                     value={values.amount}
                     onChange={handleChange}
                     error={touched.amount && errors.amount}
@@ -217,7 +142,7 @@ const ExposureForm = ({onClose, fetchData} : any) => {
                   <CustomInput
                     label="Adjustment Amount"
                     name="adjustmentAmount"
-                    type="number"
+                    type="text"
                     value={values.adjustmentAmount}
                     onChange={handleChange}
                     error={touched.adjustmentAmount && errors.adjustmentAmount}
@@ -243,7 +168,7 @@ const ExposureForm = ({onClose, fetchData} : any) => {
                   <CustomInput
                     label="Budget Rate"
                     name="budgetRate"
-                    type="number"
+                    type="text"
                     value={values.budgetRate}
                     onChange={handleChange}
                     error={touched.budgetRate && errors.budgetRate}
@@ -251,7 +176,7 @@ const ExposureForm = ({onClose, fetchData} : any) => {
                   <CustomInput
                     label="Hedged Amount"
                     name="hedgedAmount"
-                    type="number"
+                    type="text"
                     value={values.hedgedAmount}
                     onChange={handleChange}
                     error={touched.hedgedAmount && errors.hedgedAmount}
@@ -309,7 +234,7 @@ const ExposureForm = ({onClose, fetchData} : any) => {
                   <CustomInput
                     label="Booked Forward Rate"
                     name="bookedForwardRate"
-                    type="number"
+                    type="text"
                     placeholder=""
                     value={values.bookedForwardRate}
                     onChange={handleChange}

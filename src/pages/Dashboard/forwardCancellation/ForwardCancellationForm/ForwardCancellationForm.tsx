@@ -27,24 +27,24 @@ const ForwardCancellationForm = () => {
     bank: Yup.string().required("Bank is required"),
     pcfcRefNumber: Yup.string().required("PCFC Reference Number is required"),
     currency: Yup.string().required("Currency is required"),
-    amount: Yup.number()
-      .required("Amount is required")
-      .positive("Amount must be positive"),
-    bookedRate: Yup.number()
-      .required("Booked Rate is required")
-      .positive("Booked Rate must be positive"),
-    spotBooked: Yup.number()
-      .required("Spot Booked is required")
-      .positive("Spot Booked must be positive"),
-    forwardPremium: Yup.number()
-      .required("Forward Premium is required")
-      .positive("Forward Premium must be positive"),
-    cashTomSpot: Yup.number()
-      .required("Cash Tom Spot is required")
-      .positive("Cash Tom Spot must be positive"),
-    bankMargin: Yup.number()
-      .required("Bank Margin is required")
-      .positive("Bank Margin must be positive"),
+    amount: Yup.string()
+      .required("Amount is required"),
+      // .positive("Amount must be positive"),
+    bookedRate: Yup.string()
+      .required("Booked Rate is required"),
+      // .positive("Booked Rate must be positive"),
+    spotBooked: Yup.string()
+      .required("Spot Booked is required"),
+      // .positive("Spot Booked must be positive"),
+    forwardPremium: Yup.string()
+      .required("Forward Premium is required"),
+      // .positive("Forward Premium must be positive"),
+    cashTomSpot: Yup.string()
+      .required("Cash Tom Spot is required"),
+      // .positive("Cash Tom Spot must be positive"),
+    bankMargin: Yup.string()
+      .required("Bank Margin is required"),
+      // .positive("Bank Margin must be positive"),
   });
 
   return (
@@ -93,7 +93,8 @@ const ForwardCancellationForm = () => {
           initialValues={{}}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={(_ : any, actions : any) => {
+          onSubmit={(values: any, actions : any) => {
+            console.log('values',values)
             // alert('Form submitted successfully!');
             actions.setSubmitting(false);
           }}

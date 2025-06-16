@@ -1,22 +1,88 @@
-import { useEffect, useState } from "react";
 import {
-  Tooltip,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  Tooltip,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import ExposureForm from "../ExportsRegisterForm";
+import { useEffect, useState } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+import ExposureForm from "../ExportsRegisterForm";
+import { dummyExportRegisterData } from "../utils/constant";
+import { exportToExcel, importFromExcel } from "../utils/function";
 
 const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const toast = useToast();
+
+  const submitExportForm = async (values: any, actions: any) => {
+    // console.log('values',values)
+    try {
+      const response = await axios.post(
+        "http://srv864630.hstgr.cloud:8000/exportregister/form/",
+        values
+      );
+
+      if (response.status === 200 && response.data.status === "success") {
+        toast({
+          title: "Success",
+          description: response.data.message,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
+        if (onClose) {
+          onClose();
+        }
+        if (fetchExportRegisterData) {
+          fetchExportRegisterData();
+        }
+        actions.resetForm();
+      } else {
+        toast({
+          title: "Submission failed",
+          description: "Unexpected server response.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Something went wrong.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      actions.setSubmitting(false);
+    }
+  };
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const data = await importFromExcel(file);
+      await submitExportForm(data, {});
+    } catch (err) {
+      console.error("Excel import failed", err);
+    }
+  };
 
   const fetchExportRegisterData = async () => {
     setLoading(true);
@@ -44,7 +110,11 @@ const ExportRegisterTable = () => {
   }, []);
 
   const ExportRegisterTableColumns = [
-    { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
+    {
+      headerName: "S.No.",
+      key: "sno",
+      props: { row: { textAlign: "center" } },
+    },
     { headerName: "Exposure Type", key: "exposureType" },
     { headerName: "Exposure Date", key: "exposureInputDate" },
     { headerName: "PO Date", key: "poDate" },
@@ -91,6 +161,21 @@ const ExportRegisterTable = () => {
             text: "Reset Data",
             function: fetchExportRegisterData,
           },
+          exportExcel: {
+            show: true,
+            text: "Export Excel",
+            function: () =>
+              exportToExcel({
+                columns: ExportRegisterTableColumns,
+                data: dummyExportRegisterData,
+                fileName: "exportregister.xlsx",
+              }),
+          },
+          uploadFile: {
+            show: true,
+            text: "Upload Excel",
+            function: (e: any) => handleFileUpload(e),
+          },
           pagination: {
             show: false,
             onClick: () => {},
@@ -119,6 +204,7 @@ const ExportRegisterTable = () => {
             <ExposureForm
               fetchData={fetchExportRegisterData}
               onClose={onClose}
+              submitExportForm={submitExportForm}
             />
           </DrawerBody>
         </DrawerContent>
