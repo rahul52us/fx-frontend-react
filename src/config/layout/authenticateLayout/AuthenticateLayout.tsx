@@ -10,15 +10,17 @@ import { observer } from "mobx-react-lite";
 import { Suspense, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Slider from "react-slick";
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
 import store from "../../../store/store";
 import Loader from "../../component/Loader/Loader";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 
 const images = [
-  "https://d8it4huxumps7.cloudfront.net/uploads/images/login/login-img-4.png?d=734x734",
-  "https://d8it4huxumps7.cloudfront.net/uploads/images/login/login-img-1.png?d=734x734",
-  "https://d8it4huxumps7.cloudfront.net/uploads/images/login/login-img-2.png?d=734x734",
+  "https://img.freepik.com/free-photo/business-person-futuristic-business-environment_23-2150970204.jpg?uid=R98118533&ga=GA1.1.1625681573.1739726311&semt=ais_hybrid&w=740",
+  "https://img.freepik.com/free-photo/3d-rendering-financial-neon-bull_23-2151691955.jpg?uid=R98118533&ga=GA1.1.1625681573.1739726311&semt=ais_hybrid&w=740",
+  "https://img.freepik.com/free-photo/dynamic-data-visualization-3d_23-2151904315.jpg?uid=R98118533&ga=GA1.1.1625681573.1739726311&semt=ais_hybrid&w=740"
+  // "https://d8it4huxumps7.cloudfront.net/uploads/images/login/login-img-1.png?d=734x734",
+  // "https://d8it4huxumps7.cloudfront.net/uploads/images/login/login-img-2.png?d=734x734",
 ];
 
 const AuthenticateLayout = observer(() => {
@@ -78,9 +80,12 @@ const AuthenticateLayout = observer(() => {
           >
             <Box position="absolute" top={"20px"} left={{base : "45%", md : "20px"}} zIndex="1">
               <Image
-                src="https://d8it4huxumps7.cloudfront.net/uploads/images/login/login-img-4.png"
+                // src="https://d8it4huxumps7.cloudfront.net/uploads/images/login/login-img-4.png"
+                src="https://img.freepik.com/free-vector/bull-logo-mascot-design_474888-7192.jpg?uid=R98118533&ga=GA1.1.1625681573.1739726311&semt=ais_hybrid&w=740"
                 alt="Company Logo"
-                width="70px"
+                blendMode={"multiply"}
+                rounded={"xl"}
+                width="60px"
                 height="auto"
                 opacity={0.9}
               />
@@ -96,7 +101,7 @@ const AuthenticateLayout = observer(() => {
                         width="100%"
                         height="auto"
                         borderRadius="lg"
-                        objectFit="contain"
+                        objectFit="cover"
                         boxShadow="lg"
                         _hover={{ transform: "scale(1.05)" }}
                         transition="transform 0.3s ease"
