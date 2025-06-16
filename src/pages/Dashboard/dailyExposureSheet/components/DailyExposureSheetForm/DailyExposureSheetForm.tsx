@@ -19,12 +19,12 @@ import {
   settlementTypeOptions,
 } from "../../../exportsRegister/component/utils/constant";
 
-const DailyExposureSheetForm = () => {
+const DailyExposureSheetForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    month: Yup.string().required("Month is required"),
-    exposureType: Yup.string().required("Exposure Type is required"),
-    settlementType: Yup.string().required("Settlement Type is required"),
-    conversionType: Yup.string().required("Conversion Type is required"),
+    month: Yup.mixed().required("Month is required"),
+    exposureType: Yup.mixed().required("Exposure Type is required"),
+    settlementType: Yup.mixed().required("Settlement Type is required"),
+    conversionType: Yup.mixed().required("Conversion Type is required"),
     transactionDate: Yup.string().required("Transaction Date is required"),
     documentDueDate: Yup.string().required("Document Due Date is required"),
     poNumber: Yup.string().required("PO Number is required"),
@@ -34,24 +34,24 @@ const DailyExposureSheetForm = () => {
     dealNumber: Yup.string().required("Deal Number is required"),
     bank: Yup.string().required("Bank is required"),
     currency: Yup.string().required("Currency is required"),
-    amount: Yup.number()
-      .required("Amount is required")
-      .positive("Amount must be positive"),
-    forwardPremium: Yup.number()
-      .required("Forward Premium is required")
-      .positive("Must be a positive number"),
-    spotBooked: Yup.number()
-      .required("Spot Booked is required")
-      .positive("Must be a positive number"),
-    cashTomSpot: Yup.number()
-      .required("Cash Tom Spot is required")
-      .positive("Must be a positive number"),
-    bankMargin: Yup.number()
-      .required("Bank Margin is required")
-      .positive("Must be a positive number"),
-    benchmarkRate: Yup.number()
-      .required("Benchmark Rate is required")
-      .positive("Must be a positive number"),
+    amount: Yup.string()
+      .required("Amount is required"),
+      // .positive("Amount must be positive"),
+    forwardPremium: Yup.string()
+      .required("Forward Premium is required"),
+      // .positive("Must be a positive number"),
+    spotBooked: Yup.string()
+      .required("Spot Booked is required"),
+      // .positive("Must be a positive number"),
+    cashTomSpot: Yup.string()
+      .required("Cash Tom Spot is required"),
+      // .positive("Must be a positive number"),
+    bankMargin: Yup.string()
+      .required("Bank Margin is required"),
+      // .positive("Must be a positive number"),
+    benchmarkRate: Yup.string()
+      .required("Benchmark Rate is required"),
+      // .positive("Must be a positive number"),
   });
 
   return (
@@ -87,10 +87,10 @@ const DailyExposureSheetForm = () => {
       <Box
         maxW="5xl"
         mx="auto"
-        p={8}
+        p={6}
         borderRadius="2xl"
-        bg="whiteAlpha.900"
-        boxShadow="xl"
+        // bg="whiteAlpha.900"
+        // boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
           Daily Exposure Sheet
@@ -99,9 +99,11 @@ const DailyExposureSheetForm = () => {
           initialValues={{}}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={(__, actions) => {
+          onSubmit={(values, actions) => {
             // alert('Form submitted successfully!');
-            actions.setSubmitting(false);
+            console.log('values',values);
+             submitForm(values, actions)
+            // actions.setSubmitting(false);
           }}
         >
           {({ values, handleChange, isSubmitting, errors, touched }: any) => (

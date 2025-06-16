@@ -61,7 +61,7 @@ const ExposureForm = ({submitExportForm} : any) => {
           //   actions.setSubmitting(false);
           // }}
           onSubmit={(values, actions) =>{
-            console.log('values',values)
+            // console.log('values',values)
             submitExportForm(values, actions)
           }}
         >

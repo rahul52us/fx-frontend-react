@@ -1,10 +1,10 @@
 import { Box } from '@chakra-ui/react'
-import DailyExposureSheetForm from './components/DailyExposureSheetForm/DailyExposureSheetForm'
+import DailyExposureTable from './components/DailyExposureTable/DailyExposureTable'
 
 const DailyExposureSheet = () => {
   return (
     <Box>
-        <DailyExposureSheetForm/>
+        <DailyExposureTable/>
     </Box>
   )
 }
