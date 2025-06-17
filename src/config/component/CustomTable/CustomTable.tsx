@@ -554,7 +554,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     fontWeight={400}
                     _hover={{ bg: menuItemHover }}
                   >
-                    Upload File
+                    {actions?.uploadFile?.text || "Upload Excel"}
                     <input
                       id="file-upload"
                       accept=".xlsx"

@@ -1,9 +1,9 @@
 import { CalendarIcon } from "@chakra-ui/icons";
+import { AiOutlineStock } from "react-icons/ai";
 import { BsFillForwardFill } from "react-icons/bs";
 import {
-  FaChartPie,
   FaCog,
-  FaShip,
+  FaShip
 } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
 import { IoDocumentText, IoPieChartSharp } from "react-icons/io5";
@@ -63,7 +63,7 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 601,
     name: "Daily Exposure",
-    icon: <FaChartPie />,
+    icon: <AiOutlineStock />,
     url: dashboard.importRegister,
     role: ["user","superadmin","manager","admin"],
     children: [

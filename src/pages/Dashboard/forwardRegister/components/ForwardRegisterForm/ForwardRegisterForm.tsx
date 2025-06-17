@@ -6,23 +6,22 @@ import {
   Divider,
   Flex,
   Heading,
-  Image,
   SimpleGrid,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
+import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import {
   currencyOptions,
   exposureTypeOptions,
   monthsOptions,
   priorityOptions,
 } from "../../../exportsRegister/component/utils/constant";
-import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 
-const ForwardRegisterForm = () => {
+const ForwardRegisterForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    month: Yup.string().required("Month is required"),
+    month: Yup.mixed().required("Month is required"),
     exposureType: Yup.string().required("Exposure Type is required"),
     bookingDate: Yup.string().required("Booking Date is required"),
     deliveryDateFrom: Yup.string().required("Delivery Date From is required"),
@@ -30,24 +29,24 @@ const ForwardRegisterForm = () => {
     bank: Yup.string().required("Bank is required"),
     dealId: Yup.string().required("Deal ID is required"),
     currency: Yup.string().required("Currency is required"),
-    originalAmount: Yup.number()
-      .required("Original Amount is required")
-      .positive("Must be a positive number"),
-    spotBooked: Yup.number()
-      .required("Spot Booked is required")
-      .positive("Must be a positive number"),
-    forwardPoints: Yup.number()
-      .required("Forward Points is required")
-      .positive("Must be a positive number"),
-    bankMargin: Yup.number()
-      .required("Bank Margin is required")
-      .positive("Must be a positive number"),
-    priority: Yup.string().required("Priority is required"),
+    originalAmount: Yup.string()
+      .required("Original Amount is required"),
+      // .positive("Must be a positive number"),
+    spotBooked: Yup.string()
+      .required("Spot Booked is required"),
+      // .positive("Must be a positive number"),
+    forwardPoints: Yup.string()
+      .required("Forward Points is required"),
+      // .positive("Must be a positive number"),
+    bankMargin: Yup.string()
+      .required("Bank Margin is required"),
+      // .positive("Must be a positive number"),
+    priority: Yup.mixed().required("Priority is required"),
   });
   return (
     <Box bg="whiteAlpha.700" py={4}>
       {/* Background Image with Overlay */}
-      <div
+      {/* <div
         style={{
           position: "fixed",
           top: 0,
@@ -73,14 +72,14 @@ const ForwardRegisterForm = () => {
             backgroundColor: "rgba(0, 0, 0, 0.4)",
           }}
         />
-      </div>
+      </div> */}
       <Box
         maxW="5xl"
         mx="auto"
         p={8}
-        borderRadius="2xl"
-        bg="whiteAlpha.900"
-        boxShadow="xl"
+        // borderRadius="2xl"
+        // bg="whiteAlpha.900"
+        // boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
           Forward Register
@@ -89,8 +88,9 @@ const ForwardRegisterForm = () => {
           initialValues={{}}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={(_ : any, actions : any) => {
+          onSubmit={(values: any, actions : any) => {
             // alert('Form submitted successfully!');
+            submitForm(values,actions);
             actions.setSubmitting(false);
           }}
         >
