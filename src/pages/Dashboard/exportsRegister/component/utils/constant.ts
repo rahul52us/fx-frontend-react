@@ -92,3 +92,18 @@ export const dummyExportRegisterData = [
     remark: "Urgent delivery required",
   }
 ];
+
+export const dummyPcfcData = [
+  {
+  "month": "March",
+  "drawdownDate": "2025-06-10",
+  "bank": "23e3",
+  "currency": "USD",
+  "dealId": "2343",
+  "originalAmount": 232000,
+  "drawdownRate": 2343,
+  "maturity": "2025-06-24",
+  "interestRate": 5.3,
+  "conversionBasic": "asd"
+}
+]

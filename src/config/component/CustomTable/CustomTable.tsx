@@ -424,7 +424,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   const hoverBg = useColorModeValue("blue.100", "blue.700");
   const menuItemHover = useColorModeValue("blue.100", "blue.700");
   const menuListBg = useColorModeValue("white", "gray.700");
-  const titleColor = useColorModeValue("blue.500", "white");
+  const titleColor = useColorModeValue("blue.700", "white");
 
   const boxBorder = useColorModeValue("gray.200", "gray.700");
   const mainBox = useColorModeValue("white", "gray.900");

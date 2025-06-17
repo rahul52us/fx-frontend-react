@@ -6,42 +6,41 @@ import {
   Divider,
   Flex,
   Heading,
-  Image,
   SimpleGrid,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
+import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import {
   currencyOptions,
   monthsOptions,
 } from "../../../exportsRegister/component/utils/constant";
-import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 
-const PCFCForm = () => {
+const PCFCForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    month: Yup.string().required("Month is required"),
+    month: Yup.mixed().required("Month is required"),
     drawdownDate: Yup.string().required("Drawdown Date is required"),
     conversionBasic: Yup.string().required("Conversion Basic is required"),
     bank: Yup.string().required("Bank is required"),
     dealId: Yup.string().required("Deal ID is required"),
     currency: Yup.mixed().required("Currency is required"),
-    originalAmount: Yup.number()
-      .required("Original Amount is required")
-      .positive("Original Amount must be positive"),
-    drawdownRate: Yup.number()
-      .required("Drawdown Rate is required")
-      .positive("Drawdown Rate must be positive"),
-    interestRate: Yup.number()
-      .required("Interest Rate is required")
-      .positive("Interest Rate must be positive"),
+    originalAmount: Yup.string()
+      .required("Original Amount is required"),
+      // .positive("Original Amount must be positive"),
+    drawdownRate: Yup.string()
+      .required("Drawdown Rate is required"),
+      // .positive("Drawdown Rate must be positive"),
+    interestRate: Yup.string()
+      .required("Interest Rate is required"),
+      // .positive("Interest Rate must be positive"),
     maturity: Yup.string().required("Maturity Date is required"),
   });
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
       {/* Background Image with Overlay */}
-      <div
+      {/* <div
         style={{
           position: "fixed",
           top: 0,
@@ -67,25 +66,27 @@ const PCFCForm = () => {
             backgroundColor: "rgba(0, 0, 0, 0.4)",
           }}
         />
-      </div>
+      </div> */}
       <Box
         maxW="5xl"
         mx="auto"
         p={8}
-        borderRadius="2xl"
-        bg="whiteAlpha.900"
-        boxShadow="xl"
+        // borderRadius="2xl"
+        // bg="whiteAlpha.900"
+        // boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
-          PCFC Register
+          PCFC Register Form
         </Heading>
 
         <Formik
           initialValues={{}}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={(_, actions) => {
+          onSubmit={(values, actions) => {
             // alert('Form submitted successfully!');
+            console.log('valyes', values);
+            submitForm(values,actions);
             actions.setSubmitting(false);
           }}
         >
@@ -170,7 +171,6 @@ const PCFCForm = () => {
                   <CustomInput
                     label="Original Amount"
                     name="originalAmount"
-                    type="number"
                     placeholder="Enter Original Amount"
                     value={values.originalAmount}
                     onChange={handleChange}
@@ -189,7 +189,6 @@ const PCFCForm = () => {
                   <CustomInput
                     label="Interest Rate"
                     name="interestRate"
-                    type="number"
                     placeholder="Enter Interest Rate"
                     value={values.interestRate}
                     onChange={handleChange}

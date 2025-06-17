@@ -1,11 +1,11 @@
 "use client"
 import { Box } from '@chakra-ui/react'
-import PCFCForm from './components/PCFCForm/PCFCForm'
+import PCFCTable from './components/PCFCTable/PCFCTable'
 
 const PcFc = () => {
   return (
     <Box>
-        <PCFCForm/>
+        <PCFCTable/>
     </Box>
   )
 }

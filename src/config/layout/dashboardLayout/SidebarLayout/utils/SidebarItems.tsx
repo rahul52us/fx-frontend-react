@@ -6,7 +6,7 @@ import {
   FaShip,
 } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
-import { IoDocumentText } from "react-icons/io5";
+import { IoDocumentText, IoPieChartSharp } from "react-icons/io5";
 import { MdLocalShipping } from "react-icons/md";
 import { dashboard } from "../../../../constant/routes";
 
@@ -20,13 +20,13 @@ interface SidebarItem {
 }
 
 const sidebarDatas: SidebarItem[] = [
-  // {
-  //   id: 401,
-  //   name: "Dashboard",
-  //   icon: <PieChart />,
-  //   url: "/dashboard",
-  //   role: ["user", "admin", "superadmin", "manager"],
-  // },
+  {
+    id: 401,
+    name: "Dashboard",
+    icon: <IoPieChartSharp />,
+    url: "/dashboard",
+    role: ["user", "admin", "superadmin", "manager"],
+  },
   //  Blogs
   {
     id: 505,
