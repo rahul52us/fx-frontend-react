@@ -25,6 +25,7 @@ import {
   DrawerOverlay,
   useBreakpointValue,
   useColorMode,
+  Tooltip,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
@@ -50,24 +51,58 @@ interface SidebarProps {
   setOpenMobileSideDrawer: any;
 }
 
-const renderIcon = (depth: number, icon: JSX.Element, colorMode: string) => {
+// const renderIcon = (depth: number, icon: JSX.Element, colorMode: string) => {
+//   const iconColor = colorMode === "light" ? "gray.800" : "gray.200";
+
+//   if (depth === 1) {
+//     return (
+//       <Text fontSize={"18px"} mr={2} color={iconColor}>
+//         -
+//       </Text>
+//     );
+//   }
+//   if (depth > 1) {
+//     return (
+//       <Text fontSize={"18px"} mr={2} color={iconColor}>
+//         ◦
+//       </Text>
+//     );
+//   }
+//   return <Icon as={icon.type} boxSize={5} color={iconColor} />;
+// };
+
+// import { Tooltip, Icon, Text, Box } from "@chakra-ui/react";
+
+const renderIcon = (depth: number, icon: JSX.Element, colorMode: string, label: string) => {
   const iconColor = colorMode === "light" ? "gray.800" : "gray.200";
 
   if (depth === 1) {
     return (
-      <Text fontSize={"18px"} mr={2} color={iconColor}>
-        -
-      </Text>
+      <Tooltip label={label} hasArrow placement="right">
+        <Box as="span" mr={2} cursor="pointer">
+          <Text fontSize="18px" color={iconColor}>-</Text>
+        </Box>
+      </Tooltip>
     );
   }
+
   if (depth > 1) {
     return (
-      <Text fontSize={"18px"} mr={2} color={iconColor}>
-        ◦
-      </Text>
+      <Tooltip label={label} hasArrow placement="right">
+        <Box as="span" mr={2} cursor="pointer">
+          <Text fontSize="18px" color={iconColor}>◦</Text>
+        </Box>
+      </Tooltip>
     );
   }
-  return <Icon as={icon.type} boxSize={5} color={iconColor} />;
+
+  return (
+    <Tooltip label={label} hasArrow placement="right">
+      <Box as="span" mr={2} cursor="pointer">
+        <Icon as={icon.type} boxSize={5} color={iconColor} />
+      </Box>
+    </Tooltip>
+  );
 };
 
 const findPathToActiveItem = (
@@ -196,7 +231,7 @@ const SidebarPopover = observer(
                 ),
               }}
             >
-              {renderIcon(depth, item.icon, colorMode)}
+              {renderIcon(depth, item.icon, colorMode,item.name)}
               {depth > 0 && (
                 <Flex flex={1} align={"center"} justify={"space-between"}>
                   <Text ml={2} fontSize={"sm"}>
@@ -379,16 +414,17 @@ const SidebarAccordion = observer(
                       }
                       fontWeight={activeItemId === item.id ? "600" : "inherit"}
                     >
-                      <Flex align="center">
-                        {renderIcon(depth, item.icon, colorMode)}
-                        <Text
-                          fontSize="sm"
-                          color={colorMode === "dark" ? "white" : "black"}
-                          ml={depth === 0 ? 5 : 2}
-                        >
-                          {item.name}
-                        </Text>
-                      </Flex>
+                   <Flex align="center">
+  {renderIcon(depth, item.icon, colorMode, item.name)}
+  <Text
+    fontSize="sm"
+    color={colorMode === "dark" ? "white" : "black"}
+    ml={depth === 0 ? 5 : 2}
+  >
+    {item.name}
+  </Text>
+</Flex>
+
                       {item.children && (
                         <AccordionIcon
                           color={

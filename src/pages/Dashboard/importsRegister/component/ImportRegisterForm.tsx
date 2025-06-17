@@ -4,21 +4,18 @@ import {
   Divider,
   Flex,
   SimpleGrid,
-  useToast,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
-import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
+import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import {
   currencyOptions,
   exposureTypeOptions,
   priorityOptions,
 } from "./utils/constant";
-import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 
-const ImportRegistrationForm = ({fetchData, onClose} : any) => {
-  const toast = useToast();
+const ImportRegistrationForm = ({submitImportForm} : any) => {
 
   const validationSchema = Yup.object({
     exposureType: Yup.mixed().required("Exposure Type is required"),
@@ -26,15 +23,13 @@ const ImportRegistrationForm = ({fetchData, onClose} : any) => {
     poDate: Yup.string().required("PO Date is required"),
     blDate: Yup.string().required("BL Date is required"),
     collectionDate: Yup.string().required("Collection Date is required"),
-    amount: Yup.number()
-      .required("Amount is required")
-      .positive("Amount must be positive"),
-    bookedForwardRate: Yup.number()
-      .required("Amount is required")
-      .positive("Amount must be positive"),
+    amount: Yup.string()
+      .required("Amount is required"),
+    bookedForwardRate: Yup.string()
+      .required("Amount is required"),
     currency: Yup.mixed().required("Currency is required"),
-    budgetRate: Yup.number().nullable(),
-    hedgedAmount: Yup.number().nullable(),
+    budgetRate: Yup.string().nullable(),
+    hedgedAmount: Yup.string().nullable(),
     poNo: Yup.string().required("PO No is required"),
     invoiceNo: Yup.string().required("Invoice No is required"),
     partyName: Yup.string().required("Party Name is required"),
@@ -44,55 +39,55 @@ const ImportRegistrationForm = ({fetchData, onClose} : any) => {
     remark: Yup.string().nullable(),
   });
 
-  const submitExportForm = async (values: any, toast: any, actions: any) => {
-    try {
-      const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/importregister/form/",
-        values
-      );
+  // const submitExportForm = async (values: any, toast: any, actions: any) => {
+  //   try {
+  //     const response = await axios.post(
+  //       "http://srv864630.hstgr.cloud:8000/importregister/form/",
+  //       values
+  //     );
 
-      if (response.status === 200 && response.data.status === "success") {
-        toast({
-          title: "Success",
-          description: response.data.message,
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top-right",
-        });
-        if(fetchData)
-        {
-          fetchData()
-        }
-        if(onClose)
-        {
-          onClose()
-        }
+  //     if (response.status === 200 && response.data.status === "success") {
+  //       toast({
+  //         title: "Success",
+  //         description: response.data.message,
+  //         status: "success",
+  //         duration: 5000,
+  //         isClosable: true,
+  //         position: "top-right",
+  //       });
+  //       if(fetchData)
+  //       {
+  //         fetchData()
+  //       }
+  //       if(onClose)
+  //       {
+  //         onClose()
+  //       }
 
-        actions.resetForm();
-      } else {
-        toast({
-          title: "Submission failed",
-          description: "Unexpected server response.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-          position: "top-right",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Something went wrong.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-      });
-    } finally {
-      actions.setSubmitting(false);
-    }
-  };
+  //       actions.resetForm();
+  //     } else {
+  //       toast({
+  //         title: "Submission failed",
+  //         description: "Unexpected server response.",
+  //         status: "error",
+  //         duration: 5000,
+  //         isClosable: true,
+  //         position: "top-right",
+  //       });
+  //     }
+  //   } catch (error: any) {
+  //     toast({
+  //       title: "Error",
+  //       description: error?.response?.data?.message || "Something went wrong.",
+  //       status: "error",
+  //       duration: 5000,
+  //       isClosable: true,
+  //       position: "top-right",
+  //     });
+  //   } finally {
+  //     actions.setSubmitting(false);
+  //   }
+  // };
 
   return (
       <Box
@@ -113,7 +108,7 @@ const ImportRegistrationForm = ({fetchData, onClose} : any) => {
           //   actions.setSubmitting(false);
           // }}
           onSubmit={(values, actions) =>
-            submitExportForm(values, toast, actions)
+            submitImportForm(values, actions)
           }
         >
           {({
@@ -186,7 +181,6 @@ const ImportRegistrationForm = ({fetchData, onClose} : any) => {
                   <CustomInput
                     label="Amount"
                     name="amount"
-                    type="number"
                     value={values.amount}
                     onChange={handleChange}
                     error={touched.amount && errors.amount}
@@ -194,7 +188,6 @@ const ImportRegistrationForm = ({fetchData, onClose} : any) => {
                   <CustomInput
                     label="Adjustment Amount"
                     name="adjustmentAmount"
-                    type="number"
                     value={values.adjustmentAmount}
                     onChange={handleChange}
                     error={touched.adjustmentAmount && errors.adjustmentAmount}
@@ -220,7 +213,6 @@ const ImportRegistrationForm = ({fetchData, onClose} : any) => {
                   <CustomInput
                     label="Budget Rate"
                     name="budgetRate"
-                    type="number"
                     value={values.budgetRate}
                     onChange={handleChange}
                     error={touched.budgetRate && errors.budgetRate}
@@ -228,7 +220,6 @@ const ImportRegistrationForm = ({fetchData, onClose} : any) => {
                   <CustomInput
                     label="Hedged Amount"
                     name="hedgedAmount"
-                    type="number"
                     value={values.hedgedAmount}
                     onChange={handleChange}
                     error={touched.hedgedAmount && errors.hedgedAmount}
@@ -286,7 +277,6 @@ const ImportRegistrationForm = ({fetchData, onClose} : any) => {
                   <CustomInput
                     label="Booked Forward Rate"
                     name="bookedForwardRate"
-                    type="number"
                     placeholder=""
                     value={values.bookedForwardRate}
                     onChange={handleChange}

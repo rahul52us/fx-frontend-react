@@ -142,3 +142,27 @@ export const dymmyForwardCancellationData = [
     bankMargin: 0,
   },
 ];
+
+export const dummyImportRegisterData = [
+  {
+    exposureType: "shipment",
+    exposureInputDate: "2025-06-11",
+    poDate: "2025-06-12",
+    blDate: "2025-06-11",
+    collectionDate: "2025-06-20",
+    amount: "56",
+    adjustmentAmount: "3",
+    currency: "IND",
+    budgetRate: "4",
+    hedgedAmount: "8",
+    poNo: "234234",
+    invoiceNo: "5",
+    partyName: "ABC Corp",
+    bank: "23e",
+    paymentTerms: "Net 30",
+    forwardContractNo: "3259887478",
+    priority: "high",
+    bookedForwardRate: 0,
+    remark: "Sample remark for shipment",
+  },
+];

@@ -1,23 +1,78 @@
 "use client";
-import { useEffect, useState } from "react";
 import {
-  Tooltip,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  Tooltip,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import ImportRegistrationForm from "../ImportRegisterForm";
+import { useEffect, useState } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+import ImportRegistrationForm from "../ImportRegisterForm";
+import {
+  exportToExcel,
+  importFromExcel,
+} from "../../../exportsRegister/component/utils/function";
+import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
 
 const ImportRegisterTable = () => {
   const [importData, setImportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
+
+  const submitImportForm = async (values: any, actions: any) => {
+    // console.log('values',values)
+    try {
+      const response = await axios.post(
+        "http://srv864630.hstgr.cloud:8000/exportregister/form/",
+        values
+      );
+
+      if (response.status === 200 && response.data.status === "success") {
+        toast({
+          title: "Success",
+          description: response.data.message,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
+        if (onClose) {
+          onClose();
+        }
+        if (fetchImportRegisterData) {
+          fetchImportRegisterData();
+        }
+        actions.resetForm();
+      } else {
+        toast({
+          title: "Submission failed",
+          description: "Unexpected server response.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Something went wrong.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      actions.setSubmitting(false);
+    }
+  };
 
   const fetchImportRegisterData = async () => {
     setLoading(true);
@@ -81,6 +136,19 @@ const ImportRegisterTable = () => {
     },
   ];
 
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const data = await importFromExcel(file);
+      await submitImportForm(data, {});
+    } catch (err) {
+      console.error("Excel import failed", err);
+    }
+  };
+
   return (
     <>
       <CustomTable
@@ -93,6 +161,21 @@ const ImportRegisterTable = () => {
             show: true,
             text: "Reset Data",
             function: fetchImportRegisterData,
+          },
+          exportExcel: {
+            show: true,
+            text: "Export Excel",
+            function: () =>
+              exportToExcel({
+                columns: ImportRegisterTableColumns,
+                data: dummyImportRegisterData,
+                fileName: "Import_Register.xlsx",
+              }),
+          },
+          uploadFile: {
+            show: true,
+            text: "Upload Excel",
+            function: (e: any) => handleFileUpload(e),
           },
           pagination: {
             show: false,
@@ -119,8 +202,8 @@ const ImportRegisterTable = () => {
           <DrawerHeader>Add Import Entry</DrawerHeader>
           <DrawerBody>
             <ImportRegistrationForm
-              fetchData={fetchImportRegisterData}
-              onClose={onClose}
+              submitImportForm={submitImportForm}
+              // onClose={onClose}
             />
           </DrawerBody>
         </DrawerContent>
