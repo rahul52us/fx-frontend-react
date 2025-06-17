@@ -1,12 +1,12 @@
 "use client";
 
 import { Box } from "@chakra-ui/react";
-import ForwardCancellationForm from "./ForwardCancellationForm/ForwardCancellationForm";
+import ForwardCancellationTable from "./ForwardCancellationTable/ForwardCancellationTable";
 
 const ForwardCancellation = () => {
   return (
     <Box>
-      <ForwardCancellationForm />
+      <ForwardCancellationTable />
     </Box>
   );
 };

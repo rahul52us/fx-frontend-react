@@ -9,22 +9,26 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
-import { dummyExportRegisterData } from "../../../exportsRegister/component/utils/constant";
-import { exportToExcel, importFromExcel } from "../../../exportsRegister/component/utils/function";
-import DailyExposureSheetForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
+import CustomTable from "../../../../config/component/CustomTable/CustomTable";
+import { dymmyForwardCancellationData } from "../../exportsRegister/component/utils/constant";
+import { exportToExcel, importFromExcel } from "../../exportsRegister/component/utils/function";
+import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellationForm";
+// import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+// import { dummyForwardRegisterData } from "../../../exportsRegister/component/utils/constant";
+// import { exportToExcel, importFromExcel } from "../../../exportsRegister/component/utils/function";
+// import ForwardRegisterForm from "../ForwardRegisterForm/ForwardRegisterForm";
+// import PCFCForm from "../PCFCForm/PCFCForm";
 
-const DailyExposureTable = () => {
+const ForwardCancellationTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
   const toast = useToast();
 
   const submitExportForm = async (values: any, actions: any) => {
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/dailyexposure/form/",
+        "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/form/",
         values
       );
 
@@ -85,7 +89,7 @@ const DailyExposureTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/dailyexposure/view/",
+        "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/view/",
         { condition: "" }
       );
       const result = response.data?.data || [];
@@ -103,36 +107,29 @@ const DailyExposureTable = () => {
 
   useEffect(() => {
     fetchExportRegisterData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
- const DailyExposureColumns = [
-  { headerName: "Month", key: "month", value: "february" },
-  { headerName: "Exposure Type", key: "exposureType", value: "confirmed_order" },
-  { headerName: "Conversion Type", key: "conversionType", value: "spot" },
-  { headerName: "Settlement Type", key: "settlementType", value: "advanced" },
-  { headerName: "Transaction Date", key: "transactionDate", value: "2025-06-11" },
-  { headerName: "Document Due Date", key: "documentDueDate", value: "2025-06-04" },
-  { headerName: "PO Number", key: "poNumber", value: "234" },
-  { headerName: "Invoice LC/BC Number", key: "invoiceLcBcNumber", value: "123" },
-  { headerName: "Deal Number", key: "dealNumber", value: "r3" },
-  { headerName: "Bank", key: "bank", value: "23e" },
-  { headerName: "Currency", key: "currency", value: "in" },
-  { headerName: "Amount", key: "amount", value: "500000" },
-  { headerName: "Forward Premium", key: "forwardPremium", value: "234" },
-  { headerName: "Spot Booked", key: "spotBooked", value: "234" },
-  { headerName: "Cash Tom Spot", key: "cashTomSpot", value: "234" },
-  { headerName: "Bank Margin", key: "bankMargin", value: "0" },
-  { headerName: "Benchmark Rate", key: "benchmarkRate", value: "3" }
+const DealDataColumns = [
+  { headerName: "Deal Type", key: "dealType", label: "a" },
+  { headerName: "Exposure Type", key: "exposureType", label: "confirmed_order" },
+  { headerName: "Transaction Date", key: "transactionDate", label: "2025-06-04" },
+  { headerName: "Forward Deal ID", key: "forwardDealId", label: "43" },
+  { headerName: "Bank", key: "bank", label: "bank name" },
+  { headerName: "PCFC Ref Number", key: "pcfcRefNumber", label: "45" },
+  { headerName: "Currency", key: "currency", label: "USD" },
+  { headerName: "Amount", key: "amount", label: 56 },
+  { headerName: "Booked Rate", key: "bookedRate", label: 4 },
+  { headerName: "Spot Booked", key: "spotBooked", label: 344 },
+  { headerName: "Forward Premium", key: "forwardPremium", label: 234 },
+  { headerName: "Cash To Spot", key: "cashTomSpot", label: 234 },
+  { headerName: "Bank Margin", key: "bankMargin", label: 0 }
 ];
-
 
   return (
     <>
       <CustomTable
-        title="Daily Exposure Sheet"
+        title="Forward Cancellation & PCFC"
         data={exportData}
-        columns={DailyExposureColumns}
+        columns={DealDataColumns}
         actions={{
           search: { show: false },
           resetData: {
@@ -145,9 +142,9 @@ const DailyExposureTable = () => {
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                columns: DailyExposureColumns,
-                data: dummyExportRegisterData,
-                fileName: "exportregister.xlsx",
+                columns: DealDataColumns,
+                data: dymmyForwardCancellationData,
+                fileName: "Forward_Cancellation.xlsx",
               }),
           },
           uploadFile: {
@@ -173,14 +170,12 @@ const DailyExposureTable = () => {
         loading={loading}
       />
 
-      {/* Drawer for adding export entry */}
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          {/* <DrawerHeader></DrawerHeader> */}
           <DrawerBody>
-            <DailyExposureSheetForm
+            <ForwardCancellationForm
               submitForm={submitExportForm}
             />
           </DrawerBody>
@@ -190,4 +185,4 @@ const DailyExposureTable = () => {
   );
 };
 
-export default DailyExposureTable;
+export default ForwardCancellationTable;

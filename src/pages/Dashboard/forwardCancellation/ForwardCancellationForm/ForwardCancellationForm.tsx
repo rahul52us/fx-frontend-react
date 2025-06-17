@@ -4,23 +4,21 @@ import {
   Divider,
   Flex,
   Heading,
-  Image,
   SimpleGrid,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
-// import BgImg from "../../../../images/background_image.jpg";
+import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import {
   currencyOptions,
   dealTypeOptions,
   exposureTypeOptions,
 } from "../../exportsRegister/component/utils/constant";
-import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 
-const ForwardCancellationForm = () => {
+const ForwardCancellationForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    exposureType: Yup.string().required("Exposure Type is required"),
+    exposureType: Yup.mixed().required("Exposure Type is required"),
     dealType: Yup.string().required("Deal Type is required"),
     transactionDate: Yup.string().required("Transaction Date is required"),
     forwardDealId: Yup.string().required("Forward Deal ID is required"),
@@ -29,28 +27,22 @@ const ForwardCancellationForm = () => {
     currency: Yup.string().required("Currency is required"),
     amount: Yup.string()
       .required("Amount is required"),
-      // .positive("Amount must be positive"),
     bookedRate: Yup.string()
       .required("Booked Rate is required"),
-      // .positive("Booked Rate must be positive"),
     spotBooked: Yup.string()
       .required("Spot Booked is required"),
-      // .positive("Spot Booked must be positive"),
     forwardPremium: Yup.string()
       .required("Forward Premium is required"),
-      // .positive("Forward Premium must be positive"),
     cashTomSpot: Yup.string()
       .required("Cash Tom Spot is required"),
-      // .positive("Cash Tom Spot must be positive"),
     bankMargin: Yup.string()
       .required("Bank Margin is required"),
-      // .positive("Bank Margin must be positive"),
   });
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
       {/* Background Image with Overlay */}
-      <div
+      {/* <div
         style={{
           position: "fixed",
           top: 0,
@@ -77,14 +69,14 @@ const ForwardCancellationForm = () => {
             backgroundColor: "rgba(0, 0, 0, 0.4)",
           }}
         />
-      </div>
+      </div> */}
       <Box
         maxW="5xl"
         mx="auto"
         p={8}
-        borderRadius="2xl"
-        bg="whiteAlpha.900"
-        boxShadow="xl"
+        // borderRadius="2xl"
+        // bg="whiteAlpha.900"
+        // boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
           Forward Cancellation anf PCFC
@@ -95,6 +87,7 @@ const ForwardCancellationForm = () => {
           enableReinitialize={true}
           onSubmit={(values: any, actions : any) => {
             console.log('values',values)
+            submitForm(values,actions);
             // alert('Form submitted successfully!');
             actions.setSubmitting(false);
           }}

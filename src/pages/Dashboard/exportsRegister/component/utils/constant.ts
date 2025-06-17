@@ -124,3 +124,21 @@ export const dummyForwardRegisterData = [
     priority: "medium",
   },
 ];
+
+export const dymmyForwardCancellationData = [
+  {
+    dealType: "a",
+    exposureType: "confirmed_order",
+    transactionDate: "2025-06-04",
+    forwardDealId: "43",
+    bank: "bank name",
+    pcfcRefNumber: "45",
+    currency: "USD",
+    amount: 56,
+    bookedRate: 4,
+    spotBooked: 344,
+    forwardPremium: 234,
+    cashTomSpot: 234,
+    bankMargin: 0,
+  },
+];
