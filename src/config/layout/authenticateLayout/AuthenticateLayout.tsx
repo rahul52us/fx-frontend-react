@@ -78,7 +78,7 @@ const AuthenticateLayout = observer(() => {
             borderBottomLeftRadius={{ base: "0", md: "lg" }}
             overflow="hidden"
           >
-            <Box position="absolute" top={"20px"} left={{base : "45%", md : "20px"}} zIndex="1">
+            {/* <Box position="absolute" top={"20px"} left={{base : "45%", md : "20px"}} zIndex="1">
               <Image
                 // src="https://d8it4huxumps7.cloudfront.net/uploads/images/login/login-img-4.png"
                 src="https://img.freepik.com/free-vector/bull-logo-mascot-design_474888-7192.jpg?uid=R98118533&ga=GA1.1.1625681573.1739726311&semt=ais_hybrid&w=740"
@@ -89,7 +89,7 @@ const AuthenticateLayout = observer(() => {
                 height="auto"
                 opacity={0.9}
               />
-            </Box>
+            </Box> */}
             <Center height="100%" mt={{base : "60px", md : 0}}>
               <Box width="100%" maxWidth="300px">
                 <Slider {...settings}>

@@ -1,13 +1,13 @@
 import { BsFillForwardFill } from "react-icons/bs";
 import {
   FaCalendarAlt,
-  FaCog,
   FaShip
 } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
 import { IoDocumentText, IoPieChartSharp } from "react-icons/io5";
 import { MdLocalShipping } from "react-icons/md";
 import { dashboard } from "../../../../constant/routes";
+import { GiCheckMark } from "react-icons/gi";
 
 interface SidebarItem {
   id: number;
@@ -67,6 +67,13 @@ const sidebarDatas: SidebarItem[] = [
     name: "Forward Cancellation",
     icon: <ImCancelCircle />,
     url: dashboard.forwardCancellation,
+    role: ["user","superadmin","manager","admin"],
+  },
+  {
+  id: 408,
+    name: "MTM",
+    icon: <GiCheckMark />,
+    url: dashboard.mtm,
     role: ["user","superadmin","manager","admin"],
   },
   //  Blogs
@@ -169,13 +176,13 @@ const sidebarDatas: SidebarItem[] = [
 ];
 
 export const sidebarFooterData: SidebarItem[] = [
-  {
-    id: 34,
-    name: "Settings",
-    icon: <FaCog />,
-    url: "/profile",
-    role: ["user", "admin", "superadmin", "manager"],
-  },
+  // {
+  //   id: 34,
+  //   name: "Settings",
+  //   icon: <FaCog />,
+  //   url: "/profile",
+  //   role: ["user", "admin", "superadmin", "manager"],
+  // },
 ];
 
 const getSidebarDataByRole = (role: string[] = ["user"]): SidebarItem[] => {

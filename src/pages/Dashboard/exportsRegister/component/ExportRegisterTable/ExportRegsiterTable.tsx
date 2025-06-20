@@ -23,12 +23,13 @@ const ExportRegisterTable = () => {
 
   const toast = useToast();
 
-  const submitExportForm = async (values: any, actions: any) => {
+  const submitExportForm = async (values: any, actions: any, type: string) => {
     // console.log('values',values)
     try {
+      let payload = type === "excel" ? values : [values];
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/exportregister/form/",
-        values
+        payload
       );
 
       if (response.status === 200 && response.data.status === "success") {
@@ -78,7 +79,7 @@ const ExportRegisterTable = () => {
     if (!file) return;
     try {
       const data = await importFromExcel(file);
-      await submitExportForm(data, {});
+      await submitExportForm(data, {}, "excel");
     } catch (err) {
       console.error("Excel import failed", err);
     }

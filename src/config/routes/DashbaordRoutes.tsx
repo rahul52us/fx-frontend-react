@@ -9,6 +9,7 @@ import ForwardRegister from "../../pages/Dashboard/forwardRegister/ForwardRegist
 import ForwardCancellation from "../../pages/Dashboard/forwardCancellation/ForwardCancellation";
 import PcFc from "../../pages/Dashboard/pcfc/Pcfc";
 import DailyExposureSheet from "../../pages/Dashboard/dailyExposureSheet/page";
+import MTMTable from "../../pages/Dashboard/mtm/component/MTMTable/MTMTable";
 const VerifyInvitationPage = lazy(() => import("../component/common/VerifyInvitationPages/VerifyInvitationPage"))
 
 const PersonalDetails = lazy(
@@ -178,6 +179,11 @@ export const DashboardRoutes = [
   {
     element: <ExportRegister />,
     path: dashboard.exportRegister,
+    privateRoutes: true,
+  },
+  {
+    element: <MTMTable />,
+    path: dashboard.mtm,
     privateRoutes: true,
   },
   {
