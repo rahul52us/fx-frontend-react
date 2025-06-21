@@ -90,7 +90,7 @@ const ForwardRegisterForm = ({submitForm}:any) => {
           enableReinitialize={true}
           onSubmit={(values: any, actions : any) => {
             // alert('Form submitted successfully!');
-            submitForm(values,actions);
+            submitForm(values,actions,"form");
             actions.setSubmitting(false);
           }}
         >

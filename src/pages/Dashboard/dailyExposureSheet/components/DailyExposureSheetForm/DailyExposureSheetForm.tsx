@@ -56,34 +56,7 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
-      {/* Background Image with Overlay */}
-      {/* <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          height: "100vh",
-          width: "100%",
-          zIndex: -1,
-          overflow: "hidden",
-        }}
-      >
-        <Image
-          src={BgImg}
-          alt="Background Image"
-          objectFit="cover"
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            height: "100%",
-            width: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-          }}
-        />
-      </div> */}
+     
       <Box
         maxW="5xl"
         mx="auto"
@@ -100,10 +73,8 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, actions) => {
-            // alert('Form submitted successfully!');
             console.log('values',values);
-             submitForm(values, actions)
-            // actions.setSubmitting(false);
+             submitForm(values, actions,"form");
           }}
         >
           {({ values, handleChange, isSubmitting, errors, touched }: any) => (

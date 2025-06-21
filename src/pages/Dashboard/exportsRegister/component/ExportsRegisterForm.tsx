@@ -40,8 +40,6 @@ const ExposureForm = ({submitExportForm} : any) => {
     remark: Yup.string().nullable(),
   });
 
-  
-
   return (
       <Box
         maxW="5xl"

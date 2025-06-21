@@ -1,11 +1,11 @@
 import {
-    Drawer,
-    DrawerBody,
-    DrawerCloseButton,
-    DrawerContent,
-    DrawerOverlay,
-    useDisclosure,
-    useToast
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
+  useDisclosure,
+  useToast
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -13,7 +13,6 @@ import CustomTable from "../../../../../config/component/CustomTable/CustomTable
 import { dummyForwardRegisterData } from "../../../exportsRegister/component/utils/constant";
 import { exportToExcel, importFromExcel } from "../../../exportsRegister/component/utils/function";
 import ForwardRegisterForm from "../ForwardRegisterForm/ForwardRegisterForm";
-// import PCFCForm from "../PCFCForm/PCFCForm";
 
 const ForwardRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -21,11 +20,12 @@ const ForwardRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  const submitExportForm = async (values: any, actions: any) => {
+const submitExportForm = async (values: any, actions: any,type:string) => {
     try {
+        let payload = type === "excel" ? values : [values];
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/forwardregister/form/",
-        values
+        payload
       );
 
       if (response.status === 200 && response.data.status === "success") {
@@ -55,14 +55,14 @@ const ForwardRegisterTable = () => {
         });
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Something went wrong.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: error?.response?.data?.message || "Something went wrong.",
+      //   status: "error",
+      //   duration: 5000,
+      //   isClosable: true,
+      //   position: "top-right",
+      // });
     } finally {
       actions.setSubmitting(false);
     }
@@ -75,7 +75,7 @@ const ForwardRegisterTable = () => {
     if (!file) return;
     try {
       const data = await importFromExcel(file);
-      await submitExportForm(data, {});
+      await submitExportForm(data, {},"excel");
     } catch (err) {
       console.error("Excel import failed", err);
     }
