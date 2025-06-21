@@ -2,9 +2,10 @@ import { Grid, GridItem } from "@chakra-ui/react";
 import axios from "axios";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-import { FaCode } from "react-icons/fa";
-import { HiMiniBuildingOffice2, HiMiniUsers } from "react-icons/hi2";
-import { MdOutlineQuiz, MdOutlineTravelExplore } from "react-icons/md";
+import { BsFillForwardFill } from "react-icons/bs";
+import { FaCalendarAlt, FaShip } from "react-icons/fa";
+import { IoDocumentText } from "react-icons/io5";
+import { MdLocalShipping } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import NewWidgetCard from "../../../config/component/WigdetCard/NewWidgetCard";
 import { dashboard } from "../../../config/constant/routes";
@@ -54,31 +55,31 @@ console.log('dashboardData',dashboardData)
       count: dashboardData?.exportRegister,
       title: "Export",
       link: dashboard.exportRegister,
-      icon: HiMiniUsers,
+      icon: MdLocalShipping,
     },
     {
       count: dashboardData?.importRegister,
       title: "Import",
       link: dashboard.importRegister,
-      icon: HiMiniBuildingOffice2,
+      icon: FaShip,
     },
     {
       count: dashboardData?.forwordRegister,
       title: "Forward",
       link: dashboard.forwardRegister,
-      icon: MdOutlineTravelExplore,
+      icon: BsFillForwardFill,
     },
     {
       count: dashboardData?.pcfcRegister,
       title: "PCFC",
       link: dashboard.pcfc,
-      icon: FaCode,
+      icon: IoDocumentText,
     },
     {
       count: dashboardData?.dailyExposureData,
       title: "Daily Exposure",
       link: dashboard.dailyExposureSheet,
-      icon: MdOutlineQuiz,
+      icon: FaCalendarAlt,
     },
   ].map((item, key) => (
     <GridItem key={key}>
