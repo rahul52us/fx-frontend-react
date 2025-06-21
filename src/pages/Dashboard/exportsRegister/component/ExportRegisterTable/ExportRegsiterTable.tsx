@@ -59,14 +59,16 @@ const ExportRegisterTable = () => {
         });
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Something went wrong.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-      });
+
+      console.error("Error submitting form", error.message);
+      // toast({
+      //   title: "Error",
+      //   description: error?.response?.data?.message,
+      //   status: "error",
+      //   duration: 5000,
+      //   isClosable: true,
+      //   position: "top-right",
+      // });
     } finally {
       actions.setSubmitting(false);
     }

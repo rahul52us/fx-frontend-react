@@ -26,12 +26,13 @@ const ImportRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  const submitImportForm = async (values: any, actions: any) => {
+  const submitImportForm = async (values: any, actions: any,type:string) => {
     // console.log('values',values)
     try {
+        let payload = type === "excel" ? values : [values];
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/exportregister/form/",
-        values
+        "http://srv864630.hstgr.cloud:8000/importregister/form/",
+        payload
       );
 
       if (response.status === 200 && response.data.status === "success") {
@@ -61,14 +62,14 @@ const ImportRegisterTable = () => {
         });
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Something went wrong.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-      });
+      // toast({
+      //   title: "Error",
+      //   description: error?.response?.data?.message || "Something went wrong.",
+      //   status: "error",
+      //   duration: 5000,
+      //   isClosable: true,
+      //   position: "top-right",
+      // });
     } finally {
       actions.setSubmitting(false);
     }
@@ -143,7 +144,7 @@ const ImportRegisterTable = () => {
     if (!file) return;
     try {
       const data = await importFromExcel(file);
-      await submitImportForm(data, {});
+      await submitImportForm(data, {},"excel");
     } catch (err) {
       console.error("Excel import failed", err);
     }

@@ -108,7 +108,7 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
           //   actions.setSubmitting(false);
           // }}
           onSubmit={(values, actions) =>
-            submitImportForm(values, actions)
+            submitImportForm(values, actions,"form")
           }
         >
           {({
