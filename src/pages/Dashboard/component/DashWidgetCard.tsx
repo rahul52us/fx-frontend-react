@@ -1,111 +1,98 @@
 import { Grid, GridItem } from "@chakra-ui/react";
-import { dashboard } from "../../../config/constant/routes";
+import axios from "axios";
 import { observer } from "mobx-react-lite";
-import store from "../../../store/store";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import NewWidgetCard from "../../../config/component/WigdetCard/NewWidgetCard";
+import { useEffect, useState } from "react";
 import { FaCode } from "react-icons/fa";
 import { HiMiniBuildingOffice2, HiMiniUsers } from "react-icons/hi2";
 import { MdOutlineQuiz, MdOutlineTravelExplore } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import NewWidgetCard from "../../../config/component/WigdetCard/NewWidgetCard";
+import { dashboard } from "../../../config/constant/routes";
 
 const DashWidgetCard = observer(() => {
   const navigate = useNavigate();
-  const {
-    auth: { openNotification },
-    tripStore: { getTripCounts, tripCount },
-    User: { getUsersCount, UsersCounts },
-    Project: { getProjectCounts, projectCount },
-    company: { getCompanyCount, companyCount },
-  } = store;
+  const [loading, setLoading] = useState(false);
+  const [dashboardData, setDashboardData] = useState<any>({}); 
 
-  const fetchData = (getDataFn: any) =>
-    new Promise((resolve, reject) => {
-      getDataFn().then(resolve).catch(reject);
-    });
+  const fetchExportRegisterData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "http://srv864630.hstgr.cloud:8000/dashboard/dashboardCount/",
+        { condition: "" }
+      );
+      const result = response.data?.data || [];
+      // const withSerial = result.map((item: any, idx: number) => ({
+      //   ...item,
+      //   sno: idx + 1,
+      // }));
+      setDashboardData(result);
+    } catch (error) {
+      console.error("Error fetching export register data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  useEffect(() => {
-    Promise.all([
-      fetchData(getTripCounts),
-      fetchData(getUsersCount),
-      fetchData(getProjectCounts),
-      fetchData(getCompanyCount),
-    ])
-      .then(() => {})
-      .catch((error: any) => {
-        openNotification({
-          type: "error",
-          message: error?.message || "Something went wrong",
-          title: "Failed to get dashboard data",
-        });
-      });
-  }, [
-    getTripCounts,
-    getUsersCount,
-    getProjectCounts,
-    getCompanyCount,
-    openNotification,
-  ]);
+  useEffect(()=>{
+    fetchExportRegisterData();
+  },[])
 
+console.log('dashboardData',dashboardData)
   return (
-    <Grid
-      templateColumns={{
-        base: "repeat(1, 1fr)",
-        sm: "repeat(2, 1fr)",
-        md: "repeat(4, 1fr)",
-        lg: "repeat(5, 1fr)",
-      }}
-      gap={6}
-    >
-      {[
-        {
-          count: UsersCounts.data,
-          title: "Export",
-          link: dashboard.Users.index,
-          loading: UsersCounts.loading,
-          icon: HiMiniUsers,
-        },
-        {
-          count: companyCount.data,
-          title: "Import",
-          link: dashboard.company.index,
-          loading: companyCount.loading,
-          icon: HiMiniBuildingOffice2,
-        },
-        {
-          count: tripCount.data,
-          title: "Forward",
-          link: dashboard.tripManagement.index,
-          loading: tripCount.loading,
-          icon: MdOutlineTravelExplore,
-        },
-        {
-          count: projectCount.data,
-          title: "PCFC",
-          link: dashboard.application.project,
-          loading: projectCount.loading,
-          icon: FaCode,
-        },
-        {
-          count: 2000,
-          title: "Daily Explosure",
-          link: dashboard.quiz,
-          loading: tripCount.loading,
-          icon: MdOutlineQuiz,
-        },
-      ].map((item, key) => (
-        <GridItem key={key}>
-          <NewWidgetCard
-            key={key}
-            totalCount={item.count}
-            handleClick={() => navigate(item.link)}
-            title={item.title}
-            loading={item.loading}
-            icon={item.icon}
-          />
-        </GridItem>
-      ))}
-    </Grid>
+ <Grid
+  templateColumns={{
+    base: "repeat(1, 1fr)",
+    sm: "repeat(2, 1fr)",
+    md: "repeat(4, 1fr)",
+    lg: "repeat(5, 1fr)",
+  }}
+  gap={6}
+>
+  {[
+    {
+      count: dashboardData?.exportRegister,
+      title: "Export",
+      link: dashboard.exportRegister,
+      icon: HiMiniUsers,
+    },
+    {
+      count: dashboardData?.importRegister,
+      title: "Import",
+      link: dashboard.importRegister,
+      icon: HiMiniBuildingOffice2,
+    },
+    {
+      count: dashboardData?.forwordRegister,
+      title: "Forward",
+      link: dashboard.forwardRegister,
+      icon: MdOutlineTravelExplore,
+    },
+    {
+      count: dashboardData?.pcfcRegister,
+      title: "PCFC",
+      link: dashboard.pcfc,
+      icon: FaCode,
+    },
+    {
+      count: dashboardData?.dailyExposureData,
+      title: "Daily Exposure",
+      link: dashboard.dailyExposureSheet,
+      icon: MdOutlineQuiz,
+    },
+  ].map((item, key) => (
+    <GridItem key={key}>
+      <NewWidgetCard
+        totalCount={item.count}
+        handleClick={() => navigate(item.link)}
+        title={item.title}
+        loading={loading}
+        icon={item.icon}
+      />
+    </GridItem>
+  ))}
+</Grid>
+
   );
 });
 
