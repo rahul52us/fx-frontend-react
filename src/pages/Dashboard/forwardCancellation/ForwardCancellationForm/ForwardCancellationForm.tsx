@@ -87,7 +87,7 @@ const ForwardCancellationForm = ({submitForm}:any) => {
           enableReinitialize={true}
           onSubmit={(values: any, actions : any) => {
             console.log('values',values)
-            submitForm(values,actions);
+            submitForm(values,actions,"form");
             // alert('Form submitted successfully!');
             actions.setSubmitting(false);
           }}

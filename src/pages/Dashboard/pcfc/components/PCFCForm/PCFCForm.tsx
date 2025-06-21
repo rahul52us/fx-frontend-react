@@ -27,13 +27,10 @@ const PCFCForm = ({submitForm}:any) => {
     currency: Yup.mixed().required("Currency is required"),
     originalAmount: Yup.string()
       .required("Original Amount is required"),
-      // .positive("Original Amount must be positive"),
     drawdownRate: Yup.string()
       .required("Drawdown Rate is required"),
-      // .positive("Drawdown Rate must be positive"),
     interestRate: Yup.string()
       .required("Interest Rate is required"),
-      // .positive("Interest Rate must be positive"),
     maturity: Yup.string().required("Maturity Date is required"),
   });
 
@@ -71,9 +68,6 @@ const PCFCForm = ({submitForm}:any) => {
         maxW="5xl"
         mx="auto"
         p={8}
-        // borderRadius="2xl"
-        // bg="whiteAlpha.900"
-        // boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
           PCFC Register Form
@@ -84,9 +78,7 @@ const PCFCForm = ({submitForm}:any) => {
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, actions) => {
-            // alert('Form submitted successfully!');
-            console.log('valyes', values);
-            submitForm(values,actions);
+            submitForm(values,actions,"form");
             actions.setSubmitting(false);
           }}
         >
