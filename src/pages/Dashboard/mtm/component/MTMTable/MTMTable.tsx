@@ -1,3 +1,5 @@
+import axios from "axios";
+import { useEffect } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 const bookingRegisterDummyData = [
   {
@@ -59,6 +61,32 @@ const BookingRegisterTableColumns = [
   { headerName: "Current Fwd. Rate", key: "currentFwdRate" },
   { headerName: "MTM in INR", key: "mtmInr" },
 ];
+
+ const fetchExportRegisterData = async () => {
+    // setLoading(true);
+    try {
+      const response = await axios.post(
+        "http://srv864630.hstgr.cloud:8000/mtm/view/",
+        { condition: "" }
+      );
+
+      console.log(response)
+      // const result = response.data?.data || [];
+      // const withSerial = result.map((item: any, idx: number) => ({
+      //   ...item,
+      //   sno: idx + 1,
+      // }));
+      // setDashboardData(result);
+    } catch (error) {
+      console.error("Error fetching export register data:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  useEffect(()=>{
+    fetchExportRegisterData();
+  },[])
 
   return (
     <>
