@@ -21,7 +21,7 @@ import {
 
 const ForwardRegisterForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    month: Yup.mixed().required("Month is required"),
+    month: Yup.mixed().required("Month is required"),// remove this
     exposureType: Yup.string().required("Exposure Type is required"),
     bookingDate: Yup.string().required("Booking Date is required"),
     deliveryDateFrom: Yup.string().required("Delivery Date From is required"),
@@ -41,7 +41,7 @@ const ForwardRegisterForm = ({submitForm}:any) => {
     bankMargin: Yup.string()
       .required("Bank Margin is required"),
       // .positive("Must be a positive number"),
-    priority: Yup.mixed().required("Priority is required"),
+    priority: Yup.mixed().required("Priority is required"),// remove this
   });
   return (
     <Box bg="whiteAlpha.700" py={4}>

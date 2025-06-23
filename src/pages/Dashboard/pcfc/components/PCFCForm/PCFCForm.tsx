@@ -19,7 +19,7 @@ import {
 
 const PCFCForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    month: Yup.mixed().required("Month is required"),
+    month: Yup.mixed().required("Month is required"),// remove this
     drawdownDate: Yup.string().required("Drawdown Date is required"),
     conversionBasic: Yup.string().required("Conversion Basic is required"),
     bank: Yup.string().required("Bank is required"),

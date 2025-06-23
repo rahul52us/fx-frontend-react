@@ -15,20 +15,18 @@ import CustomInput from "../../../../../config/component/CustomInput/CustomInput
 import {
   conversionTypeOptions,
   exposureTypeOptions,
-  monthsOptions,
-  settlementTypeOptions,
+  settlementTypeOptions
 } from "../../../exportsRegister/component/utils/constant";
 
 const DailyExposureSheetForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    month: Yup.mixed().required("Month is required"),
     exposureType: Yup.mixed().required("Exposure Type is required"),
     settlementType: Yup.mixed().required("Settlement Type is required"),
     conversionType: Yup.mixed().required("Conversion Type is required"),
     transactionDate: Yup.string().required("Transaction Date is required"),
     documentDueDate: Yup.string().required("Document Due Date is required"),
     poNumber: Yup.string().required("PO Number is required"),
-    invoiceLcBcNumber: Yup.string().required(
+    invoiceLcBcNumber: Yup.string().required( 
       "Invoice LC/BC Number is required"
     ),
     dealNumber: Yup.string().required("Deal Number is required"),
@@ -36,27 +34,20 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
     currency: Yup.string().required("Currency is required"),
     amount: Yup.string()
       .required("Amount is required"),
-      // .positive("Amount must be positive"),
     forwardPremium: Yup.string()
       .required("Forward Premium is required"),
-      // .positive("Must be a positive number"),
     spotBooked: Yup.string()
       .required("Spot Booked is required"),
-      // .positive("Must be a positive number"),
     cashTomSpot: Yup.string()
       .required("Cash Tom Spot is required"),
-      // .positive("Must be a positive number"),
     bankMargin: Yup.string()
       .required("Bank Margin is required"),
-      // .positive("Must be a positive number"),
     benchmarkRate: Yup.string()
       .required("Benchmark Rate is required"),
-      // .positive("Must be a positive number"),
   });
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
-     
       <Box
         maxW="5xl"
         mx="auto"
@@ -66,7 +57,7 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
         // boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
-          Daily Exposure Sheet
+          Exposure Settlement Register
         </Heading>
         <Formik
           initialValues={{}}
@@ -83,7 +74,7 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
                 <Divider mb={4} />
 
                 <SimpleGrid columns={[1, null, 2]} spacing={8}>
-                  <CustomInput
+                  {/* <CustomInput
                     label="Month"
                     name="month"
                     type="select"
@@ -98,7 +89,7 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
                       })
                     }
                     error={touched.month && errors.month}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="Exposure Type"

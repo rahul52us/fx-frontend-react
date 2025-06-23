@@ -43,7 +43,7 @@ const sidebarDatas: SidebarItem[] = [
   },
   {
   id: 404,
-    name: "Daily Exposure",
+    name: "Exposure Settlement",
     icon: <FaCalendarAlt />,
     url: dashboard.dailyExposureSheet,
     role: ["user","superadmin","manager","admin"],

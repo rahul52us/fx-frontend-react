@@ -131,7 +131,7 @@ const DailyExposureTable = () => {
   return (
     <>
       <CustomTable
-        title="Daily Exposure Sheet"
+        title="Exposure Settlement Register"
         data={exportData}
         columns={DailyExposureColumns}
         actions={{

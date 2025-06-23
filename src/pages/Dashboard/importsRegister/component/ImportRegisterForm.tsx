@@ -22,20 +22,21 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
     exposureInputDate: Yup.string().required("Exposure Input Date is required"),
     poDate: Yup.string().required("PO Date is required"),
     blDate: Yup.string().required("BL Date is required"),
-    collectionDate: Yup.string().required("Collection Date is required"),
+    dueDate: Yup.string().required("Due Date is required"),// change to due date
     amount: Yup.string()
       .required("Amount is required"),
-    bookedForwardRate: Yup.string()
-      .required("Amount is required"),
+    // bookedForwardRate: Yup.string()// remove this
+      // .required("Amount is required"),
     currency: Yup.mixed().required("Currency is required"),
     budgetRate: Yup.string().nullable(),
-    hedgedAmount: Yup.string().nullable(),
-    poNo: Yup.string().required("PO No is required"),
+    // hedgedAmount: Yup.string().nullable(),// remove this
+    // poNo: Yup.string().required("PO No is required"),
     invoiceNo: Yup.string().required("Invoice No is required"),
     partyName: Yup.string().required("Party Name is required"),
     priority: Yup.string().required("Priority is required"),
     paymentTerms: Yup.string().required("Payment terms is required"),
     bank: Yup.string().required("Bank is required"),
+    forwardContractNo: Yup.string().required("Forward Contract No is required"),
     remark: Yup.string().nullable(),
   });
 
@@ -171,12 +172,12 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                     error={touched.blDate && errors.blDate}
                   />
                   <CustomInput
-                    label="Collection Date"
-                    name="collectionDate"
+                    label="Due Date"
+                    name="dueDate"
                     type="date"
-                    value={values.collectionDate}
+                    value={values.dueDate}
                     onChange={handleChange}
-                    error={touched.collectionDate && errors.collectionDate}
+                    error={touched.dueDate && errors.dueDate}
                   />
                   <CustomInput
                     label="Amount"
@@ -217,21 +218,21 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                     onChange={handleChange}
                     error={touched.budgetRate && errors.budgetRate}
                   />
-                  <CustomInput
+                  {/* <CustomInput
                     label="Hedged Amount"
                     name="hedgedAmount"
                     value={values.hedgedAmount}
                     onChange={handleChange}
                     error={touched.hedgedAmount && errors.hedgedAmount}
-                  />
-                  <CustomInput
+                  /> */}
+                  {/* <CustomInput
                     label="PO No"
                     name="poNo"
                     placeholder="Enter PO No"
                     value={values.poNo}
                     onChange={handleChange}
                     error={touched.poNo && errors.poNo}
-                  />
+                  /> */}
                   <CustomInput
                     label="Invoice No"
                     name="invoiceNo"
@@ -274,7 +275,7 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                       touched.forwardContractNo && errors.forwardContractNo
                     }
                   />
-                  <CustomInput
+                  {/* <CustomInput
                     label="Booked Forward Rate"
                     name="bookedForwardRate"
                     placeholder=""
@@ -283,7 +284,7 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                     error={
                       touched.bookedForwardRate && errors.bookedForwardRate
                     }
-                  />
+                  /> */}
                   <CustomInput
                     label="Priority"
                     name="priority"
