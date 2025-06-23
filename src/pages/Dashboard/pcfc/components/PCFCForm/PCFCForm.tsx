@@ -13,25 +13,23 @@ import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import {
-  currencyOptions,
-  monthsOptions,
+  currencyOptions
 } from "../../../exportsRegister/component/utils/constant";
 
 const PCFCForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    month: Yup.mixed().required("Month is required"),// remove this
-    drawdownDate: Yup.string().required("Drawdown Date is required"),
-    conversionBasic: Yup.string().required("Conversion Basic is required"),
-    bank: Yup.string().required("Bank is required"),
-    dealId: Yup.string().required("Deal ID is required"),
-    currency: Yup.mixed().required("Currency is required"),
-    originalAmount: Yup.string()
+    drawdownDate: Yup.string().required("Drawdown Date is required"),//
+    conversionBasic: Yup.string().required("Conversion Basic is required"),//
+    bank: Yup.string().required("Bank is required"),//
+    dealId: Yup.string().required("Deal ID is required"),//
+    currency: Yup.mixed().required("Currency is required"),//
+    originalAmount: Yup.string()//
       .required("Original Amount is required"),
-    drawdownRate: Yup.string()
+    drawdownRate: Yup.string()//
       .required("Drawdown Rate is required"),
-    interestRate: Yup.string()
+    interestRate: Yup.string()//
       .required("Interest Rate is required"),
-    maturity: Yup.string().required("Maturity Date is required"),
+    maturity: Yup.string().required("Maturity Date is required"),//
   });
 
   return (
@@ -88,22 +86,7 @@ const PCFCForm = ({submitForm}:any) => {
                 <Divider mb={4} />
 
                 <SimpleGrid columns={[1, null, 2]} spacing={8}>
-                  <CustomInput
-                    label="Month"
-                    name="month"
-                    type="select"
-                    options={monthsOptions}
-                    placeholder="Select Month"
-                    value={monthsOptions.find(
-                      (option) => option.value === values.month
-                    )}
-                    onChange={(selectedOption) =>
-                      handleChange({
-                        target: { name: "month", value: selectedOption.value },
-                      })
-                    }
-                    error={touched.month && errors.month}
-                  />
+                  
 
                   <CustomInput
                     label="Drawdown Date"

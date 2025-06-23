@@ -11,31 +11,24 @@ import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import {
-  currencyOptions,
-  dealTypeOptions,
-  exposureTypeOptions,
+  dealTypeOptions
 } from "../../exportsRegister/component/utils/constant";
 
 const ForwardCancellationForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    exposureType: Yup.mixed().required("Exposure Type is required"),
-    dealType: Yup.string().required("Deal Type is required"),
-    transactionDate: Yup.string().required("Transaction Date is required"),
-    forwardDealId: Yup.string().required("Forward Deal ID is required"),
-    bank: Yup.string().required("Bank is required"),
-    pcfcRefNumber: Yup.string().required("PCFC Reference Number is required"),
-    currency: Yup.string().required("Currency is required"),
-    amount: Yup.string()
+    dealType: Yup.string().required("Deal Type is required"),//
+    transactionDate: Yup.string().required("Transaction Date is required"),//
+    forwardDealId: Yup.string().required("Forward Deal ID is required"),//
+    pcfcRefNumber: Yup.string().required("PCFC Reference Number is required"),//
+    amount: Yup.string()//
       .required("Amount is required"),
-    bookedRate: Yup.string()
-      .required("Booked Rate is required"),
-    spotBooked: Yup.string()
+    spotBooked: Yup.string()//
       .required("Spot Booked is required"),
-    forwardPremium: Yup.string()
+    forwardPremium: Yup.string()//
       .required("Forward Premium is required"),
-    cashTomSpot: Yup.string()
+    cashTomSpot: Yup.string()//
       .required("Cash Tom Spot is required"),
-    bankMargin: Yup.string()
+    bankMargin: Yup.string()//
       .required("Bank Margin is required"),
   });
 
@@ -74,9 +67,6 @@ const ForwardCancellationForm = ({submitForm}:any) => {
         maxW="5xl"
         mx="auto"
         p={8}
-        // borderRadius="2xl"
-        // bg="whiteAlpha.900"
-        // boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
           Forward Cancellation anf PCFC
@@ -88,7 +78,6 @@ const ForwardCancellationForm = ({submitForm}:any) => {
           onSubmit={(values: any, actions : any) => {
             console.log('values',values)
             submitForm(values,actions,"form");
-            // alert('Form submitted successfully!');
             actions.setSubmitting(false);
           }}
         >
@@ -97,7 +86,7 @@ const ForwardCancellationForm = ({submitForm}:any) => {
               <VStack spacing={6} align="stretch">
                 <Divider mb={4} />
                 <SimpleGrid columns={[1, null, 2]} spacing={8}>
-                  <CustomInput
+                  {/* <CustomInput
                     label="Exposure Type"
                     name="exposureType"
                     type="select"
@@ -111,7 +100,7 @@ const ForwardCancellationForm = ({submitForm}:any) => {
                       })
                     }
                     error={touched.exposureType && errors.exposureType}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="Deal Type"
@@ -147,14 +136,14 @@ const ForwardCancellationForm = ({submitForm}:any) => {
                     error={touched.forwardDealId && errors.forwardDealId}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Bank"
                     name="bank"
                     placeholder="Enter Bank"
                     value={values.bank}
                     onChange={handleChange}
                     error={touched.bank && errors.bank}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="PCFC Reference Number"
@@ -165,7 +154,7 @@ const ForwardCancellationForm = ({submitForm}:any) => {
                     error={touched.pcfcRefNumber && errors.pcfcRefNumber}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Currency"
                     type="select"
                     name="currency"
@@ -182,7 +171,7 @@ const ForwardCancellationForm = ({submitForm}:any) => {
                       })
                     }
                     error={touched.currency && errors.currency}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="Amount"
@@ -193,14 +182,14 @@ const ForwardCancellationForm = ({submitForm}:any) => {
                     error={touched.amount && errors.amount}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Booked Rate"
                     name="bookedRate"
                     placeholder="Enter Booked Rate"
                     value={values.bookedRate}
                     onChange={handleChange}
                     error={touched.bookedRate && errors.bookedRate}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="Spot Booked"

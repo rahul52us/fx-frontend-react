@@ -14,34 +14,26 @@ import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import {
   currencyOptions,
-  exposureTypeOptions,
-  monthsOptions,
-  priorityOptions,
+  exposureTypeOptions
 } from "../../../exportsRegister/component/utils/constant";
 
 const ForwardRegisterForm = ({submitForm}:any) => {
   const validationSchema = Yup.object({
-    month: Yup.mixed().required("Month is required"),// remove this
-    exposureType: Yup.string().required("Exposure Type is required"),
-    bookingDate: Yup.string().required("Booking Date is required"),
-    deliveryDateFrom: Yup.string().required("Delivery Date From is required"),
-    deliveryDateTo: Yup.string().required("Delivery Date To is required"),
-    bank: Yup.string().required("Bank is required"),
-    dealId: Yup.string().required("Deal ID is required"),
-    currency: Yup.string().required("Currency is required"),
-    originalAmount: Yup.string()
+    exposureType: Yup.string().required("Exposure Type is required"),//
+    bookingDate: Yup.string().required("Booking Date is required"),//
+    deliveryDateFrom: Yup.string().required("Delivery Date From is required"),//
+    deliveryDateTo: Yup.string().required("Delivery Date To is required"),//
+    bank: Yup.string().required("Bank is required"),//
+    dealId: Yup.string().required("Deal ID is required"),//
+    currency: Yup.string().required("Currency is required"),//
+    originalAmount: Yup.string()//
       .required("Original Amount is required"),
-      // .positive("Must be a positive number"),
-    spotBooked: Yup.string()
+    spotBooked: Yup.string()//
       .required("Spot Booked is required"),
-      // .positive("Must be a positive number"),
-    forwardPoints: Yup.string()
+    forwardPoints: Yup.string()//
       .required("Forward Points is required"),
-      // .positive("Must be a positive number"),
-    bankMargin: Yup.string()
+    bankMargin: Yup.string()//
       .required("Bank Margin is required"),
-      // .positive("Must be a positive number"),
-    priority: Yup.mixed().required("Priority is required"),// remove this
   });
   return (
     <Box bg="whiteAlpha.700" py={4}>
@@ -77,9 +69,6 @@ const ForwardRegisterForm = ({submitForm}:any) => {
         maxW="5xl"
         mx="auto"
         p={8}
-        // borderRadius="2xl"
-        // bg="whiteAlpha.900"
-        // boxShadow="xl"
       >
         <Heading size="lg" mb={6} textAlign="center">
           Forward Register
@@ -89,7 +78,6 @@ const ForwardRegisterForm = ({submitForm}:any) => {
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values: any, actions : any) => {
-            // alert('Form submitted successfully!');
             submitForm(values,actions,"form");
             actions.setSubmitting(false);
           }}
@@ -99,22 +87,7 @@ const ForwardRegisterForm = ({submitForm}:any) => {
               <VStack spacing={6} align="stretch">
                 <Divider mb={4} />
                 <SimpleGrid columns={[1, null, 2]} spacing={8}>
-                  <CustomInput
-                    label="Month"
-                    name="month"
-                    type="select"
-                    options={monthsOptions}
-                    placeholder="Select Month"
-                    value={monthsOptions.find(
-                      (option) => option.value === values.month
-                    )}
-                    onChange={(selectedOption) =>
-                      handleChange({
-                        target: { name: "month", value: selectedOption.value },
-                      })
-                    }
-                    error={touched.month && errors.month}
-                  />
+           
 
                   <CustomInput
                     label="Exposure Type"
@@ -231,25 +204,7 @@ const ForwardRegisterForm = ({submitForm}:any) => {
                     onChange={handleChange}
                     error={touched.bankMargin && errors.bankMargin}
                   />
-                  <CustomInput
-                    label="Priority"
-                    name="priority"
-                    type="select"
-                    options={priorityOptions}
-                    value={priorityOptions.find(
-                      (option) => option.value === values.priority
-                    )}
-                    // onChange={(option) => setFieldValue("exposureType", option)}
-                    onChange={(selectedOption) =>
-                      handleChange({
-                        target: {
-                          name: "priority",
-                          value: selectedOption.value,
-                        },
-                      })
-                    }
-                    error={touched.priority && errors.priority}
-                  />
+                
                 </SimpleGrid>
                 <Flex justify={"end"}>
                  <Button
