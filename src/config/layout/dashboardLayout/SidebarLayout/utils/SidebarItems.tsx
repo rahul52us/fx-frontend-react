@@ -1,13 +1,14 @@
+import { CalendarIcon } from "@chakra-ui/icons";
 import { BsFillForwardFill } from "react-icons/bs";
 import {
   FaCalendarAlt,
   FaShip
 } from "react-icons/fa";
+import { GiCheckMark } from "react-icons/gi";
 import { ImCancelCircle } from "react-icons/im";
 import { IoDocumentText, IoPieChartSharp } from "react-icons/io5";
 import { MdLocalShipping } from "react-icons/md";
 import { dashboard } from "../../../../constant/routes";
-import { GiCheckMark } from "react-icons/gi";
 
 interface SidebarItem {
   id: number;
@@ -26,153 +27,169 @@ const sidebarDatas: SidebarItem[] = [
     url: "/dashboard",
     role: ["user", "admin", "superadmin", "manager"],
   },
-  {
-    id: 402,
-    name: "Export Register",
-    icon: <MdLocalShipping />,
-    url: dashboard.exportRegister,
-    role: ["user", "admin", "superadmin", "manager"],
-  },
-  
-  {
-   id: 403,
-    name: "Import Register",
-    icon: <FaShip />,
-    url: dashboard.importRegister,
-    role: ["user","superadmin","manager","admin"],
-  },
-  {
-  id: 404,
-    name: "Exposure Settlement",
-    icon: <FaCalendarAlt />,
-    url: dashboard.dailyExposureSheet,
-    role: ["user","superadmin","manager","admin"],
-  },
-  {
-    id: 405,
-    name: "Pcfc",
-    icon: <IoDocumentText />,
-    url: dashboard.pcfc,
-    role: ["user","superadmin","manager","admin"],
-  },
-  {
-   id: 406,
-    name: "Forward Register",
-    icon: <BsFillForwardFill />,
-    url: dashboard.forwardRegister,
-    role: ["user","superadmin","manager","admin"],
-  },
-  {
-  id: 407,
-    name: "Forward Cancellation",
-    icon: <ImCancelCircle />,
-    url: dashboard.forwardCancellation,
-    role: ["user","superadmin","manager","admin"],
-  },
-  {
-  id: 408,
-    name: "MTM",
-    icon: <GiCheckMark />,
-    url: dashboard.mtm,
-    role: ["user","superadmin","manager","admin"],
-  },
-  //  Blogs
   // {
-  //   id: 505,
+  //   id: 402,
   //   name: "Export Register",
   //   icon: <MdLocalShipping />,
   //   url: dashboard.exportRegister,
-  //   role: ["user","superadmin","manager","admin"],
-  //   children: [
-  //     {
-  //       id: 506,
-  //       name: "index",
-  //       icon: <CalendarIcon />,
-  //       url: `${dashboard.exportRegister}`,
-  //       role: ["user","superadmin","manager","admin"],
-  //     }
-  //   ]
+  //   role: ["user", "admin", "superadmin", "manager"],
   // },
+  
   // {
-  //   id: 601,
+  //  id: 403,
   //   name: "Import Register",
   //   icon: <FaShip />,
   //   url: dashboard.importRegister,
   //   role: ["user","superadmin","manager","admin"],
-  //   children: [
-  //     {
-  //       id: 602,
-  //       name: "index",
-  //       icon: <CalendarIcon />,
-  //       url: `${dashboard.importRegister}`,
-  //       role: ["user","superadmin","manager","admin"],
-  //     }
-  //   ]
   // },
   // {
-  //   id: 601,
-  //   name: "Daily Exposure",
-  //   icon: <AiOutlineStock />,
-  //   url: dashboard.importRegister,
+  // id: 404,
+  //   name: "Exposure Settlement",
+  //   icon: <FaCalendarAlt />,
+  //   url: dashboard.dailyExposureSheet,
   //   role: ["user","superadmin","manager","admin"],
-  //   children: [
-  //     {
-  //       id: 602,
-  //       name: "index",
-  //       icon: <CalendarIcon />,
-  //       url: `${dashboard.dailyExposureSheet}`,
-  //       role: ["user","superadmin","manager","admin"],
-  //     }
-  //   ]
   // },
   // {
-  //   id: 501,
+  //   id: 405,
   //   name: "Pcfc",
   //   icon: <IoDocumentText />,
   //   url: dashboard.pcfc,
   //   role: ["user","superadmin","manager","admin"],
-  //   children: [
-  //     {
-  //       id: 502,
-  //       name: "index",
-  //       icon: <CalendarIcon />,
-  //       url: `${dashboard.pcfc}`,
-  //       role: ["user","superadmin","manager","admin"],
-  //     }
-  //   ]
   // },
   // {
-  //   id: 605,
+  //  id: 406,
   //   name: "Forward Register",
   //   icon: <BsFillForwardFill />,
   //   url: dashboard.forwardRegister,
   //   role: ["user","superadmin","manager","admin"],
-  //   children: [
-  //     {
-  //       id: 606,
-  //       name: "index",
-  //       icon: <CalendarIcon />,
-  //       url: `${dashboard.forwardRegister}`,
-  //       role: ["user","superadmin","manager","admin"],
-  //     }
-  //   ]
   // },
   // {
-  //   id: 700,
+  // id: 407,
   //   name: "Forward Cancellation",
   //   icon: <ImCancelCircle />,
   //   url: dashboard.forwardCancellation,
   //   role: ["user","superadmin","manager","admin"],
-  //   children: [
-  //     {
-  //       id: 601,
-  //       name: "index",
-  //       icon: <CalendarIcon />,
-  //       url: `${dashboard.forwardCancellation}`,
-  //       role: ["user","superadmin","manager","admin"],
-  //     }
-  //   ]
   // },
+  // {
+  // id: 408,
+  //   name: "MTM",
+  //   icon: <GiCheckMark />,
+  //   url: dashboard.mtm,
+  //   role: ["user","superadmin","manager","admin"],
+  // },
+  //  Blogs
+  {
+    id: 505,
+    name: "Export Register",
+    icon: <MdLocalShipping />,
+    url: dashboard.exportRegister,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 506,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.exportRegister}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 601,
+    name: "Import Register",
+    icon: <FaShip />,
+    url: dashboard.importRegister,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 602,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.importRegister}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 601,
+    name: "Exposure Settlement",
+    icon: <FaCalendarAlt />,
+    url: dashboard.importRegister,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 602,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.dailyExposureSheet}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 501,
+    name: "Pcfc",
+    icon: <IoDocumentText />,
+    url: dashboard.pcfc,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 502,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.pcfc}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 605,
+    name: "Forward Register",
+    icon: <BsFillForwardFill />,
+    url: dashboard.forwardRegister,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 606,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.forwardRegister}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 700,
+    name: "Forward Cancellation",
+    icon: <ImCancelCircle />,
+    url: dashboard.forwardCancellation,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 601,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.forwardCancellation}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 800,
+    name: "MTC",
+    icon: <GiCheckMark />,
+    url: dashboard.forwardCancellation,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 601,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.mtm}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
 ];
 
 export const sidebarFooterData: SidebarItem[] = [
