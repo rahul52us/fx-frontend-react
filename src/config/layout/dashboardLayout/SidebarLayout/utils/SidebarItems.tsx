@@ -1,6 +1,7 @@
 import { BsFillForwardFill } from "react-icons/bs";
 import {
   FaCalendarAlt,
+  FaHandHoldingUsd,
   FaShip
 } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
@@ -8,6 +9,7 @@ import { IoDocumentText, IoPieChartSharp } from "react-icons/io5";
 import { MdLocalShipping } from "react-icons/md";
 import { dashboard } from "../../../../constant/routes";
 import { GiCheckMark } from "react-icons/gi";
+import { BiSolidConversation } from "react-icons/bi";
 
 interface SidebarItem {
   id: number;
@@ -43,7 +45,7 @@ const sidebarDatas: SidebarItem[] = [
   },
   {
   id: 404,
-    name: "Daily Exposure",
+    name: "Exposure Settlement",
     icon: <FaCalendarAlt />,
     url: dashboard.dailyExposureSheet,
     role: ["user","superadmin","manager","admin"],
@@ -73,6 +75,20 @@ const sidebarDatas: SidebarItem[] = [
   id: 408,
     name: "MTM",
     icon: <GiCheckMark />,
+    url: dashboard.mtm,
+    role: ["user","superadmin","manager","admin"],
+  },
+  {
+  id: 408,
+    name: "Conversion Summary",
+    icon: <BiSolidConversation />,
+    url: dashboard.mtm,
+    role: ["user","superadmin","manager","admin"],
+  },
+  {
+  id: 408,
+    name: "USD Symmary",
+    icon: <FaHandHoldingUsd />,
     url: dashboard.mtm,
     role: ["user","superadmin","manager","admin"],
   },

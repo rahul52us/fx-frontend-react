@@ -131,7 +131,7 @@ const DailyExposureTable = () => {
   return (
     <>
       <CustomTable
-        title="Daily Exposure Sheet"
+        title="Exposure Settlement"
         data={exportData}
         columns={DailyExposureColumns}
         actions={{
@@ -148,7 +148,7 @@ const DailyExposureTable = () => {
               exportToExcel({
                 columns: DailyExposureColumns,
                 data: dummyExportRegisterData,
-                fileName: "Daily_Exposure.xlsx",
+                fileName: "Exposure_Settlement.xlsx",
               }),
           },
           uploadFile: {

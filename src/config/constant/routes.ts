@@ -25,7 +25,7 @@ export const dashboard = {
   forwardCancellation: `/${dashboardName}/forwardCancellation`,
   exportRegister: `/${dashboardName}/exportRegister`,
   importRegister: `/${dashboardName}/importRegister`,
-  dailyExposureSheet: `/${dashboardName}/dailyExposureSheet`,
+  dailyExposureSheet: `/${dashboardName}/exposureSettlement`,
   quiz: `/${dashboardName}/quiz`,
   verifyInvitation : `/${dashboardName}/:invitationType/verify-invitation/:token`,
 
