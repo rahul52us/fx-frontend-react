@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Accordion,
   AccordionButton,
@@ -6,6 +6,11 @@ import {
   AccordionItem,
   AccordionPanel,
   Box,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
   Flex,
   Icon,
   Popover,
@@ -17,23 +22,17 @@ import {
   Portal,
   Text,
   VStack,
-  useColorModeValue,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerOverlay,
   useBreakpointValue,
   useColorMode,
-  Tooltip,
+  useColorModeValue,
 } from "@chakra-ui/react";
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
 import { observer } from "mobx-react-lite";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SidebarLogo from "./component/SidebarLogo";
-import { mediumSidebarWidth, sidebarWidth } from "../../../constant/variable";
 import store from "../../../../store/store";
+import { mediumSidebarWidth, sidebarWidth } from "../../../constant/variable";
+import SidebarLogo from "./component/SidebarLogo";
+import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
 
 export interface SidebarItem {
   id: number;
@@ -73,35 +72,39 @@ interface SidebarProps {
 
 // import { Tooltip, Icon, Text, Box } from "@chakra-ui/react";
 
-const renderIcon = (depth: number, icon: JSX.Element, colorMode: string, label: string) => {
+const renderIcon = (depth: number, icon: JSX.Element, colorMode: string) => {
   const iconColor = colorMode === "light" ? "gray.800" : "gray.200";
 
   if (depth === 1) {
     return (
-      <Tooltip label={label} hasArrow placement="right">
-        <Box as="span" mr={2} cursor="pointer">
-          <Text fontSize="18px" color={iconColor}>-</Text>
-        </Box>
-      </Tooltip>
+      // <Tooltip label={label} hasArrow placement="right">
+      <Box as="span" mr={2} cursor="pointer">
+        <Text fontSize="18px" color={iconColor}>
+          -
+        </Text>
+      </Box>
+      // </Tooltip>
     );
   }
 
   if (depth > 1) {
     return (
-      <Tooltip label={label} hasArrow placement="right">
-        <Box as="span" mr={2} cursor="pointer">
-          <Text fontSize="18px" color={iconColor}>◦</Text>
-        </Box>
-      </Tooltip>
+      // <Tooltip label={label} hasArrow placement="right">
+      <Box as="span" mr={2} cursor="pointer">
+        <Text fontSize="18px" color={iconColor}>
+          ◦
+        </Text>
+      </Box>
+      // </Tooltip>
     );
   }
 
   return (
-    <Tooltip label={label} hasArrow placement="right">
-      <Box as="span" mr={2} cursor="pointer">
-        <Icon as={icon.type} boxSize={5} color={iconColor} />
-      </Box>
-    </Tooltip>
+    // <Tooltip label={label} hasArrow placement="right">
+    <Box as="span" mr={2} cursor="pointer">
+      <Icon as={icon.type} boxSize={5} color={iconColor} />
+    </Box>
+    // </Tooltip>
   );
 };
 
@@ -231,7 +234,7 @@ const SidebarPopover = observer(
                 ),
               }}
             >
-              {renderIcon(depth, item.icon, colorMode,item.name)}
+              {renderIcon(depth, item.icon, colorMode)}
               {depth > 0 && (
                 <Flex flex={1} align={"center"} justify={"space-between"}>
                   <Text ml={2} fontSize={"sm"}>
@@ -414,16 +417,16 @@ const SidebarAccordion = observer(
                       }
                       fontWeight={activeItemId === item.id ? "600" : "inherit"}
                     >
-                   <Flex align="center">
-  {renderIcon(depth, item.icon, colorMode, item.name)}
-  <Text
-    fontSize="sm"
-    color={colorMode === "dark" ? "white" : "black"}
-    ml={depth === 0 ? 5 : 2}
-  >
-    {item.name}
-  </Text>
-</Flex>
+                      <Flex align="center">
+                        {renderIcon(depth, item.icon, colorMode)}
+                        <Text
+                          fontSize="sm"
+                          color={colorMode === "dark" ? "white" : "black"}
+                          ml={depth === 0 ? 5 : 2}
+                        >
+                          {item.name}
+                        </Text>
+                      </Flex>
 
                       {item.children && (
                         <AccordionIcon

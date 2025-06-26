@@ -24,7 +24,7 @@ const ExportRegisterTable = () => {
   const toast = useToast();
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
-    // console.log('values',values)
+    console.log('values',values)
     try {
       let payload = type === "excel" ? values : [values];
       const response = await axios.post(
