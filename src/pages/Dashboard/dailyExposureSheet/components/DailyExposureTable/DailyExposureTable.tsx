@@ -1,17 +1,20 @@
 import {
-    Drawer,
-    DrawerBody,
-    DrawerCloseButton,
-    DrawerContent,
-    DrawerOverlay,
-    useDisclosure,
-    useToast
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
+  useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import { dummyExportRegisterData } from "../../../exportsRegister/component/utils/constant";
-import { exportToExcel, importFromExcel } from "../../../exportsRegister/component/utils/function";
+import {
+  exportToExcel,
+  importFromExcel,
+} from "../../../exportsRegister/component/utils/function";
 import DailyExposureSheetForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
 
 const DailyExposureTable = () => {
@@ -21,9 +24,13 @@ const DailyExposureTable = () => {
 
   const toast = useToast();
 
-  const submitExportForm = async (values: any, actions: any,type:string) => {
+  const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
-        let payload = type === "excel" ? values : [values];
+      // let payload = type === "excel" ? values : [values];
+      let payload = {
+        userToken: "userId",
+        data: type === "excel" ? values : [values],
+      };
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/dailyexposure/form/",
         payload
@@ -76,7 +83,7 @@ const DailyExposureTable = () => {
     if (!file) return;
     try {
       const data = await importFromExcel(file);
-      await submitExportForm(data, {},"excel");
+      await submitExportForm(data, {}, "excel");
     } catch (err) {
       console.error("Excel import failed", err);
     }
@@ -107,26 +114,41 @@ const DailyExposureTable = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
- const DailyExposureColumns = [
-  { headerName: "Month", key: "month", value: "february" },
-  { headerName: "Exposure Type", key: "exposureType", value: "confirmed_order" },
-  { headerName: "Conversion Type", key: "conversionType", value: "spot" },
-  { headerName: "Settlement Type", key: "settlementType", value: "advanced" },
-  { headerName: "Transaction Date", key: "transactionDate", value: "2025-06-11" },
-  { headerName: "Document Due Date", key: "documentDueDate", value: "2025-06-04" },
-  { headerName: "PO Number", key: "poNumber", value: "234" },
-  { headerName: "Invoice LC/BC Number", key: "invoiceLcBcNumber", value: "123" },
-  { headerName: "Deal Number", key: "dealNumber", value: "r3" },
-  { headerName: "Bank", key: "bank", value: "23e" },
-  { headerName: "Currency", key: "currency", value: "in" },
-  { headerName: "Amount", key: "amount", value: "500000" },
-  { headerName: "Forward Premium", key: "forwardPremium", value: "234" },
-  { headerName: "Spot Booked", key: "spotBooked", value: "234" },
-  { headerName: "Cash Tom Spot", key: "cashTomSpot", value: "234" },
-  { headerName: "Bank Margin", key: "bankMargin", value: "0" },
-  { headerName: "Benchmark Rate", key: "benchmarkRate", value: "3" }
-];
-
+  const DailyExposureColumns = [
+    { headerName: "Month", key: "month", value: "february" },
+    {
+      headerName: "Exposure Type",
+      key: "exposureType",
+      value: "confirmed_order",
+    },
+    { headerName: "Conversion Type", key: "conversionType", value: "spot" },
+    { headerName: "Settlement Type", key: "settlementType", value: "advanced" },
+    {
+      headerName: "Transaction Date",
+      key: "transactionDate",
+      value: "2025-06-11",
+    },
+    {
+      headerName: "Document Due Date",
+      key: "documentDueDate",
+      value: "2025-06-04",
+    },
+    { headerName: "PO Number", key: "poNumber", value: "234" },
+    {
+      headerName: "Invoice LC/BC Number",
+      key: "invoiceLcBcNumber",
+      value: "123",
+    },
+    { headerName: "Deal Number", key: "dealNumber", value: "r3" },
+    { headerName: "Bank", key: "bank", value: "23e" },
+    { headerName: "Currency", key: "currency", value: "in" },
+    { headerName: "Amount", key: "amount", value: "500000" },
+    { headerName: "Forward Premium", key: "forwardPremium", value: "234" },
+    { headerName: "Spot Booked", key: "spotBooked", value: "234" },
+    { headerName: "Cash Tom Spot", key: "cashTomSpot", value: "234" },
+    { headerName: "Bank Margin", key: "bankMargin", value: "0" },
+    { headerName: "Benchmark Rate", key: "benchmarkRate", value: "3" },
+  ];
 
   return (
     <>
@@ -181,9 +203,7 @@ const DailyExposureTable = () => {
           <DrawerCloseButton />
           {/* <DrawerHeader></DrawerHeader> */}
           <DrawerBody>
-            <DailyExposureSheetForm
-              submitForm={submitExportForm}
-            />
+            <DailyExposureSheetForm submitForm={submitExportForm} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

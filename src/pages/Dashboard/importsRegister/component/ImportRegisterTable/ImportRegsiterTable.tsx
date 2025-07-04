@@ -26,10 +26,14 @@ const ImportRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  const submitImportForm = async (values: any, actions: any,type:string) => {
+  const submitImportForm = async (values: any, actions: any, type: string) => {
     // console.log('values',values)
     try {
-        let payload = type === "excel" ? values : [values];
+      // let payload = type === "excel" ? values : [values];
+      let payload = {
+        userToken: "userId",
+        data: type === "excel" ? values : [values],
+      };
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/importregister/form/",
         payload
@@ -144,7 +148,7 @@ const ImportRegisterTable = () => {
     if (!file) return;
     try {
       const data = await importFromExcel(file);
-      await submitImportForm(data, {},"excel");
+      await submitImportForm(data, {}, "excel");
     } catch (err) {
       console.error("Excel import failed", err);
     }

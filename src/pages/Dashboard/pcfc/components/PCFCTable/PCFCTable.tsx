@@ -1,17 +1,20 @@
 import {
-    Drawer,
-    DrawerBody,
-    DrawerCloseButton,
-    DrawerContent,
-    DrawerOverlay,
-    useDisclosure,
-    useToast
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
+  useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import { dummyPcfcData } from "../../../exportsRegister/component/utils/constant";
-import { exportToExcel, importFromExcel } from "../../../exportsRegister/component/utils/function";
+import {
+  exportToExcel,
+  importFromExcel,
+} from "../../../exportsRegister/component/utils/function";
 import PCFCForm from "../PCFCForm/PCFCForm";
 
 const PCFCTable = () => {
@@ -20,10 +23,14 @@ const PCFCTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  const submitExportForm = async (values: any, actions: any,type:string) => {
-      try {
-          let payload = type === "excel" ? values : [values];
-        const response = await axios.post(
+  const submitExportForm = async (values: any, actions: any, type: string) => {
+    try {
+      // let payload = type === "excel" ? values : [values];
+      let payload = {
+        userToken: "userId",
+        data: type === "excel" ? values : [values],
+      };
+      const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/pcfcregister/form/",
         payload
       );
@@ -75,7 +82,7 @@ const PCFCTable = () => {
     if (!file) return;
     try {
       const data = await importFromExcel(file);
-      await submitExportForm(data, {},"excel");
+      await submitExportForm(data, {}, "excel");
     } catch (err) {
       console.error("Excel import failed", err);
     }
@@ -106,18 +113,18 @@ const PCFCTable = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-const PCFCColumns = [
-  { headerName: "Month", key: "month", label: "March" },
-  { headerName: "Drawdown Date", key: "drawdownDate", label: "2025-06-10" },
-  { headerName: "Bank", key: "bank", label: "23e3" },
-  { headerName: "Currency", key: "currency", label: "USD" },
-  { headerName: "Deal ID", key: "dealId", label: "2343" },
-  { headerName: "Original Amount", key: "originalAmount", label: 232000 },
-  { headerName: "Drawdown Rate", key: "drawdownRate", label: "2343" },
-  { headerName: "Maturity Date", key: "maturity", label: "2025-06-24" },
-  { headerName: "Interest Rate", key: "interestRate", label: "5.3" },
-  { headerName: "Conversion Basic", key: "conversionBasic", label: "asd" }
-];
+  const PCFCColumns = [
+    { headerName: "Month", key: "month", label: "March" },
+    { headerName: "Drawdown Date", key: "drawdownDate", label: "2025-06-10" },
+    { headerName: "Bank", key: "bank", label: "23e3" },
+    { headerName: "Currency", key: "currency", label: "USD" },
+    { headerName: "Deal ID", key: "dealId", label: "2343" },
+    { headerName: "Original Amount", key: "originalAmount", label: 232000 },
+    { headerName: "Drawdown Rate", key: "drawdownRate", label: "2343" },
+    { headerName: "Maturity Date", key: "maturity", label: "2025-06-24" },
+    { headerName: "Interest Rate", key: "interestRate", label: "5.3" },
+    { headerName: "Conversion Basic", key: "conversionBasic", label: "asd" },
+  ];
 
   return (
     <>
@@ -170,9 +177,7 @@ const PCFCColumns = [
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerBody>
-            <PCFCForm
-              submitForm={submitExportForm}
-            />
+            <PCFCForm submitForm={submitExportForm} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

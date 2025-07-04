@@ -5,13 +5,16 @@ import {
   DrawerContent,
   DrawerOverlay,
   useDisclosure,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CustomTable from "../../../../config/component/CustomTable/CustomTable";
 import { dymmyForwardCancellationData } from "../../exportsRegister/component/utils/constant";
-import { exportToExcel, importFromExcel } from "../../exportsRegister/component/utils/function";
+import {
+  exportToExcel,
+  importFromExcel,
+} from "../../exportsRegister/component/utils/function";
 import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellationForm";
 // import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 // import { dummyForwardRegisterData } from "../../../exportsRegister/component/utils/constant";
@@ -25,10 +28,14 @@ const ForwardCancellationTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
- const submitExportForm = async (values: any, actions: any,type:string) => {
-      try {
-          let payload = type === "excel" ? values : [values];
-        const response = await axios.post(
+  const submitExportForm = async (values: any, actions: any, type: string) => {
+    try {
+      // let payload = type === "excel" ? values : [values];
+      let payload = {
+        userToken: "userId",
+        data: type === "excel" ? values : [values],
+      };
+      const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/form/",
         payload
       );
@@ -80,7 +87,7 @@ const ForwardCancellationTable = () => {
     if (!file) return;
     try {
       const data = await importFromExcel(file);
-      await submitExportForm(data, {},"excel");
+      await submitExportForm(data, {}, "excel");
     } catch (err) {
       console.error("Excel import failed", err);
     }
@@ -109,21 +116,29 @@ const ForwardCancellationTable = () => {
   useEffect(() => {
     fetchExportRegisterData();
   }, []);
-const DealDataColumns = [
-  { headerName: "Deal Type", key: "dealType", label: "a" },
-  { headerName: "Exposure Type", key: "exposureType", label: "confirmed_order" },
-  { headerName: "Transaction Date", key: "transactionDate", label: "2025-06-04" },
-  { headerName: "Forward Deal ID", key: "forwardDealId", label: "43" },
-  { headerName: "Bank", key: "bank", label: "bank name" },
-  { headerName: "PCFC Ref Number", key: "pcfcRefNumber", label: "45" },
-  { headerName: "Currency", key: "currency", label: "USD" },
-  { headerName: "Amount", key: "amount", label: 56 },
-  { headerName: "Booked Rate", key: "bookedRate", label: 4 },
-  { headerName: "Spot Booked", key: "spotBooked", label: 344 },
-  { headerName: "Forward Premium", key: "forwardPremium", label: 234 },
-  { headerName: "Cash To Spot", key: "cashTomSpot", label: 234 },
-  { headerName: "Bank Margin", key: "bankMargin", label: 0 }
-];
+  const DealDataColumns = [
+    { headerName: "Deal Type", key: "dealType", label: "a" },
+    {
+      headerName: "Exposure Type",
+      key: "exposureType",
+      label: "confirmed_order",
+    },
+    {
+      headerName: "Transaction Date",
+      key: "transactionDate",
+      label: "2025-06-04",
+    },
+    { headerName: "Forward Deal ID", key: "forwardDealId", label: "43" },
+    { headerName: "Bank", key: "bank", label: "bank name" },
+    { headerName: "PCFC Ref Number", key: "pcfcRefNumber", label: "45" },
+    { headerName: "Currency", key: "currency", label: "USD" },
+    { headerName: "Amount", key: "amount", label: 56 },
+    { headerName: "Booked Rate", key: "bookedRate", label: 4 },
+    { headerName: "Spot Booked", key: "spotBooked", label: 344 },
+    { headerName: "Forward Premium", key: "forwardPremium", label: 234 },
+    { headerName: "Cash To Spot", key: "cashTomSpot", label: 234 },
+    { headerName: "Bank Margin", key: "bankMargin", label: 0 },
+  ];
 
   return (
     <>
@@ -176,9 +191,7 @@ const DealDataColumns = [
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerBody>
-            <ForwardCancellationForm
-              submitForm={submitExportForm}
-            />
+            <ForwardCancellationForm submitForm={submitExportForm} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

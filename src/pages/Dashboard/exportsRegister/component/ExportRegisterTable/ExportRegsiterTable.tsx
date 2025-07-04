@@ -24,9 +24,13 @@ const ExportRegisterTable = () => {
   const toast = useToast();
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
-    console.log('values',values)
+    // console.log('values',values)
     try {
-      let payload = type === "excel" ? values : [values];
+      let payload = {
+        userToken: "userId",
+        data: type === "excel" ? values : [values],
+      };
+      // let payload = type === "excel" ? values : [values];
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/exportregister/form/",
         payload
@@ -59,7 +63,6 @@ const ExportRegisterTable = () => {
         });
       }
     } catch (error: any) {
-
       console.error("Error submitting form", error.message);
       // toast({
       //   title: "Error",
