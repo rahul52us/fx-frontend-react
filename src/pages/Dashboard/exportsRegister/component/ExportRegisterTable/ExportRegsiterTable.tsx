@@ -22,12 +22,13 @@ const ExportRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const toast = useToast();
+  
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     // console.log('values',values)
     try {
       let payload = {
-        userToken: "userId",
+        userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
       // let payload = type === "excel" ? values : [values];
@@ -95,9 +96,10 @@ const ExportRegisterTable = () => {
     try {
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/exportregister/view/",
-        { condition: "" }
+        { userToken: "abcxyz" }
       );
-      const result = response.data?.data || [];
+
+      const result = response.data?.data?.data || [];
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
         sno: idx + 1,

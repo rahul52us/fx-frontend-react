@@ -28,11 +28,11 @@ const DailyExposureTable = () => {
     try {
       // let payload = type === "excel" ? values : [values];
       let payload = {
-        userToken: "userId",
+        userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/dailyexposure/form/",
+        "http://srv864630.hstgr.cloud:8000/exposuresettlementreport/form/",
         payload
       );
 
@@ -93,10 +93,10 @@ const DailyExposureTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/dailyexposure/view/",
-        { condition: "" }
+        "http://srv864630.hstgr.cloud:8000/exposuresettlementreport/view/",
+       { userToken: "abcxyz" }
       );
-      const result = response.data?.data || [];
+      const result = response.data?.data?.data || [];
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
         sno: idx + 1,
@@ -115,40 +115,33 @@ const DailyExposureTable = () => {
   }, []);
 
   const DailyExposureColumns = [
-    { headerName: "Month", key: "month", value: "february" },
-    {
-      headerName: "Exposure Type",
-      key: "exposureType",
-      value: "confirmed_order",
-    },
-    { headerName: "Conversion Type", key: "conversionType", value: "spot" },
-    { headerName: "Settlement Type", key: "settlementType", value: "advanced" },
-    {
-      headerName: "Transaction Date",
-      key: "transactionDate",
-      value: "2025-06-11",
-    },
-    {
-      headerName: "Document Due Date",
-      key: "documentDueDate",
-      value: "2025-06-04",
-    },
-    { headerName: "PO Number", key: "poNumber", value: "234" },
-    {
-      headerName: "Invoice LC/BC Number",
-      key: "invoiceLcBcNumber",
-      value: "123",
-    },
-    { headerName: "Deal Number", key: "dealNumber", value: "r3" },
-    { headerName: "Bank", key: "bank", value: "23e" },
-    { headerName: "Currency", key: "currency", value: "in" },
-    { headerName: "Amount", key: "amount", value: "500000" },
-    { headerName: "Forward Premium", key: "forwardPremium", value: "234" },
-    { headerName: "Spot Booked", key: "spotBooked", value: "234" },
-    { headerName: "Cash Tom Spot", key: "cashTomSpot", value: "234" },
-    { headerName: "Bank Margin", key: "bankMargin", value: "0" },
-    { headerName: "Benchmark Rate", key: "benchmarkRate", value: "3" },
-  ];
+  { headerName: "Month", key: "month", label: "Month" },
+  { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
+  { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
+  { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
+  { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
+  { headerName: "PO Number", key: "poNumber", label: "PO Number" },
+  { headerName: "Invoice BC Number", key: "invoiceBcNumber", label: "Invoice BC No" },
+  { headerName: "Party Name", key: "partyName", label: "Party Name" },
+  { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
+  { headerName: "Mode of Conversion", key: "modeOfConversion", label: "Mode of Conversion" },
+  { headerName: "Conversion Reference Number", key: "conversionReferenceNumber", label: "Conv Ref No" },
+  { headerName: "Bank", key: "bank", label: "Bank" },
+  { headerName: "Currency", key: "currency", label: "Currency" },
+  { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
+  { headerName: "Booked Rate", key: "bookedRate", label: "Booked Rate" },
+  { headerName: "Forward Premium Reversed", key: "forwardPremiumReveresed", label: "Fwd Premium Reversed" },
+  { headerName: "Spot Booked", key: "spotBooked", label: "Spot Booked" },
+  { headerName: "Cash to Spot", key: "cashTomSpot", label: "Cash to Spot" },
+  { headerName: "Bank Margin", key: "bankMargin", label: "Bank Margin" },
+  { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
+  { headerName: "Document Due Date", key: "documentDueDate", label: "Doc Due Date" },
+  { headerName: "Settled Amount in INR", key: "settledAmountInInr", label: "Settled INR" },
+  { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
+  { headerName: "Bmk Vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
+  { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
+  { headerName: "Market Vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
+];
 
   return (
     <>

@@ -31,7 +31,7 @@ const ImportRegisterTable = () => {
     try {
       // let payload = type === "excel" ? values : [values];
       let payload = {
-        userToken: "userId",
+        userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
@@ -84,9 +84,9 @@ const ImportRegisterTable = () => {
     try {
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/importregister/view/",
-        { condition: "" }
+        { userToken: "abcxyz" }
       );
-      const result = response.data?.data || [];
+      const result = response.data?.data?.data || [];
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
         sno: idx + 1,

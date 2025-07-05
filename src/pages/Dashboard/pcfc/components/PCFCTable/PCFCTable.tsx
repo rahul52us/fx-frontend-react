@@ -27,7 +27,7 @@ const PCFCTable = () => {
     try {
       // let payload = type === "excel" ? values : [values];
       let payload = {
-        userToken: "userId",
+        userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
@@ -93,9 +93,9 @@ const PCFCTable = () => {
     try {
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/pcfcregister/view/",
-        { condition: "" }
+         { userToken: "abcxyz" }
       );
-      const result = response.data?.data || [];
+      const result = response.data?.data?.data || [];
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
         sno: idx + 1,
@@ -114,17 +114,25 @@ const PCFCTable = () => {
   }, []);
 
   const PCFCColumns = [
-    { headerName: "Month", key: "month", label: "March" },
-    { headerName: "Drawdown Date", key: "drawdownDate", label: "2025-06-10" },
-    { headerName: "Bank", key: "bank", label: "23e3" },
-    { headerName: "Currency", key: "currency", label: "USD" },
-    { headerName: "Deal ID", key: "dealId", label: "2343" },
-    { headerName: "Original Amount", key: "originalAmount", label: 232000 },
-    { headerName: "Drawdown Rate", key: "drawdownRate", label: "2343" },
-    { headerName: "Maturity Date", key: "maturity", label: "2025-06-24" },
-    { headerName: "Interest Rate", key: "interestRate", label: "5.3" },
-    { headerName: "Conversion Basic", key: "conversionBasic", label: "asd" },
-  ];
+  { headerName: "Transaction Date", key: "transactionDate", label: "Transaction Date" },
+  { headerName: "Deal Type", key: "dealType", label: "Deal Type" },
+  { headerName: "Forward Deal ID", key: "forwardDealId", label: "Forward Deal ID" },
+  { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
+  { headerName: "Bank", key: "bank", label: "Bank" },
+  { headerName: "PCFC Reference Number", key: "pcfcRefNumber", label: "PCFC Ref No" },
+  { headerName: "Currency", key: "currency", label: "Currency" },
+  { headerName: "Amount", key: "amount", label: "Amount" },
+  { headerName: "Booked Rate", key: "bookedRate", label: "Booked Rate" },
+  { headerName: "Spot Booked", key: "spotBooked", label: "Spot Booked" },
+  { headerName: "Forward Premium", key: "forwardPremium", label: "Forward Premium" },
+  { headerName: "Cash to Spot", key: "cashTomSpot", label: "Cash to Spot" },
+  { headerName: "Bank Margin", key: "bankMargin", label: "Bank Margin" },
+  { headerName: "Net Settlement Rate", key: "netSettlementRate", label: "Net Settlement Rate" },
+  { headerName: "INR Amount", key: "inrAmount", label: "INR Amount" },
+  { headerName: "Maturity", key: "maturity", label: "Maturity" },
+  { headerName: "Profit & Loss on Cancellation", key: "profitAndLossOnCancellation", label: "P/L Cancellation" },
+];
+  
 
   return (
     <>

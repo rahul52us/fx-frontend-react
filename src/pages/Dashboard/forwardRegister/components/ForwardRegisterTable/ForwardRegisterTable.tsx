@@ -27,7 +27,7 @@ const ForwardRegisterTable = () => {
     try {
       // let payload = type === "excel" ? values : [values];
       let payload = {
-        userToken: "userId",
+        userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
@@ -93,9 +93,9 @@ const ForwardRegisterTable = () => {
     try {
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/forwardregister/view/",
-        { condition: "" }
+        { userToken: "abcxyz" }
       );
-      const result = response.data?.data || [];
+      const result = response.data?.data?.data || [];
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
         sno: idx + 1,
@@ -118,13 +118,13 @@ const ForwardRegisterTable = () => {
     { headerName: "Exposure Type", key: "exposureType", label: "shipment" },
     {
       headerName: "Delivery Date From",
-      key: "deliveryDateFrom",
+      key: "dueDateFrom",
       label: "2025-06-03",
     },
     { headerName: "Booking Date", key: "bookingDate", label: "2025-06-12" },
     {
       headerName: "Delivery Date To",
-      key: "deliveryDateTo",
+      key: "dueDateTo",
       label: "2025-06-05",
     },
     { headerName: "Bank", key: "bank", label: "23e" },

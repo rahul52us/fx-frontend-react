@@ -7,43 +7,64 @@ import {
   Flex,
   Heading,
   SimpleGrid,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import {
-  conversionTypeOptions,
   exposureTypeOptions,
   settlementTypeOptions
 } from "../../../exportsRegister/component/utils/constant";
 
-const DailyExposureSheetForm = ({submitForm}:any) => {
+const DailyExposureSheetForm = ({ submitForm }: any) => {
+  // const validationSchema = Yup.object({
+  //   exposureType: Yup.mixed().required("Exposure Type is required"),
+  //   settlementType: Yup.mixed().required("Settlement Type is required"),
+  //   conversionType: Yup.mixed().required("Conversion Type is required"),
+  //   transactionDate: Yup.string().required("Transaction Date is required"),
+  //   documentDueDate: Yup.string().required("Document Due Date is required"),
+  //   poNumber: Yup.string().required("PO Number is required"),
+  //   invoiceLcBcNumber: Yup.string().required(
+  //     "Invoice LC/BC Number is required"
+  //   ),
+  //   dealNumber: Yup.string().required("Deal Number is required"),
+  //   bank: Yup.string().required("Bank is required"),
+  //   currency: Yup.string().required("Currency is required"),
+  //   amount: Yup.string()
+  //     .required("Amount is required"),
+  //   forwardPremium: Yup.string()
+  //     .required("Forward Premium is required"),
+  //   spotBooked: Yup.string()
+  //     .required("Spot Booked is required"),
+  //   cashTomSpot: Yup.string()
+  //     .required("Cash Tom Spot is required"),
+  //   bankMargin: Yup.string()
+  //     .required("Bank Margin is required"),
+  //   benchmarkRate: Yup.string()
+  //     .required("Benchmark Rate is required"),
+  // });
+
   const validationSchema = Yup.object({
-    exposureType: Yup.mixed().required("Exposure Type is required"),
-    settlementType: Yup.mixed().required("Settlement Type is required"),
-    conversionType: Yup.mixed().required("Conversion Type is required"),
-    transactionDate: Yup.string().required("Transaction Date is required"),
-    documentDueDate: Yup.string().required("Document Due Date is required"),
-    poNumber: Yup.string().required("PO Number is required"),
-    invoiceLcBcNumber: Yup.string().required( 
-      "Invoice LC/BC Number is required"
+    settlementDate: Yup.string().required("Settlement Date is required"),
+    settlementInputDate: Yup.mixed().required(
+      "Settlement Input Date is required"
     ),
-    dealNumber: Yup.string().required("Deal Number is required"),
-    bank: Yup.string().required("Bank is required"),
-    currency: Yup.string().required("Currency is required"),
-    amount: Yup.string()
-      .required("Amount is required"),
-    forwardPremium: Yup.string()
-      .required("Forward Premium is required"),
-    spotBooked: Yup.string()
-      .required("Spot Booked is required"),
-    cashTomSpot: Yup.string()
-      .required("Cash Tom Spot is required"),
-    bankMargin: Yup.string()
-      .required("Bank Margin is required"),
-    benchmarkRate: Yup.string()
-      .required("Benchmark Rate is required"),
+    exposureType: Yup.mixed().required("Exposure Type is required"),
+    settlementType: Yup.string().required("Settlement Type is required"),
+    poNumber: Yup.string().required("PO Number is required"),
+    invoiceBcNumber: Yup.string().required("Invoice BC Number is required"),
+    modeOfConversion: Yup.string().required("Mode of Conversion is required"),
+    conversionReferenceNumber: Yup.string().required(
+      "Conversion Reference Number is required"
+    ),
+    settledAmount: Yup.string().required("Settled Amount is required"),
+    forwardPremiumReveresed: Yup.string().required(
+      "Forward Premium Reversed is required"
+    ),
+    spotBooked: Yup.string().required("Spot Booked is required"),
+    cashTomSpot: Yup.string().required("Cash to Spot is required"),
+    bankMargin: Yup.string().required("Bank Margin is required"),
   });
 
   return (
@@ -64,8 +85,8 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, actions) => {
-            console.log('values',values);
-             submitForm(values, actions,"form");
+            console.log("values", values);
+            submitForm(values, actions, "form");
           }}
         >
           {({ values, handleChange, isSubmitting, errors, touched }: any) => (
@@ -123,7 +144,7 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
                     error={touched.settlementType && errors.settlementType}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Conversion Type"
                     name="conversionType"
                     type="select"
@@ -137,25 +158,33 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
                       })
                     }
                     error={touched.conversionType && errors.conversionType}
-                  />
+                  /> */}
 
                   <CustomInput
-                    label="Transaction Date"
-                    name="transactionDate"
+                    label="Settlement Input Date"
+                    name="settlementInputDate"
                     type="date"
-                    value={values.transactionDate}
+                    value={values.settlementInputDate}
                     onChange={handleChange}
-                    error={touched.transactionDate && errors.transactionDate}
+                    error={touched.settlementInputDate && errors.settlementInputDate}
+                  />
+                  <CustomInput
+                    label="Settlement Date"
+                    name="settlementDate"
+                    type="date"
+                    value={values.settlementDate}
+                    onChange={handleChange}
+                    error={touched.settlementDate && errors.settlementDate}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Document Due Date"
                     name="documentDueDate"
                     type="date"
                     value={values.documentDueDate}
                     onChange={handleChange}
                     error={touched.documentDueDate && errors.documentDueDate}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="PO Number"
@@ -168,25 +197,33 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
 
                   <CustomInput
                     label="Invoice LC/BC Number"
-                    name="invoiceLcBcNumber"
+                    name="invoiceBcNumber"
                     placeholder="Enter Invoice LC/BC Number"
-                    value={values.invoiceLcBcNumber}
+                    value={values.invoiceBcNumber}
                     onChange={handleChange}
                     error={
-                      touched.invoiceLcBcNumber && errors.invoiceLcBcNumber
+                      touched.invoiceBcNumber && errors.invoiceBcNumber
                     }
                   />
 
                   <CustomInput
-                    label="Deal Number"
-                    name="dealNumber"
-                    placeholder="Enter Deal Number"
-                    value={values.dealNumber}
+                    label="Mode Of Conversion"
+                    name="modeOfConversion"
+                    placeholder="Conversion Mode"
+                    value={values.modeOfConversion}
                     onChange={handleChange}
-                    error={touched.dealNumber && errors.dealNumber}
+                    error={touched.modeOfConversion && errors.modeOfConversion}
+                  />
+                  <CustomInput
+                    label="Conversion Ref No"
+                    name="conversionReferenceNumber"
+                    placeholder="Conversion Mode"
+                    value={values.conversionReferenceNumber}
+                    onChange={handleChange}
+                    error={touched.conversionReferenceNumber && errors.conversionReferenceNumber}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Bank"
                     name="bank"
                     placeholder="Enter Bank"
@@ -202,25 +239,25 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
                     value={values.currency}
                     onChange={handleChange}
                     error={touched.currency && errors.currency}
-                  />
+                  /> */}
 
                   <CustomInput
-                    label="Amount"
-                    name="amount"
+                    label="Settlement Amount"
+                    name="settledAmount"
                     placeholder="Enter Amount"
-                    value={values.amount}
+                    value={values.settledAmount}
                     onChange={handleChange}
-                    error={touched.amount && errors.amount}
+                    error={touched.settledAmount && errors.settledAmount}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Forward Premium"
                     name="forwardPremium"
                     placeholder="Enter Forward Premium"
                     value={values.forwardPremium}
                     onChange={handleChange}
                     error={touched.forwardPremium && errors.forwardPremium}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="Spot Booked"
@@ -250,12 +287,12 @@ const DailyExposureSheetForm = ({submitForm}:any) => {
                   />
 
                   <CustomInput
-                    label="Benchmark Rate"
-                    name="benchmarkRate"
+                    label="Forward Presume Reversed"
+                    name="forwardPremiumReveresed"
                     placeholder="Enter Benchmark Rate"
-                    value={values.benchmarkRate}
+                    value={values.forwardPremiumReveresed}
                     onChange={handleChange}
-                    error={touched.benchmarkRate && errors.benchmarkRate}
+                    error={touched.forwardPremiumReveresed && errors.forwardPremiumReveresed}
                   />
                 </SimpleGrid>
 

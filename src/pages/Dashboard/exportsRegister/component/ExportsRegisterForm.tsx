@@ -63,7 +63,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
           amount: "",
           budgetRate: "",
           paymentTerms: "",
-          hedgeRefNo: "",
+          hedgeDealRefNo: "",
           remark: "",
         }}
         validationSchema={validationSchema}
@@ -247,11 +247,11 @@ const ExposureForm = ({ submitExportForm }: any) => {
                 />
                 <CustomInput
                   label="Hedge Reference No."
-                  name="hedgeRefNo"
+                  name="hedgeDealRefNo"
                   placeholder="Units"
-                  value={values.hedgeRefNo}
+                  value={values.hedgeDealRefNo}
                   onChange={handleChange}
-                  error={touched.hedgeRefNo && errors.hedgeRefNo}
+                  error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
                   showError={showError}
                 />
               </SimpleGrid>
