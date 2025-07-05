@@ -113,29 +113,58 @@ const ForwardRegisterTable = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // const ForwardRegisterColumns = [
+  //   { headerName: "Month", key: "month", label: "march" },
+  //   { headerName: "Exposure Type", key: "exposureType", label: "shipment" },
+  //   {
+  //     headerName: "Delivery Date From",
+  //     key: "dueDateFrom",
+  //     label: "2025-06-03",
+  //   },
+  //   { headerName: "Booking Date", key: "bookingDate", label: "2025-06-12" },
+  //   {
+  //     headerName: "Delivery Date To",
+  //     key: "dueDateTo",
+  //     label: "2025-06-05",
+  //   },
+  //   { headerName: "Bank", key: "bank", label: "23e" },
+  //   { headerName: "Deal ID", key: "dealId", label: "234" },
+  //   { headerName: "Currency", key: "currency", label: "USD" },
+  //   { headerName: "Original Amount", key: "originalAmount", label: 23 },
+  //   { headerName: "Spot Booked", key: "spotBooked", label: "234" },
+  //   { headerName: "Bank Margin", key: "bankMargin", label: "6" },
+  //   { headerName: "Forward Points", key: "forwardPoints", label: "45" },
+  //   { headerName: "Priority", key: "priority", label: "medium" },
+  // ];
+
   const ForwardRegisterColumns = [
-    { headerName: "Month", key: "month", label: "march" },
-    { headerName: "Exposure Type", key: "exposureType", label: "shipment" },
-    {
-      headerName: "Delivery Date From",
-      key: "dueDateFrom",
-      label: "2025-06-03",
-    },
-    { headerName: "Booking Date", key: "bookingDate", label: "2025-06-12" },
-    {
-      headerName: "Delivery Date To",
-      key: "dueDateTo",
-      label: "2025-06-05",
-    },
-    { headerName: "Bank", key: "bank", label: "23e" },
-    { headerName: "Deal ID", key: "dealId", label: "234" },
-    { headerName: "Currency", key: "currency", label: "USD" },
-    { headerName: "Original Amount", key: "originalAmount", label: 23 },
-    { headerName: "Spot Booked", key: "spotBooked", label: "234" },
-    { headerName: "Bank Margin", key: "bankMargin", label: "6" },
-    { headerName: "Forward Points", key: "forwardPoints", label: "45" },
-    { headerName: "Priority", key: "priority", label: "medium" },
-  ];
+  { headerName: "Month", key: "month" },
+  { headerName: "Booking Date", key: "bookingDate" },
+  { headerName: "Exposure Type", key: "exposureType" },
+  { headerName: "Bank", key: "bank" },
+  { headerName: "Business Unit", key: "bussinessUnit" },
+  { headerName: "Exposure Ref Number", key: "exposureRefNumber" },
+  { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
+  { headerName: "Currency", key: "currency" },
+  { headerName: "Hedge Amount", key: "hedgeAmount" },
+  { headerName: "Spot Booked", key: "spotBooked" },
+  { headerName: "Forward Points", key: "forwardPoints" },
+  { headerName: "Bank Margin", key: "bankMargin" },
+  { headerName: "Hedge Rate", key: "hedgeRate" },
+  { headerName: "Delivery Date From", key: "dueDateFrom" },
+  { headerName: "Delivery Date To", key: "dueDateTo" },
+  { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+  { headerName: "Status", key: "status" },
+  { headerName: "Settled Amount", key: "settledAmount" },
+  { headerName: "Settlement Rate", key: "settlementdRate" },
+  { headerName: "Cancelled Amount", key: "cancelledAmount" },
+  { headerName: "Cancellation Rate", key: "cancellationRate" },
+  { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
+  { headerName: "Allocated Amount", key: "allocatedAmount" },
+  { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
+];
+
 
   return (
     <>
