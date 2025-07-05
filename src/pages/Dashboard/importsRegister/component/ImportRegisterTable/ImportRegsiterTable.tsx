@@ -103,43 +103,95 @@ const ImportRegisterTable = () => {
     fetchImportRegisterData();
   }, []);
 
-  const ImportRegisterTableColumns = [
-    {
-      headerName: "S.No.",
-      key: "sno",
-      props: { row: { textAlign: "center" } },
-    },
-    { headerName: "Exposure Type", key: "exposureType" },
-    { headerName: "Exposure Date", key: "exposureInputDate" },
-    { headerName: "PO Date", key: "poDate" },
-    { headerName: "BL Date", key: "blDate" },
-    { headerName: "Collection Date", key: "collectionDate" },
-    { headerName: "Amount", key: "amount" },
-    { headerName: "Currency", key: "currency" },
-    { headerName: "Budget Rate", key: "budgetRate" },
-    { headerName: "Hedged Amount", key: "hedgedAmount" },
-    { headerName: "Invoice No", key: "invoiceNo" },
-    { headerName: "PO No", key: "poNo" },
-    { headerName: "Party Name", key: "partyName" },
-    { headerName: "Bank", key: "bank" },
-    { headerName: "Payment Terms", key: "paymentTerms" },
-    { headerName: "Forward Contract No", key: "forwardContractNo" },
-    { headerName: "Priority", key: "priority" },
-    { headerName: "Booked Forward Rate", key: "bookedForwardRate" },
-    {
-      headerName: "Remark",
-      key: "remark",
-      type: "tooltip",
-      function: (row: any) =>
-        row.remark ? (
-          <Tooltip label={row.remark} hasArrow>
-            <span>{row.remark.slice(0, 20)}...</span>
-          </Tooltip>
-        ) : (
-          "-"
-        ),
-    },
-  ];
+  
+
+  // const ImportRegisterTableColumns = [
+  //   {
+  //     headerName: "S.No.",
+  //     key: "sno",
+  //     props: { row: { textAlign: "center" } },
+  //   },
+  //   { headerName: "Exposure Type", key: "exposureType" },
+  //   { headerName: "Exposure Date", key: "exposureInputDate" },
+  //   { headerName: "PO Date", key: "poDate" },
+  //   { headerName: "BL Date", key: "blDate" },
+  //   { headerName: "Collection Date", key: "collectionDate" },
+  //   { headerName: "Amount", key: "amount" },
+  //   { headerName: "Currency", key: "currency" },
+  //   { headerName: "Budget Rate", key: "budgetRate" },
+  //   { headerName: "Hedged Amount", key: "hedgedAmount" },
+  //   { headerName: "Invoice No", key: "invoiceNo" },
+  //   { headerName: "PO No", key: "poNo" },
+  //   { headerName: "Party Name", key: "partyName" },
+  //   { headerName: "Bank", key: "bank" },
+  //   { headerName: "Payment Terms", key: "paymentTerms" },
+  //   { headerName: "Forward Contract No", key: "forwardContractNo" },
+  //   { headerName: "Priority", key: "priority" },
+  //   { headerName: "Booked Forward Rate", key: "bookedForwardRate" },
+  //   {
+  //     headerName: "Remark",
+  //     key: "remark",
+  //     type: "tooltip",
+  //     function: (row: any) =>
+  //       row.remark ? (
+  //         <Tooltip label={row.remark} hasArrow>
+  //           <span>{row.remark.slice(0, 20)}...</span>
+  //         </Tooltip>
+  //       ) : (
+  //         "-"
+  //       ),
+  //   },
+  // ];
+  
+const ImportRegisterTableColumns = [
+  { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
+  { headerName: "Month", key: "month" },
+  { headerName: "Exposure Type", key: "exposureType" },
+  { headerName: "Exposure Date", key: "exposureInputDate" },
+  { headerName: "Exposure Modification Date", key: "exposureModificationDate" },
+  { headerName: "PO Date", key: "poDate" },
+  { headerName: "PO No", key: "poNo" },
+  { headerName: "Invoice No", key: "invoiceNo" },
+  { headerName: "Invoice Date", key: "invoiceDate" },
+  { headerName: "Party Name", key: "partyName" },
+  { headerName: "Bank", key: "bank" },
+  { headerName: "Priority", key: "priority" },
+  { headerName: "Business Unit", key: "businessUnit" },
+  { headerName: "BL Date", key: "blDate" },
+  { headerName: "Payment Terms", key: "paymentTerms" },
+  { headerName: "Due Date", key: "dueDate" },
+  { headerName: "Currency", key: "currency" },
+  { headerName: "Amount", key: "amount" },
+  { headerName: "Budget Rate", key: "budgetRate" },
+  { headerName: "Hedge Deal Ref No", key: "hedgeDealRefNo" },
+  { headerName: "Hedged Amount", key: "hedgedAmount" },
+  { headerName: "Hedged Rate", key: "hedgedRate" },
+  { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
+  { headerName: "Premium on BMK Date", key: "premimumOnBmkDate" },
+  { headerName: "BMK Rate", key: "bmkRate" },
+  { headerName: "RM Policy Rate", key: "rmPolicyRate" },
+  { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+  { headerName: "Advance Payment", key: "advancePayment" },
+  { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
+  { headerName: "Amount Settled", key: "amountSettled" },
+  { headerName: "Settlement Rate", key: "settlementRate" },
+  { headerName: "P/L in INR", key: "PlInINR" },
+  { headerName: "Value in INR", key: "valueInInr" },
+  {
+    headerName: "Remark",
+    key: "remark",
+    type: "tooltip",
+    function: (row: any) =>
+      row.remark ? (
+        <Tooltip label={row.remark} hasArrow>
+          <span>{row.remark.slice(0, 20)}...</span>
+        </Tooltip>
+      ) : (
+        "-"
+      ),
+  },
+];
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>

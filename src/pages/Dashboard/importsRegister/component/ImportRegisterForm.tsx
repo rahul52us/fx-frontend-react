@@ -17,79 +17,46 @@ import {
 
 const ImportRegistrationForm = ({submitImportForm} : any) => {
 
-  const validationSchema = Yup.object({
+  // const validationSchema = Yup.object({
+  //   exposureType: Yup.mixed().required("Exposure Type is required"),
+  //   exposureInputDate: Yup.string().required("Exposure Input Date is required"),
+  //   poDate: Yup.string().required("PO Date is required"),
+  //   blDate: Yup.string().required("BL Date is required"),
+  //   dueDate: Yup.string().required("Due Date is required"),// change to due date
+  //   amount: Yup.string()
+  //     .required("Amount is required"),
+  //   currency: Yup.mixed().required("Currency is required"),
+  //   budgetRate: Yup.string().nullable(),
+  //   invoiceNo: Yup.string().required("Invoice No is required"),
+  //   partyName: Yup.string().required("Party Name is required"),
+  //   priority: Yup.string().required("Priority is required"),
+  //   paymentTerms: Yup.string().required("Payment terms is required"),
+  //   bank: Yup.string().required("Bank is required"),
+  //   forwardContractNo: Yup.string().required("Forward Contract No is required"),
+  //   remark: Yup.string().nullable(),
+  // });
+  
+  const validationSchema = Yup.object().shape({
     exposureType: Yup.mixed().required("Exposure Type is required"),
-    exposureInputDate: Yup.string().required("Exposure Input Date is required"),
-    poDate: Yup.string().required("PO Date is required"),
-    blDate: Yup.string().required("BL Date is required"),
-    dueDate: Yup.string().required("Due Date is required"),// change to due date
-    amount: Yup.string()
-      .required("Amount is required"),
-    // bookedForwardRate: Yup.string()// remove this
-      // .required("Amount is required"),
-    currency: Yup.mixed().required("Currency is required"),
-    budgetRate: Yup.string().nullable(),
-    // hedgedAmount: Yup.string().nullable(),// remove this
-    // poNo: Yup.string().required("PO No is required"),
-    invoiceNo: Yup.string().required("Invoice No is required"),
-    partyName: Yup.string().required("Party Name is required"),
-    priority: Yup.string().required("Priority is required"),
-    paymentTerms: Yup.string().required("Payment terms is required"),
-    bank: Yup.string().required("Bank is required"),
-    forwardContractNo: Yup.string().required("Forward Contract No is required"),
-    remark: Yup.string().nullable(),
-  });
-
-  // const submitExportForm = async (values: any, toast: any, actions: any) => {
-  //   try {
-  //     const response = await axios.post(
-  //       "http://srv864630.hstgr.cloud:8000/importregister/form/",
-  //       values
-  //     );
-
-  //     if (response.status === 200 && response.data.status === "success") {
-  //       toast({
-  //         title: "Success",
-  //         description: response.data.message,
-  //         status: "success",
-  //         duration: 5000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //       if(fetchData)
-  //       {
-  //         fetchData()
-  //       }
-  //       if(onClose)
-  //       {
-  //         onClose()
-  //       }
-
-  //       actions.resetForm();
-  //     } else {
-  //       toast({
-  //         title: "Submission failed",
-  //         description: "Unexpected server response.",
-  //         status: "error",
-  //         duration: 5000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //     }
-  //   } catch (error: any) {
-  //     toast({
-  //       title: "Error",
-  //       description: error?.response?.data?.message || "Something went wrong.",
-  //       status: "error",
-  //       duration: 5000,
-  //       isClosable: true,
-  //       position: "top-right",
-  //     });
-  //   } finally {
-  //     actions.setSubmitting(false);
-  //   }
-  // };
-
+  exposureInputDate: Yup.string().required("Exposure Input Date is required"),
+  exposureModificationDate: Yup.string().nullable(), // optional, as no validation message was originally given
+  poDate: Yup.string().required("PO Date is required"),
+  poNo: Yup.string().nullable(), // no validation mentioned, so nullable
+  invoiceNo: Yup.string().required("Invoice No is required"),
+  invoiceDate: Yup.string().nullable(), // no validation mentioned
+  partyName: Yup.string().required("Party Name is required"),
+  bank: Yup.string().required("Bank is required"),
+  priority: Yup.mixed().required("Priority is required"),
+  businessUnit: Yup.string().nullable(), // no validation mentioned
+  blDate: Yup.string().required("BL Date is required"),
+  paymentTerms: Yup.string().required("Payment Terms is required"),
+  dueDate: Yup.string().required("Due Date is required"),
+  currency: Yup.mixed().required("Currency is required"),
+  amount: Yup.string().required("Amount is required"),
+  budgetRate: Yup.string().nullable(),
+  hedgeDealRefNo: Yup.string().nullable(), 
+  remark: Yup.string().nullable(),
+});
   return (
       <Box
         maxW="5xl"
@@ -164,6 +131,22 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                     error={touched.poDate && errors.poDate}
                   />
                   <CustomInput
+                    label="Exposure Modification Date"
+                    name="exposureModificationDate"
+                    type="date"
+                    value={values.exposureModificationDate}
+                    onChange={handleChange}
+                    error={touched.exposureModificationDate && errors.exposureModificationDate}
+                  />
+                  <CustomInput
+                    label="Invoice Date"
+                    name="invoiceDate"
+                    type="date"
+                    value={values.invoiceDate}
+                    onChange={handleChange}
+                    error={touched.invoiceDate && errors.invoiceDate}
+                  />
+                  <CustomInput
                     label="BL Date"
                     name="blDate"
                     type="date"
@@ -186,13 +169,13 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                     onChange={handleChange}
                     error={touched.amount && errors.amount}
                   />
-                  <CustomInput
+                  {/* <CustomInput
                     label="Adjustment Amount"
                     name="adjustmentAmount"
                     value={values.adjustmentAmount}
                     onChange={handleChange}
                     error={touched.adjustmentAmount && errors.adjustmentAmount}
-                  />
+                  /> */}
                   <CustomInput
                     label="Currency"
                     type="select"
@@ -225,14 +208,14 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                     onChange={handleChange}
                     error={touched.hedgedAmount && errors.hedgedAmount}
                   /> */}
-                  {/* <CustomInput
+                  <CustomInput
                     label="PO No"
                     name="poNo"
                     placeholder="Enter PO No"
                     value={values.poNo}
                     onChange={handleChange}
                     error={touched.poNo && errors.poNo}
-                  /> */}
+                  />
                   <CustomInput
                     label="Invoice No"
                     name="invoiceNo"
@@ -240,6 +223,14 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                     value={values.invoiceNo}
                     onChange={handleChange}
                     error={touched.invoiceNo && errors.invoiceNo}
+                  />
+                  <CustomInput
+                    label="Business Unit"
+                    name="businessUnit"
+                    placeholder="Unit"
+                    value={values.businessUnit}
+                    onChange={handleChange}
+                    error={touched.businessUnit && errors.businessUnit}
                   />
                   <CustomInput
                     label="Party Name"
@@ -266,13 +257,13 @@ const ImportRegistrationForm = ({submitImportForm} : any) => {
                     error={touched.paymentTerms && errors.paymentTerms}
                   />
                   <CustomInput
-                    label="Forword Contract No"
-                    name="forwardContractNo"
-                    placeholder="Contract No"
-                    value={values.forwardContractNo}
+                    label="hedge Deal Ref No"
+                    name="hedgeDealRefNo"
+                    placeholder="Reference No"
+                    value={values.hedgeDealRefNo}
                     onChange={handleChange}
                     error={
-                      touched.forwardContractNo && errors.forwardContractNo
+                      touched.hedgeDealRefNo && errors.hedgeDealRefNo
                     }
                   />
                   {/* <CustomInput
