@@ -15,23 +15,35 @@ import {
 } from "../../exportsRegister/component/utils/constant";
 
 const ForwardCancellationForm = ({submitForm}:any) => {
-  const validationSchema = Yup.object({
-    dealType: Yup.string().required("Deal Type is required"),//
-    transactionDate: Yup.string().required("Transaction Date is required"),//
-    forwardDealId: Yup.string().required("Forward Deal ID is required"),//
-    pcfcRefNumber: Yup.string().required("PCFC Reference Number is required"),//
-    amount: Yup.string()//
-      .required("Amount is required"),
-    spotBooked: Yup.string()//
-      .required("Spot Booked is required"),
-    forwardPremium: Yup.string()//
-      .required("Forward Premium is required"),
-    cashTomSpot: Yup.string()//
-      .required("Cash Tom Spot is required"),
-    bankMargin: Yup.string()//
-      .required("Bank Margin is required"),
-  });
+  // const validationSchema = Yup.object({
+  //   dealType: Yup.string().required("Deal Type is required"),//
+  //   transactionDate: Yup.string().required("Transaction Date is required"),//
+  //   forwardDealId: Yup.string().required("Forward Deal ID is required"),//
+  //   pcfcRefNumber: Yup.string().required("PCFC Reference Number is required"),//
+  //   amount: Yup.string()//
+  //     .required("Amount is required"),
+  //   spotBooked: Yup.string()//
+  //     .required("Spot Booked is required"),
+  //   forwardPremium: Yup.string()//
+  //     .required("Forward Premium is required"),
+  //   cashTomSpot: Yup.string()//
+  //     .required("Cash Tom Spot is required"),
+  //   bankMargin: Yup.string()//
+  //     .required("Bank Margin is required"),
+  // });
+  
 
+  const validationSchema = Yup.object().shape({
+  transactionDate: Yup.string().required("Transaction Date is required"),
+  dealType: Yup.string().required("Deal Type is required"),
+  forwardDealId: Yup.string().required("Forward Deal ID is required"),
+  pcfcRefNumber: Yup.string().required("PCFC Reference Number is required"),
+  amount: Yup.string().required("Amount is required"),
+  spotBooked: Yup.string().required("Spot Booked is required"),
+  forwardPremium: Yup.string().required("Forward Premium is required"),
+  cashTomSpot: Yup.string().required("Cash Tom Spot is required"),
+  bankMargin: Yup.string().required("Bank Margin is required"),
+});
   return (
     <Box bg="whiteAlpha.700" py={4}>
       {/* Background Image with Overlay */}

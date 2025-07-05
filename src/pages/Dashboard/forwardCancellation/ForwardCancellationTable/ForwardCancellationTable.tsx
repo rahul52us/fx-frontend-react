@@ -116,29 +116,26 @@ const ForwardCancellationTable = () => {
   useEffect(() => {
     fetchExportRegisterData();
   }, []);
-  const DealDataColumns = [
-    { headerName: "Deal Type", key: "dealType", label: "a" },
-    {
-      headerName: "Exposure Type",
-      key: "exposureType",
-      label: "confirmed_order",
-    },
-    {
-      headerName: "Transaction Date",
-      key: "transactionDate",
-      label: "2025-06-04",
-    },
-    { headerName: "Forward Deal ID", key: "forwardDealId", label: "43" },
-    { headerName: "Bank", key: "bank", label: "bank name" },
-    { headerName: "PCFC Ref Number", key: "pcfcRefNumber", label: "45" },
-    { headerName: "Currency", key: "currency", label: "USD" },
-    { headerName: "Amount", key: "amount", label: 56 },
-    { headerName: "Booked Rate", key: "bookedRate", label: 4 },
-    { headerName: "Spot Booked", key: "spotBooked", label: 344 },
-    { headerName: "Forward Premium", key: "forwardPremium", label: 234 },
-    { headerName: "Cash To Spot", key: "cashTomSpot", label: 234 },
-    { headerName: "Bank Margin", key: "bankMargin", label: 0 },
-  ];
+ const DealDataColumns = [
+  { headerName: "Deal Type", key: "dealType" },
+  { headerName: "Exposure Type", key: "exposureType" },
+  { headerName: "Transaction Date", key: "transactionDate" },
+  { headerName: "Forward Deal ID", key: "forwardDealId" },
+  { headerName: "Bank", key: "bank" },
+  { headerName: "PCFC Ref Number", key: "pcfcRefNumber" },
+  { headerName: "Currency", key: "currency" },
+  { headerName: "Amount", key: "amount" },
+  { headerName: "Booked Rate", key: "bookedRate" },
+  { headerName: "Spot Booked", key: "spotBooked" },
+  { headerName: "Forward Premium", key: "forwardPremium" },
+  { headerName: "Cash To Spot", key: "cashTomSpot" },
+  { headerName: "Bank Margin", key: "bankMargin" },
+  { headerName: "Net Settlement Rate", key: "netSettlementRate" },
+  { headerName: "INR Amount", key: "inrAmount" },
+  { headerName: "Maturity", key: "maturity" },
+  { headerName: "P/L on Cancellation", key: "profitAndLossOnCancellation" },
+];
+
 
   return (
     <>
