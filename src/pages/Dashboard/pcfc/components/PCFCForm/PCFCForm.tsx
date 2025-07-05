@@ -17,20 +17,26 @@ import {
 } from "../../../exportsRegister/component/utils/constant";
 
 const PCFCForm = ({submitForm}:any) => {
-  const validationSchema = Yup.object({
-    drawdownDate: Yup.string().required("Drawdown Date is required"),//
-    conversionBasic: Yup.string().required("Conversion Basic is required"),//
-    bank: Yup.string().required("Bank is required"),//
-    dealId: Yup.string().required("Deal ID is required"),//
-    currency: Yup.mixed().required("Currency is required"),//
-    originalAmount: Yup.string()//
-      .required("Original Amount is required"),
-    drawdownRate: Yup.string()//
-      .required("Drawdown Rate is required"),
-    interestRate: Yup.string()//
-      .required("Interest Rate is required"),
-    maturity: Yup.string().required("Maturity Date is required"),//
-  });
+ 
+
+
+ const validationSchema = Yup.object().shape({
+  drawdownDate: Yup.string().required("Drawdown Date is required"),
+  modeOfConversion: Yup.string().required("Mode of Conversion is required"),
+  bank: Yup.string().required("Bank is required"),
+  tradeReferenceNumber: Yup.string().required("Trade Reference Number is required"),
+  currency: Yup.mixed().required("Currency is required"),
+  drawdownAmount: Yup.string().required("Drawdown Amount is required"),
+  drawdownRate: Yup.string().required("Drawdown Rate is required"),
+  floatingInterestRate: Yup.string().required("Floating Interest Rate is required"),
+  bankSpread: Yup.string().required("Bank Spread is required"),
+  totalInterestRate: Yup.string().required("Total Interest Rate is required"),
+  dueDate: Yup.string().required("Due Date is required"),
+});
+
+
+  
+
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
@@ -98,13 +104,22 @@ const PCFCForm = ({submitForm}:any) => {
                   />
 
                   <CustomInput
+                    label="Due Date"
+                    name="dueDate"
+                    type="date"
+                    value={values.dueDate}
+                    onChange={handleChange}
+                    error={touched.dueDate && errors.dueDate}
+                  />
+
+                  {/* <CustomInput
                     label="Conversion Basic"
                     name="conversionBasic"
                     placeholder="Enter Conversion Basic"
                     value={values.conversionBasic}
                     onChange={handleChange}
                     error={touched.conversionBasic && errors.conversionBasic}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="Bank"
@@ -114,15 +129,39 @@ const PCFCForm = ({submitForm}:any) => {
                     onChange={handleChange}
                     error={touched.bank && errors.bank}
                   />
-
                   <CustomInput
+                    label="Mode Of Conversion"
+                    name="modeOfConversion"
+                    placeholder="Conversion Mode"
+                    value={values.modeOfConversion}
+                    onChange={handleChange}
+                    error={touched.modeOfConversion && errors.modeOfConversion}
+                  />
+                  <CustomInput
+                    label="Trade Ref No"
+                    name="tradeReferenceNumber"
+                    placeholder="Ref No"
+                    value={values.tradeReferenceNumber}
+                    onChange={handleChange}
+                    error={touched.tradeReferenceNumber && errors.tradeReferenceNumber}
+                  />
+                  <CustomInput
+                    label="Bank Spread"
+                    name="bankSpread"
+                    placeholder="Bank Spread"
+                    value={values.bankSpread}
+                    onChange={handleChange}
+                    error={touched.bankSpread && errors.bankSpread}
+                  />
+
+                  {/* <CustomInput
                     label="Deal ID"
                     name="dealId"
                     placeholder="Enter Deal ID"
                     value={values.dealId}
                     onChange={handleChange}
                     error={touched.dealId && errors.dealId}
-                  />
+                  /> */}
 
                   <CustomInput
                     label="Currency"
@@ -142,7 +181,7 @@ const PCFCForm = ({submitForm}:any) => {
                     }
                     error={touched.currency && errors.currency}
                   />
-
+{/* 
                   <CustomInput
                     label="Original Amount"
                     name="originalAmount"
@@ -150,8 +189,16 @@ const PCFCForm = ({submitForm}:any) => {
                     value={values.originalAmount}
                     onChange={handleChange}
                     error={touched.originalAmount && errors.originalAmount}
-                  />
+                  /> */}
 
+                  <CustomInput
+                    label="Drawdown Amount"
+                    name="drawdownAmount"
+                    placeholder="Enter Drawdown Rate"
+                    value={values.drawdownAmount}
+                    onChange={handleChange}
+                    error={touched.drawdownAmount && errors.drawdownAmount}
+                  />
                   <CustomInput
                     label="Drawdown Rate"
                     name="drawdownRate"
@@ -162,22 +209,30 @@ const PCFCForm = ({submitForm}:any) => {
                   />
 
                   <CustomInput
-                    label="Interest Rate"
-                    name="interestRate"
+                    label="Total Interest Rate"
+                    name="totalInterestRate"
                     placeholder="Enter Interest Rate"
-                    value={values.interestRate}
+                    value={values.totalInterestRate}
                     onChange={handleChange}
-                    error={touched.interestRate && errors.interestRate}
+                    error={touched.totalInterestRate && errors.totalInterestRate}
+                  />
+                  <CustomInput
+                    label="Floating Interest Rate"
+                    name="floatingInterestRate"
+                    placeholder="Enter Interest Rate"
+                    value={values.floatingInterestRate}
+                    onChange={handleChange}
+                    error={touched.floatingInterestRate && errors.floatingInterestRate}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Maturity"
                     name="maturity"
                     type="date"
                     value={values.maturity}
                     onChange={handleChange}
                     error={touched.maturity && errors.maturity}
-                  />
+                  /> */}
                 </SimpleGrid>
 
                 <Flex justify={"end"}>
