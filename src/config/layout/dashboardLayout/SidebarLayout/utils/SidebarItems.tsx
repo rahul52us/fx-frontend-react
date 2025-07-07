@@ -9,6 +9,7 @@ import { ImCancelCircle } from "react-icons/im";
 import { IoDocumentText, IoPieChartSharp } from "react-icons/io5";
 import { MdLocalShipping } from "react-icons/md";
 import { dashboard } from "../../../../constant/routes";
+import { CgArrowsExchange } from "react-icons/cg";
 
 interface SidebarItem {
   id: number;
@@ -170,6 +171,22 @@ const sidebarDatas: SidebarItem[] = [
         name: "index",
         icon: <CalendarIcon />,
         url: `${dashboard.forwardCancellation}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 700,
+    name: "EEFC Register",
+    icon: <CgArrowsExchange />,
+    url: dashboard.eefcRegister,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 601,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.eefcRegister}`,
         role: ["user","superadmin","manager","admin"],
       }
     ]

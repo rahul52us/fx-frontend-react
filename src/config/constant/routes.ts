@@ -20,6 +20,7 @@ export const dashboard = {
   class: `/${dashboardName}/export-register`,
   course: `/${dashboardName}/import-register`,
   pcfc: `/${dashboardName}/pcfc`,
+  eefcRegister: `/${dashboardName}/eefc-register`,
   mtm: `/${dashboardName}/mtm`,
   forwardRegister: `/${dashboardName}/forward-regsiter`,
   forwardCancellation: `/${dashboardName}/forward-cancellation`,

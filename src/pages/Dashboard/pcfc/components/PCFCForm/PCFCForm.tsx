@@ -7,82 +7,47 @@ import {
   Flex,
   Heading,
   SimpleGrid,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
+import { useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
-import {
-  currencyOptions
-} from "../../../exportsRegister/component/utils/constant";
+import { currencyOptions } from "../../../exportsRegister/component/utils/constant";
 
-const PCFCForm = ({submitForm}:any) => {
- 
-
-
- const validationSchema = Yup.object().shape({
-  drawdownDate: Yup.string().required("Drawdown Date is required"),
-  modeOfConversion: Yup.string().required("Mode of Conversion is required"),
-  bank: Yup.string().required("Bank is required"),
-  tradeReferenceNumber: Yup.string().required("Trade Reference Number is required"),
-  currency: Yup.mixed().required("Currency is required"),
-  drawdownAmount: Yup.string().required("Drawdown Amount is required"),
-  drawdownRate: Yup.string().required("Drawdown Rate is required"),
-  floatingInterestRate: Yup.string().required("Floating Interest Rate is required"),
-  bankSpread: Yup.string().required("Bank Spread is required"),
-  totalInterestRate: Yup.string().required("Total Interest Rate is required"),
-  dueDate: Yup.string().required("Due Date is required"),
-});
-
-
-  
-
+const PCFCForm = ({ submitForm }: any) => {
+  const [showError, setShowError] = useState(false);
+  const validationSchema = Yup.object().shape({
+    drawdownDate: Yup.string().required("Drawdown Date is required"),
+    modeOfConversion: Yup.string().required("Mode of Conversion is required"),
+    bank: Yup.string().required("Bank is required"),
+    tradeReferenceNumber: Yup.string().required(
+      "Trade Reference Number is required"
+    ),
+    currency: Yup.mixed().required("Currency is required"),
+    drawdownAmount: Yup.string().required("Drawdown Amount is required"),
+    drawdownRate: Yup.string().required("Drawdown Rate is required"),
+    floatingInterestRate: Yup.string().required(
+      "Floating Interest Rate is required"
+    ),
+    bankSpread: Yup.string().required("Bank Spread is required"),
+    totalInterestRate: Yup.string().required("Total Interest Rate is required"),
+    dueDate: Yup.string().required("Due Date is required"),
+  });
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
-      {/* Background Image with Overlay */}
-      {/* <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          height: "100vh",
-          width: "100%",
-          zIndex: -1,
-          overflow: "hidden",
-        }}
-      >
-        <Image
-          src={"/img/background_image.jpg"}
-          alt="Background Image"
-          objectFit="cover"
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            height: "100%",
-            width: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-          }}
-        />
-      </div> */}
-      <Box
-        maxW="5xl"
-        mx="auto"
-        p={8}
-      >
+      <Box maxW="5xl" mx="auto" p={8}>
         <Heading size="lg" mb={6} textAlign="center">
           PCFC Register Form
         </Heading>
-
         <Formik
           initialValues={{}}
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, actions) => {
-            submitForm(values,actions,"form");
+            setShowError(true);
+            submitForm(values, actions, "form");
             actions.setSubmitting(false);
           }}
         >
@@ -90,10 +55,7 @@ const PCFCForm = ({submitForm}:any) => {
             <FormikForm>
               <VStack spacing={6} align="stretch">
                 <Divider mb={4} />
-
                 <SimpleGrid columns={[1, null, 2]} spacing={8}>
-                  
-
                   <CustomInput
                     label="Drawdown Date"
                     name="drawdownDate"
@@ -101,6 +63,7 @@ const PCFCForm = ({submitForm}:any) => {
                     value={values.drawdownDate}
                     onChange={handleChange}
                     error={touched.drawdownDate && errors.drawdownDate}
+                    showError={showError}
                   />
 
                   <CustomInput
@@ -110,17 +73,8 @@ const PCFCForm = ({submitForm}:any) => {
                     value={values.dueDate}
                     onChange={handleChange}
                     error={touched.dueDate && errors.dueDate}
+                    showError={showError}
                   />
-
-                  {/* <CustomInput
-                    label="Conversion Basic"
-                    name="conversionBasic"
-                    placeholder="Enter Conversion Basic"
-                    value={values.conversionBasic}
-                    onChange={handleChange}
-                    error={touched.conversionBasic && errors.conversionBasic}
-                  /> */}
-
                   <CustomInput
                     label="Bank"
                     name="bank"
@@ -128,6 +82,7 @@ const PCFCForm = ({submitForm}:any) => {
                     value={values.bank}
                     onChange={handleChange}
                     error={touched.bank && errors.bank}
+                    showError={showError}
                   />
                   <CustomInput
                     label="Mode Of Conversion"
@@ -136,6 +91,7 @@ const PCFCForm = ({submitForm}:any) => {
                     value={values.modeOfConversion}
                     onChange={handleChange}
                     error={touched.modeOfConversion && errors.modeOfConversion}
+                    showError={showError}
                   />
                   <CustomInput
                     label="Trade Ref No"
@@ -143,7 +99,11 @@ const PCFCForm = ({submitForm}:any) => {
                     placeholder="Ref No"
                     value={values.tradeReferenceNumber}
                     onChange={handleChange}
-                    error={touched.tradeReferenceNumber && errors.tradeReferenceNumber}
+                    error={
+                      touched.tradeReferenceNumber &&
+                      errors.tradeReferenceNumber
+                    }
+                    showError={showError}
                   />
                   <CustomInput
                     label="Bank Spread"
@@ -152,17 +112,8 @@ const PCFCForm = ({submitForm}:any) => {
                     value={values.bankSpread}
                     onChange={handleChange}
                     error={touched.bankSpread && errors.bankSpread}
+                    showError={showError}
                   />
-
-                  {/* <CustomInput
-                    label="Deal ID"
-                    name="dealId"
-                    placeholder="Enter Deal ID"
-                    value={values.dealId}
-                    onChange={handleChange}
-                    error={touched.dealId && errors.dealId}
-                  /> */}
-
                   <CustomInput
                     label="Currency"
                     name="currency"
@@ -180,17 +131,8 @@ const PCFCForm = ({submitForm}:any) => {
                       })
                     }
                     error={touched.currency && errors.currency}
+                    showError={showError}
                   />
-{/* 
-                  <CustomInput
-                    label="Original Amount"
-                    name="originalAmount"
-                    placeholder="Enter Original Amount"
-                    value={values.originalAmount}
-                    onChange={handleChange}
-                    error={touched.originalAmount && errors.originalAmount}
-                  /> */}
-
                   <CustomInput
                     label="Drawdown Amount"
                     name="drawdownAmount"
@@ -198,6 +140,7 @@ const PCFCForm = ({submitForm}:any) => {
                     value={values.drawdownAmount}
                     onChange={handleChange}
                     error={touched.drawdownAmount && errors.drawdownAmount}
+                    showError={showError}
                   />
                   <CustomInput
                     label="Drawdown Rate"
@@ -206,6 +149,7 @@ const PCFCForm = ({submitForm}:any) => {
                     value={values.drawdownRate}
                     onChange={handleChange}
                     error={touched.drawdownRate && errors.drawdownRate}
+                    showError={showError}
                   />
 
                   <CustomInput
@@ -214,7 +158,10 @@ const PCFCForm = ({submitForm}:any) => {
                     placeholder="Enter Interest Rate"
                     value={values.totalInterestRate}
                     onChange={handleChange}
-                    error={touched.totalInterestRate && errors.totalInterestRate}
+                    error={
+                      touched.totalInterestRate && errors.totalInterestRate
+                    }
+                    showError={showError}
                   />
                   <CustomInput
                     label="Floating Interest Rate"
@@ -222,19 +169,13 @@ const PCFCForm = ({submitForm}:any) => {
                     placeholder="Enter Interest Rate"
                     value={values.floatingInterestRate}
                     onChange={handleChange}
-                    error={touched.floatingInterestRate && errors.floatingInterestRate}
+                    error={
+                      touched.floatingInterestRate &&
+                      errors.floatingInterestRate
+                    }
+                    showError={showError}
                   />
-
-                  {/* <CustomInput
-                    label="Maturity"
-                    name="maturity"
-                    type="date"
-                    value={values.maturity}
-                    onChange={handleChange}
-                    error={touched.maturity && errors.maturity}
-                  /> */}
                 </SimpleGrid>
-
                 <Flex justify={"end"}>
                   <Button
                     rounded={"full"}

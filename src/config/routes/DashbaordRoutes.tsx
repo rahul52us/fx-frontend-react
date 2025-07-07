@@ -10,6 +10,7 @@ import ForwardCancellation from "../../pages/Dashboard/forwardCancellation/Forwa
 import PcFc from "../../pages/Dashboard/pcfc/Pcfc";
 import DailyExposureSheet from "../../pages/Dashboard/dailyExposureSheet/page";
 import MTMTable from "../../pages/Dashboard/mtm/component/MTMTable/MTMTable";
+import EEFCRegister from "../../pages/Dashboard/eefcRegister/EEFCRegister";
 const VerifyInvitationPage = lazy(() => import("../component/common/VerifyInvitationPages/VerifyInvitationPage"))
 
 const PersonalDetails = lazy(
@@ -209,6 +210,11 @@ export const DashboardRoutes = [
   {
     element: <PcFc />,
     path: dashboard.pcfc,
+    privateRoutes: true,
+  },
+  {
+    element: <EEFCRegister />,
+    path: dashboard.eefcRegister,
     privateRoutes: true,
   },
   {
