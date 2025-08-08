@@ -6,8 +6,8 @@ export const currencyOptions = [
 ];
 
 export const exposureTypeOptions = [
-  { label: "Shipment", value: "shipment" },
-  { label: "Confirmed Order", value: "confirmed_order" },
+  { label: "Exports", value: "exports" },
+  { label: "Imports", value: "imports" },
 ];
 
 export const priorityOptions = [
@@ -32,13 +32,18 @@ export const monthsOptions = [
 ];
 
 export const settlementTypeOptions = [
-  { label: "Advanced", value: "advanced" },
-  { label: "General", value: "general" },
+  { label: "Advance", value: "advance" },
+  { label: "Regular", value: "regular" },
 ];
 export const conversionTypeOptions = [
   { label: "Spot", value: "spot" },
   { label: "EEFC", value: "eefc" },
 ];
+
+export const modeOfConversionOptions = [
+  { label: "Spot", value: "spot" },
+  { label: "EEFC", value: "eefc" },
+]
 
 export const dealTypeOptions = [
   { label: "A", value: "a" },
