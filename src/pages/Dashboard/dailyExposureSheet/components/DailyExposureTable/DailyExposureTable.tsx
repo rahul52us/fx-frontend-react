@@ -115,7 +115,7 @@ const DailyExposureTable = () => {
   }, []);
 
   const DailyExposureColumns = [
-  { headerName: "Month", key: "month", label: "Month" },
+  // { headerName: "Month", key: "month", label: "Month" },
   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
   { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
   { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
