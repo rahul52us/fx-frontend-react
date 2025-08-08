@@ -84,7 +84,7 @@ const ImportRegisterTable = () => {
     try {
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/importregister/view/",
-        { userToken: "abcxyz" }
+        { userToken: "abcdxyz" }
       );
       const result = response.data?.data?.data || [];
       const withSerial = result.map((item: any, idx: number) => ({
@@ -224,7 +224,7 @@ const ImportRegisterTableColumns = [
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                columns: ImportRegisterTableColumns,
+                // columns: ImportRegisterTableColumns,
                 data: dummyImportRegisterData,
                 fileName: "Import_Register.xlsx",
               }),

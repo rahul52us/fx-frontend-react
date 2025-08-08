@@ -34,7 +34,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
     paymentTerms: Yup.string().required("Payment Terms is required"),
     dueDate: Yup.string().required("Due Date is required"),
     currency: Yup.mixed().required("Currency is required"),
-    amount: Yup.string().required("Amount is required"),
+    amount: Yup.number().required("Amount is required"),
     budgetRate: Yup.string().nullable(),
     hedgeDealRefNo: Yup.string().nullable(),
     remark: Yup.string().nullable(),
@@ -142,6 +142,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                 />
                 <CustomInput
                   label="Amount"
+                  type="number"
                   name="amount"
                   value={values.amount}
                   onChange={handleChange}
@@ -175,13 +176,6 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                   error={touched.budgetRate && errors.budgetRate}
                   showError={showError}
                 />
-                {/* <CustomInput
-                    label="Hedged Amount"
-                    name="hedgedAmount"
-                    value={values.hedgedAmount}
-                    onChange={handleChange}
-                    error={touched.hedgedAmount && errors.hedgedAmount}
-                  /> */}
                 <CustomInput
                   label="PO No"
                   name="poNo"

@@ -85,20 +85,21 @@ export const dummyPcfcData = [
 ];
 
 export const dummyForwardRegisterData = [
-  {
-    month: "March",
-    exposureType: "shipment",
-    deliveryDateFrom: "2025-06-03",
-    bookingDate: "2025-06-12",
-    deliveryDateTo: "2025-06-05",
-    bank: "23e",
-    dealId: "234",
+{
+    exposureType: "import",
+    bookingDate: "2025-07-10",
+    dueDateFrom: "2025-07-20",
+    dueDateTo: "2025-07-25",
+    bank: "HDFC Bank",
+    bussinessUnit: "1",
+    exposureRefNumber: "REF-001",
     currency: "USD",
-    originalAmount: 23,
-    spotBooked: 234,
-    bankMargin: 6,
-    forwardPoints: 45,
-    priority: "medium",
+    hedgeAmount: "50000",
+    hedgeDealReferenceNumber: "HDR-1001",
+    hedgeRate: "83.5",
+    spotBooked: "82.9",
+    forwardPoints: "0.6",
+    bankMargin: "1.2"
   },
 ];
 

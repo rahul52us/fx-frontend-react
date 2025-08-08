@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 
+
 // export function exportToExcel({
 //   columns,
 //   data,
@@ -14,7 +15,6 @@ import * as XLSX from "xlsx";
 //     return;
 //   }
 
-//   // Use keys (not headerName) as headers
 //   const headers = columns.map((col) => col.key);
 //   const keys = headers;
 
@@ -30,6 +30,18 @@ import * as XLSX from "xlsx";
 //   const worksheetData = [headers, ...rows];
 
 //   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+//   // Calculate column widths
+//   const colWidths = headers.map((header, colIndex) => {
+//     const maxContentWidth = worksheetData.reduce((maxWidth, row) => {
+//       const cellValue = String(row[colIndex] ?? "");
+//       return Math.max(maxWidth, cellValue.length);
+//     }, header.length);
+//     return { wch: maxContentWidth + 2 }; // +2 for padding
+//   });
+
+//   worksheet["!cols"] = colWidths;
+
 //   const workbook = XLSX.utils.book_new();
 //   XLSX.utils.book_append_sheet(workbook, worksheet, "Export");
 
@@ -37,23 +49,20 @@ import * as XLSX from "xlsx";
 // }
 
 
-// import * as XLSX from "xlsx";
-
 export function exportToExcel({
-  columns,
   data,
   fileName = "export.xlsx",
 }: {
-  columns: { key: string; headerName: string }[];
   data: Record<string, any>[];
   fileName?: string;
 }) {
-  if (!columns.length || !data.length) {
-    console.warn("No columns or data to export.");
+  if (!data.length) {
+    console.warn("No data to export.");
     return;
   }
 
-  const headers = columns.map((col) => col.key);
+  // Get headers directly from the first row's keys
+  const headers = Object.keys(data[0]);
   const keys = headers;
 
   const rows = data.map((row) =>
@@ -66,16 +75,15 @@ export function exportToExcel({
   );
 
   const worksheetData = [headers, ...rows];
-
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-  // Calculate column widths
+  // Auto column widths
   const colWidths = headers.map((header, colIndex) => {
     const maxContentWidth = worksheetData.reduce((maxWidth, row) => {
       const cellValue = String(row[colIndex] ?? "");
       return Math.max(maxWidth, cellValue.length);
     }, header.length);
-    return { wch: maxContentWidth + 2 }; // +2 for padding
+    return { wch: maxContentWidth + 2 };
   });
 
   worksheet["!cols"] = colWidths;
@@ -85,6 +93,7 @@ export function exportToExcel({
 
   XLSX.writeFile(workbook, fileName);
 }
+
 
 
 

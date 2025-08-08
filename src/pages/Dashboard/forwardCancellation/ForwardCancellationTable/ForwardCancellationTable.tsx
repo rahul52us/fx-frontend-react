@@ -155,7 +155,7 @@ const ForwardCancellationTable = () => {
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                columns: DealDataColumns,
+                // columns: DealDataColumns,
                 data: dymmyForwardCancellationData,
                 fileName: "Forward_Cancellation.xlsx",
               }),

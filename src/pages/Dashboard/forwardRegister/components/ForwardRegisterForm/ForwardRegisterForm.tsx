@@ -18,23 +18,41 @@ import {
 } from "../../../exportsRegister/component/utils/constant";
 
 const ForwardRegisterForm = ({submitForm}:any) => {
+  // const validationSchema = Yup.object({
+  //   exposureType: Yup.string().required("Exposure Type is required"),//
+  //   bookingDate: Yup.string().required("Booking Date is required"),//
+  //   deliveryDateFrom: Yup.string().required("Delivery Date From is required"),//
+  //   deliveryDateTo: Yup.string().required("Delivery Date To is required"),//
+  //   bank: Yup.string().required("Bank is required"),//
+  //   dealId: Yup.string().required("Deal ID is required"),//
+  //   currency: Yup.string().required("Currency is required"),//
+  //   originalAmount: Yup.string()//
+  //     .required("Original Amount is required"),
+  //   spotBooked: Yup.string()//
+  //     .required("Spot Booked is required"),
+  //   forwardPoints: Yup.string()//
+  //     .required("Forward Points is required"),
+  //   bankMargin: Yup.string()//
+  //     .required("Bank Margin is required"),
+  // });
+
   const validationSchema = Yup.object({
-    exposureType: Yup.string().required("Exposure Type is required"),//
-    bookingDate: Yup.string().required("Booking Date is required"),//
-    deliveryDateFrom: Yup.string().required("Delivery Date From is required"),//
-    deliveryDateTo: Yup.string().required("Delivery Date To is required"),//
-    bank: Yup.string().required("Bank is required"),//
-    dealId: Yup.string().required("Deal ID is required"),//
-    currency: Yup.string().required("Currency is required"),//
-    originalAmount: Yup.string()//
-      .required("Original Amount is required"),
-    spotBooked: Yup.string()//
-      .required("Spot Booked is required"),
-    forwardPoints: Yup.string()//
-      .required("Forward Points is required"),
-    bankMargin: Yup.string()//
-      .required("Bank Margin is required"),
-  });
+  bookingDate: Yup.string().required("Booking Date is required"),
+  exposureType: Yup.string().required("Exposure Type is required"),
+  bank: Yup.string().required("Bank is required"),
+  bussinessUnit: Yup.string().required("Business Unit is required"),
+  exposureRefNumber: Yup.string().required("Exposure Ref Number is required"),
+  hedgeDealReferenceNumber: Yup.string().required("Hedge Deal Reference Number is required"),
+  currency: Yup.string().required("Currency is required"),
+  hedgeAmount: Yup.number().required("Hedge Amount is required"),
+  spotBooked: Yup.string().required("Spot Booked is required"),
+  forwardPoints: Yup.string().required("Forward Points is required"),
+  bankMargin: Yup.string().required("Bank Margin is required"),
+  hedgeRate: Yup.string().required("Hedge Rate is required"),
+  dueDateFrom: Yup.string().required("Due Date From is required"),
+  dueDateTo: Yup.string().required("Due Date To is required"),
+});
+
   return (
     <Box bg="whiteAlpha.700" py={4}>
       {/* Background Image with Overlay */}
@@ -116,20 +134,20 @@ const ForwardRegisterForm = ({submitForm}:any) => {
 
                   <CustomInput
                     label="Delivery Date From"
-                    name="deliveryDateFrom"
+                    name="dueDateFrom"
                     type="date"
-                    value={values.deliveryDateFrom}
+                    value={values.dueDateFrom}
                     onChange={handleChange}
-                    error={touched.deliveryDateFrom && errors.deliveryDateFrom}
+                    error={touched.dueDateFrom && errors.dueDateFrom}
                   />
 
                   <CustomInput
                     label="Delivery Date To"
-                    name="deliveryDateTo"
+                    name="dueDateTo"
                     type="date"
-                    value={values.deliveryDateTo}
+                    value={values.dueDateTo}
                     onChange={handleChange}
-                    error={touched.deliveryDateTo && errors.deliveryDateTo}
+                    error={touched.dueDateTo && errors.dueDateTo}
                   />
 
                   <CustomInput
@@ -140,7 +158,24 @@ const ForwardRegisterForm = ({submitForm}:any) => {
                     onChange={handleChange}
                     error={touched.bank && errors.bank}
                   />
+                  <CustomInput
+                    label="Business Unit"
+                    name="bussinessUnit"
+                    placeholder="Enter Bank Name"
+                    value={values.bussinessUnit}
+                    onChange={handleChange}
+                    error={touched.bussinessUnit && errors.bussinessUnit}
+                  />
+                  <CustomInput
+                    label="Exposure Ref Number"
+                    name="exposureRefNumber"
+                    placeholder="Enter Bank Name"
+                    value={values.exposureRefNumber}
+                    onChange={handleChange}
+                    error={touched.exposureRefNumber && errors.exposureRefNumber}
+                  />
 
+{/* 
                   <CustomInput
                     label="Deal ID"
                     name="dealId"
@@ -148,7 +183,7 @@ const ForwardRegisterForm = ({submitForm}:any) => {
                     value={values.dealId}
                     onChange={handleChange}
                     error={touched.dealId && errors.dealId}
-                  />
+                  /> */}
 
                  <CustomInput
                     label="Currency"
@@ -170,12 +205,29 @@ const ForwardRegisterForm = ({submitForm}:any) => {
                   />
 
                   <CustomInput
-                    label="Original Amount"
-                    name="originalAmount"
-                    placeholder="Enter Original Amount"
-                    value={values.originalAmount}
+                    label="Hedge Amount"
+                    name="hedgeAmount"
+                    type="number"
+                    placeholder="Enter Amount"
+                    value={values.hedgeAmount}
                     onChange={handleChange}
-                    error={touched.originalAmount && errors.originalAmount}
+                    error={touched.hedgeAmount && errors.hedgeAmount}
+                  />
+                  <CustomInput
+                    label="Hedge Deal Reference Number"
+                    name="hedgeDealReferenceNumber"
+                    placeholder="Enter Deal Reference Number"
+                    value={values.hedgeDealReferenceNumber}
+                    onChange={handleChange}
+                    error={touched.hedgeDealReferenceNumber && errors.hedgeDealReferenceNumber}
+                  />
+                  <CustomInput
+                    label="Hedge Rate"
+                    name="hedgeRate"
+                    placeholder="Rate"
+                    value={values.hedgeRate}
+                    onChange={handleChange}
+                    error={touched.hedgeRate && errors.hedgeRate}
                   />
 
                   <CustomInput

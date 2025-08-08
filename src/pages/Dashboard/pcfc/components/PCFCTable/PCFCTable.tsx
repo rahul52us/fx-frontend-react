@@ -152,7 +152,7 @@ const PCFCTable = () => {
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                columns: PCFCColumns,
+                // columns: PCFCColumns,
                 data: dummyPcfcData,
                 fileName: "Pcfc_Register.xlsx",
               }),

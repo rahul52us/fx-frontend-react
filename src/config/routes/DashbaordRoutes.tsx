@@ -11,6 +11,7 @@ import PcFc from "../../pages/Dashboard/pcfc/Pcfc";
 import DailyExposureSheet from "../../pages/Dashboard/dailyExposureSheet/page";
 import MTMTable from "../../pages/Dashboard/mtm/component/MTMTable/MTMTable";
 import EEFCRegister from "../../pages/Dashboard/eefcRegister/EEFCRegister";
+import Rp from "../../pages/Dashboard/rp/Rp";
 const VerifyInvitationPage = lazy(() => import("../component/common/VerifyInvitationPages/VerifyInvitationPage"))
 
 const PersonalDetails = lazy(
@@ -215,6 +216,11 @@ export const DashboardRoutes = [
   {
     element: <EEFCRegister />,
     path: dashboard.eefcRegister,
+    privateRoutes: true,
+  },
+  {
+    element: <Rp />,
+    path: dashboard.rp,
     privateRoutes: true,
   },
   {

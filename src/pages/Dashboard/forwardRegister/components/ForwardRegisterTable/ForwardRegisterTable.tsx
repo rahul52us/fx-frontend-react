@@ -138,7 +138,7 @@ const ForwardRegisterTable = () => {
   // ];
 
   const ForwardRegisterColumns = [
-  { headerName: "Month", key: "month" },
+  // { headerName: "Month", key: "month" },
   { headerName: "Booking Date", key: "bookingDate" },
   { headerName: "Exposure Type", key: "exposureType" },
   { headerName: "Bank", key: "bank" },
@@ -184,7 +184,7 @@ const ForwardRegisterTable = () => {
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                columns: ForwardRegisterColumns,
+                // columns: ForwardRegisterColumns,
                 data: dummyForwardRegisterData,
                 fileName: "Forward_Register.xlsx",
               }),

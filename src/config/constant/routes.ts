@@ -27,6 +27,7 @@ export const dashboard = {
   exportRegister: `/${dashboardName}/export-register`,
   importRegister: `/${dashboardName}/import-register`,
   dailyExposureSheet: `/${dashboardName}/exposure-settlement`,
+  rp: `/${dashboardName}/rp`,
   quiz: `/${dashboardName}/quiz`,
   verifyInvitation : `/${dashboardName}/:invitationType/verify-invitation/:token`,
 

@@ -231,7 +231,7 @@ const ExportRegisterTable = () => {
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                columns: ExportRegisterTableColumns,
+                // columns: ExportRegisterTableColumns,
                 data: dummyExportRegisterData,
                 fileName: "exportregister.xlsx",
               }),

@@ -149,7 +149,7 @@ const EEFCTable = () => {
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                columns: EEFCColumns,
+                // columns: EEFCColumns,
                 data: dummyPcfcData,
                 fileName: "EEFC_Register.xlsx",
               }),

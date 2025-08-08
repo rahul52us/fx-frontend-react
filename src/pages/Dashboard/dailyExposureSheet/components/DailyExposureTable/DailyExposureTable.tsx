@@ -161,7 +161,7 @@ const DailyExposureTable = () => {
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                columns: DailyExposureColumns,
+                // columns: DailyExposureColumns,
                 data: dummyExportRegisterData,
                 fileName: "Daily_Exposure.xlsx",
               }),

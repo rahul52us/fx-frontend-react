@@ -1,15 +1,16 @@
 import { CalendarIcon } from "@chakra-ui/icons";
 import { BsFillForwardFill } from "react-icons/bs";
+import { CgArrowsExchange } from "react-icons/cg";
 import {
   FaCalendarAlt,
   FaShip
 } from "react-icons/fa";
 import { GiCheckMark } from "react-icons/gi";
+import { GrDocumentPerformance } from "react-icons/gr";
 import { ImCancelCircle } from "react-icons/im";
 import { IoDocumentText, IoPieChartSharp } from "react-icons/io5";
 import { MdLocalShipping } from "react-icons/md";
 import { dashboard } from "../../../../constant/routes";
-import { CgArrowsExchange } from "react-icons/cg";
 
 interface SidebarItem {
   id: number;
@@ -203,6 +204,22 @@ const sidebarDatas: SidebarItem[] = [
         name: "index",
         icon: <CalendarIcon />,
         url: `${dashboard.mtm}`,
+        role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 800,
+    name: "RP",
+    icon: <GrDocumentPerformance />,
+    url: dashboard.rp,
+    role: ["user","superadmin","manager","admin"],
+    children: [
+      {
+        id: 601,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.rp}`,
         role: ["user","superadmin","manager","admin"],
       }
     ]
