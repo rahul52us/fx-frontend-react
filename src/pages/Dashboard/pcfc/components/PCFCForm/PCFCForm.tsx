@@ -18,22 +18,19 @@ import { currencyOptions } from "../../../exportsRegister/component/utils/consta
 const PCFCForm = ({ submitForm }: any) => {
   const [showError, setShowError] = useState(false);
   const validationSchema = Yup.object().shape({
-    drawdownDate: Yup.string().required("Drawdown Date is required"),
-    modeOfConversion: Yup.string().required("Mode of Conversion is required"),
-    bank: Yup.string().required("Bank is required"),
-    tradeReferenceNumber: Yup.string().required(
-      "Trade Reference Number is required"
-    ),
-    currency: Yup.mixed().required("Currency is required"),
-    drawdownAmount: Yup.string().required("Drawdown Amount is required"),
-    drawdownRate: Yup.string().required("Drawdown Rate is required"),
-    floatingInterestRate: Yup.string().required(
-      "Floating Interest Rate is required"
-    ),
-    bankSpread: Yup.string().required("Bank Spread is required"),
-    totalInterestRate: Yup.string().required("Total Interest Rate is required"),
-    dueDate: Yup.string().required("Due Date is required"),
-  });
+  drawdownDate: Yup.string().required("Drawdown Date is required"),
+  modeOfConversion: Yup.string().required("Mode of Conversion is required"),
+  bank: Yup.string().required("Bank is required"),
+  tradeReferenceNumber: Yup.string().required("Trade Reference Number is required"),
+  currency: Yup.string().required("Currency is required"),
+  drawdownAmount: Yup.string().required("Drawdown Amount is required"),
+  drawdownRate: Yup.string().required("Drawdown Rate is required"),
+  floatingInterestRate: Yup.string().required("Floating Interest Rate is required"),
+  bankSpread: Yup.string().required("Bank Spread is required"),
+  totalInterestRate: Yup.string().required("Total Interest Rate is required"),
+  dueDate: Yup.string().required("Due Date is required"),
+});
+
 
   return (
     <Box bg="whiteAlpha.700" py={4}>

@@ -113,25 +113,24 @@ const PCFCTable = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const PCFCColumns = [
-  { headerName: "Transaction Date", key: "transactionDate", label: "Transaction Date" },
-  { headerName: "Deal Type", key: "dealType", label: "Deal Type" },
-  { headerName: "Forward Deal ID", key: "forwardDealId", label: "Forward Deal ID" },
-  { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
+const PCFCColumns = [
+  { headerName: "Month", key: "month", label: "Month" },
+  { headerName: "Drawdown Date", key: "drawdownDate", label: "Drawdown Date" },
+  { headerName: "Mode of Conversion", key: "modeOfConversion", label: "Mode of Conversion" },
   { headerName: "Bank", key: "bank", label: "Bank" },
-  { headerName: "PCFC Reference Number", key: "pcfcRefNumber", label: "PCFC Ref No" },
+  { headerName: "Trade Reference Number", key: "tradeReferenceNumber", label: "Trade Reference Number" },
   { headerName: "Currency", key: "currency", label: "Currency" },
-  { headerName: "Amount", key: "amount", label: "Amount" },
-  { headerName: "Booked Rate", key: "bookedRate", label: "Booked Rate" },
-  { headerName: "Spot Booked", key: "spotBooked", label: "Spot Booked" },
-  { headerName: "Forward Premium", key: "forwardPremium", label: "Forward Premium" },
-  { headerName: "Cash to Spot", key: "cashTomSpot", label: "Cash to Spot" },
-  { headerName: "Bank Margin", key: "bankMargin", label: "Bank Margin" },
-  { headerName: "Net Settlement Rate", key: "netSettlementRate", label: "Net Settlement Rate" },
-  { headerName: "INR Amount", key: "inrAmount", label: "INR Amount" },
-  { headerName: "Maturity", key: "maturity", label: "Maturity" },
-  { headerName: "Profit & Loss on Cancellation", key: "profitAndLossOnCancellation", label: "P/L Cancellation" },
+  { headerName: "Drawdown Amount", key: "drawdownAmount", label: "Drawdown Amount" },
+  { headerName: "Drawdown Rate", key: "drawdownRate", label: "Drawdown Rate" },
+  { headerName: "Floating Interest Rate", key: "floatingInterestRate", label: "Floating Interest Rate" },
+  { headerName: "Bank Spread", key: "bankSpread", label: "Bank Spread" },
+  { headerName: "Total Interest Rate", key: "totalInterestRate", label: "Total Interest Rate" },
+  { headerName: "Due Date", key: "dueDate", label: "Due Date" },
+  { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
+  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr", label: "Outstanding Amount (INR)" },
+  { headerName: "Amount Settled", key: "amountSettled", label: "Amount Settled" }
 ];
+
   
 
   return (

@@ -49,43 +49,44 @@ export const dealTypeOptions = [
 
 export const dummyExportRegisterData = [
   {
-    month: "december",
     exposureType: "shipment",
-    settlementType: "general",
-    conversionType: "eefc",
-    transactionDate: "2025-07-02",
-    documentDueDate: "2025-07-02",
-    poNumber: "1342343",
-    invoiceLcBcNumber: "1342332",
-    dealNumber: "13123",
-    bank: "PNB",
-    currency: "1312344",
-    amount: "13423344",
-    forwardPremium: "1233244",
-    spotBooked: "13423344",
-    cashTomSpot: "1323144",
-    bankMargin: "134123",
-    benchmarkRate: "234",
+    exposureInputDate: "2025-07-10",
+    exposureModificationDate: "2025-07-15",
+    poDate: "2025-07-12",
+    poNo: "PO987654",
+    invoiceNo: "INV54321",
+    invoiceDate: "2025-07-13",
+    partyName: "Acme Trading Co.",
+    bank: "HDFC Bank",
+    businessUnit: "Export Division",
+    blDate: "2025-07-14",
+    paymentTerms: "Net 30",
+    currency: "EUR",
+    amount: "750000",
+    budgetRate: "1.12",
+    hedgeDealRefNo: "HDR123456",
+    remark: "Urgent shipment, priority clearance",
   },
 ];
 
 export const dummyPcfcData = [
   {
-    month: "March",
     drawdownDate: "2025-06-10",
-    bank: "23e3",
+    modeOfConversion: "Spot",
+    bank: "ABC Bank",
+    tradeReferenceNumber: "TRN12345",
     currency: "USD",
-    dealId: "2343",
-    originalAmount: 232000,
-    drawdownRate: 2343,
-    maturity: "2025-06-24",
-    interestRate: 5.3,
-    conversionBasic: "asd",
+    drawdownAmount: 250000,
+    drawdownRate: 83.45,
+    floatingInterestRate: 2.5,
+    bankSpread: 0.5,
+    totalInterestRate: 3.0,
+    dueDate: "2025-06-24",
   },
 ];
 
 export const dummyForwardRegisterData = [
-{
+  {
     exposureType: "import",
     bookingDate: "2025-07-10",
     dueDateFrom: "2025-07-20",
@@ -99,7 +100,7 @@ export const dummyForwardRegisterData = [
     hedgeRate: "83.5",
     spotBooked: "82.9",
     forwardPoints: "0.6",
-    bankMargin: "1.2"
+    bankMargin: "1.2",
   },
 ];
 

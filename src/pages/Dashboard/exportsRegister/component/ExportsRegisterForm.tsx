@@ -15,27 +15,47 @@ import { useState } from "react";
 const ExposureForm = ({ submitExportForm }: any) => {
   const [showError, setShowError] = useState(false);
 
+  // const validationSchema = Yup.object({
+  //   exposureType: Yup.mixed().required("Exposure Type is required"),
+  //   exposureInputDate: Yup.string().required("Exposure Input Date is required"),
+  //   poDate: Yup.string().required("PO Date is required"),
+  //   poNo: Yup.string().required("PO No is required"),
+  //   invoiceNo: Yup.string().required("Invoice No is required"),
+  //   invoiceDate: Yup.string().required("Invoice Date is required"), 
+  //   exposureModificationDate: Yup.string().required(
+  //     "Exposure Modification Date is required"
+  //   ),
+  //   partyName: Yup.string().required("Party Name is required"),
+  //   bank: Yup.string().required("Bank is required"),
+  //   businessUnit: Yup.string().required("Business Unit is required"), 
+  //   blDate: Yup.string().required("BL Date is required"),
+  //   currency: Yup.mixed().required("Currency is required"),
+  //   amount: Yup.string().required("Amount is required"),
+  //   budgetRate: Yup.string().nullable(),
+  //   paymentTerms: Yup.string().required("Payment terms is required"),
+  //   hedgeRefNo: Yup.string().nullable(), 
+  //   remark: Yup.string().nullable(),
+  // });
+
   const validationSchema = Yup.object({
-    exposureType: Yup.mixed().required("Exposure Type is required"),
-    exposureInputDate: Yup.string().required("Exposure Input Date is required"),
-    poDate: Yup.string().required("PO Date is required"),
-    poNo: Yup.string().required("PO No is required"),
-    invoiceNo: Yup.string().required("Invoice No is required"),
-    invoiceDate: Yup.string().required("Invoice Date is required"), 
-    exposureModificationDate: Yup.string().required(
-      "Exposure Modification Date is required"
-    ),
-    partyName: Yup.string().required("Party Name is required"),
-    bank: Yup.string().required("Bank is required"),
-    businessUnit: Yup.string().required("Business Unit is required"), 
-    blDate: Yup.string().required("BL Date is required"),
-    currency: Yup.mixed().required("Currency is required"),
-    amount: Yup.string().required("Amount is required"),
-    budgetRate: Yup.string().nullable(),
-    paymentTerms: Yup.string().required("Payment terms is required"),
-    hedgeRefNo: Yup.string().nullable(), 
-    remark: Yup.string().nullable(),
-  });
+  exposureType: Yup.mixed().required("Exposure Type is required"),
+  exposureInputDate: Yup.string().required("Exposure Input Date is required"),
+  exposureModificationDate: Yup.string().required("Exposure Modification Date is required"),
+  poDate: Yup.string().required("PO Date is required"),
+  poNo: Yup.string().required("PO No is required"),
+  invoiceNo: Yup.string().required("Invoice No is required"),
+  invoiceDate: Yup.string().required("Invoice Date is required"),
+  partyName: Yup.string().required("Party Name is required"),
+  bank: Yup.string().required("Bank is required"),
+  businessUnit: Yup.string().required("Business Unit is required"),
+  blDate: Yup.string().required("BL Date is required"),
+  paymentTerms: Yup.string().required("Payment terms is required"),
+  currency: Yup.mixed().required("Currency is required"),
+  amount: Yup.number().required("Amount is required"),
+  budgetRate: Yup.string().required("Budget Rate is required"),
+  hedgeDealRefNo: Yup.string().required("Hedge Deal Ref No is required"),
+  remark: Yup.string().nullable()
+});
 
   return (
     <Box
@@ -132,7 +152,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                 <CustomInput
                   label="Amount"
                   name="amount"
-                  type="text"
+                  type="number"
                   value={values.amount}
                   onChange={handleChange}
                   error={touched.amount && errors.amount}
