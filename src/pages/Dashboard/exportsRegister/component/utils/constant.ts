@@ -69,6 +69,24 @@ export const dummyExportRegisterData = [
   },
 ];
 
+export const exposureSettlementReport = [
+  {
+    settlementDate: "2025-08-08",
+    settlementInputDate: "2025-08-09",
+    exposureType: "Export",
+    settlementType: "Partial",
+    poNumber: "PO123456",
+    invoiceBcNumber: "INV789012",
+    modeOfConversion: "Spot",
+    conversionReferenceNumber: "CRN456789",
+    settledAmount: "150000.50",
+    forwardPremiumReveresed: "500.00",
+    spotBooked: "149500.50",
+    cashTomSpot: "100.00",
+    bankMargin: "0.50",
+  },
+];
+
 export const dummyPcfcData = [
   {
     drawdownDate: "2025-06-10",

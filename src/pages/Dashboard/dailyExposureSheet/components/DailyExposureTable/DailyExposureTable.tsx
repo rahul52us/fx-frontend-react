@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
-import { dummyExportRegisterData } from "../../../exportsRegister/component/utils/constant";
+import { exposureSettlementReport } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
   importFromExcel,
@@ -162,8 +162,8 @@ const DailyExposureTable = () => {
             function: () =>
               exportToExcel({
                 // columns: DailyExposureColumns,
-                data: dummyExportRegisterData,
-                fileName: "Daily_Exposure.xlsx",
+                data: exposureSettlementReport,
+                fileName: "Exposure_Settlement_Report.xlsx",
               }),
           },
           uploadFile: {

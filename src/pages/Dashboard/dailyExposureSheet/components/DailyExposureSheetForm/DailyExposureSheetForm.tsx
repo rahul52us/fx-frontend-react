@@ -58,7 +58,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
     conversionReferenceNumber: Yup.string().required(
       "Conversion Reference Number is required"
     ),
-    settledAmount: Yup.string().required("Settled Amount is required"),
+    settledAmount: Yup.number().required("Settled Amount is required"),
     forwardPremiumReveresed: Yup.string().required(
       "Forward Premium Reversed is required"
     ),
@@ -243,6 +243,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
 
                   <CustomInput
                     label="Settlement Amount"
+                    type="number"
                     name="settledAmount"
                     placeholder="Enter Amount"
                     value={values.settledAmount}
