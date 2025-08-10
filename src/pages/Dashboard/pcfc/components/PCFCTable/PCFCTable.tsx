@@ -131,8 +131,6 @@ const PCFCColumns = [
   { headerName: "Amount Settled", key: "amountSettled", label: "Amount Settled" }
 ];
 
-  
-
   return (
     <>
       <CustomTable
