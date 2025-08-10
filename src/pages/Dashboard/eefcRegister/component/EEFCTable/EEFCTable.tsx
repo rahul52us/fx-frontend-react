@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
-import { dummyPcfcData } from "../../../exportsRegister/component/utils/constant";
+import { dummyEefcData } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
   importFromExcel,
@@ -115,6 +115,7 @@ const EEFCTable = () => {
   }, []);
 
  const EEFCColumns = [
+  {headerName:"Month", key:"month", label:"Month"},
   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
   { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
   { headerName: "Exposure Reference Number", key: "exposureReferenceNumber", label: "Reference Number" },
@@ -127,9 +128,6 @@ const EEFCTable = () => {
   { headerName: "Weighted Average Rate", key: "weightedAverageRate", label: "Weighted Avg Rate" },
   { headerName: "Closing Balance in INR", key: "closingBalanceInIn", label: "Closing Balance (INR)" }
 ];
-
-
-  
 
   return (
     <>
@@ -150,7 +148,7 @@ const EEFCTable = () => {
             function: () =>
               exportToExcel({
                 // columns: EEFCColumns,
-                data: dummyPcfcData,
+                data: dummyEefcData,
                 fileName: "EEFC_Register.xlsx",
               }),
           },

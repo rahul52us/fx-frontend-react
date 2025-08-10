@@ -43,7 +43,7 @@ export const conversionTypeOptions = [
 export const modeOfConversionOptions = [
   { label: "Spot", value: "spot" },
   { label: "EEFC", value: "eefc" },
-]
+];
 
 export const dealTypeOptions = [
   { label: "A", value: "a" },
@@ -105,6 +105,22 @@ export const dummyPcfcData = [
     bankSpread: 0.5,
     totalInterestRate: 3.0,
     dueDate: "2025-06-24",
+  },
+];
+
+export const dummyEefcData = [
+  {
+    bussinessUnit: "5",
+    exposureReferenceNumber: "6787",
+    exposureType: "exports",
+    settlementDate: "2025-08-19",
+    bank: "bank name",
+    referenceRate: "3",
+    currency: "IND",
+    amount: "4000",
+    closingBalance: "7",
+    closingBalanceInInr: "700",
+    weightedAverageRate: "4",
   },
 ];
 
