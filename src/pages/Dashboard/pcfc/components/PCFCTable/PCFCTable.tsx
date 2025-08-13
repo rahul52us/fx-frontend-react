@@ -22,6 +22,8 @@ const PCFCTable = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const url = process.env.REACT_APP_FX_BASE_URL
+  
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -31,7 +33,8 @@ const PCFCTable = () => {
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/pcfcregister/form/",
+         `${url}/pcfcregister/form/`,
+        // "http://srv864630.hstgr.cloud:8000/pcfcregister/form/",
         payload
       );
 
@@ -92,7 +95,8 @@ const PCFCTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/pcfcregister/view/",
+         `${url}/pcfcregister/view/`,
+        // "http://srv864630.hstgr.cloud:8000/pcfcregister/view/",
          { userToken: "abcxyz" }
       );
       const result = response.data?.data?.data || [];

@@ -1,8 +1,7 @@
 export const currencyOptions = [
-  { label: "IND", value: "IND" },
+  { label: "INR", value: "INR" },
   { label: "USD", value: "USD" },
   { label: "EUR", value: "EUR" },
-  { label: "GBP", value: "GBP" },
 ];
 
 export const exposureTypeOptions = [
@@ -54,7 +53,7 @@ export const dealTypeOptions = [
 
 export const dummyExportRegisterData = [
   {
-    exposureType: "shipment",
+    exposureType: "imports",
     exposureInputDate: "2025-07-10",
     exposureModificationDate: "2025-07-15",
     poDate: "2025-07-12",
@@ -65,7 +64,7 @@ export const dummyExportRegisterData = [
     bank: "HDFC Bank",
     businessUnit: "Export Division",
     blDate: "2025-07-14",
-    paymentTerms: "Net 30",
+    paymentTerms: "30",
     currency: "EUR",
     amount: "750000",
     budgetRate: "1.12",
@@ -168,13 +167,18 @@ export const dummyImportRegisterData = [
     poDate: "2025-06-12",
     blDate: "2025-06-11",
     collectionDate: "2025-06-20",
+    exposureModificationDate:"2025-06-15",
     amount: "56",
     adjustmentAmount: "3",
     currency: "IND",
     budgetRate: "4",
     hedgedAmount: "8",
+    dueDate:"2025-06-24",
+    hedgeDealRefNo:"234",
     poNo: "234234",
     invoiceNo: "5",
+    invoiceDate: "2025-06-15",
+    businessUnit: "-",
     partyName: "ABC Corp",
     bank: "23e",
     paymentTerms: "Net 30",

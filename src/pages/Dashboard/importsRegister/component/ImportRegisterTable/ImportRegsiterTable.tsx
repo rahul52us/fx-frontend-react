@@ -25,6 +25,7 @@ const ImportRegisterTable = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const url = process.env.REACT_APP_FX_BASE_URL
 
   const submitImportForm = async (values: any, actions: any, type: string) => {
     // console.log('values',values)
@@ -35,7 +36,9 @@ const ImportRegisterTable = () => {
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/importregister/form/",
+        // "http://srv864630.hstgr.cloud:8000/importregister/form/",
+         `${url}/importregister/form/`,
+
         payload
       );
 
@@ -83,7 +86,8 @@ const ImportRegisterTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/importregister/view/",
+        // "https://5cf5cb2fbb9b.ngrok-free.app/importregister/view/",
+          `${url}/importregister/view/`,
         { userToken: "abcdxyz" }
       );
       const result = response.data?.data?.data || [];

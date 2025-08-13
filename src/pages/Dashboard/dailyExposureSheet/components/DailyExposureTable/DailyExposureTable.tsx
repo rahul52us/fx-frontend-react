@@ -21,8 +21,8 @@ const DailyExposureTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
   const toast = useToast();
+  const url = process.env.REACT_APP_FX_BASE_URL
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -32,7 +32,8 @@ const DailyExposureTable = () => {
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/exposuresettlementreport/form/",
+        // "http://srv864630.hstgr.cloud:8000/exposuresettlementreport/form/",
+         `${url}/exposuresettlementreport/form/`,
         payload
       );
 
@@ -93,7 +94,8 @@ const DailyExposureTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/exposuresettlementreport/view/",
+        // "http://srv864630.hstgr.cloud:8000/exposuresettlementreport/view/",
+         `${url}/exposuresettlementreport/view/`,
        { userToken: "abcxyz" }
       );
       const result = response.data?.data?.data || [];

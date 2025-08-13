@@ -16,17 +16,13 @@ import {
   importFromExcel,
 } from "../../exportsRegister/component/utils/function";
 import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellationForm";
-// import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
-// import { dummyForwardRegisterData } from "../../../exportsRegister/component/utils/constant";
-// import { exportToExcel, importFromExcel } from "../../../exportsRegister/component/utils/function";
-// import ForwardRegisterForm from "../ForwardRegisterForm/ForwardRegisterForm";
-// import PCFCForm from "../PCFCForm/PCFCForm";
 
 const ForwardCancellationTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const url = process.env.REACT_APP_FX_BASE_URL
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -36,7 +32,8 @@ const ForwardCancellationTable = () => {
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/form/",
+        // "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/form/",
+        `${url}/forwardCancellationpcfc/form/`,
         payload
       );
 
@@ -97,7 +94,8 @@ const ForwardCancellationTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/view/",
+        // "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/view/",
+        `${url}/forwardCancellationpcfc/view/`,
         { userToken: "abcxyz" }
       );
       const result = response.data?.data?.data || [];

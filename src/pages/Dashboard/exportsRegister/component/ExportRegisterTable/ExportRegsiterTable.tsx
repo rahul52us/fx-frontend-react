@@ -20,7 +20,7 @@ const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const url = process.env.REACT_APP_FX_BASE_URL
   const toast = useToast();
   
 
@@ -33,7 +33,7 @@ const ExportRegisterTable = () => {
       };
       // let payload = type === "excel" ? values : [values];
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/exportregister/form/",
+        `${url}/exportregister/form/`,
         payload
       );
 
@@ -95,7 +95,8 @@ const ExportRegisterTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/exportregister/view/",
+        "https://5cf5cb2fbb9b.ngrok-free.app/exportregister/view/",
+        // `${url}/exportregister/view/`,
         { userToken: "abcxyz" }
       );
 
