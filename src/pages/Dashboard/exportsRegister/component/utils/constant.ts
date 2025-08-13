@@ -81,7 +81,7 @@ export const exposureSettlementReport = [
     settlementType: "Partial",
     poNumber: "PO123456",
     invoiceBcNumber: "INV789012",
-    modeOfConversion: "Spot",
+    modeOfConversion: "eefc",
     conversionReferenceNumber: "CRN456789",
     settledAmount: "150000.50",
     forwardPremiumReveresed: "500.00",

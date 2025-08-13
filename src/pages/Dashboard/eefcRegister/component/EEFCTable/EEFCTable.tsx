@@ -93,7 +93,8 @@ const EEFCTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/eefcregister/view/",
+        "https://5cf5cb2fbb9b.ngrok-free.app/eefcregister/view/",
+        // "http://srv864630.hstgr.cloud:8000/eefcregister/view/",
          { userToken: "abcxyz" }
       );
       const result = response.data?.data?.data || [];
@@ -165,7 +166,7 @@ const EEFCTable = () => {
           },
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: false,
               function: onOpen,
             },
             editKey: { showEditButton: false },
