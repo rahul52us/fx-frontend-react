@@ -95,8 +95,8 @@ const ExportRegisterTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://5cf5cb2fbb9b.ngrok-free.app/exportregister/view/",
-        // `${url}/exportregister/view/`,
+        // "https://5cf5cb2fbb9b.ngrok-free.app/exportregister/view/",
+        `${url}/exportregister/view/`,
         { userToken: "abcxyz" }
       );
 
