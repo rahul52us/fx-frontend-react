@@ -6,19 +6,19 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-  Tooltip,
   useDisclosure,
-  useToast,
+  useToast
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
-import ImportRegistrationForm from "../ImportRegisterForm";
+import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
-import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
+import ImportRegistrationForm from "../ImportRegisterForm";
 
 const ImportRegisterTable = () => {
   const [importData, setImportData] = useState<any[]>([]);
@@ -26,6 +26,7 @@ const ImportRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
+  const { deleteItem } = useDeleteItem();
 
   const submitImportForm = async (values: any, actions: any, type: string) => {
     // console.log('values',values)
@@ -183,18 +184,15 @@ const ImportRegisterTableColumns = [
   { headerName: "P/L in INR", key: "PlInINR" },
   { headerName: "Value in INR", key: "valueInInr" },
   {
-    headerName: "Remark",
-    key: "remark",
-    type: "tooltip",
-    function: (row: any) =>
-      row.remark ? (
-        <Tooltip label={row.remark} hasArrow>
-          <span>{row.remark.slice(0, 20)}...</span>
-        </Tooltip>
-      ) : (
-        "-"
-      ),
-  },
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        // isSticky: true,
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
 ];
 
   const handleFileUpload = async (
@@ -250,7 +248,16 @@ const ImportRegisterTableColumns = [
               function: onOpen,
             },
             editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
+          deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) =>
+                deleteItem({
+                  url: `${url}/delup/deleterow/`,
+                  rowId: row.rowId,
+                  formType: "importRegister",
+                  refetch: fetchImportRegisterData,
+                }),
+            },
           },
         }}
         loading={loading}

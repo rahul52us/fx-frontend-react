@@ -16,6 +16,7 @@ import {
   importFromExcel,
 } from "../../exportsRegister/component/utils/function";
 import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellationForm";
+import { useDeleteItem } from "../../../../config/component/customHooks/useDeleteItem";
 
 const ForwardCancellationTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -23,7 +24,7 @@ const ForwardCancellationTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
-
+  const { deleteItem } = useDeleteItem();
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
       // let payload = type === "excel" ? values : [values];
@@ -132,6 +133,15 @@ const ForwardCancellationTable = () => {
   { headerName: "INR Amount", key: "inrAmount" },
   { headerName: "Maturity", key: "maturity" },
   { headerName: "P/L on Cancellation", key: "profitAndLossOnCancellation" },
+  {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+  },
 ];
 
 
@@ -175,7 +185,16 @@ const ForwardCancellationTable = () => {
               function: onOpen,
             },
             editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
+              deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) =>
+                deleteItem({
+                  url: `${url}/delup/deleterow/`,
+                  rowId: row.rowId,
+                  formType: "forwardCancellationPcfc",
+                  refetch: fetchExportRegisterData,
+                }),
+            },
           },
         }}
         loading={loading}

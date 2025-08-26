@@ -16,6 +16,8 @@ import {
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
 import PCFCForm from "../PCFCForm/PCFCForm";
+import { autoToken } from "../../../utils/constant";
+import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 
 const PCFCTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -23,8 +25,8 @@ const PCFCTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
+  const { deleteItem } = useDeleteItem();
   
-
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
       // let payload = type === "excel" ? values : [values];
@@ -32,11 +34,12 @@ const PCFCTable = () => {
         userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
-      const response = await axios.post(
-         `${url}/pcfcregister/form/`,
+      const response = await axios.post(`${url}/pcfcregister/form/`, payload, {
+        headers: {
+          Authorization: autoToken,
+        },
+      });
         // "http://srv864630.hstgr.cloud:8000/pcfcregister/form/",
-        payload
-      );
 
       if (response.status === 200 && response.data.status === "success") {
         toast({
@@ -97,7 +100,13 @@ const PCFCTable = () => {
       const response = await axios.post(
          `${url}/pcfcregister/view/`,
         // "http://srv864630.hstgr.cloud:8000/pcfcregister/view/",
-         { userToken: "abcxyz" }
+         { userToken: "abcxyz" },
+         {
+           headers: {
+             Authorization: autoToken,
+           },
+         }
+         
       );
       const result = response.data?.data?.data || [];
       const withSerial = result.map((item: any, idx: number) => ({
@@ -117,6 +126,8 @@ const PCFCTable = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+ 
+
 const PCFCColumns = [
   { headerName: "Month", key: "month", label: "Month" },
   { headerName: "Drawdown Date", key: "drawdownDate", label: "Drawdown Date" },
@@ -132,8 +143,20 @@ const PCFCColumns = [
   { headerName: "Due Date", key: "dueDate", label: "Due Date" },
   { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr", label: "Outstanding Amount (INR)" },
-  { headerName: "Amount Settled", key: "amountSettled", label: "Amount Settled" }
+  { headerName: "Amount Settled", key: "amountSettled", label: "Amount Settled" },
+   {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        // isSticky: true,
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
 ];
+
+
 
   return (
     <>
@@ -174,8 +197,18 @@ const PCFCColumns = [
               showAddButton: true,
               function: onOpen,
             },
-            editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
+
+            editKey: { showEditButton: true, function: () => {}},
+            deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) =>
+                deleteItem({
+                  url: `${url}/delup/deleterow/`,
+                  rowId: row.rowID,
+                  formType: "pcfc",
+                  refetch: fetchExportRegisterData,
+                }),
+            },
           },
         }}
         loading={loading}

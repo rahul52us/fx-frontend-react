@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import { dummyForwardRegisterData } from "../../../exportsRegister/component/utils/constant";
 import {
@@ -23,7 +24,7 @@ const ForwardRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
-
+  const {deleteItem} = useDeleteItem()
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
       // let payload = type === "excel" ? values : [values];
@@ -166,6 +167,16 @@ const ForwardRegisterTable = () => {
   { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
   { headerName: "Allocated Amount", key: "allocatedAmount" },
   { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        // isSticky: true,
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
 ];
 
 
@@ -209,7 +220,16 @@ const ForwardRegisterTable = () => {
               function: onOpen,
             },
             editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
+             deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) =>
+                deleteItem({
+                  url: `${url}/delup/deleterow/`,
+                  rowId: row.rowId,
+                  formType: "forwardRegister",
+                  refetch: fetchExportRegisterData,
+                }),
+            },
           },
         }}
         loading={loading}

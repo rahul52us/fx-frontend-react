@@ -16,6 +16,7 @@ import {
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
 import DailyExposureSheetForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
+import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 
 const DailyExposureTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -23,6 +24,7 @@ const DailyExposureTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
+  const { deleteItem } = useDeleteItem();
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -143,6 +145,16 @@ const DailyExposureTable = () => {
   { headerName: "Bmk Vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
   { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
   { headerName: "Market Vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
+   {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        // isSticky: true,
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
 ];
 
   return (
@@ -185,7 +197,16 @@ const DailyExposureTable = () => {
               function: onOpen,
             },
             editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
+            deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) =>
+                deleteItem({
+                  url: `${url}/delup/deleterow/`,
+                  rowId: row.rowId,
+                  formType: "exposureSettlementReport",
+                  refetch: fetchExportRegisterData,
+                }),
+            },
           },
         }}
         loading={loading}

@@ -16,6 +16,7 @@ import {
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
 import EEFCForm from "../EEFCForm/EEFCForm";
+import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 // import PCFCForm from "../PCFCForm/PCFCForm";
 
 const EEFCTable = () => {
@@ -23,6 +24,8 @@ const EEFCTable = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const url = process.env.REACT_APP_FX_BASE_URL
+  const { deleteItem } = useDeleteItem();
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -144,17 +147,18 @@ const EEFCTable = () => {
             function: fetchExportRegisterData,
           },
           exportExcel: {
-            show: true,
+            show: false,
             text: "Export Excel",
             function: () =>
               exportToExcel({
                 // columns: EEFCColumns,
+                
                 data: dummyEefcData,
                 fileName: "EEFC_Register.xlsx",
               }),
           },
           uploadFile: {
-            show: true,
+            show: false,
             text: "Upload Excel",
             function: (e: any) => handleFileUpload(e),
           },
@@ -170,7 +174,16 @@ const EEFCTable = () => {
               function: onOpen,
             },
             editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
+               deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) =>
+                deleteItem({
+                  url: `${url}/delup/deleterow/`,
+                  rowId: row.rowId,
+                  formType: "eefcRegister",
+                  refetch: fetchExportRegisterData,
+                }),
+            },
           },
         }}
         loading={loading}

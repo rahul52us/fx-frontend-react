@@ -5,12 +5,12 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-  Tooltip,
   useDisclosure,
-  useToast,
+  useToast
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import ExposureForm from "../ExportsRegisterForm";
 import { dummyExportRegisterData } from "../utils/constant";
@@ -22,6 +22,7 @@ const ExportRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const url = process.env.REACT_APP_FX_BASE_URL
   const toast = useToast();
+  const { deleteItem } = useDeleteItem();
   
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
@@ -156,18 +157,14 @@ const ExportRegisterTableColumns = [
   { headerName: "Advance Rate", key: "advanceRate" },
   { headerName: "Invoice Settlement", key: "invoiceSettlement" },
   { headerName: "INR Amount", key: "inrAmount" },
-  {
-    headerName: "Remark",
-    key: "remark",
-    type: "tooltip",
-    function: (row: any) =>
-      row.remark ? (
-        <Tooltip label={row.remark} hasArrow>
-          <span>{row.remark.slice(0, 20)}...</span>
-        </Tooltip>
-      ) : (
-        "-"
-      ),
+   {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
   },
 ];
 
@@ -213,7 +210,16 @@ const ExportRegisterTableColumns = [
               function: onOpen,
             },
             editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
+              deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) =>
+                deleteItem({
+                  url: `${url}/delup/deleterow/`,
+                  rowId: row.rowId,
+                  formType: "exportRegister",
+                  refetch: fetchExportRegisterData,
+                }),
+            },
           },
         }}
         loading={loading}
