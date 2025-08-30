@@ -129,7 +129,7 @@ const PCFCTable = () => {
  
 
 const PCFCColumns = [
-  { headerName: "Month", key: "month", label: "Month" },
+  // { headerName: "Month", key: "month", label: "Month" },
   { headerName: "Drawdown Date", key: "drawdownDate", label: "Drawdown Date" },
   { headerName: "Mode of Conversion", key: "modeOfConversion", label: "Mode of Conversion" },
   { headerName: "Bank", key: "bank", label: "Bank" },

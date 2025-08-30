@@ -1,3 +1,4 @@
+import { DownloadIcon } from "@chakra-ui/icons";
 import { Button, Flex, Heading, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useRef, useState } from "react";
@@ -76,9 +77,36 @@ const RpTable = () => {
   };
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+
+   const handleDownload = () => {
+    // Create a link element
+    const link = document.createElement('a');
+    
+    // Set the href to the path of the Excel file
+    link.href = '/excel/RP_sample.xlsx';
+    
+    // Set the download attribute with the desired filename
+    link.download = 'RP_sample.xlsx';
+    
+    // Append to the body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
+    <Flex align={'center'} gap={4} justify={'space-between'}>
       <Heading color={"blue.500"}>RP</Heading>
+       <Button 
+      onClick={handleDownload}
+      leftIcon={<DownloadIcon />}
+      colorScheme="blue"
+      variant={'ghost'}
+      >
+      Download Sample
+    </Button>
+      </Flex>
       <Flex justify={"center"} mt={"100px"}>
         <Button
           size={"lg"}

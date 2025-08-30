@@ -9,7 +9,7 @@ import {
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
-import { currencyOptions, exposureTypeOptions } from "./utils/constant";
+import { currencyOptions, exportRegisterexposureTypeOptions } from "./utils/constant";
 import { useState } from "react";
 
 const ExposureForm = ({ submitExportForm }: any) => {
@@ -103,8 +103,8 @@ const ExposureForm = ({ submitExportForm }: any) => {
                   label="Exposure Type"
                   name="exposureType"
                   type="select"
-                  options={exposureTypeOptions}
-                  value={exposureTypeOptions.find(
+                  options={exportRegisterexposureTypeOptions}
+                  value={exportRegisterexposureTypeOptions.find(
                     (option) => option.value === values.exposureType
                   )}
                   // onChange={(option) => setFieldValue("exposureType", option)}

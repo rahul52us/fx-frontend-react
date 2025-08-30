@@ -119,7 +119,7 @@ const EEFCTable = () => {
   }, []);
 
  const EEFCColumns = [
-  {headerName:"Month", key:"month", label:"Month"},
+  // {headerName:"Month", key:"month", label:"Month"},
   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
   { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
   { headerName: "Exposure Reference Number", key: "exposureReferenceNumber", label: "Reference Number" },

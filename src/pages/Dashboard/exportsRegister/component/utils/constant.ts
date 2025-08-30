@@ -9,6 +9,11 @@ export const exposureTypeOptions = [
   { label: "Imports", value: "imports" },
 ];
 
+export const exportRegisterexposureTypeOptions = [
+  { label: "Shipment", value: "shipment" },
+  { label: "Confirmed Order", value: "confirmed_order" },
+]
+
 export const priorityOptions = [
   { label: "High", value: "high" },
   { label: "Medium", value: "medium" },
