@@ -1,4 +1,5 @@
 import { Global, css } from "@emotion/react";
+import { primaryColor, whiteTextColor } from "./globalColors";
 
 const globalStyles = css`
   /* Customize scrollbar styles */
@@ -26,3 +27,14 @@ export const glassCardStyle = {
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
   border: "1px solid rgba(255, 255, 255, 0.6)",
 };
+
+export const  primaryButtonHoverStyle = {
+  color:primaryColor,
+  borderColor:primaryColor,
+  backgroundColor:"transparent",
+}
+export const primaryButtonStyle = {  
+  backgroundColor:primaryColor,
+  color:whiteTextColor,
+  borderColor:whiteTextColor,
+}

@@ -1,4 +1,3 @@
-import { DownloadIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -23,14 +22,20 @@ import {
 import React, { useRef } from "react";
 import { FaEdit, FaEye } from "react-icons/fa";
 import { FcClearFilters } from "react-icons/fc";
-import { IoMdAdd, IoMdInformationCircle } from "react-icons/io";
+import { IoMdInformationCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { formatDate } from "../../constant/dateUtils";
 import CustomDateRange from "../CustomDateRange/CustomDateRange";
 import MultiDropdown from "../multiDropdown/MultiDropdown";
 import Pagination from "../pagination/Pagination";
 import TableLoader from "./TableLoader";
-import { BiUpload } from "react-icons/bi";
+import { BiDownload, BiPlus, BiUpload } from "react-icons/bi";
+import { litePrimaryColor, primaryColor } from "../../../globalColors";
+import {
+  glassCardStyle,
+  primaryButtonHoverStyle,
+  primaryButtonStyle,
+} from "../../../globalStyles";
 
 interface Column {
   headerName?: string;
@@ -416,35 +421,29 @@ const CustomTable: React.FC<CustomTableProps> = ({
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
   // const cellProps = cells ? { border: "1px solid gray" } : {};
-  const headerBg = useColorModeValue("gray.700", "gray.800");
+  // const headerBg = useColorModeValue("gray.700", "gray.800");
   // const borderColor = useColorModeValue("gray.300", "gray.600");
 
-  const bodyBg = useColorModeValue("white", "gray.700");
+  // const bodyBg = useColorModeValue("white", "gray.700");
 
-  const hoverBg = useColorModeValue("blue.100", "blue.700");
-  const menuItemHover = useColorModeValue("blue.100", "blue.700");
-  const menuListBg = useColorModeValue("white", "gray.700");
-  const titleColor = useColorModeValue("blue.700", "white");
+  // const hoverBg = useColorModeValue("blue.100", "blue.700");
+  // const menuItemHover = useColorModeValue("blue.100", "blue.700");
+  // const menuListBg = useColorModeValue("white", "gray.700");
+  // const titleColor = useColorModeValue("blue.700", "white");
 
-  const boxBorder = useColorModeValue("gray.200", "gray.700");
-  const mainBox = useColorModeValue("white", "gray.900");
+  // const boxBorder = useColorModeValue("gray.200", "gray.700");
+  // const mainBox = useColorModeValue("white", "gray.900");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   return (
-    <Box
-      rounded={12}
-      bg={mainBox}
-      boxShadow="rgb(0 0 0 / 20%) 0px 0px 8px"
-      border={"1px solid"}
-      borderColor={boxBorder}
-    >
+    <Box rounded={12} {...glassCardStyle}>
       <Flex
         justifyContent="space-between"
         alignItems="center"
         p={title ? 3 : 0}
       >
         {title ? (
-          <Heading color={titleColor} fontSize={isMobile ? "sm" : "xl"}>
+          <Heading color={primaryColor} fontSize={isMobile ? "sm" : "xl"}>
             {title || ""}
           </Heading>
         ) : null}
@@ -505,7 +504,8 @@ const CustomTable: React.FC<CustomTableProps> = ({
               <MenuButton
                 as={Button}
                 variant="outline"
-                colorScheme="red"
+                {...primaryButtonStyle}
+                _hover={primaryButtonHoverStyle}
                 minW={{ base: "6rem", md: "10rem" }}
                 textAlign={"center"}
               >
@@ -513,20 +513,20 @@ const CustomTable: React.FC<CustomTableProps> = ({
               </MenuButton>
               <MenuList
                 zIndex={15}
-                bg={menuListBg}
-                border="1px solid"
-                // borderColor={useColorModeValue("gray.200", "gray.600")}
-                boxShadow="md"
+                {...glassCardStyle}
                 minW={"10rem"}
+                border={`1px solid ${primaryColor}`}
+                borderRadius={5}
                 py={0}
+                overflow={"hidden"}
               >
                 {actions?.actionBtn?.addKey?.showAddButton && (
                   <MenuItem
                     onClick={() =>
                       actions?.actionBtn?.addKey?.function?.("add")
                     }
-                    _hover={{ bg: hoverBg }}
-                    icon={<IoMdAdd fontSize={"20px"} />}
+                    _hover={{ bg: litePrimaryColor }}
+                    icon={<BiPlus fontSize={"20px"} />}
                     p={"0.7rem"}
                   >
                     Add
@@ -535,8 +535,8 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 {actions?.exportExcel?.show && (
                   <MenuItem
                     onClick={actions?.exportExcel?.function}
-                    icon={<DownloadIcon fontSize={"20px"} />}
-                    _hover={{ bg: menuItemHover }}
+                    icon={<BiDownload fontSize={"20px"} />}
+                    _hover={{ bg: litePrimaryColor }}
                     p={"0.7rem"}
                   >
                     {actions?.exportExcel?.text || "Export Excel"}
@@ -545,15 +545,19 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 {actions?.uploadFile?.show && (
                   <Button
                     as="label"
-                    ml={-3}
+                    // ml={-3}
                     htmlFor="file-upload"
-                    leftIcon={<BiUpload fontSize={"20px"} />}
                     w={"100%"}
                     bg={"transparent"}
-                    pl={4}
+                    justifyContent={"flex-start"}
+                    gap={"10px"}
+                    pl={"12px"}
                     fontWeight={400}
-                    _hover={{ bg: menuItemHover }}
+                    _hover={{ bg: litePrimaryColor, borderRadius: "0" }}
                   >
+                    <Box>
+                      <BiUpload fontSize={"20px"} />
+                    </Box>
                     {actions?.uploadFile?.text || "Upload Excel"}
                     <input
                       id="file-upload"
@@ -570,7 +574,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   <MenuItem
                     onClick={actions?.resetData?.function}
                     icon={<FcClearFilters fontSize={"20px"} />}
-                    _hover={{ bg: menuItemHover }}
+                    _hover={{ bg: litePrimaryColor }}
                     p={"0.7rem"}
                   >
                     {actions?.resetData?.text || "Reset"}
@@ -587,20 +591,28 @@ const CustomTable: React.FC<CustomTableProps> = ({
         className="customScrollBar"
         minH={"65vh"}
         maxH={"65vh"}
+        maxW={"85vw"}
+        minW={"100%"}
         rounded={2}
         px={2}
         {...tableProps.tableBox}
       >
         <Table
           size={"xs"}
-          variant="striped"
+          // variant="striped"
           {...tableProps.table}
-          bg={bodyBg}
+          // bg={bodyBg}
           borderRadius="md"
-          overflow="hidden"
+          overflow="hidden"  
+          sx={{
+            "& tr:nth-of-type(even)": {
+              background: litePrimaryColor, // Apply litePrimaryColor to odd rows (striped rows)
+            },
+            
+          }}       
         >
           <Thead
-            bg={headerBg}
+            bg={primaryColor}
             position="sticky"
             top="0"
             zIndex="9"
@@ -625,7 +637,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   textAlign="center"
                   position={column?.props?.isSticky ? "sticky" : "relative"}
                   right={column?.props?.isSticky ? "0" : undefined}
-                  bg={headerBg}
+                  // bg={headerBg}
                   whiteSpace={"nowrap"}
                   fontSize="xs"
                   textTransform="uppercase"
@@ -647,7 +659,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 <Tr
                   key={rowIndex}
                   _hover={{
-                    bg: hoverBg,
+                    bg: litePrimaryColor,
                     cursor: "pointer",
                     transition: "0.3s",
                   }}
