@@ -592,7 +592,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
         {...tableProps.tableBox}
       >
         <Table
-          size={isMobile ? "xs" : "sm"}
+          size={"xs"}
           variant="striped"
           {...tableProps.table}
           bg={bodyBg}

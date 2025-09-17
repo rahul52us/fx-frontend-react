@@ -47,7 +47,7 @@ const SidebarLogo = observer(() => {
             {/* Company Logo with fallback and dynamic sizing */}
             <Image
               borderRadius="full" // Optional: Adds a rounded look to the logo
-              boxSize={isCallapse ? "35px" : "50px"} // Dynamic size based on isCallapse
+              boxSize={isCallapse ? "35px" : "35px"} // Dynamic size based on isCallapse
               objectFit="contain" // Ensures the image fits well in the container
               src={
                 currentCompanyDetails?.logo?.url || "/path/to/fallback-logo.png"

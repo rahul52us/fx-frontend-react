@@ -20,6 +20,7 @@ import store from "../../../../../../../store/store";
 import { FaShoppingCart } from "react-icons/fa";
 import { HiPlus, HiMinus } from "react-icons/hi";
 import useRazorpay from "../../../../../../component/customHooks/useRazorPay";
+import { hoverColor } from "../../../../../../../globalColors";
 
 const CartContainer = observer(() => {
   const { handlePayment } = useRazorpay();
@@ -73,13 +74,14 @@ const CartContainer = observer(() => {
       >
         <IconButton
           icon={<FaShoppingCart />}
-          fontSize="2xl"
+          fontSize="1xl"
           position="relative"
           bg="transparent"
           variant="ghost"
-          color="white"
-          _hover={{ color: "blue.500", bg: "gray.700" }}
-          _active={{ bg: "gray.800" }}
+          color="black"
+          transition={"all 0.3s ease-in-out"}
+          _hover={{ color: "black.500", bg:`${hoverColor}`, borderRadius: "100px" }}
+          _active={{ color: "black.500", bg:`${hoverColor}`, borderRadius: "100px" }}
           aria-label="cart-icon"
           _focus={{ boxShadow: "outline" }}
           onClick={() => setOpenCart({ open: true, loading: false })}

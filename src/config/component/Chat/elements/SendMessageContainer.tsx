@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Box, Button, Flex } from "@chakra-ui/react";
+import { Box,  Flex } from "@chakra-ui/react";
 import CustomInput from "../../CustomInput/CustomInput";
 import { observer } from "mobx-react-lite";
 import store from "../../../../store/store";
+import { FiSend } from "react-icons/fi";
 
 interface TyperData {
   name: string;
@@ -68,7 +69,8 @@ const SendMessageContainer = observer(() => {
         placeholder="Type Message here"
         onChange={handleMessageTyping}
       />
-      <Button color={'green.400'} mt={1} backgroundColor={'blue.600'} _hover={{backgroundColor:'blue.600'}}>Send Message</Button>
+      {/* <Button color={'green.400'} mt={1} backgroundColor={'blue.600'} _hover={{backgroundColor:'blue.600'}}>Send Message</Button> */}
+      <FiSend/>
       </Flex>
     </Box>
   );

@@ -2,30 +2,30 @@ import {
   Box,
   Flex,
   Heading,
-  Image,
+  // Image,
   Text,
   useBreakpointValue,
   useColorModeValue,
-  keyframes,
+  // keyframes,
 } from "@chakra-ui/react";
-import IconArrowImg from "../../../config/assets/icon_images/icon-arrow-img.svg";
+// import IconArrowImg from "../../../config/assets/icon_images/icon-arrow-img.svg";
 import { observer } from "mobx-react-lite";
 import store from "../../../store/store";
 
-const getRandomRotation = (index: number) => {
-  const rotations = [45, 240, 270];
-  return `rotate(${rotations[index]}deg)`;
-};
+// const getRandomRotation = (index: number) => {
+//   const rotations = [45, 240, 270];
+//   return `rotate(${rotations[index]}deg)`;
+// };
 
 // Define a keyframe animation for the icon hover effect
-const bounce = keyframes`
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-`;
+// const bounce = keyframes`
+//   0%, 100% {
+//     transform: translateY(0);
+//   }
+//   50% {
+//     transform: translateY(-10px);
+//   }
+// `;
 
 const DashboardBanner = observer(() => {
   const {
@@ -44,15 +44,12 @@ const DashboardBanner = observer(() => {
 
   return (
     <Box
-      bgGradient={useColorModeValue(
-        "linear(to-r, rgb(199, 210, 254), rgb(147, 197, 253))",
-        "linear(to-r, #4F46E5, #4338CA)"
-      )}
+     
       p={isLargerThanXl ? 6 : 4}
       mt={isLargerThanXl ? 1.2 : 1.5}
       borderRadius={8}
       mb={isLargerThanXl ? 5 : 3}
-      boxShadow="md" // Added shadow for depth
+      // boxShadow="lg" // Added shadow for depth
       transition="background 0.3s ease"
     >
       <Flex alignItems="center" justifyContent="space-between">
@@ -67,7 +64,7 @@ const DashboardBanner = observer(() => {
             Here’s your daily overview—let’s make it a great one!
           </Text>
         </Flex>
-        {isLargerThanXl && (
+        {/* {isLargerThanXl && (
           <Flex ml={5}>
             {[0, 1, 2].map((index) => (
               <Image
@@ -87,7 +84,7 @@ const DashboardBanner = observer(() => {
               />
             ))}
           </Flex>
-        )}
+        )} */}
       </Flex>
     </Box>
   );

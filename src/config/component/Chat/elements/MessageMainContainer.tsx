@@ -100,21 +100,20 @@ const MessageMainContainer = observer(() => {
   ];
 
   return (
-    <Flex flexDirection="column" justifyContent="space-between" m={-6}>
+    <Flex flexDirection="column" justifyContent="space-between" >
       <Box
-        mt={1}
-        p={5}
         overflowY="auto"
         overflowX={"hidden"}
         flex="1"
         minH="80vh"
-        maxH={"80vh"}
+        maxH={"85vh"}
+        p={4}
       >
         {users.map((user) => (
           <MessageContainer key={user.id} user={user} />
         ))}
       </Box>
-      <Box mt={5}>
+      <Box >
         <SendMessageContainer />
       </Box>
     </Flex>

@@ -11,11 +11,13 @@ import {
   Thead,
   Tr,
   useBreakpointValue,
-  useColorMode,
+  // useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
 import Pagination from "../../pagination/Pagination";
 import TableLoader from "../../DataTable/TableLoader";
+import { inputBorderColor, inputBorderColorFocus, primaryColor, litePrimaryColor, whiteTextColor } from "../../../../globalColors";
+import { glassCardStyle } from "../../../../globalStyles";
 
 interface Column {
   headerName: string;
@@ -45,7 +47,7 @@ const NormalTable = ({
   searchValue,
   columns,
 }: NormalTableProps) => {
-  const {colorMode} = useColorMode()
+  // const {colorMode} = useColorMode()
   const columnWidth = useBreakpointValue({
     base: "100%",
     sm: "25%",
@@ -53,46 +55,51 @@ const NormalTable = ({
     lg: "12.5%",
   });
   const cellHeight = "40px";
-  const bgColor = useColorModeValue("gray.200", "gray.700");
-  const headerColor = useColorModeValue("gray.100", "gray.700");
+  // const bgColor = useColorModeValue("gray.200", "gray.700");
+  // const headerColor = useColorModeValue("gray.100", "gray.700");
   const textColor = useColorModeValue("black", "white");
   // const borderColor = useColorModeValue(
   //   "transparent",
   //   "1px solid darkgray"
   // );
-  const tableHeaderBg = useColorModeValue("gray.400", "blackAlpha.300");
+  // const tableHeaderBg = useColorModeValue("gray.400", "blackAlpha.300");
+
 
   return (
-    <Box shadow={'base'} borderWidth={1} rounded={'lg'} mt={5} overflowX="auto">
+    <Box shadow={'base'}  rounded={'lg'} mt={5} overflowX="auto" {...glassCardStyle}>
       <Flex
         justifyContent="space-between"
         alignItems="center"
         // borderBottom={borderColor}
         p={2}
         height={50}
-        bg={headerColor}
       >
         <Heading fontSize="md" color={textColor}>
           {title ? title : "Recent Users"}
         </Heading>
         <Box>
-          <Input
-            placeholder="Search"
-            fontSize="sm"
-            value={searchValue}
-            onChange={onSearchChange}
-          />
+           <Input
+              type="text"
+              // name="search"
+              placeholder="Search here"        
+              _focus={{ borderColor: "white" }}
+              border={`1px solid ${inputBorderColor}`}
+              fontSize="sm"
+              value={searchValue}
+              onChange={onSearchChange}
+              _focusVisible={{outline:"none",borderColor:`${inputBorderColorFocus}`}}
+            />
         </Box>
       </Flex>
       <Box p={1} height={{ sm: "325px" }} overflowY="auto" maxWidth="100%">
         <Table variant="simple" width="100%"  size="sm">
           <Thead>
-            <Tr bg={tableHeaderBg} height={cellHeight}>
+            <Tr  bg={primaryColor} height={cellHeight}>
               {columns.map((column, index) => (
                 <Th
                   key={index}
                   width={columnWidth}
-                  color={textColor}
+                  color={whiteTextColor}
                   // border={borderColor} 
                   textAlign="center"
                 >
@@ -113,7 +120,7 @@ const NormalTable = ({
                 data.map((row: any, rowIndex: number) => (
                   <Tr
                     key={rowIndex}
-                    bg={rowIndex % 2 === 0 ? bgColor : colorMode === "light" ? "white" : "gray.800"}
+                    bg={rowIndex % 2 === 0 ? "transparent" :litePrimaryColor }
                     height={cellHeight}
                   >
                     {columns.map((column, colIndex) => (
@@ -141,7 +148,7 @@ const NormalTable = ({
         p={2}
         // height={cellHeight}
         // borderTop={borderColor}
-        bg={headerColor}
+        // bg={headerColor}
       >
         <Box>
           <Pagination

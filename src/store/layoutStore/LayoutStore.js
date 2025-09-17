@@ -1,7 +1,7 @@
 import { action, makeObservable, observable } from "mobx";
 
 class LayoutStore {
-  isCallapse = true;
+  isCallapse = false;
   openMobileSideDrawer = false;
   selectMenu = localStorage.getItem("selected_menu")
     ? JSON.parse(localStorage.getItem("selected_menu"))

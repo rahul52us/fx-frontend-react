@@ -33,6 +33,7 @@ import store from "../../../../store/store";
 import { mediumSidebarWidth, sidebarWidth } from "../../../constant/variable";
 import SidebarLogo from "./component/SidebarLogo";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
+import { primaryColor, secondaryColor } from "../../../../globalColors";
 
 export interface SidebarItem {
   id: number;
@@ -334,22 +335,22 @@ const SidebarAccordion = observer(
     activeItemId: number | null;
     expandedPath: number[];
   }) => {
-    const {
-      themeStore: { themeConfig },
-    } = store;
+    // const {
+    //   themeStore: { themeConfig },
+    // } = store;
 
     const { colorMode } = useColorMode();
 
-    const activeBg = useColorModeValue(
-      themeConfig.colors.custom.light.primary,
-      "blue.900"
-    );
-    const hoverBg = useColorModeValue("blue.50", "blue.700");
-    const hoverColor = useColorModeValue("teal.700", "teal.300");
-    const primaryColor = useColorModeValue(
-      themeConfig.colors.custom.light.primary,
-      themeConfig.colors.custom.dark.primary
-    );
+    // const activeBg = useColorModeValue(
+    //   themeConfig.colors.custom.light.primary,
+    //   "blue.900"
+    // );
+    // const hoverBg = useColorModeValue("blue.50", "blue.700");
+    // const hoverColor = useColorModeValue("teal.700", "teal.300");
+    // const primaryColor = useColorModeValue(
+    //   themeConfig.colors.custom.light.primary,
+    //   themeConfig.colors.custom.dark.primary
+    // );
 
     // Determine the index to expand based on the depth and expandedPath
     const expandedIndex =
@@ -367,29 +368,35 @@ const SidebarAccordion = observer(
 
     return (
       <Accordion
-        width={"100%"}
+        width="100%"
         px={3}
         allowMultiple
         defaultIndex={expandedIndex !== null ? [expandedIndex] : []}
       >
         {items.map((item) => {
           const itemIsActive = isActive(item);
+          const isMainMenu = depth === 0;
+
           return (
-            <AccordionItem key={item.id} border="none" width={"100%"}>
+            <AccordionItem key={item.id} border="none" width="100%">
               {() => (
                 <>
                   <AccordionButton
-                    my={1.5}
-                    px={1}
-                    borderRadius={"10px"}
-                    bg={itemIsActive ? activeBg : "transparent"}
-                    color={itemIsActive ? primaryColor : "inherit"}
-                    fontWeight={itemIsActive ? "600" : "inherit"}
+                    my={1}
+                    px={2}
+                    py={2}
+                    borderRadius="6px"
+                    bg="transparent"
+                    color={itemIsActive ? primaryColor : secondaryColor}
+                    fontWeight={itemIsActive ? "600" : "500"}
+                    borderLeft={
+                      itemIsActive
+                        ? `3px solid ${primaryColor}`
+                        : "3px solid transparent"
+                    }
                     _hover={{
-                      bg: hoverBg,
-                      color: hoverColor,
-                      fontWeight: "600",
-                      boxShadow: "rgb(0 0 0 / 10%) 0px 0px 5px",
+                      color: primaryColor,
+                      bg: "rgba(0,124,138,0.05)", // subtle hover background
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -404,42 +411,27 @@ const SidebarAccordion = observer(
                       align="center"
                       justify="space-between"
                       width="100%"
-                      pl={2}
-                      my={0}
                       cursor="pointer"
-                      color={
-                        activeItemId === item.id
-                          ? useColorModeValue(
-                              themeConfig.colors.custom.light.primary,
-                              themeConfig.colors.custom.dark.primary
-                            )
-                          : "inherit"
-                      }
-                      fontWeight={activeItemId === item.id ? "600" : "inherit"}
                     >
                       <Flex align="center">
                         {renderIcon(depth, item.icon, colorMode)}
                         <Text
-                          fontSize="sm"
-                          color={colorMode === "dark" ? "white" : "black"}
-                          ml={depth === 0 ? 5 : 2}
+                          fontSize={isMainMenu ? "sm" : "sxs"} // smaller font for children
+                          ml={depth === 0 ? 3 : 6} // indent children
                         >
                           {item.name}
                         </Text>
                       </Flex>
 
                       {item.children && (
-                        <AccordionIcon
-                          color={
-                            colorMode === "light" ? "gray.800" : "gray.200"
-                          }
-                        />
+                        <AccordionIcon color={secondaryColor} />
                       )}
                     </Flex>
                   </AccordionButton>
+
                   {item.children && (
-                    <AccordionPanel pl={4} pr={0} pb={0} mt={"-5px"}>
-                      <VStack align="start" spacing={0}>
+                    <AccordionPanel pl={0} pr={0} pb={0} mt="-4px">
+                      <VStack align="start" spacing={0} width="100%">
                         <SidebarAccordion
                           items={item.children}
                           depth={depth + 1}
@@ -475,7 +467,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
     const navigate = useNavigate();
     const isMobile = useBreakpointValue({ base: true, lg: false }) ?? false;
     const borderColor = useColorModeValue("gray.200", "gray.700");
-    const headerBgColor = useColorModeValue("gray.200", "gray.700");
+    // const headerBgColor = useColorModeValue("gray.200", "gray.700");
     const [sidebarData, setSidebarData] = useState<any>([]);
     const [activeItemId, setActiveItemId] = useState<number | null>(() => {
       const storedActiveItemId = localStorage.getItem("activeSidebarItemId");
@@ -542,29 +534,27 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
         </Drawer>
         {!isMobile && (
           <Box
-            pos={"fixed"}
-            top={0}
-            bottom={0}
-            left={0}
-            width={isCollapsed ? mediumSidebarWidth : sidebarWidth}
-            minH={"100vh"}
-            transition="width 0.3s"
-            color="gray.700"
-            zIndex={10}
+            // pos={"fixed"}
+            // top={0}
+            // bottom={0}
+            // left={0}
+            // width={isCollapsed ? mediumSidebarWidth : sidebarWidth}
+            // minH={"100vh"}
+            // transition="width 0.3s"
+            // color="gray.700"
+            // zIndex={10}
             bg={colorMode === "dark" ? "gray.800" : "white"}
-            borderRight="1px"
-            boxShadow="rgb(0 0 0 / 20%) 0px 0px 11px"
+            // borderRight="1px"
+            // boxShadow="rgb(0 0 0 / 20%) 0px 0px 11px"
             borderRightColor={borderColor}
-            className="customScrollBar"
+            // className="customScrollBar"
           >
             <Box
               position="sticky"
               top={0}
               zIndex={11}
               bg={"white"}
-              borderBottom={"1px solid"}
-              borderBottomColor={headerBgColor}
-              boxShadow="0px 10px 10px -10px rgba(0, 0, 0, 0.1)"
+              boxShadow="0px -1px 3px 0 rgba(0, 0, 0, 0.12)"
             >
               <SidebarLogo />
             </Box>

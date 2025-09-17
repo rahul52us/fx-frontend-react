@@ -36,7 +36,7 @@ const Pagination = ({
           icon={<MdFirstPage />}
           onClick={() => onPageChange(1)}
           isDisabled={currentPage === 1}
-          color={colorMode === "light" ? "gray.700" : "whiteAlpha.700"}
+          color={colorMode === "light" ? "gray.700" : "red"}
           _disabled={{ color: colorMode === "light" ? "gray.700" : "whiteAlpha.700" }}
         />
         <ReactPaginate

@@ -25,7 +25,7 @@
   /* color: #505050; */
   font-weight: normal;
   &:hover {
-    color: #38B2AC;
+    color: #007C8A;
   }
 }
 
@@ -36,12 +36,12 @@
   font-size: 18px;
   /* color: #2D3748; */
   &:hover {
-    color: #38B2AC;
+    color: #007C8A;
   }
 }
 
 .paginationActive {
-  color: #38B2AC !important;
+  color: #007C8A !important;
   font-weight: bold !important;
 }
 

@@ -51,6 +51,7 @@ const UserWidget = observer(() => {
           loading={UsersCounts.loading}
           icon={item.icon}
           handleClick={() => navigate(item.link)}
+          bg={item.bg}
         />
       )})}
     </Grid>

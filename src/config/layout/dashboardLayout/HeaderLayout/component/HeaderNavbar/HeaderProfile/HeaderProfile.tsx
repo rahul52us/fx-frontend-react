@@ -44,10 +44,11 @@ const HeaderProfile = observer(() => {
           <Avatar
             src={user?.pic?.url || undefined}
             size="sm"
-            borderRadius={10}
+            borderRadius={100}
             name={user?.name}
           />
         }
+        marginLeft={"20px"}
         size="sm"
         variant="ghost"
       />

@@ -14,6 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { FiGlobe } from "react-icons/fi";
 import {  FaFlagUsa, FaFlag } from "react-icons/fa"; // Use FaFlag as a placeholder
+import { hoverColor } from "../../../../../../../globalColors";
 
 const HeaderLanguageSwitch = () => {
   const { i18n } = useTranslation();
@@ -42,16 +43,15 @@ const HeaderLanguageSwitch = () => {
         icon={<FiGlobe />}
         variant="ghost"
         aria-label="Switch Language"
-        fontSize="2xl"
-        color="white"
-        _hover={{ color: "blue.500", bg: "gray.700" }}
-        _active={{ bg: "gray.800" }}
-      p={2}
-        m={1}
+        fontSize="1xl"
+        color="black"
+        transition={"all 0.3s ease-in-out"}
+      _hover={{ color: "black.500", bg:`${hoverColor}`, borderRadius: "100px" }}
+      _active={{ color: "black.500", bg:`${hoverColor}`, borderRadius: "100px" }}
       />
       <Portal>
         <MenuList
-          minWidth="240px"
+          // minWidth="240px"
           boxShadow="lg"
           py={2}
           borderRadius="md"
@@ -63,8 +63,6 @@ const HeaderLanguageSwitch = () => {
               {index > 0 && <Divider />}
               <MenuItem
                 onClick={() => handleLanguageChange(option.value)}
-                px={4}
-                py={3}
                 _hover={{ bg: menuHoverBgColor }}
                 _active={{ bg: menuActiveBgColor }}
                 rounded="md"

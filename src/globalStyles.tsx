@@ -18,3 +18,11 @@ const globalStyles = css`
 `;
 
 export const GlobalStyles = () => <Global styles={globalStyles} />;
+
+export const glassCardStyle = {
+  bg: "rgba(255, 255, 255, 0.8)",
+  backdropFilter: "blur(12px)",
+  borderRadius: "2xl",
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+  border: "1px solid rgba(255, 255, 255, 0.6)",
+};

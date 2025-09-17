@@ -6,7 +6,7 @@ import {
   contentLargeBodyPadding,
   contentSmallBodyPadding,
   headerHeight,
-  mediumSidebarWidth,
+  // mediumSidebarWidth,
 } from "../../constant/variable";
 import Loader from "../../component/Loader/Loader";
 import { observer } from "mobx-react-lite";
@@ -87,12 +87,14 @@ const DashboardLayout = observer(() => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isCallapse, openDashSidebarFun]);
+console.log("isMobile",isMobile);
 
   return user ? (
     <Box
     >
-      <MainContainer isMobile={isMobile}>
-        <Box ref={sidebarRef}>
+      {/* <MainContainer isMobile={isMobile}> */}
+       <Container fullScreenMode={fullScreenMode} >
+        <Box boxShadow="1px -1px 4px -1px rgba(0, 0, 0, 0.12)">
           <SidebarLayout
             onItemClick={handleSidebarItemClick}
             isCollapsed={isCallapse}
@@ -101,7 +103,7 @@ const DashboardLayout = observer(() => {
             setOpenMobileSideDrawer={closeDrawerModel}
           />
         </Box>
-        <Container fullScreenMode={fullScreenMode}>
+       <Box display={"flex"} flexDirection={"column"} width={"100%"}>
           <HeaderContainer
             isMobile={isMobile}
             sizeStatus={sizeStatus}
@@ -112,7 +114,7 @@ const DashboardLayout = observer(() => {
               themeConfig.colors.custom.dark.primary
             )}
           >
-            <HeaderLayout />
+            <HeaderLayout  />
           </HeaderContainer>
           <ContentContainer
             isMobile={isMobile}
@@ -127,12 +129,14 @@ const DashboardLayout = observer(() => {
             fullScreenMode={fullScreenMode}
             sizeStatus={sizeStatus}
           >
+            
             <Suspense fallback={<Loader height="90vh" />}>
               <Outlet />
             </Suspense>
           </ContentContainer>
+          </Box>
         </Container>
-      </MainContainer>
+      {/* </MainContainer> */}
     </Box>
   ) : (
     <RedirectComponent />
@@ -141,17 +145,17 @@ const DashboardLayout = observer(() => {
 
 export default DashboardLayout;
 
-const MainContainer = styled.div<{ isMobile: boolean }>`
-  display: flex;
-  transition: all 0.3s ease-in-out;
-  overflow: hidden;
-  margin-left: ${(props) => (props.isMobile ? "0px" : mediumSidebarWidth)};
-`;
+// const MainContainer = styled.div<{ isMobile: boolean }>`
+//   display: flex;
+//   transition: all 0.3s ease-in-out;
+//   overflow: hidden;
+//   // margin-left: ${(props) => (props.isMobile ? "0px" : mediumSidebarWidth)};
+// `;
 
 const Container = styled.div<{ fullScreenMode: boolean }>`
   display: flex;
-  flex-direction: column;
   transition: all 0.3s ease-in-out;
+  width: 100%;
 `;
 
 const HeaderContainer = styled.div<{
@@ -162,13 +166,14 @@ const HeaderContainer = styled.div<{
   isMobile: boolean;
 }>`
   zindex: 9999;
-  height: ${headerHeight};
-  position: fixed;
-  top: 0;
-  right: 0;
-  background-color: ${(props) => props.backgroundColor};
-  left: ${(props) => (props.isMobile ? "0px" : mediumSidebarWidth)};
+  position: sticky;
+  top: 0; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: ${(props) => props.backgroundColor}; 
   transition: all 0.3s ease-in-out;
+  padding: 5px 15px 0px 5px;
 `;
 
 const ContentContainer = styled.div<{
@@ -179,10 +184,8 @@ const ContentContainer = styled.div<{
 }>`
   padding: ${({ isMobile }) =>
     isMobile ? `${contentSmallBodyPadding}` : `${contentLargeBodyPadding}`};
-  width: ${({ isMobile }) =>
-    isMobile ? "100vw" : `calc(100vw - ${mediumSidebarWidth})`};
   overflow-x: hidden;
   height: calc(100vh - ${headerHeight});
+  width: 100%;
   transition: all 0.3s ease-in-out;
-  margin-top: ${headerHeight};
 `;

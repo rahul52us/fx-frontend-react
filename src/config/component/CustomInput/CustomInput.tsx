@@ -39,6 +39,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import debounce from "lodash/debounce";
 import store from "../../../store/store";
+import { inputBorderColor, inputBorderColorFocus } from "../../../globalColors";
 import { Field } from "formik";
 import { format } from "date-fns";
 
@@ -227,6 +228,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
               disabled={disabled}
               fontSize="sm"
               {...rest}
+              _focus={{ borderColor: "white" }}
+              border={`1px solid ${inputBorderColor}`}
+              // _active={{outline:"none"}}
+              _focusVisible={{
+                outline: "none",
+                borderColor: `${inputBorderColorFocus}`,
+              }}
             />
             <InputRightElement
               cursor="pointer"
@@ -251,6 +259,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
             style={style}
             bg={inputBg}
             value={value}
+            _focus={{ borderColor: "white" }}
+            border={`1px solid ${inputBorderColor}`}
+            // _active={{outline:"none"}}
+            _focusVisible={{
+              outline: "none",
+              borderColor: `${inputBorderColorFocus}`,
+            }}
             onKeyDown={(e: any) => {
               const regex = /^[0-9]*$/;
               if (e.key === "Backspace") {
@@ -294,6 +309,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
             _placeholder={{ fontSize: "12px" }}
             readOnly={readOnly}
             {...rest}
+            _focus={{ borderColor: "white" }}
+            border={`1px solid ${inputBorderColor}`}
+            // _active={{outline:"none"}}
+            _focusVisible={{
+              outline: "none",
+              borderColor: `${inputBorderColorFocus}`,
+            }}
           />
         );
       case "textarea":
@@ -310,6 +332,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
             _placeholder={{ fontSize: "12px" }}
             readOnly={readOnly}
             {...rest}
+            _focus={{ borderColor: "white" }}
+            border={`1px solid ${inputBorderColor}`}
+            // _active={{outline:"none"}}
+            _focusVisible={{
+              outline: "none",
+              borderColor: `${inputBorderColorFocus}`,
+            }}
           />
         );
       case "radio":
@@ -455,6 +484,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
             disabled={disabled}
             _placeholder={{ fontSize: "12px" }}
             {...rest}
+            _focus={{ borderColor: "white" }}
+            border={`1px solid ${inputBorderColor}`}
+            // _active={{outline:"none"}}
+            _focusVisible={{
+              outline: "none",
+              borderColor: `${inputBorderColorFocus}`,
+            }}
           />
         );
       case "dateAndTime":
@@ -471,6 +507,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
             disabled={disabled}
             _placeholder={{ fontSize: "12px" }}
             {...rest}
+            _focus={{ borderColor: "white" }}
+            border={`1px solid ${inputBorderColor}`}
+            // _active={{outline:"none"}}
+            _focusVisible={{
+              outline: "none",
+              borderColor: `${inputBorderColorFocus}`,
+            }}
           />
         );
       // case "date":
@@ -631,6 +674,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
             _placeholder={{ fontSize: "12px" }}
             accept={accept}
             {...rest}
+            _focus={{ borderColor: "white" }}
+            border={`1px solid ${inputBorderColor}`}
+            // _active={{outline:"none"}}
+            _focusVisible={{
+              outline: "none",
+              borderColor: `${inputBorderColorFocus}`,
+            }}
           />
         );
       // New case for file drag-and-drop
@@ -683,6 +733,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
             disabled={disabled}
             _placeholder={{ fontSize: "12px" }}
             {...rest}
+            _focus={{ borderColor: "white" }}
+            border={`1px solid ${inputBorderColor}`}
+            // _active={{outline:"none"}}
+            _focusVisible={{
+              outline: "none",
+              borderColor: `${inputBorderColorFocus}`,
+            }}
           />
         );
       case "tags":
@@ -698,6 +755,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
               disabled={disabled}
               _placeholder={{ fontSize: "12px" }}
               {...rest}
+              _focus={{ borderColor: "white" }}
+              border={`1px solid ${inputBorderColor}`}
+              // _active={{outline:"none"}}
+              _focusVisible={{
+                outline: "none",
+                borderColor: `${inputBorderColorFocus}`,
+              }}
             />
             <Button
               onClick={() => handleTagAdd()}
@@ -839,6 +903,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
             name={name}
             disabled={disabled}
             _placeholder={{ fontSize: "12px" }}
+            _focus={{ borderColor: "white" }}
+            border={`1px solid ${inputBorderColor}`}
+            // _active={{outline:"none"}}
+            _focusVisible={{
+              outline: "none",
+              borderColor: `${inputBorderColorFocus}`,
+            }}
             {...rest}
           />
         );

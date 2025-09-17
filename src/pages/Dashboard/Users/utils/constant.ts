@@ -29,21 +29,24 @@ export const cardArrayData = {
     value: 0,
     icon: getIcon("NoOfUsers"), // Dynamically assign the icon
     link: dashboard.Users.details,
-    colorScheme: 'blue'
+    colorScheme: 'blue',
+    bg:"#EDFFEF"
   },
   NoOfMale: {
     title: "Total Male",
     value: 0,
     icon: getIcon("NoOfMale"),
     link: "",
-    colorScheme: 'teal'
+    colorScheme: 'teal',
+    bg:"#ECFBFF"
   },
   NoOfFemale: {
     title: "Total Female",
     value: 0,
     icon: getIcon("NoOfFemale"),
     link: "",
-    colorScheme: 'teal'
+    colorScheme: 'teal',
+    bg:"#FFF2EC"
   },
   CREATE: {
     title: "Total Users",
@@ -51,5 +54,6 @@ export const cardArrayData = {
     icon: getIcon("CREATE"),
     colorScheme: 'red',
     link: `${dashboard.Users.details}/new/?tab=profile-details`,
+    bg:"#F4F2FF"
   },
 };

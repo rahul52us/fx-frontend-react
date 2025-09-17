@@ -34,9 +34,6 @@ const DonutChart = observer(
           justifyContent="center"
           alignItems="center"
           height="100%"
-          background="#F0F0F0"
-          borderRadius="4px"
-          boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
         >
           <Box
             display="flex"

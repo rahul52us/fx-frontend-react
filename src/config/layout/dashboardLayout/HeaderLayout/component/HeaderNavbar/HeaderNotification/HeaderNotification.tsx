@@ -21,6 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { BellIcon, CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import HandLike from '../../../../../../assets/icon_images/no-notifications.png'
+import { hoverColor } from "../../../../../../../globalColors";
 interface Notification {
   id: number;
   userName: string;
@@ -222,12 +223,13 @@ const NotificationComponent: React.FC = () => {
           position="relative"
           bg="transparent"
           variant="ghost"
-          fontSize="2xl"
-          color="white"
-          _hover={{ color: "blue.500", bg: "gray.700" }}
-          _active={{ bg: "gray.800" }}
+          fontSize="1xl"
+          color="black"
+          transition={"all 0.3s ease-in-out"}
+          _hover={{ color: "black.500", bg:`${hoverColor}`, borderRadius: "100px" }}
+          _active={{ color: "black.500", bg:`${hoverColor}`, borderRadius: "100px" }}
           aria-label="chat-message-icons"
-          _focus={{ boxShadow: "outline" }}
+          // _focus={{ boxShadow: "outline" }}
           onClick={() => setDropdownOpen(!dropdownOpen)}
         />
         <Badge

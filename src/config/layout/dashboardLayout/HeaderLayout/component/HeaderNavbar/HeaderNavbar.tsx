@@ -2,8 +2,10 @@ import { Flex, IconButton, useMediaQuery } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 import { observer } from "mobx-react-lite";
 import HeaderProfile from "./HeaderProfile/HeaderProfile";
-// import HeaderNotification from "./HeaderNotification/HeaderNotification";
+import HeaderNotification from "./HeaderNotification/HeaderNotification";
 // import HeaderThemeSwitch from "./HeaderThemeSwitch/HeaderThemeSwitch";
+import HeaderLanguageSwitch from "./HeaderLanguageSwitch/HeaderLanguageSwitch";
+import HeaderChatMessage from "./HeaderChatMessage/HeaderChatMessage";
 import store from "../../../../../../store/store";
 
 const HeaderNavbar = observer(() => {
@@ -17,18 +19,17 @@ const HeaderNavbar = observer(() => {
       display="flex"
       justifyContent="space-around"
       alignItems="center"
-      width={isLargerThan1020 ? "18%" : "10%"}
+      // width={isLargerThan1020 ? "28%" : "10%"}
     >
       {isLargerThan1020 ? (
         <>
-          {/* <HeaderLanguageSwitch /> */}
+          <HeaderLanguageSwitch />
           {/* <HeaderThemeSwitch /> */}
-          {/* <HeaderChatMessage /> */}
-          {/* <HeaderNotification /> */}
+          <HeaderChatMessage />
+          <HeaderNotification />
           {/* <CartContainer /> */}
-          <Flex justify={'end'} w={'100%'} pr={2}>
           <HeaderProfile />
-          </Flex>
+          {/* </Flex> */}
         </>
       ) : (
         <IconButton

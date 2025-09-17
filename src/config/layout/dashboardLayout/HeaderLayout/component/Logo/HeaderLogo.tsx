@@ -1,18 +1,18 @@
-import { Flex, IconButton, Input, useBreakpointValue } from "@chakra-ui/react";
+import { Flex, Input, useBreakpointValue } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
+// import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import store from "../../../../../../store/store";
+import { inputBorderColor, inputBorderColorFocus } from "../../../../../../globalColors";
 
 const HeaderLogo = observer(() => {
   const isLargerThanXl = useBreakpointValue({ lg: true });
 
   const {
-    layout: { fullScreenMode, openDashSidebarFun, isCallapse },
     auth: { closeSearchBar },
   } = store;
   return (
     <Flex alignItems="center" display={"flex"} ml={2}>
-      {isLargerThanXl && (
+      {/* {isLargerThanXl && (
         <Flex alignItems="center">
           <IconButton
             variant="ghost"
@@ -51,14 +51,18 @@ const HeaderLogo = observer(() => {
             display="none"
           />
         </Flex>
-      )}
+      )} */}
       <Input
         type="text"
         // name="search"
         value=""
         placeholder="Search here"
         w={isLargerThanXl ? "90%" : "95%"}
-        onKeyDown={closeSearchBar}
+        onKeyDown={closeSearchBar}        
+        _focus={{ borderColor: "white" }}
+        border={`1px solid ${inputBorderColor}`}
+        // _active={{outline:"none"}}
+        _focusVisible={{outline:"none",borderColor:`${inputBorderColorFocus}`}}
       />
     </Flex>
   );

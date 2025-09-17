@@ -8,12 +8,13 @@ import {
   Flex,
   Text,
   useBreakpointValue,
-  useColorMode,
+  // useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useRef } from "react";
 import DrawerLoader from "../Loader/DrawerLoader";
 import store from "../../../store/store";
+import { drawerCloseIconColor, textColor } from "../../../globalColors";
 
 interface CustomDrawerProps {
   open: boolean;
@@ -40,14 +41,14 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
     themeStore: { themeConfig },
   } = store;
   const drawerRef = useRef<HTMLDivElement>(null);
-  const { colorMode } = useColorMode();
+  // const { colorMode } = useColorMode();
   const isDesktop = useBreakpointValue({ base: false, md: true });
 
   const headerBgColor = useColorModeValue(
     themeConfig.colors.custom.light.primary,
     themeConfig.colors.custom.dark.primary
   );
-  const headerTextColor = colorMode === "dark" ? "white" : "white";
+  // const headerTextColor = colorMode === "dark" ? "white" : "white";
   const handleCloseDrawer = () => {
     close();
   };
@@ -78,12 +79,11 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             alignItems="center"
             p={4}
             bg={headerBgColor}
-            color={headerTextColor}
+            color={textColor}
           >
             <Text fontSize="xl">{title}</Text>
             <DrawerCloseButton
-              color={headerTextColor}
-              bg="red.500"
+              color={drawerCloseIconColor}
               _hover={{ color: "#00000" }}
               size="lg"
               mt={1}
@@ -92,10 +92,10 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
         )}
         <Divider />
         <DrawerBody
-          style={{ overflowY: "auto", padding: isDesktop ? "15px" : "6px" }}
+          style={{ overflowY: "auto", padding:"0px" }}
         >
           <DrawerLoader loading={loading}>
-            <div style={{ maxHeight: "calc(100vh - 245px)" }}>{children}</div>
+            <div style={{ width:"100%" }}>{children}</div>
           </DrawerLoader>
         </DrawerBody>
       </DrawerContent>

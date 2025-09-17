@@ -1,8 +1,13 @@
 import { Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { FaEllipsisH } from "react-icons/fa";
+import { textColor, whiteTextColor } from "../../../../globalColors";
 
-const MessageDotOption = observer(() => {
+interface MessageDotOptionProps {
+  user: any; // Replace 'any' with a more specific type if available
+}
+
+const MessageDotOption = observer(({ user }: MessageDotOptionProps) => {  
   return (
     <Menu closeOnSelect={false} placement="bottom-end">
       <MenuButton
@@ -13,7 +18,7 @@ const MessageDotOption = observer(() => {
         _hover={{ opacity: 0.8 }}
         fontSize="xl"
       >
-        <FaEllipsisH fontSize={'xs'} />
+        <FaEllipsisH fontSize={'xs'} color={user.me ?whiteTextColor: textColor}/>
       </MenuButton>
       <MenuList
         minWidth="180px"
