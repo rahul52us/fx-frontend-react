@@ -10,10 +10,21 @@ export const exposureTypeOptions = [
   { label: 'Confirmed Order', value: 'confirmed_order' },
 ]
 
+export const importExposureType = [
+  {label:"DA/DP",value:"da_dp"},
+  {label:"LC/BC (Shifting of DA/DP to LC/BC)",value:"lc_bc_shifting"},
+  {label:"LC/BC (Direct Entry)",value:"lc_bc_direct_entry"},
+] 
+
 export const priorityOptions = [
   { label: 'High', value: 'high' },
   { label: 'Medium', value: 'medium' },
   { label: 'Low', value: 'low' },
+]
+
+export const modeOfConversionOptions = [
+  { label: 'Spot', value: 'spot' },
+  { label: 'Forward', value: 'forward' },
 ]
 
 export const monthsOptions = [

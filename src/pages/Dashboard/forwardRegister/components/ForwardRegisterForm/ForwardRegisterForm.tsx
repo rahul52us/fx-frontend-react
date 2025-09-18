@@ -16,32 +16,16 @@ import {
   currencyOptions,
   exposureTypeOptions
 } from "../../../exportsRegister/component/utils/constant";
+import { CustomDateInput } from "../../../../../config/component/CustomDateInput/CustomDateInput";
 
 const ForwardRegisterForm = ({submitForm}:any) => {
-  // const validationSchema = Yup.object({
-  //   exposureType: Yup.string().required("Exposure Type is required"),//
-  //   bookingDate: Yup.string().required("Booking Date is required"),//
-  //   deliveryDateFrom: Yup.string().required("Delivery Date From is required"),//
-  //   deliveryDateTo: Yup.string().required("Delivery Date To is required"),//
-  //   bank: Yup.string().required("Bank is required"),//
-  //   dealId: Yup.string().required("Deal ID is required"),//
-  //   currency: Yup.string().required("Currency is required"),//
-  //   originalAmount: Yup.string()//
-  //     .required("Original Amount is required"),
-  //   spotBooked: Yup.string()//
-  //     .required("Spot Booked is required"),
-  //   forwardPoints: Yup.string()//
-  //     .required("Forward Points is required"),
-  //   bankMargin: Yup.string()//
-  //     .required("Bank Margin is required"),
-  // });
 
   const validationSchema = Yup.object({
   bookingDate: Yup.string().required("Booking Date is required"),
   exposureType: Yup.string().required("Exposure Type is required"),
   bank: Yup.string().required("Bank is required"),
   bussinessUnit: Yup.string().required("Business Unit is required"),
-  exposureRefNumber: Yup.string().required("Exposure Ref Number is required"),
+  // exposureRefNumber: Yup.string().required("Exposure Ref Number is required"),
   hedgeDealReferenceNumber: Yup.string().required("Hedge Deal Reference Number is required"),
   currency: Yup.string().required("Currency is required"),
   hedgeAmount: Yup.number().required("Hedge Amount is required"),
@@ -55,34 +39,6 @@ const ForwardRegisterForm = ({submitForm}:any) => {
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
-      {/* Background Image with Overlay */}
-      {/* <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          height: "100vh",
-          width: "100%",
-          zIndex: -1,
-          overflow: "hidden",
-        }}
-      >
-        <Image
-          src={"/img/background_image.jpg"}
-          alt="Background Image"
-          objectFit="cover"
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            height: "100%",
-            width: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-          }}
-        />
-      </div> */}
       <Box
         maxW="5xl"
         mx="auto"
@@ -123,10 +79,10 @@ const ForwardRegisterForm = ({submitForm}:any) => {
                     error={touched.exposureType && errors.exposureType}
                   />
 
-                  <CustomInput
+                  <CustomDateInput
                     label="Booking Date"
                     name="bookingDate"
-                    type="date"
+                    // type="date"
                     value={values.bookingDate}
                     onChange={handleChange}
                     error={touched.bookingDate && errors.bookingDate}
@@ -174,17 +130,6 @@ const ForwardRegisterForm = ({submitForm}:any) => {
                     onChange={handleChange}
                     error={touched.exposureRefNumber && errors.exposureRefNumber}
                   />
-
-{/* 
-                  <CustomInput
-                    label="Deal ID"
-                    name="dealId"
-                    placeholder="Enter Deal ID"
-                    value={values.dealId}
-                    onChange={handleChange}
-                    error={touched.dealId && errors.dealId}
-                  /> */}
-
                  <CustomInput
                     label="Currency"
                     type="select"

@@ -14,6 +14,7 @@ import { useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import { currencyOptions } from "../../../exportsRegister/component/utils/constant";
+import { modeOfConversionOptions } from "../../../importsRegister/component/utils/constant";
 
 const PCFCForm = ({ submitForm }: any) => {
   const [showError, setShowError] = useState(true);
@@ -87,8 +88,10 @@ const PCFCForm = ({ submitForm }: any) => {
                   <CustomInput
                     label="Mode Of Conversion"
                     name="modeOfConversion"
+                    type="select"
                     placeholder="Conversion Mode"
                     value={values.modeOfConversion}
+                    options={modeOfConversionOptions}
                     onChange={handleChange}
                     error={touched.modeOfConversion && errors.modeOfConversion}
                     showError={showError}

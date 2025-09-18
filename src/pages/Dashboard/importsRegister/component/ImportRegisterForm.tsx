@@ -7,28 +7,28 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
+import { useState } from "react";
 import * as Yup from "yup";
+import { CustomDateInput } from "../../../../config/component/CustomDateInput/CustomDateInput";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import {
   currencyOptions,
-  exposureTypeOptions,
-  priorityOptions,
+  importExposureType
 } from "./utils/constant";
-import { useState } from "react";
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);
   const validationSchema = Yup.object().shape({
     exposureType: Yup.mixed().required("Exposure Type is required"),
-    exposureInputDate: Yup.string().required("Exposure Input Date is required"),
-    exposureModificationDate: Yup.string().nullable(), // optional, as no validation message was originally given
+    // exposureInputDate: Yup.string().required("Exposure Input Date is required"),
+    // exposureModificationDate: Yup.string().nullable(), // optional, as no validation message was originally given
     poDate: Yup.string().required("PO Date is required"),
     poNo: Yup.string().nullable(), // no validation mentioned, so nullable
-    invoiceNo: Yup.string().required("Invoice No is required"),
-    invoiceDate: Yup.string().nullable(), // no validation mentioned
+    // invoiceNo: Yup.string().required("Invoice No is required"),
+    // invoiceDate: Yup.string().nullable(), // no validation mentioned
     partyName: Yup.string().required("Party Name is required"),
     bank: Yup.string().required("Bank is required"),
-    priority: Yup.mixed().required("Priority is required"),
+    // priority: Yup.mixed().required("Priority is required"),
     businessUnit: Yup.string().nullable(), // no validation mentioned
     blDate: Yup.string().required("BL Date is required"),
     paymentTerms: Yup.string().required("Payment Terms is required"),
@@ -36,7 +36,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
     currency: Yup.mixed().required("Currency is required"),
     amount: Yup.number().required("Amount is required"),
     budgetRate: Yup.string().nullable(),
-    hedgeDealRefNo: Yup.string().nullable(),
+    // hedgeDealRefNo: Yup.string().nullable(),
     remark: Yup.string().nullable(),
   });
   return (
@@ -66,8 +66,8 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                   label="Exposure Type"
                   name="exposureType"
                   type="select"
-                  options={exposureTypeOptions}
-                  value={exposureTypeOptions.find(
+                  options={importExposureType}
+                  value={importExposureType.find(
                     (option) => option.value === values.exposureType
                   )}
                   // onChange={(option) => setFieldValue("exposureType", option)}
@@ -83,7 +83,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                   showError={showError}
                 />
 
-                <CustomInput
+                {/* <CustomInput
                   label="Exposure Input Date"
                   name="exposureInputDate"
                   type="date"
@@ -91,17 +91,17 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                   onChange={handleChange}
                   error={touched.exposureInputDate && errors.exposureInputDate}
                   showError={showError}
-                />
-                <CustomInput
+                /> */}
+                <CustomDateInput
                   label="PO Date"
                   name="poDate"
-                  type="date"
+                  // type="date"
                   value={values.poDate}
                   onChange={handleChange}
                   error={touched.poDate && errors.poDate}
                   showError={showError}
                 />
-                <CustomInput
+                {/* <CustomInput
                   label="Exposure Modification Date"
                   name="exposureModificationDate"
                   type="date"
@@ -112,29 +112,28 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     errors.exposureModificationDate
                   }
                   showError={showError}
-                />
-                <CustomInput
+                /> */}
+                <CustomDateInput
                   label="Invoice Date"
                   name="invoiceDate"
-                  type="date"
                   value={values.invoiceDate}
                   onChange={handleChange}
                   error={touched.invoiceDate && errors.invoiceDate}
                   showError={showError}
                 />
-                <CustomInput
+                <CustomDateInput
                   label="BL Date"
                   name="blDate"
-                  type="date"
+                  // type="date"
                   value={values.blDate}
                   onChange={handleChange}
                   error={touched.blDate && errors.blDate}
                   showError={showError}
                 />
-                <CustomInput
+                <CustomDateInput
                   label="Due Date"
                   name="dueDate"
-                  type="date"
+                  // type="date"
                   value={values.dueDate}
                   onChange={handleChange}
                   error={touched.dueDate && errors.dueDate}
@@ -239,6 +238,24 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                   error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
                   showError={showError}
                 />
+                <CustomInput
+                  label="Hedge Amount"
+                  name="hedgeAmount"
+                  placeholder="Hedge Amount"
+                  value={values.hedgeAmount}
+                  onChange={handleChange}
+                  error={touched.hedgeAmount && errors.hedgeAmount}
+                  showError={showError}
+                />
+                <CustomInput
+                  label="Hedge Rate"
+                  name="hedgeRate"
+                  placeholder="Hedge Rate"
+                  value={values.hedgeRate}
+                  onChange={handleChange}
+                  error={touched.hedgeRate && errors.hedgeRate}
+                  showError={showError}
+                />
                 {/* <CustomInput
                     label="Booked Forward Rate"
                     name="bookedForwardRate"
@@ -249,7 +266,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       touched.bookedForwardRate && errors.bookedForwardRate
                     }
                   /> */}
-                <CustomInput
+                {/* <CustomInput
                   label="Priority"
                   name="priority"
                   type="select"
@@ -268,7 +285,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                   }
                   error={touched.priority && errors.priority}
                   showError={showError}
-                />
+                /> */}
               </SimpleGrid>
               <CustomInput
                 label="Remark"

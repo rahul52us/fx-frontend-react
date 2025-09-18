@@ -7,55 +7,37 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
+import { useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
-import { currencyOptions, exportRegisterexposureTypeOptions } from "./utils/constant";
-import { useState } from "react";
+import {
+  currencyOptions,
+  exportRegisterexposureTypeOptions,
+} from "./utils/constant";
+import { CustomDateInput } from "../../../../config/component/CustomDateInput/CustomDateInput";
+// import CustomDateInput from "../../../../config/component/CustomDateInput/CustomDateInput";
 
 const ExposureForm = ({ submitExportForm }: any) => {
   const [showError, setShowError] = useState(false);
-
-  // const validationSchema = Yup.object({
-  //   exposureType: Yup.mixed().required("Exposure Type is required"),
-  //   exposureInputDate: Yup.string().required("Exposure Input Date is required"),
-  //   poDate: Yup.string().required("PO Date is required"),
-  //   poNo: Yup.string().required("PO No is required"),
-  //   invoiceNo: Yup.string().required("Invoice No is required"),
-  //   invoiceDate: Yup.string().required("Invoice Date is required"), 
-  //   exposureModificationDate: Yup.string().required(
-  //     "Exposure Modification Date is required"
-  //   ),
-  //   partyName: Yup.string().required("Party Name is required"),
-  //   bank: Yup.string().required("Bank is required"),
-  //   businessUnit: Yup.string().required("Business Unit is required"), 
-  //   blDate: Yup.string().required("BL Date is required"),
-  //   currency: Yup.mixed().required("Currency is required"),
-  //   amount: Yup.string().required("Amount is required"),
-  //   budgetRate: Yup.string().nullable(),
-  //   paymentTerms: Yup.string().required("Payment terms is required"),
-  //   hedgeRefNo: Yup.string().nullable(), 
-  //   remark: Yup.string().nullable(),
-  // });
-
+  const [selectedExposureType, setSelectedExposureType] = useState("");
   const validationSchema = Yup.object({
-  exposureType: Yup.mixed().required("Exposure Type is required"),
-  exposureInputDate: Yup.string().required("Exposure Input Date is required"),
-  exposureModificationDate: Yup.string().required("Exposure Modification Date is required"),
-  poDate: Yup.string().required("PO Date is required"),
-  poNo: Yup.string().required("PO No is required"),
-  invoiceNo: Yup.string().required("Invoice No is required"),
-  invoiceDate: Yup.string().required("Invoice Date is required"),
-  partyName: Yup.string().required("Party Name is required"),
-  bank: Yup.string().required("Bank is required"),
-  businessUnit: Yup.string().required("Business Unit is required"),
-  blDate: Yup.string().required("BL Date is required"),
-  paymentTerms: Yup.string().required("Payment terms is required"),
-  currency: Yup.mixed().required("Currency is required"),
-  amount: Yup.number().required("Amount is required"),
-  budgetRate: Yup.string().required("Budget Rate is required"),
-  hedgeDealRefNo: Yup.string().required("Hedge Deal Ref No is required"),
-  remark: Yup.string().nullable()
-});
+    exposureType: Yup.mixed().required("Exposure Type is required"),
+    poDate: Yup.string().required("PO Date is required"),
+    poNo: Yup.string().required("PO No is required"),
+    // invoiceNo: Yup.string().required("Invoice No is required"),
+    // invoiceDate: Yup.string().required("Invoice Date is required"),
+    partyName: Yup.string().required("Party Name is required"),
+    bank: Yup.string().required("Bank is required"),
+    businessUnit: Yup.string().required("Business Unit is required"),
+    blDate: Yup.string().required("BL Date is required"),
+    paymentTerms: Yup.string().required("Payment terms is required"),
+    currency: Yup.mixed().required("Currency is required"),
+    amount: Yup.number().required("Amount is required"),
+    budgetRate: Yup.string().required("Budget Rate is required"),
+    remark: Yup.string().nullable(),
+  });
+
+  console.log("selectedExposureType", selectedExposureType);
 
   return (
     <Box
@@ -107,20 +89,20 @@ const ExposureForm = ({ submitExportForm }: any) => {
                   value={exportRegisterexposureTypeOptions.find(
                     (option) => option.value === values.exposureType
                   )}
-                  // onChange={(option) => setFieldValue("exposureType", option)}
-                  onChange={(selectedOption) =>
+                  onChange={(selectedOption) => {
                     handleChange({
                       target: {
                         name: "exposureType",
                         value: selectedOption.value,
                       },
-                    })
-                  }
+                    });
+                    setSelectedExposureType(selectedOption.value);
+                  }}
                   showError={showError}
                   error={touched.exposureType && errors.exposureType}
                 />
 
-                <CustomInput
+                {/* <CustomInput
                   label="Exposure Input Date"
                   name="exposureInputDate"
                   type="date"
@@ -128,8 +110,8 @@ const ExposureForm = ({ submitExportForm }: any) => {
                   onChange={handleChange}
                   error={touched.exposureInputDate && errors.exposureInputDate}
                   showError={showError}
-                />
-                <CustomInput
+                /> */}
+                {/* <CustomInput
                   label="PO Date"
                   name="poDate"
                   type="date"
@@ -138,17 +120,32 @@ const ExposureForm = ({ submitExportForm }: any) => {
                   onChange={handleChange}
                   error={touched.poDate && errors.poDate}
                   showError={showError}
+                /> */}
+                <CustomDateInput
+                  label="PO Date"
+                  name="poDate"
+                  value={values.poDate}
+                  onChange={handleChange} 
+                  error={touched.poDate && errors.poDate}
+                  showError={true}
                 />
-                <CustomInput
+                <CustomDateInput
+                  label="Due Date"
+                  name="dueDate"
+                  value={values.dueDate}
+                  onChange={handleChange} 
+                  error={touched.dueDate && errors.dueDate}
+                  showError={true}
+                />
+                <CustomDateInput
                   label="BL Date"
                   name="blDate"
-                  type="date"
+                  // type="date"
                   value={values.blDate}
                   onChange={handleChange}
                   error={touched.blDate && errors.blDate}
                   showError={showError}
                 />
-
                 <CustomInput
                   label="Amount"
                   name="amount"
@@ -206,27 +203,12 @@ const ExposureForm = ({ submitExportForm }: any) => {
                   error={touched.invoiceNo && errors.invoiceNo}
                   showError={showError}
                 />
-                <CustomInput
+                <CustomDateInput
                   label="Invoice Date"
                   name="invoiceDate"
-                  type="date"
-                  placeholder="Invoice Date"
                   value={values.invoiceDate}
                   onChange={handleChange}
                   error={touched.invoiceDate && errors.invoiceDate}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Exposure Modification Date"
-                  name="exposureModificationDate"
-                  placeholder="Exposure Modification Date"
-                  type="date"
-                  value={values.exposureModificationDate}
-                  onChange={handleChange}
-                  error={
-                    touched.exposureModificationDate &&
-                    errors.exposureModificationDate
-                  }
                   showError={showError}
                 />
                 <CustomInput
@@ -285,6 +267,8 @@ const ExposureForm = ({ submitExportForm }: any) => {
                 error={touched.remark && errors.remark}
                 showError={showError}
               />
+
+              {/* <CustomInput  /> */}
               <Flex justify={"end"}>
                 <Button
                   rounded={"full"}
