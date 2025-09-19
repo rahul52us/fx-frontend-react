@@ -12,6 +12,7 @@ import MainPagePagination from "../../../../../../config/component/pagination/Ma
 import { useQueryParams } from "../../../../../../config/component/customHooks/useQuery";
 import NotFoundData from "../../../../../../config/component/commonPages/NotFoundData";
 import ViewTripData from "../../admin/component/forms/ViewTripData";
+import { primaryColor } from "../../../../../../globalColors";
 
 const TripLayout = observer(
   ({
@@ -170,7 +171,7 @@ const TripLayout = observer(
       return (
         <Center>
           <Box mt={40}>
-            <Spinner color="blue.500" thickness="4px" size="xl" />
+            <Spinner color={primaryColor} thickness="4px" size="xl" />
           </Box>
         </Center>
       );

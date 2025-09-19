@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Box, Text, Flex, Icon, Spinner } from "@chakra-ui/react";
 import { FiUsers } from "react-icons/fi";
+import { primaryColor } from "../../../globalColors";
 
 const WidgetCard = ({
   totalCount,
@@ -45,7 +46,7 @@ const WidgetCard = ({
           thickness="4px"
           speed="0.65s"
           emptyColor="gray.200"
-          color="white"
+          color={primaryColor}
           size="xl"
           transform="translate(-50%, -50%)"
         />

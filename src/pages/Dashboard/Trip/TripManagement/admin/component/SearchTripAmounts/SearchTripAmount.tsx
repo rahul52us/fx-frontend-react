@@ -7,6 +7,7 @@ import useDebounce from "../../../../../../../config/component/customHooks/useDe
 import { Box, Flex, Text, Divider, Spinner, Center } from "@chakra-ui/react";
 import { getStatusType } from "../../../../../../../config/constant/statusCode";
 import { formatCurrency } from "../../../../../../../config/constant/function";
+import { primaryColor } from "../../../../../../../globalColors";
 
 const SearchTripAmount = observer(() => {
   const {
@@ -77,7 +78,7 @@ const SearchTripAmount = observer(() => {
         {/* Loader or Trip Data Display */}
         {loading ? (
           <Center mt={4}>
-            <Spinner size="lg" color="blue.500" />
+            <Spinner size="lg" color={primaryColor} />
           </Center>
         ) : tripData.length > 0 ? (
           <Box mt={4}>

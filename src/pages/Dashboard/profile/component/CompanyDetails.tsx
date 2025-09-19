@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { FaUserTie, FaBuilding, FaClipboardList } from "react-icons/fa";
 import store from "../../../../store/store";
 import CustomButton from "../../../../config/component/Button/CustomButton";
+import { primaryColor } from "../../../../globalColors";
 
 const CompanyDetails = observer(({ setSelectedTab, isEditable, userDetails }: any) => {
   const {
@@ -180,7 +181,7 @@ const CompanyDetails = observer(({ setSelectedTab, isEditable, userDetails }: an
       <Divider mb={4} />
       {loading ? (
         <Flex justifyContent="center" alignItems="center" minH="200px">
-          <Spinner size="xl" label="Loading company details..." />
+          <Spinner size="xl" label="Loading company details..." color={primaryColor}/>
         </Flex>
       ) : (
         renderDetails()

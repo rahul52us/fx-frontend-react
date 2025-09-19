@@ -1,5 +1,6 @@
 import { Box, Spinner } from "@chakra-ui/react";
 import { useState } from "react";
+import { primaryColor } from "../../../globalColors";
 
 const FileViewer = ({url} : any) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +23,7 @@ const FileViewer = ({url} : any) => {
           alignItems="center"
           bgColor="rgba(255, 255, 255, 0.8)"
         >
-          <Spinner size="xl" color="blue.500" />
+          <Spinner size="xl" color={primaryColor} />
         </Box>
       )}
       <embed

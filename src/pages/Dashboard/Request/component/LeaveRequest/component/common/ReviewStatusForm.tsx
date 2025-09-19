@@ -14,6 +14,7 @@ import { CheckIcon, CloseIcon, WarningIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import store from "../../../../../../../store/store";
 import { getStatusType } from "../../../../../../../config/constant/statusCode";
+import { primaryColor } from "../../../../../../../globalColors";
 
 const ReviewStatusForm = ({
 data,
@@ -125,7 +126,7 @@ return (
       <Text>
         <strong>Status:</strong> {data.status}
       </Text>
-      {loading && <Spinner size="sm" />}
+      {loading && <Spinner size="sm" color={primaryColor}/>}
     </Flex>
     <Textarea
       placeholder="Enter your reason or comment here..."

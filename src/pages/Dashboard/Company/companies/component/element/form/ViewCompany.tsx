@@ -43,6 +43,7 @@ import { getStatusType } from "../../../../../../../config/constant/statusCode";
 import { EditIcon } from "@chakra-ui/icons";
 import CustomDrawer from "../../../../../../../config/component/Drawer/CustomDrawer";
 import PolicyCompany from "./CompanyPolicies";
+import { primaryColor } from "../../../../../../../globalColors";
 
 const ViewCompany = observer(({ data, onClose }: any) => {
   const [policyData, setPolicyData] = useState<any>({});
@@ -169,7 +170,7 @@ const ViewCompany = observer(({ data, onClose }: any) => {
                     <TabPanel>
                       {loading ? (
                         <Flex align="center" justify="center" height="100%">
-                          <Spinner size="xl" color="teal.500" />
+                          <Spinner size="xl" color={primaryColor} />
                         </Flex>
                       ) : policyData?.holidays?.length ? (
                         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
@@ -230,7 +231,7 @@ const ViewCompany = observer(({ data, onClose }: any) => {
                     <TabPanel>
                       {loading ? (
                         <Flex align="center" justify="center" height="100%">
-                          <Spinner size="xl" color="teal.500" />
+                          <Spinner size="xl" color={primaryColor} />
                         </Flex>
                       ) : (
                         <List spacing={2}>
@@ -271,7 +272,7 @@ const ViewCompany = observer(({ data, onClose }: any) => {
                     <TabPanel>
                       {loading ? (
                         <Flex align="center" justify="center" height="100%">
-                          <Spinner size="xl" color="teal.500" />
+                          <Spinner size="xl" color={primaryColor} />
                         </Flex>
                       ) : (
                         <List spacing={2}>

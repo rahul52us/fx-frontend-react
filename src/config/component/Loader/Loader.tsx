@@ -1,4 +1,5 @@
 import { Box, Spinner } from "@chakra-ui/react";
+import { primaryColor } from "../../../globalColors";
 
 const Loader = ({ height }: any) => {
   return (
@@ -12,7 +13,7 @@ const Loader = ({ height }: any) => {
         thickness="4px"
         speed="0.65s"
         emptyColor="gray.200"
-        color="blue.500"
+        color={primaryColor}
         size="xl"
       />
     </Box>

@@ -13,6 +13,7 @@ import {
 import React from "react";
 import { IconType } from "react-icons";
 import { useNavigate } from "react-router-dom";
+import { primaryColor } from "../../../globalColors";
 
 interface SummaryWidgetProps {
   label: string;
@@ -67,7 +68,7 @@ const SummaryWidget: React.FC<SummaryWidgetProps> = ({
             thickness="4px"
             speed="0.65s"
             emptyColor="gray.200"
-            color={`${colorScheme}.500`}
+            color={primaryColor}
             size="xl"
           />
         </Flex>

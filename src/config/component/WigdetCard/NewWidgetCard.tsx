@@ -1,7 +1,7 @@
 import { Box, Flex, Icon, Text, Spinner } from "@chakra-ui/react";
 import { useColorModeValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { darkenHex } from "../../../globalColors";
+import { darkenHex, primaryColor } from "../../../globalColors";
 
 const NewWidgetCard = ({
   totalCount,
@@ -69,7 +69,7 @@ const NewWidgetCard = ({
           zIndex={1}
           rounded="xl"
         >
-          <Spinner thickness="4px" size="xl" color="blue.500" />
+          <Spinner thickness="4px" size="xl" color={primaryColor} />
         </Box>
       )}
 

@@ -11,6 +11,7 @@ import {
 import { observer } from "mobx-react-lite";
 import { Bar } from "react-chartjs-2";
 import './chart.css'
+import { primaryColor } from "../../../globalColors";
 
 const defaultData = {
   datasets: [
@@ -64,7 +65,7 @@ const BarChart = observer(
             alignItems="center"
             padding="20px"
           >
-            <Spinner color="blue.500" thickness="4px" size="lg" />
+            <Spinner color={primaryColor} thickness="4px" size="lg" />
             <Text
               color="#333"
               fontSize="sm"

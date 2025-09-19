@@ -6,6 +6,7 @@ import { getStatusType } from "../../../config/constant/statusCode";
 import { Box, Flex, Spinner, Text, Grid } from "@chakra-ui/react";
 import MainPagePagination from "../../../config/component/pagination/MainPagePagination";
 import BlogWidget from "./BlogWidget";
+import { primaryColor } from "../../../globalColors";
 
 const BlogsLayout = observer(() => {
   const {
@@ -44,7 +45,7 @@ const BlogsLayout = observer(() => {
       {/* Blog Cards Section */}
       {blogs.loading ? (
         <Flex justify="center" align="center" py={12}>
-          <Spinner size="lg" />
+          <Spinner size="lg" color={primaryColor}/>
         </Flex>
       ) : blogs.data?.length ? (
         <Grid gridTemplateColumns={{ base: '1fr', sm: '1fr', md: '1fr 1fr', xl: '1fr 1fr 1fr' }} gap={5}>

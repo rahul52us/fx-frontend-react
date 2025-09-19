@@ -113,7 +113,7 @@ const NormalTable = ({
               {loading ? (
                 <Tr>
                   <Td colSpan={columns.length} textAlign="center">
-                    <Spinner />
+                    <Spinner color={primaryColor}/>
                   </Td>
                 </Tr>
               ) : (
