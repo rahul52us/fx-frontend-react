@@ -1,20 +1,37 @@
 import { Global, css } from "@emotion/react";
-import { primaryColor, whiteTextColor } from "./globalColors";
+import { primaryColor, whiteTextColor,litePrimaryColor } from "./globalColors";
 
 const globalStyles = css`
   /* Customize scrollbar styles */
   ::-webkit-scrollbar {
-    width: 5px;
-    height:8px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--chakra-colors-blue-500);
-    /* border-radius: 10px; */
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background-color: var(--chakra-colors-gray-100);
+    background: transparent; /* subtle, avoids heavy background */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${litePrimaryColor};
+    border-radius: 10px;
+    border: 2px solid transparent; /* creates padding effect */
+    background-clip: content-box;
+    transition: background 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${whiteTextColor}; /* hover contrast */
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Firefox support */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: ${litePrimaryColor} transparent;
   }
 `;
 

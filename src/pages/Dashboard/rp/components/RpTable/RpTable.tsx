@@ -2,6 +2,8 @@ import { DownloadIcon } from "@chakra-ui/icons";
 import { Button, Flex, Heading, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useRef, useState } from "react";
+import { primaryColor } from "../../../../../globalColors";
+import { primaryButtonHoverStyle, primaryButtonStyle } from "../../../../../globalStyles";
 
 const RpTable = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -97,12 +99,14 @@ const RpTable = () => {
   return (
     <>
     <Flex align={'center'} gap={4} justify={'space-between'}>
-      <Heading color={"blue.500"}>RP</Heading>
+      <Heading color={primaryColor}>RP</Heading>
        <Button 
       onClick={handleDownload}
       leftIcon={<DownloadIcon />}
       colorScheme="blue"
-      variant={'ghost'}
+       variant="outline"
+      {...primaryButtonStyle}
+      _hover={primaryButtonHoverStyle}
       >
       Download Sample
     </Button>
@@ -112,6 +116,9 @@ const RpTable = () => {
           size={"lg"}
           colorScheme="blue"
           isLoading={loading}
+          variant="outline"
+          {...primaryButtonStyle}
+          _hover={primaryButtonHoverStyle}
           onClick={() => fileInputRef.current?.click()}
         >
           Upload Excel
