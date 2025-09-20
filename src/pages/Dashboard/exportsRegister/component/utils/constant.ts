@@ -45,8 +45,9 @@ export const conversionTypeOptions = [
 ];
 
 export const modeOfConversionOptions = [
-  { label: "Spot", value: "spot" },
-  { label: "EEFC", value: "eefc" },
+  { label: "Spot Conversion", value: "spot" },
+  { label: "EEFC Conversion", value: "eefc" },
+  { label: "PCFC Repayment", value: "pcfc" },
 ];
 
 export const dealTypeOptions = [

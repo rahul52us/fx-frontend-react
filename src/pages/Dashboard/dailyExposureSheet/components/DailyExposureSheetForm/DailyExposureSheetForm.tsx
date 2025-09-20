@@ -18,14 +18,15 @@ import {
   modeOfConversionOptions,
   settlementTypeOptions,
 } from "../../../exportsRegister/component/utils/constant";
+import { CustomDateInput } from "../../../../../config/component/CustomDateInput/CustomDateInput";
 
 const DailyExposureSheetForm = ({ submitForm }: any) => {
   const [showError, setShowError] = useState(false);
   const validationSchema = Yup.object({
     settlementDate: Yup.string().required("Settlement Date is required"),
-    settlementInputDate: Yup.mixed().required(
-      "Settlement Input Date is required"
-    ),
+    // settlementInputDate: Yup.mixed().required(
+    //   "Settlement Input Date is required"
+    // ),
     exposureType: Yup.mixed().required("Exposure Type is required"),
     settlementType: Yup.string().required("Settlement Type is required"),
     poNumber: Yup.string().required("PO Number is required"),
@@ -68,7 +69,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
               <VStack spacing={6} align="stretch">
                 <Divider mb={4} />
 
-                <SimpleGrid columns={[1, null, 2]} spacing={8}>
+                <SimpleGrid columns={[1, null, 2]} spacing={8} alignItems={'center'}>
                   <CustomInput
                     label="Exposure Type"
                     name="exposureType"
@@ -101,7 +102,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     error={touched.settlementType && errors.settlementType}
                     showError={showError}
                     />
-                  <CustomInput
+                  {/* <CustomInput
                     label="Settlement Input Date"
                     name="settlementInputDate"
                     type="date"
@@ -111,16 +112,35 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                       touched.settlementInputDate && errors.settlementInputDate
                     }
                     showError={showError}
-                    />
-                  <CustomInput
+                    /> */}
+                  <CustomDateInput
                     label="Settlement Date"
                     name="settlementDate"
-                    type="date"
+                    // type="date"
                     value={values.settlementDate}
                     onChange={handleChange}
                     error={errors.settlementDate}
                     showError={showError}
                     />
+
+  <CustomInput
+                    label="Mode Of Conversion"
+                    name="modeOfConversion"
+                    type="select"
+                    placeholder="Conversion Mode"
+                    options={modeOfConversionOptions}
+                    value={modeOfConversionOptions.find(
+                      (opt) => opt.value === values.modeOfConversion
+                    )}
+                    onChange={(option) =>
+                      handleChange({
+                        target: { name: "modeOfConversion", value: option.value },
+                      })
+                    }
+                    error={touched.modeOfConversion && errors.modeOfConversion}
+                    showError={showError}
+                    />
+                    
                   <CustomInput
                     label="PO Number"
                     name="poNumber"
@@ -139,23 +159,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     error={touched.invoiceBcNumber && errors.invoiceBcNumber}
                     showError={showError}
                     />
-                  <CustomInput
-                    label="Mode Of Conversion"
-                    name="modeOfConversion"
-                    type="select"
-                    placeholder="Conversion Mode"
-                    options={modeOfConversionOptions}
-                    value={modeOfConversionOptions.find(
-                      (opt) => opt.value === values.modeOfConversion
-                    )}
-                    onChange={(option) =>
-                      handleChange({
-                        target: { name: "modeOfConversion", value: option.value },
-                      })
-                    }
-                    error={touched.modeOfConversion && errors.modeOfConversion}
-                    showError={showError}
-                    />
+                
                   <CustomInput
                     label="Conversion Ref No"
                     name="conversionReferenceNumber"

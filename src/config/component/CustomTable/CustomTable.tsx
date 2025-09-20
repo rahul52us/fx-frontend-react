@@ -8,6 +8,7 @@ import {
   Input,
   Menu,
   MenuButton,
+  // MenuButton,
   MenuItem,
   MenuList,
   Table,
@@ -20,6 +21,8 @@ import {
   useBreakpointValue,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { SlOptionsVertical } from "react-icons/sl";
+
 import React, { useRef } from "react";
 import { FaEdit, FaEye } from "react-icons/fa";
 import { FcClearFilters } from "react-icons/fc";
@@ -502,15 +505,19 @@ const CustomTable: React.FC<CustomTableProps> = ({
           )}
           {actions?.resetData?.show && (
             <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                colorScheme="red"
-                minW={{ base: "6rem", md: "10rem" }}
-                textAlign={"center"}
-              >
-                Actions
+<MenuButton>
+              <IconButton
+              aria-label="Actions"
+              as={Button}
+              variant="outline"
+              colorScheme="blue"
+              icon={<SlOptionsVertical/>}
+              // minW={{ base: "6rem", md: "10rem" }}
+              textAlign={"center"}
+              />
               </MenuButton>
+                {/* Actions
+              </IconButton> */}
               <MenuList
                 zIndex={15}
                 bg={menuListBg}
