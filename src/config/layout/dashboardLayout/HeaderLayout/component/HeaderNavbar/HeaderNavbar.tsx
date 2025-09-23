@@ -19,6 +19,7 @@ const HeaderNavbar = observer(() => {
       display="flex"
       justifyContent="space-around"
       alignItems="center"
+      paddingRight={5}
       // width={isLargerThan1020 ? "28%" : "10%"}
     >
       {isLargerThan1020 ? (

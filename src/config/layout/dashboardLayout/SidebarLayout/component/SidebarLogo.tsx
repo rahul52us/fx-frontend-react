@@ -3,7 +3,6 @@ import {
   Flex,
   Image,
   Text,
-  useColorModeValue,
   Tooltip,
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
@@ -15,17 +14,12 @@ import { headerHeight } from "../../../../constant/variable";
 const SidebarLogo = observer(() => {
   const {
     layout: { isCallapse },
-    themeStore: { themeConfig },
     auth: { currentCompanyDetails },
   } = store;
   const navigate = useNavigate();
 
   return (
-    <Flex
-      bgColor={useColorModeValue(
-        themeConfig.colors.custom.light.primary,
-        themeConfig.colors.custom.dark.primary
-      )}
+    <Flex     
       justifyContent={isCallapse ? "center" : undefined}
       flexDirection={isCallapse ? "column" : undefined}
       alignItems="center"

@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Accordion,
   AccordionButton,
@@ -34,6 +34,7 @@ import { mediumSidebarWidth, sidebarWidth } from "../../../constant/variable";
 import SidebarLogo from "./component/SidebarLogo";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
 import { primaryColor, secondaryColor } from "../../../../globalColors";
+import { glassCardStyle } from "../../../../globalStyles";
 
 export interface SidebarItem {
   id: number;
@@ -79,7 +80,7 @@ const renderIcon = (depth: number, icon: JSX.Element, colorMode: string) => {
   if (depth === 1) {
     return (
       // <Tooltip label={label} hasArrow placement="right">
-      <Box as="span" mr={2} cursor="pointer">
+      <Box as="span"  cursor="pointer">
         <Text fontSize="18px" color={iconColor}>
           -
         </Text>
@@ -91,7 +92,7 @@ const renderIcon = (depth: number, icon: JSX.Element, colorMode: string) => {
   if (depth > 1) {
     return (
       // <Tooltip label={label} hasArrow placement="right">
-      <Box as="span" mr={2} cursor="pointer">
+      <Box as="span"  cursor="pointer">
         <Text fontSize="18px" color={iconColor}>
           ◦
         </Text>
@@ -155,9 +156,6 @@ const SidebarPopover = observer(
     isCollapsed: boolean;
     activeItemId: number | null;
   }) => {
-    const {
-      themeStore: { themeConfig },
-    } = store;
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const { colorMode } = useColorMode();
 
@@ -213,40 +211,41 @@ const SidebarPopover = observer(
               width={"100%"}
               cursor="pointer"
               py={depth === 0 ? 3 : 1}
-              bg={
-                itemIsActive
-                  ? useColorModeValue("blue.50", "blue.900")
-                  : "transparent"
-              }
               color={
                 itemIsActive
-                  ? useColorModeValue(
-                      themeConfig.colors.custom.light.primary,
-                      themeConfig.colors.custom.dark.primary
-                    )
+                  ? primaryColor 
                   : "inherit"
               }
-              fontWeight={itemIsActive ? "600" : "inherit"}
+              borderRight={
+                itemIsActive
+                  ? `3px solid ${primaryColor}`
+                  : "3px solid transparent"
+              }
               _hover={{
-                bg: useColorModeValue("blue.50", "blue.700"),
-                color: useColorModeValue(
-                  themeConfig.colors.custom.light.primary,
-                  themeConfig.colors.custom.dark.primary
-                ),
+                color: primaryColor,
+                bg: "rgba(0,124,138,0.05)", // subtle hover background
               }}
+              fontWeight={itemIsActive ? "600" : "inherit"}
+              // _hover={{
+              //   bg: useColorModeValue("blue.50", "blue.700"),
+              //   color: useColorModeValue(
+              //     themeConfig.colors.custom.light.primary,
+              //     themeConfig.colors.custom.dark.primary
+              //   ),
+              // }}
             >
               {renderIcon(depth, item.icon, colorMode)}
               {depth > 0 && (
                 <Flex flex={1} align={"center"} justify={"space-between"}>
-                  <Text ml={2} fontSize={"sm"}>
+                  <Text fontSize={"sm"}>
                     {item.name}
                   </Text>
-                  {item.children && (
+                  {/* {item.children && (
                     <ChevronRightIcon
                       ml={2}
                       color={colorMode === "light" ? "gray.800" : "gray.200"}
                     />
-                  )}
+                  )} */}
                 </Flex>
               )}
             </Flex>
@@ -258,10 +257,11 @@ const SidebarPopover = observer(
               zIndex={15}
               w={"200px"}
               onMouseEnter={handleMouseEnter}
+              {...glassCardStyle}
               bg={useColorModeValue("white", "gray.800")}
             >
-              <PopoverArrow />
-              <PopoverHeader bg={useColorModeValue("blue.50", "blue.900")}>
+              <PopoverArrow color={primaryColor}/>
+              <PopoverHeader bg={primaryColor} >
                 <Flex
                   align="center"
                   justify="space-between"
@@ -272,13 +272,9 @@ const SidebarPopover = observer(
                 >
                   <Flex align="center" py={0}>
                     <Text
-                      color={useColorModeValue(
-                        themeConfig.colors.custom.light.primary,
-                        "gray.200"
-                      )}
+                      color={"white"}
                       fontSize="sm"
                       fontWeight={600}
-                      ml={depth === 0 ? 5 : 2}
                     >
                       {item.name}
                     </Text>
@@ -286,10 +282,7 @@ const SidebarPopover = observer(
                   {item.children && (
                     <ChevronDownIcon
                       //  color={colorMode === "light" ? "gray.800" : "gray.200"}
-                      color={useColorModeValue(
-                        themeConfig.colors.custom.light.primary,
-                        "gray.200"
-                      )}
+                      color={"white"}
                       fontSize="19px"
                       fontWeight={600}
                     />
@@ -538,7 +531,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
             // top={0}
             // bottom={0}
             // left={0}
-            // width={isCollapsed ? mediumSidebarWidth : sidebarWidth}
+            width={isCollapsed ? mediumSidebarWidth : sidebarWidth}
             // minH={"100vh"}
             // transition="width 0.3s"
             // color="gray.700"

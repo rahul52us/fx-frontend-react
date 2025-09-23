@@ -53,7 +53,7 @@ const DashWidgetCard = observer(() => {
         base: "repeat(1, 1fr)", // Mobile: 1 card per row
         sm: "repeat(2, 1fr)", // Small screens: 2 cards per row
         md: "repeat(3, 1fr)", // Tablets: 3 cards per row
-        lg: "repeat(4, 1fr)", // Desktops: 4 cards per row
+        lg: "repeat(3, 1fr)", // Desktops: 4 cards per row
         xl: "repeat(5, 1fr)", // Large desktops: 5 cards per row
       }}
       gap={6}

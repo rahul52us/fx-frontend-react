@@ -3,10 +3,7 @@ import { Suspense } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import HeaderLayout from "./HeaderLayout/HeaderLayout";
 import {
-  contentLargeBodyPadding,
-  contentSmallBodyPadding,
   headerHeight,
-  // mediumSidebarWidth,
 } from "../../constant/variable";
 import Loader from "../../component/Loader/Loader";
 import { observer } from "mobx-react-lite";
@@ -16,11 +13,12 @@ import SidebarLayout from "./SidebarLayout/SidebarLayout";
 import {
   Box,
   useBreakpointValue,
-  useColorModeValue,
   useMediaQuery,
   useTheme,
 } from "@chakra-ui/react";
-
+import PermissionDeniedPage from "../../component/commonPages/PermissionDeniedPage";
+import { authentication } from "../../constant/routes";
+import { glassCardStyle } from "../../../globalStyles";
 const RedirectComponent = observer(() => {
   const navigate = useNavigate();
 
@@ -37,7 +35,7 @@ const RedirectComponent = observer(() => {
 
 const DashboardLayout = observer(() => {
   const {
-    auth: { restoreUser, user },
+    auth: { restoreUser, user, checkPermission },
     layout: {
       fullScreenMode,
       mediumScreenMode,
@@ -46,7 +44,6 @@ const DashboardLayout = observer(() => {
       openMobileSideDrawer,
       setOpenMobileSideDrawer,
     },
-    themeStore: { themeConfig },
   } = store;
 
   const navigate = useNavigate();
@@ -87,14 +84,14 @@ const DashboardLayout = observer(() => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isCallapse, openDashSidebarFun]);
-console.log("isMobile",isMobile);
 
   return user ? (
-    <Box
+    <PermissionDeniedPage
+    show={!checkPermission('dashboard', 'view')}
+    onClick={() => navigate(authentication.login)}
     >
-      {/* <MainContainer isMobile={isMobile}> */}
-       <Container fullScreenMode={fullScreenMode} >
-        <Box boxShadow="1px -1px 4px -1px rgba(0, 0, 0, 0.12)">
+      <MainContainer isMobile={isMobile}>
+        <Box ref={sidebarRef} {...glassCardStyle}>
           <SidebarLayout
             onItemClick={handleSidebarItemClick}
             isCollapsed={isCallapse}
@@ -103,18 +100,14 @@ console.log("isMobile",isMobile);
             setOpenMobileSideDrawer={closeDrawerModel}
           />
         </Box>
-       <Box display={"flex"} flexDirection={"column"} width={"100%"}>
+        <Container fullScreenMode={fullScreenMode}>
           <HeaderContainer
             isMobile={isMobile}
             sizeStatus={sizeStatus}
             mediumScreenMode={mediumScreenMode}
             fullScreenMode={fullScreenMode}
-            backgroundColor={useColorModeValue(
-              themeConfig.colors.custom.light.primary,
-              themeConfig.colors.custom.dark.primary
-            )}
           >
-            <HeaderLayout  />
+            <HeaderLayout />
           </HeaderContainer>
           <ContentContainer
             isMobile={isMobile}
@@ -129,15 +122,13 @@ console.log("isMobile",isMobile);
             fullScreenMode={fullScreenMode}
             sizeStatus={sizeStatus}
           >
-            
             <Suspense fallback={<Loader height="90vh" />}>
               <Outlet />
             </Suspense>
           </ContentContainer>
-          </Box>
         </Container>
-      {/* </MainContainer> */}
-    </Box>
+      </MainContainer>
+    </PermissionDeniedPage>
   ) : (
     <RedirectComponent />
   );
@@ -145,35 +136,35 @@ console.log("isMobile",isMobile);
 
 export default DashboardLayout;
 
-// const MainContainer = styled.div<{ isMobile: boolean }>`
-//   display: flex;
-//   transition: all 0.3s ease-in-out;
-//   overflow: hidden;
-//   // margin-left: ${(props) => (props.isMobile ? "0px" : mediumSidebarWidth)};
-// `;
+const MainContainer = styled.div<{ isMobile: boolean }>`
+  display: flex;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+`;
 
 const Container = styled.div<{ fullScreenMode: boolean }>`
   display: flex;
+  flex-direction: column;
   transition: all 0.3s ease-in-out;
-  width: 100%;
+  WIDTH: 100%;
 `;
 
 const HeaderContainer = styled.div<{
   fullScreenMode: boolean;
   sizeStatus: boolean;
   mediumScreenMode: boolean;
-  backgroundColor: any;
   isMobile: boolean;
 }>`
   zindex: 9999;
+  height: ${headerHeight};
   position: sticky;
-  top: 0; 
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: ${(props) => props.backgroundColor}; 
+  top: 0;
+  right: 0;  
+  // width: ${({ isMobile }) => (isMobile ? "100%" : "calc(100% - 250px)")};
   transition: all 0.3s ease-in-out;
-  padding: 5px 15px 0px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const ContentContainer = styled.div<{
@@ -182,10 +173,8 @@ const ContentContainer = styled.div<{
   mediumScreenMode: boolean;
   isMobile: boolean;
 }>`
-  padding: ${({ isMobile }) =>
-    isMobile ? `${contentSmallBodyPadding}` : `${contentLargeBodyPadding}`};
+  padding:5px 20px;
   overflow-x: hidden;
   height: calc(100vh - ${headerHeight});
-  width: 100%;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;  
 `;
