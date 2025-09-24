@@ -17,6 +17,11 @@ import store from "../../../store/store";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import DashPageHeader from "../../../config/component/common/DashPageHeader/DashPageHeader";
+import { primaryColor } from "../../../globalColors";
+import {
+  primaryButtonHoverStyle,
+  primaryButtonStyle,
+} from "../../../globalStyles";
 
 const ForgotPassword = observer(() => {
   const [showError, setShowError] = useState(false);
@@ -27,21 +32,18 @@ const ForgotPassword = observer(() => {
 
   return (
     <>
-      <DashPageHeader title="Forgot Password" showMainTitle={false}/>
+      <DashPageHeader title="Forgot Password" showMainTitle={false} />
       <Flex
         flexDir="column"
         justifyContent="center"
         alignItems="center"
         minH="70vh"
-        bg={useColorModeValue("gray.50", "gray.800")}
         px={4}
       >
         <Box
           rounded="lg"
           flexDir="column"
           justifyContent="center"
-          bg={useColorModeValue("white", "gray.700")}
-          boxShadow="xl"
           p={8}
           maxW="md"
           w="full"
@@ -51,7 +53,7 @@ const ForgotPassword = observer(() => {
               textAlign="center"
               fontSize="2xl"
               fontWeight="bold"
-              color={useColorModeValue("blue.600", "blue.300")}
+              color={primaryColor}
               mb={2}
             >
               Forgot Your Password?
@@ -106,7 +108,7 @@ const ForgotPassword = observer(() => {
                   />
                   <Stack spacing={6} align="center">
                     <Link
-                      color="blue.400"
+                      color={primaryColor}
                       fontSize="sm"
                       onClick={() => navigate(authentication.login)}
                     >
@@ -115,9 +117,10 @@ const ForgotPassword = observer(() => {
                     <Button
                       type="submit"
                       bg="blue.500"
-                      color="white"
+                      {...primaryButtonStyle}
                       _hover={{
-                        bg: "blue.600",
+                        ...primaryButtonHoverStyle,
+                        border: "1px solid",
                       }}
                       isLoading={isSubmitting}
                       onClick={() => setShowError(true)}

@@ -17,6 +17,11 @@ import { ForgotEmailValidation } from "../utils/validation";
 import store from "../../../store/store";
 import { authentication } from "../../../config/constant/routes";
 import DashPageHeader from "../../../config/component/common/DashPageHeader/DashPageHeader";
+import { primaryColor } from "../../../globalColors";
+import {
+  primaryButtonHoverStyle,
+  primaryButtonStyle,
+} from "../../../globalStyles";
 
 const CreateOrganisationStep1 = observer(() => {
   const {
@@ -32,7 +37,6 @@ const CreateOrganisationStep1 = observer(() => {
         flexDir="column"
         justifyContent="center"
         alignItems="center"
-        bg={useColorModeValue("gray.50", "gray.800")}
         minH="70vh"
         px={4}
       >
@@ -40,8 +44,6 @@ const CreateOrganisationStep1 = observer(() => {
           rounded="lg"
           flexDir="column"
           justifyContent="center"
-          bg={useColorModeValue("white", "gray.700")}
-          boxShadow="lg"
           p={6}
           maxW="md"
           w="full"
@@ -51,7 +53,7 @@ const CreateOrganisationStep1 = observer(() => {
               fontSize="2xl"
               textAlign="center"
               fontWeight="bold"
-              color={useColorModeValue("blue.600", "blue.300")}
+              color={primaryColor}
               mb={1}
             >
               Create Your Organisation
@@ -112,9 +114,11 @@ const CreateOrganisationStep1 = observer(() => {
                     </Stack>
                     <Button
                       type="submit"
-                      bg="blue.400"
-                      color="white"
-                      _hover={{ bg: "blue.500" }}
+                      {...primaryButtonStyle}
+                      _hover={{
+                        ...primaryButtonHoverStyle,
+                        border: "1px solid",
+                      }}
                       isLoading={isSubmitting}
                     >
                       Create Organisation
@@ -127,7 +131,7 @@ const CreateOrganisationStep1 = observer(() => {
           <Stack pt={6} align="center">
             <Link
               fontSize="sm"
-              color="blue.400"
+              color={primaryColor}
               onClick={() => navigate(authentication.login)}
             >
               Already have an account? Sign in

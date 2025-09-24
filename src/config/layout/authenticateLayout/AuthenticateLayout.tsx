@@ -14,7 +14,7 @@ import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import store from "../../../store/store";
 import Loader from "../../component/Loader/Loader";
-
+import { glassLoginPageStyle } from "../../../globalStyles";
 const images = [
   "https://img.freepik.com/free-photo/business-person-futuristic-business-environment_23-2150970204.jpg?uid=R98118533&ga=GA1.1.1625681573.1739726311&semt=ais_hybrid&w=740",
   "https://img.freepik.com/free-photo/3d-rendering-financial-neon-bull_23-2151691955.jpg?uid=R98118533&ga=GA1.1.1625681573.1739726311&semt=ais_hybrid&w=740",
@@ -36,7 +36,7 @@ const AuthenticateLayout = observer(() => {
   }, [navigate, restoreUser, user]);
 
   const settings = {
-    dots: true,
+    dots: false,
     infinite: true,
     speed: 800,
     slidesToShow: 1,
@@ -45,38 +45,34 @@ const AuthenticateLayout = observer(() => {
     autoplaySpeed: 4000,
     arrows: false,
     fade: true,
+    draggable: false, // disables mouse drag
+    swipe: false,  
   };
 
   return (
     <Flex
       justifyContent="center"
       alignItems="center"
-      minH="100vh"
-      px={4}
-      py={{ base: 4, md: 8 }}
-      bg={useColorModeValue("gray.100", "gray.800")}
+      minH="100vh"  
       transition="background-color 0.2s ease"
+      className="loginPageBackground"
     >
       <Box
         width="100%"
         maxWidth={{ base: "100%", md: "900px" }}
         overflow="hidden"
-        borderRadius="lg"
-        border="1px solid"
-        borderColor={useColorModeValue("gray.200", "gray.700")}
-        boxShadow="lg"
-        bg={useColorModeValue("white", "gray.700")}
         transition="box-shadow 0.3s ease"
+        {...glassLoginPageStyle}
+        style={{border:"none"}}
       >
         <Flex flexDirection={{ base: "column", md: "row" }}>
           <Box
             flex="1"
-            p={{ base: 6, md: 8 }}
             position="relative"
-            bg={useColorModeValue("blue.50", "blue.900")}
             borderTopLeftRadius="lg"
             borderBottomLeftRadius={{ base: "0", md: "lg" }}
             overflow="hidden"
+            display={{ base: "none", md: "block" }}
           >
             {/* <Box position="absolute" top={"20px"} left={{base : "45%", md : "20px"}} zIndex="1">
               <Image
@@ -91,15 +87,15 @@ const AuthenticateLayout = observer(() => {
               />
             </Box> */}
             <Center height="100%" mt={{base : "60px", md : 0}}>
-              <Box width="100%" maxWidth="300px">
-                <Slider {...settings}>
+              <Box width="100%" maxWidth="100%" className="loginSlider" height={"100%"}>
+                <Slider {...settings} >
                   {images.map((src, index) => (
-                    <Box key={index} p={2} textAlign="center">
+                    <Box key={index} p={2} textAlign="center" style={{height:"100%"}}>
                       <Image
                         src={src}
                         alt={`Carousel Image ${index + 1}`}
-                        width="100%"
-                        height="auto"
+                        width="100%"                       
+                        height={"100%"}
                         borderRadius="lg"
                         objectFit="cover"
                         boxShadow="lg"

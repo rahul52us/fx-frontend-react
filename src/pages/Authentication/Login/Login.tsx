@@ -5,7 +5,6 @@ import {
   Button,
   Heading,
   Text,
-  useColorModeValue,
   Flex,
   Box,
 } from "@chakra-ui/react";
@@ -18,6 +17,11 @@ import store from "../../../store/store";
 import { authentication, main } from "../../../config/constant/routes";
 import { useState } from "react";
 import DashPageHeader from "../../../config/component/common/DashPageHeader/DashPageHeader";
+import { primaryColor } from "../../../globalColors";
+import {
+  primaryButtonHoverStyle,
+  primaryButtonStyle,
+} from "../../../globalStyles";
 
 const Login = observer(() => {
   const [showError, setShowError] = useState(false);
@@ -33,7 +37,6 @@ const Login = observer(() => {
         flexDir="column"
         justifyContent="center"
         alignItems="center"
-        bg={useColorModeValue("gray.50", "gray.800")}
         minH="70vh"
         px={4}
       >
@@ -41,26 +44,15 @@ const Login = observer(() => {
           rounded="lg"
           flexDir="column"
           justifyContent="center"
-          bg={useColorModeValue("white", "gray.700")}
-          boxShadow="lg"
           p={6}
           maxW="md"
           w="full"
         >
           <Stack align="center" mb={8}>
-            <Heading
-              fontSize="3xl"
-              fontWeight="bold"
-              color={useColorModeValue("blue.600", "blue.300")}
-              mb={1}
-            >
+            <Heading fontSize="3xl" fontWeight="bold" mb={1}>
               Welcome Back
             </Heading>
-            <Text
-              fontSize="md"
-              textAlign="center"
-              color={useColorModeValue("gray.500", "gray.400")}
-            >
+            <Text fontSize="md" textAlign="center">
               Sign in to access all your personalized features and continue
               where you left off ✌️
             </Text>
@@ -133,7 +125,7 @@ const Login = observer(() => {
                         Remember me
                       </Field>
                       <Link
-                        color="blue.400"
+                        color={primaryColor}
                         onClick={() => navigate(authentication.forgotPassword)}
                       >
                         Forgot password?
@@ -141,9 +133,8 @@ const Login = observer(() => {
                     </Stack>
                     <Button
                       type="submit"
-                      bg="blue.400"
-                      color="white"
-                      _hover={{ bg: "blue.500" }}
+                      {...primaryButtonStyle}
+                      _hover={{...primaryButtonHoverStyle,border:"1px solid"}}
                       isLoading={isSubmitting}
                       onClick={() => setShowError(true)}
                     >
@@ -157,11 +148,11 @@ const Login = observer(() => {
           <Stack pt={6} align="center">
             <Text
               fontSize="sm"
-              color={useColorModeValue("gray.600", "gray.300")}
+              color={"black"}
             >
               Don’t have an account?{" "}
               <Link
-                color="blue.400"
+                color={primaryColor}
                 onClick={() => navigate(authentication.createOrganisationStep1)}
               >
                 Register here

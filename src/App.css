@@ -84,3 +84,26 @@ h2 > img {
 .preview_blog_container > div > ul, ol {
   padding-left: 2.5em !important;
 }
+
+/* login page slider design */
+.loginSlider .slick-slide div {
+  height: 100%;
+  padding: 0;
+}
+.loginSlider .slick-slider{
+  height: 100%;
+}
+.loginSlider .slick-slide{
+  height: auto;
+}
+.loginSlider .slick-list{
+  height: 100%;
+}
+.loginSlider .slick-track{
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+.loginPageBackground{
+  background: linear-gradient(135deg, #E1BEE7, #F8BBD0, #FFE082);
+}
