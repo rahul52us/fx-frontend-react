@@ -98,7 +98,8 @@ const BookDetails = observer(() => {
       icon: FaBookReader,
       colorScheme: "teal",
       description: "Here is an description for the users",
-      link:dashboard.liberary.books.category.index
+      link:dashboard.liberary.books.category.index,
+       bg:"#F4F2FF"
     },
     {
       label: "Total Books",
@@ -107,7 +108,8 @@ const BookDetails = observer(() => {
       icon: FaBookOpen,
       colorScheme: "teal",
       description: "Total No. of Books Counts",
-      link:dashboard.liberary.books.index
+      link:dashboard.liberary.books.index,
+      bg:"#ECFBFF"
     },
     {
       label: "Total Users",
@@ -116,7 +118,8 @@ const BookDetails = observer(() => {
       icon: FaPersonCircleQuestion,
       colorScheme: "teal",
       description: "Here is an description for the users",
-      link:dashboard.liberary.books.users
+      link:dashboard.liberary.books.users,
+       bg:"#FFF2EC"
     },
   ];
 
@@ -141,6 +144,7 @@ const BookDetails = observer(() => {
             description={data.description}
             loading={data.loading}
             link={data.link}
+            bg={data.bg}
           />
         ))}
       </SimpleGrid>

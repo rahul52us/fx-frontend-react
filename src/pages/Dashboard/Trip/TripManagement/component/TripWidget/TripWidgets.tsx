@@ -49,6 +49,7 @@ const TripWidgets = observer(({userId} : any) => {
       colorScheme: "teal",
       description: "The total number of trips logged in the system.",
       loading: tripCount.loading,
+       bg:"#F4F2FF"
     },
     {
       label: "Individual Trip Count",
@@ -57,6 +58,7 @@ const TripWidgets = observer(({userId} : any) => {
       colorScheme: "blue",
       description: "The total count of trips taken by individual travelers.",
       loading: userTripTypeCount.loading,
+       bg:"#ECFBFF"
     },
     {
       label: "Group Trip Count",
@@ -65,6 +67,7 @@ const TripWidgets = observer(({userId} : any) => {
       colorScheme: "purple",
       description: "The total count of trips taken by groups of travelers.",
       loading: userTripTypeCount.loading,
+       bg:"#FFF2EC"
     },
     {
       label: "Total Trip Expense",
@@ -73,6 +76,7 @@ const TripWidgets = observer(({userId} : any) => {
       colorScheme: "purple",
       description: "The overall expenses incurred across all trips.",
       loading: totalTripAmount.loading,
+       bg:"#EDFFEF"
     },
   ];
 
@@ -88,6 +92,7 @@ const TripWidgets = observer(({userId} : any) => {
           colorScheme={data.colorScheme}
           description={data.description}
           loading={data.loading}
+          bg={data.bg}
         />
       ))}
     </SimpleGrid>

@@ -14,10 +14,44 @@ import {
   exposureTypeOptions,
   priorityOptions,
 } from "./utils/constant";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  primaryButtonHoverStyle,
+  primaryButtonStyle,
+} from "../../../../globalStyles";
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);
+  const [poData, setPoData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const url = process.env.REACT_APP_FX_BASE_URL;
+  const fetchPoDetails = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${url}/importregister/polist/`);
+      const result = response.data?.data || [];
+      const withSerial = result.map((item: any, idx: number) => ({
+        ...item,
+        sno: idx + 1,
+      }));
+      const exportRegOptions = withSerial.map((item: any) => ({
+        label: item.poNo, // 👈 choose what you want to display
+        value: item.poNo, // or item.poNo if unique
+        ...item,
+      }));
+      setLoading(false);
+      setPoData(exportRegOptions);
+    } catch (error) {
+      setPoData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchPoDetails();
+  }, []);
+
   const validationSchema = Yup.object().shape({
     exposureType: Yup.mixed().required("Exposure Type is required"),
     exposureInputDate: Yup.string().required("Exposure Input Date is required"),
@@ -40,206 +74,273 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
     remark: Yup.string().nullable(),
   });
   return (
-    <Box
-      maxW="5xl"
-      mx="auto"
-      p={8}
-      borderRadius="2xl"
-      bg="whiteAlpha.900"
-      boxShadow="xl"
-    >
-      <Formik
-        initialValues={{}}
-        validationSchema={validationSchema}
-        enableReinitialize={true}
-        onSubmit={(values, actions) => {
-          setShowError(true);
-          submitImportForm(values, actions, "form");
-        }}
-      >
-        {({ values, handleChange, isSubmitting, errors, touched }: any) => (
-          <FormikForm>
-            <VStack spacing={6} align="stretch">
-              <Divider mb={4} />
-              <SimpleGrid columns={[1, null, 2]} spacing={8}>
-                <CustomInput
-                  label="Exposure Type"
-                  name="exposureType"
-                  type="select"
-                  options={exposureTypeOptions}
-                  value={exposureTypeOptions.find(
-                    (option) => option.value === values.exposureType
-                  )}
-                  // onChange={(option) => setFieldValue("exposureType", option)}
-                  onChange={(selectedOption) =>
-                    handleChange({
-                      target: {
-                        name: "exposureType",
-                        value: selectedOption.value,
-                      },
-                    })
-                  }
-                  error={touched.exposureType && errors.exposureType}
-                  showError={showError}
-                />
+    <Box maxW="5xl" mx="auto" borderRadius="2xl">
+      {!loading && (
+        <Formik
+          initialValues={{}}
+          validationSchema={validationSchema}
+          enableReinitialize={true}
+          onSubmit={(values, actions) => {
+            setShowError(true);
+            submitImportForm(values, actions, "form");
+          }}
+        >
+          {({
+            values,
+            handleChange,
+            setFieldValue,
+            isSubmitting,
+            errors,
+            touched,
+          }: any) => (
+            <FormikForm>
+              <VStack spacing={6} align="stretch">
+                <Divider mb={4} />
+                <SimpleGrid columns={[1, null, 2]} spacing={8}>
+                  <CustomInput
+                    label="Exposure Type"
+                    name="exposureType"
+                    type="select"
+                    options={exposureTypeOptions}
+                    value={exposureTypeOptions.find(
+                      (option) => option.value === values.exposureType
+                    )}
+                    // onChange={(option) => setFieldValue("exposureType", option)}
+                    onChange={(selectedOption) =>
+                    {
 
-                <CustomInput
-                  label="Exposure Input Date"
-                  name="exposureInputDate"
-                  type="date"
-                  value={values.exposureInputDate}
-                  onChange={handleChange}
-                  error={touched.exposureInputDate && errors.exposureInputDate}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="PO Date"
-                  name="poDate"
-                  type="date"
-                  value={values.poDate}
-                  onChange={handleChange}
-                  error={touched.poDate && errors.poDate}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Exposure Modification Date"
-                  name="exposureModificationDate"
-                  type="date"
-                  value={values.exposureModificationDate}
-                  onChange={handleChange}
-                  error={
-                    touched.exposureModificationDate &&
-                    errors.exposureModificationDate
-                  }
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Invoice Date"
-                  name="invoiceDate"
-                  type="date"
-                  value={values.invoiceDate}
-                  onChange={handleChange}
-                  error={touched.invoiceDate && errors.invoiceDate}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="BL Date"
-                  name="blDate"
-                  type="date"
-                  value={values.blDate}
-                  onChange={handleChange}
-                  error={touched.blDate && errors.blDate}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Due Date"
-                  name="dueDate"
-                  type="date"
-                  value={values.dueDate}
-                  onChange={handleChange}
-                  error={touched.dueDate && errors.dueDate}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Amount"
-                  type="number"
-                  name="amount"
-                  value={values.amount}
-                  onChange={handleChange}
-                  error={touched.amount && errors.amount}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Currency"
-                  type="select"
-                  name="currency"
-                  options={currencyOptions}
-                  value={currencyOptions.find(
-                    (option) => option.value === values.currency
+                      handleChange({
+                        target: {
+                          name: "exposureType",
+                          value: selectedOption.value,
+                        },
+                      })
+                       if (selectedOption.value === "confirmed_order") {
+                        setFieldValue("poNo", "");
+                      }
+                    }
+                    }
+                    error={touched.exposureType && errors.exposureType}
+                    showError={showError}
+                    required={true}
+                  />
+
+                  <CustomInput
+                    label="Exposure Input Date"
+                    name="exposureInputDate"
+                    type="date"
+                    value={values.exposureInputDate}
+                    onChange={handleChange}
+                    error={
+                      touched.exposureInputDate && errors.exposureInputDate
+                    }
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Exposure Modification Date"
+                    name="exposureModificationDate"
+                    type="date"
+                    value={values.exposureModificationDate}
+                    onChange={handleChange}
+                    error={
+                      touched.exposureModificationDate &&
+                      errors.exposureModificationDate
+                    }
+                    showError={showError}
+                    required={true}
+                  />
+                  {values.exposureType === "confirmed_order" ? (
+                    <CustomInput
+                      label="PO No"
+                      placeholder="Enter PO No"
+                      name="poNo"
+                      type="text"
+                      value={values.poNo}
+                      onChange={handleChange}
+                      error={touched.poNo && errors.poNo}
+                      showError={showError}
+                      required={true}
+                    />
+                  ) : (
+                    <CustomInput
+                      label="PO No"
+                      placeholder="Select PO No"
+                      name="poNo"
+                      type="select"
+                      options={poData}
+                      value={poData.find(
+                        (option: any) => option.value === values.poNo
+                      )}
+                      onChange={(selectedOption) => {
+                        const selectedPo = poData.find(
+                          (item: any) => item.poNo === selectedOption.value
+                        );
+                        console.log("selectedPo", selectedOption, selectedPo);
+
+                        if (selectedPo) {
+                          setFieldValue("poNo", selectedPo.poNo);
+                          setFieldValue("poDate", selectedPo.poDate);
+                          setFieldValue("partyName", selectedPo.partyName);
+                          setFieldValue("bank", selectedPo.bank);
+                          setFieldValue(
+                            "businessUnit",
+                            selectedPo.businessUnit
+                          );
+                          setFieldValue(
+                            "paymentTerms",
+                            selectedPo.paymentTerms
+                          );
+                          setFieldValue("currency", selectedPo.currency);
+                          setFieldValue("budgetRate", selectedPo.budgetRate);
+                        }
+                      }}
+                      required={true}
+                      error={touched.poNo && errors.poNo}
+                      showError={showError}
+                    />
                   )}
-                  onChange={(selectedOption) =>
-                    handleChange({
-                      target: {
-                        name: "currency",
-                        value: selectedOption.value,
-                      },
-                    })
-                  }
-                  error={touched.currency && errors.currency}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Budget Rate"
-                  name="budgetRate"
-                  value={values.budgetRate}
-                  onChange={handleChange}
-                  error={touched.budgetRate && errors.budgetRate}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="PO No"
-                  name="poNo"
-                  placeholder="Enter PO No"
-                  value={values.poNo}
-                  onChange={handleChange}
-                  error={touched.poNo && errors.poNo}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Invoice No"
-                  name="invoiceNo"
-                  placeholder="Enter Invoice No"
-                  value={values.invoiceNo}
-                  onChange={handleChange}
-                  error={touched.invoiceNo && errors.invoiceNo}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Business Unit"
-                  name="businessUnit"
-                  placeholder="Unit"
-                  value={values.businessUnit}
-                  onChange={handleChange}
-                  error={touched.businessUnit && errors.businessUnit}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Party Name"
-                  name="partyName"
-                  placeholder="Enter Party Name"
-                  value={values.partyName}
-                  onChange={handleChange}
-                  error={touched.partyName && errors.partyName}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Bank"
-                  name="bank"
-                  placeholder="Enter Bank"
-                  value={values.bank}
-                  onChange={handleChange}
-                  error={touched.bank && errors.bank}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="Payment Terms"
-                  name="paymentTerms"
-                  placeholder="Terms"
-                  value={values.paymentTerms}
-                  onChange={handleChange}
-                  error={touched.paymentTerms && errors.paymentTerms}
-                  showError={showError}
-                />
-                <CustomInput
-                  label="hedge Deal Ref No"
-                  name="hedgeDealRefNo"
-                  placeholder="Reference No"
-                  value={values.hedgeDealRefNo}
-                  onChange={handleChange}
-                  error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
-                  showError={showError}
-                />
-                {/* <CustomInput
+                  <CustomInput
+                    label="PO Date"
+                    name="poDate"
+                    type="date"
+                    value={values.poDate}
+                    onChange={handleChange}
+                    error={touched.poDate && errors.poDate}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Party Name"
+                    name="partyName"
+                    placeholder="Enter Party Name"
+                    value={values.partyName}
+                    onChange={handleChange}
+                    error={touched.partyName && errors.partyName}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Bank"
+                    name="bank"
+                    placeholder="Enter Bank"
+                    value={values.bank}
+                    onChange={handleChange}
+                    error={touched.bank && errors.bank}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Business Unit"
+                    name="businessUnit"
+                    placeholder="Unit"
+                    value={values.businessUnit}
+                    onChange={handleChange}
+                    error={touched.businessUnit && errors.businessUnit}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Invoice No"
+                    name="invoiceNo"
+                    placeholder="Enter Invoice No"
+                    value={values.invoiceNo}
+                    onChange={handleChange}
+                    error={touched.invoiceNo && errors.invoiceNo}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Invoice Date"
+                    name="invoiceDate"
+                    type="date"
+                    value={values.invoiceDate}
+                    onChange={handleChange}
+                    error={touched.invoiceDate && errors.invoiceDate}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="BL Date"
+                    name="blDate"
+                    type="date"
+                    value={values.blDate}
+                    onChange={handleChange}
+                    error={touched.blDate && errors.blDate}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Payment Terms"
+                    name="paymentTerms"
+                    placeholder="Terms"
+                    value={values.paymentTerms}
+                    onChange={handleChange}
+                    error={touched.paymentTerms && errors.paymentTerms}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Due Date"
+                    name="dueDate"
+                    type="date"
+                    value={values.dueDate}
+                    onChange={handleChange}
+                    error={touched.dueDate && errors.dueDate}
+                    showError={showError}
+                  />
+                  <CustomInput
+                    label="Currency"
+                    type="select"
+                    name="currency"
+                    options={currencyOptions}
+                    value={currencyOptions.find(
+                      (option) => option.value === values.currency
+                    )}
+                    onChange={(selectedOption) =>
+                      handleChange({
+                        target: {
+                          name: "currency",
+                          value: selectedOption.value,
+                        },
+                      })
+                    }
+                    error={touched.currency && errors.currency}
+                    showError={showError}
+                    required={true}
+                  />
+
+                  <CustomInput
+                    label="Amount"
+                    type="number"
+                    name="amount"
+                    value={values.amount}
+                    onChange={handleChange}
+                    error={touched.amount && errors.amount}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="Budget Rate"
+                    name="budgetRate"
+                    value={values.budgetRate}
+                    onChange={handleChange}
+                    error={touched.budgetRate && errors.budgetRate}
+                    showError={showError}
+                    required={true}
+                  />
+                  <CustomInput
+                    label="hedge Deal Ref No"
+                    name="hedgeDealRefNo"
+                    placeholder="Reference No"
+                    value={values.hedgeDealRefNo}
+                    onChange={handleChange}
+                    error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
+                    showError={showError}
+                    required={true}
+                  />
+
+                  {/* <CustomInput
                     label="Booked Forward Rate"
                     name="bookedForwardRate"
                     placeholder=""
@@ -249,60 +350,56 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       touched.bookedForwardRate && errors.bookedForwardRate
                     }
                   /> */}
+                  <CustomInput
+                    label="Priority"
+                    name="priority"
+                    type="select"
+                    options={priorityOptions}
+                    value={priorityOptions.find(
+                      (option) => option.value === values.priority
+                    )}
+                    // onChange={(option) => setFieldValue("exposureType", option)}
+                    onChange={(selectedOption) =>
+                      handleChange({
+                        target: {
+                          name: "priority",
+                          value: selectedOption.value,
+                        },
+                      })
+                    }
+                    error={touched.priority && errors.priority}
+                    showError={showError}
+                  />
+                </SimpleGrid>
                 <CustomInput
-                  label="Priority"
-                  name="priority"
-                  type="select"
-                  options={priorityOptions}
-                  value={priorityOptions.find(
-                    (option) => option.value === values.priority
-                  )}
-                  // onChange={(option) => setFieldValue("exposureType", option)}
-                  onChange={(selectedOption) =>
-                    handleChange({
-                      target: {
-                        name: "priority",
-                        value: selectedOption.value,
-                      },
-                    })
-                  }
-                  error={touched.priority && errors.priority}
+                  label="Remark"
+                  name="remark"
+                  type="textarea"
+                  placeholder="Enter Remarks"
+                  value={values.remark}
+                  onChange={handleChange}
+                  error={touched.remark && errors.remark}
                   showError={showError}
                 />
-              </SimpleGrid>
-              <CustomInput
-                label="Remark"
-                name="remark"
-                type="textarea"
-                placeholder="Enter Remarks"
-                value={values.remark}
-                onChange={handleChange}
-                error={touched.remark && errors.remark}
-                showError={showError}
-              />
-              <Flex justify={"end"}>
-                <Button
-                  rounded={"full"}
-                  fontWeight={500}
-                  _hover={{
-                    bg: "blue.600",
-                    color: "white",
-                    transform: "translateY(-2px)",
-                  }}
-                  transition={"transform 0.3s ease-in-out"}
-                  bg={"blue.500"}
-                  shadow={"xl"}
-                  type="submit"
-                  size="lg"
-                  isLoading={isSubmitting}
-                >
-                  Submit
-                </Button>
-              </Flex>
-            </VStack>
-          </FormikForm>
-        )}
-      </Formik>
+                <Flex justify={"end"}>
+                  <Button
+                    rounded={"full"}
+                    fontWeight={500}
+                    {...primaryButtonStyle}
+                    _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
+                    transition={"transform 0.3s ease-in-out"}
+                    type="submit"
+                    size="lg"
+                    isLoading={isSubmitting}
+                  >
+                    Submit
+                  </Button>
+                </Flex>
+              </VStack>
+            </FormikForm>
+          )}
+        </Formik>
+      )}
     </Box>
   );
 };

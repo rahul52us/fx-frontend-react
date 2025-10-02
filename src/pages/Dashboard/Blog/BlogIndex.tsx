@@ -58,6 +58,7 @@ const BlogIndex = observer(() => {
       colorScheme: "teal",
       description: "Total number of Public Blogs.",
       loading: loading,
+       bg:"#F4F2FF"
     },
     {
       label: "Private Blogs",
@@ -66,6 +67,7 @@ const BlogIndex = observer(() => {
       colorScheme: "blue",
       description: "Total number of Private Blogs",
       loading: loading,
+       bg:"#ECFBFF"
     },
     {
       label: "InActive Blogs",
@@ -74,6 +76,7 @@ const BlogIndex = observer(() => {
       colorScheme: "purple",
       description: "The number of Deleted Blogs",
       loading: loading,
+       bg:"#FFF2EC"
     },
   ];
 
@@ -93,6 +96,7 @@ const BlogIndex = observer(() => {
             colorScheme={data.colorScheme}
             description={data.description}
             loading={data.loading}
+            bg={data.bg}
           />
         ))}
       </SimpleGrid>

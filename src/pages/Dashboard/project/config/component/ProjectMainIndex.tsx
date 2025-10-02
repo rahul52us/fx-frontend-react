@@ -86,6 +86,7 @@ const ProjectMainIndex = observer(({ userId }: any) => {
       colorScheme: "teal",
       description: "Total number of projects.",
       loading: projectCount.loading,
+       bg:"#F4F2FF"
     },
     {
       label: "Total Tasks",
@@ -94,6 +95,7 @@ const ProjectMainIndex = observer(({ userId }: any) => {
       colorScheme: "blue",
       description: "Total number of tasks across all projects.",
       loading: projectCount.loading,
+       bg:"#ECFBFF"
     },
     {
       label: "Team Members",
@@ -102,6 +104,7 @@ const ProjectMainIndex = observer(({ userId }: any) => {
       colorScheme: "purple",
       description: "The number of active team members.",
       loading: projectCount.loading,
+       bg:"#FFF2EC"
     },
   ];
 
@@ -117,6 +120,7 @@ const ProjectMainIndex = observer(({ userId }: any) => {
             colorScheme={data.colorScheme}
             description={data.description}
             loading={data.loading}
+            bg={data.bg}
           />
         ))}
       </SimpleGrid>

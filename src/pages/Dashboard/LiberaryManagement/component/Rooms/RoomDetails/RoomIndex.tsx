@@ -58,6 +58,7 @@ const BookLiberary = observer(() => {
       icon: FaBookOpen,
       colorScheme: "teal",
       description: "Total No. of Room Counts",
+       bg:"#F4F2FF"
     },
     {
       label: "Total Seats",
@@ -66,6 +67,7 @@ const BookLiberary = observer(() => {
       icon: FaPersonCircleQuestion,
       colorScheme: "teal",
       description: "Here is an description for the Seats",
+      bg:"#ECFBFF"
     },
     {
       label: "Available Seats",
@@ -74,7 +76,8 @@ const BookLiberary = observer(() => {
       icon: FaBookReader,
       colorScheme: "teal",
       description: "Here is an description for the Available Seats",
-      link:dashboard.liberary.books.category.index
+      link:dashboard.liberary.books.category.index,
+       bg:"#FFF2EC"
     }
   ];
 
@@ -95,6 +98,7 @@ const BookLiberary = observer(() => {
             description={data.description}
             link={data.link}
             loading={data.loading}
+            bg={data.bg}
           />
         ))}
       </SimpleGrid>
