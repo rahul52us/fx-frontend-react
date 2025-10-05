@@ -3,6 +3,7 @@ import {
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
+  DrawerHeader,
   DrawerOverlay,
   useDisclosure,
   useToast,
@@ -154,7 +155,7 @@ const ForwardCancellationTable = () => {
         actions={{
           search: { show: false },
           resetData: {
-            show: true,
+            show: false,
             text: "Reset Data",
             function: fetchExportRegisterData,
           },
@@ -203,6 +204,7 @@ const ForwardCancellationTable = () => {
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
+             <DrawerHeader>Add Forward Cancellation Entry</DrawerHeader>
           <DrawerCloseButton />
           <DrawerBody>
             <ForwardCancellationForm submitForm={submitExportForm} />

@@ -26,7 +26,6 @@ const ExportRegisterTable = () => {
   
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
-    // console.log('values',values)
     try {
       let payload = {
         userToken: "abcxyz",
@@ -179,7 +178,7 @@ const ExportRegisterTableColumns = [
         actions={{
           search: { show: false },
           resetData: {
-            show: true,
+            show: false,
             text: "Reset Data",
             function: fetchExportRegisterData,
           },

@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Heading,
+  Icon,
   IconButton,
   Input,
   Menu,
@@ -20,22 +21,23 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import React, { useRef } from "react";
+import { BiDownload, BiPlus, BiUpload } from "react-icons/bi";
 import { FaEdit, FaEye } from "react-icons/fa";
 import { FcClearFilters } from "react-icons/fc";
+import { HiDotsVertical } from "react-icons/hi";
 import { IoMdInformationCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
-import { formatDate } from "../../constant/dateUtils";
-import CustomDateRange from "../CustomDateRange/CustomDateRange";
-import MultiDropdown from "../multiDropdown/MultiDropdown";
-import Pagination from "../pagination/Pagination";
-import TableLoader from "./TableLoader";
-import { BiDownload, BiPlus, BiUpload } from "react-icons/bi";
 import { litePrimaryColor, primaryColor } from "../../../globalColors";
 import {
   glassCardStyle,
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../globalStyles";
+import { formatDate } from "../../constant/dateUtils";
+import CustomDateRange from "../CustomDateRange/CustomDateRange";
+import MultiDropdown from "../multiDropdown/MultiDropdown";
+import Pagination from "../pagination/Pagination";
+import TableLoader from "./TableLoader";
 
 interface Column {
   headerName?: string;
@@ -499,17 +501,18 @@ const CustomTable: React.FC<CustomTableProps> = ({
               />
             </Box>
           )}
-          {actions?.resetData?.show && (
+          {actions && (
             <Menu>
               <MenuButton
                 as={Button}
                 variant="outline"
                 {...primaryButtonStyle}
                 _hover={primaryButtonHoverStyle}
-                minW={{ base: "6rem", md: "10rem" }}
+                // minW={{ base: "6rem", md: "10rem" }}
                 textAlign={"center"}
               >
-                Actions
+                <Icon as={HiDotsVertical} fontSize={"20px"} />
+                {/* Actions */}
               </MenuButton>
               <MenuList
                 zIndex={15}
@@ -635,6 +638,8 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 <Th
                   key={colIndex}
                   textAlign="center"
+                  // minW={'8rem'}
+                  px={'1rem'}
                   position={column?.props?.isSticky ? "sticky" : "relative"}
                   right={column?.props?.isSticky ? "0" : undefined}
                   // bg={headerBg}
