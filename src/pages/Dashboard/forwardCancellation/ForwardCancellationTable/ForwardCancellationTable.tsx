@@ -120,6 +120,8 @@ const ForwardCancellationTable = () => {
   { headerName: "Deal Type", key: "dealType" },
   { headerName: "Exposure Type", key: "exposureType" },
   { headerName: "Transaction Date", key: "transactionDate" },
+  { headerName: "Transaction Input Date", key: "transactionInputDate" },
+  { headerName: "Transaction Modification Date", key: "transactionModificationDate" },
   { headerName: "Forward Deal ID", key: "forwardDealId" },
   { headerName: "Bank", key: "bank" },
   { headerName: "PCFC Ref Number", key: "pcfcRefNumber" },
@@ -134,6 +136,7 @@ const ForwardCancellationTable = () => {
   { headerName: "INR Amount", key: "inrAmount" },
   { headerName: "Maturity", key: "maturity" },
   { headerName: "P/L on Cancellation", key: "profitAndLossOnCancellation" },
+  { headerName: "Wash Rate", key: "washRate" },
   {
       headerName: "Actions",
       key: "table-actions",

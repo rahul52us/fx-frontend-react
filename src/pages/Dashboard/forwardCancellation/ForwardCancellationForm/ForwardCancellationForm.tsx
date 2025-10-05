@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  SimpleGrid,
-  VStack
-} from "@chakra-ui/react";
+import { Box, Button, Flex, SimpleGrid, VStack } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
@@ -12,129 +6,136 @@ import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
-// import {
-//   dealTypeOptions
-// } from "../../exportsRegister/component/utils/constant";
+
+const forwardDeals = [
+  {
+    forwardDealId: "FDL-001",
+    exposureType: "Export",
+    bank: "HDFC Bank",
+    currency: "USD",
+    outstandingAmount: "50000",
+    bookedRate: "83.25",
+    deliveryDateFrom: "2025-10-10",
+    deliveryDateTo: "2025-12-10",
+    bankMargin: "0.5",
+  },
+  {
+    forwardDealId: "FDL-002",
+    exposureType: "Import",
+    bank: "ICICI Bank",
+    currency: "EUR",
+    outstandingAmount: "30000",
+    bookedRate: "89.45",
+    deliveryDateFrom: "2025-11-01",
+    deliveryDateTo: "2025-12-20",
+    bankMargin: "0.7",
+  },
+];
 
 const ForwardCancellationForm = ({ submitForm }: any) => {
   const validationSchema = Yup.object().shape({
     transactionDate: Yup.string().required("Transaction Date is required"),
-    // dealType: Yup.string().required("Deal Type is required"),
     forwardDealId: Yup.string().required("Forward Deal ID is required"),
-    pcfcRefNumber: Yup.string().required("PCFC Reference Number is required"),
-    amount: Yup.string().required("Amount is required"),
+    cancellationAmount: Yup.string().required("Cancellation Amount is required"),
     spotBooked: Yup.string().required("Spot Booked is required"),
-    forwardPremium: Yup.string().required("Forward Premium is required"),
+    fwdPremium: Yup.string().required("Forward Premium is required"),
     cashTomSpot: Yup.string().required("Cash Tom Spot is required"),
-    bankMargin: Yup.string().required("Bank Margin is required"),
   });
+
+  const initialValues = {
+    transactionDate: "",
+    forwardDealId: "",
+    exposureType: "",
+    bank: "",
+    currency: "",
+    outstandingAmount: "",
+    bookedRate: "",
+    deliveryDateFrom: "",
+    deliveryDateTo: "",
+    bankMargin: "",
+    cancellationAmount: "",
+    spotBooked: "",
+    fwdPremium: "",
+    cashTomSpot: "",
+  };
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
       <Box maxW="5xl" mx="auto" px={2}>
-        {/* <Heading size="lg" mb={6} textAlign="center">
-          Forward Cancellation anf PCFC
-        </Heading> */}
         <Formik
-          initialValues={{}}
+          initialValues={initialValues}
           validationSchema={validationSchema}
-          enableReinitialize={true}
-          onSubmit={(values: any, actions: any) => {
-            console.log("values", values);
+          enableReinitialize
+          onSubmit={(values, actions) => {
+            console.log("Submitted Values:", values);
             submitForm(values, actions, "form");
             actions.setSubmitting(false);
           }}
         >
-          {({ values, handleChange, isSubmitting, errors, touched }: any) => (
+          {({ values, handleChange, setFieldValue, isSubmitting, errors, touched }) => (
             <FormikForm>
               <VStack spacing={6} align="stretch">
-                {/* <Divider mb={4} /> */}
                 <SimpleGrid columns={[1, null, 2]} spacing={8}>
+                  
+                  {/* Transaction Date */}
                   <CustomInput
                     label="Transaction Date"
                     name="transactionDate"
                     type="date"
                     value={values.transactionDate}
                     onChange={handleChange}
-                    required={true}
+                    required
                     error={touched.transactionDate && errors.transactionDate}
                   />
 
-                  {/* <CustomInput
-                    label="Deal Type"
-                    name="dealType"
-                    type="select"
-                    options={dealTypeOptions}
-                    value={dealTypeOptions.find(
-                      (opt) => opt.value === values.dealType
-                    )}
-                    onChange={(option) =>
-                      handleChange({
-                        target: { name: "dealType", value: option.value },
-                      })
-                    }
-                    error={touched.dealType && errors.dealType}
-                    /> */}
-
+                  {/* Forward Deal ID Dropdown */}
                   <CustomInput
                     label="Forward Deal ID"
                     name="forwardDealId"
-                    placeholder="Enter Forward Deal ID"
-                    value={values.forwardDealId}
-                    onChange={handleChange}
+                    type="select"
+                    options={forwardDeals.map((deal) => ({
+                      label: deal.forwardDealId,
+                      value: deal.forwardDealId,
+                    }))}
+                    value={
+                      forwardDeals.find((d) => d.forwardDealId === values.forwardDealId)
+                        ? {
+                            label: values.forwardDealId,
+                            value: values.forwardDealId,
+                          }
+                        : null
+                    }
+                    onChange={(option: any) => {
+                      const selected = forwardDeals.find(
+                        (deal) => deal.forwardDealId === option.value
+                      );
+                      if (selected) {
+                        // auto fill fields
+                        Object.keys(selected).forEach((key) => {
+                          setFieldValue(key, (selected as any)[key]);
+                        });
+                      }
+                      setFieldValue("forwardDealId", option.value);
+                    }}
                     error={touched.forwardDealId && errors.forwardDealId}
                   />
 
-                  <CustomInput
-                    label="Exposure Type"
-                    name="exposureType"
-                    type="select"
-                    onChange={(option) =>
-                      handleChange({
-                        target: { name: "exposureType", value: option.value },
-                      })
-                    }
-                    error={touched.exposureType && errors.exposureType}
-                  />
-                  <CustomInput
-                    label="Bank"
-                    name="bank"
-                    placeholder="Enter Bank"
-                    value={values.bank}
-                    onChange={handleChange}
-                    error={touched.bank && errors.bank}
-                  />
+                  <CustomInput label="Exposure Type" name="exposureType" value={values.exposureType} disabled />
+                  <CustomInput label="Bank" name="bank" value={values.bank} disabled />
+                  <CustomInput label="Currency" name="currency" value={values.currency} disabled />
+                  <CustomInput label="Outstanding Amount" name="outstandingAmount" value={values.outstandingAmount} disabled />
+                  <CustomInput label="Booked Rate" name="bookedRate" value={values.bookedRate} disabled />
+                  <CustomInput label="Delivery Date From" name="deliveryDateFrom" value={values.deliveryDateFrom} disabled />
+                  <CustomInput label="Delivery Date To" name="deliveryDateTo" value={values.deliveryDateTo} disabled />
+                  <CustomInput label="Bank Margin" name="bankMargin" value={values.bankMargin} disabled />
 
                   <CustomInput
-                    label="PCFC Reference Number"
-                    name="pcfcRefNumber"
-                    placeholder="Enter PCFC Reference Number"
-                    value={values.pcfcRefNumber}
+                    label="Cancellation Amount"
+                    name="cancellationAmount"
+                    placeholder="Enter Cancellation Amount"
+                    value={values.cancellationAmount}
                     onChange={handleChange}
-                    error={touched.pcfcRefNumber && errors.pcfcRefNumber}
-                  />
-                  <CustomInput
-                    label="Currency"
-                    type="select"
-                    name="currency"
-                    error={touched.currency && errors.currency}
-                  />
-                  <CustomInput
-                    label="Amount"
-                    name="amount"
-                    placeholder="Enter Amount"
-                    value={values.amount}
-                    onChange={handleChange}
-                    error={touched.amount && errors.amount}
-                  />
-
-                  <CustomInput
-                    label="Booked Rate"
-                    name="bookedRate"
-                    placeholder="Enter Booked Rate"
-                    value={values.bookedRate}
-                    onChange={handleChange}
-                    error={touched.bookedRate && errors.bookedRate}
+                    error={touched.cancellationAmount && errors.cancellationAmount}
                   />
 
                   <CustomInput
@@ -148,62 +149,35 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
 
                   <CustomInput
                     label="Forward Premium"
-                    name="forwardPremium"
+                    name="fwdPremium"
                     placeholder="Enter Forward Premium"
-                    value={values.forwardPremium}
+                    value={values.fwdPremium}
                     onChange={handleChange}
-                    error={touched.forwardPremium && errors.forwardPremium}
+                    error={touched.fwdPremium && errors.fwdPremium}
                   />
 
                   <CustomInput
-                    label="Cash Tom Spot"
+                    label="Cash/Tom Spot"
                     name="cashTomSpot"
-                    placeholder="Enter Cash Tom Spot"
+                    placeholder="Enter Cash/Tom Spot"
                     value={values.cashTomSpot}
                     onChange={handleChange}
                     error={touched.cashTomSpot && errors.cashTomSpot}
                   />
-
-                  <CustomInput
-                    label="Bank Margin"
-                    name="bankMargin"
-                    placeholder="Enter Bank Margin"
-                    value={values.bankMargin}
-                    onChange={handleChange}
-                    error={touched.bankMargin && errors.bankMargin}
-                  />
                 </SimpleGrid>
 
-                <Flex justify={"end"}>
+                <Flex justify="end">
                   <Button
-                    rounded={"full"}
+                    rounded="full"
                     fontWeight={500}
                     {...primaryButtonStyle}
                     _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
-                    transition={"transform 0.3s ease-in-out"}
                     type="submit"
                     size="lg"
                     isLoading={isSubmitting}
                   >
                     Submit
                   </Button>
-                  {/* <Button
-                    rounded={'full'}
-                    fontWeight={500}
-                    _hover={{
-                      bg: 'blue.600',
-                      color: 'white',
-                      transform: 'translateY(-2px)',
-                    }}
-                    transition={'transform 0.3s ease-in-out'}
-                    bg={'blue.500'}
-                    shadow={'xl'}
-                    type="submit"
-                    size="lg"
-                    isLoading={isSubmitting}
-                  >
-                    Submit
-                  </Button> */}
                 </Flex>
               </VStack>
             </FormikForm>
