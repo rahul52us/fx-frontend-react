@@ -54,8 +54,8 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
 
   const validationSchema = Yup.object().shape({
     exposureType: Yup.mixed().required("Exposure Type is required"),
-    exposureInputDate: Yup.string().required("Exposure Input Date is required"),
-    exposureModificationDate: Yup.string().nullable(), // optional, as no validation message was originally given
+    // exposureInputDate: Yup.string().required("Exposure Input Date is required"),
+    // exposureModificationDate: Yup.string().nullable(), // optional, as no validation message was originally given
     poDate: Yup.string().required("PO Date is required"),
     poNo: Yup.string().nullable(), // no validation mentioned, so nullable
     invoiceNo: Yup.string().required("Invoice No is required"),
@@ -106,26 +106,23 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       (option) => option.value === values.exposureType
                     )}
                     // onChange={(option) => setFieldValue("exposureType", option)}
-                    onChange={(selectedOption) =>
-                    {
-
+                    onChange={(selectedOption) => {
                       handleChange({
                         target: {
                           name: "exposureType",
                           value: selectedOption.value,
                         },
-                      })
-                       if (selectedOption.value === "confirmed_order") {
+                      });
+                      if (selectedOption.value === "confirmed_order") {
                         setFieldValue("poNo", "");
                       }
-                    }
-                    }
+                    }}
                     error={touched.exposureType && errors.exposureType}
                     showError={showError}
                     required={true}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Exposure Input Date"
                     name="exposureInputDate"
                     type="date"
@@ -149,7 +146,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     }
                     showError={showError}
                     required={true}
-                  />
+                  /> */}
                   {values.exposureType === "confirmed_order" ? (
                     <CustomInput
                       label="PO No"

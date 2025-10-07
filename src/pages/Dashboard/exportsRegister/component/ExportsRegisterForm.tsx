@@ -73,14 +73,24 @@ const ExposureForm = ({ submitExportForm }: any) => {
 
   const validationSchema = Yup.object({
     exposureType: Yup.mixed().required("Exposure Type is required"),
-    exposureInputDate: Yup.string().required("Exposure Input Date is required"),
-    exposureModificationDate: Yup.string().required(
-      "Exposure Modification Date is required"
-    ),
+    // exposureInputDate: Yup.string().required("Exposure Input Date is required"),
+    // exposureModificationDate: Yup.string().required(
+    //   "Exposure Modification Date is required"
+    // ),
     poDate: Yup.string().required("PO Date is required"),
     poNo: Yup.string().required("PO No is required"),
-    invoiceNo: Yup.string().required("Invoice No is required"),
-    invoiceDate: Yup.string().required("Invoice Date is required"),
+    // invoiceNo: Yup.string().required("Invoice No is required"),
+    // invoiceDate: Yup.string().required("Invoice Date is required"),
+    invoiceNo: Yup.string().when("exposureType", {
+      is: (val: string) => val !== "confirmed_order",
+      then: (schema) => schema.required("Invoice No is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    invoiceDate: Yup.date().when("exposureType", {
+      is: (val: string) => val !== "confirmed_order",
+      then: (schema) => schema.required("Invoice Date is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     partyName: Yup.string().required("Party Name is required"),
     bank: Yup.string().required("Bank is required"),
     businessUnit: Yup.string().required("Business Unit is required"),
@@ -91,6 +101,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
     budgetRate: Yup.string().required("Budget Rate is required"),
     hedgeDealRefNo: Yup.string().required("Hedge Deal Ref No is required"),
     remark: Yup.string().nullable(),
+    dueDate: Yup.string().required("Due Date is required"),
   });
   const fetchPoDetails = async () => {
     setLoading(true);
@@ -140,6 +151,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
             paymentTerms: "",
             hedgeDealRefNo: "",
             remark: "",
+            dueDate: "",
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -285,7 +297,10 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     onChange={handleChange}
                     error={touched.invoiceNo && errors.invoiceNo}
                     showError={showError}
-                    required={true}
+                    required={
+                      values.exposureType &&
+                      values.exposureType !== "confirmed_order"
+                    }
                   />
                   <CustomInput
                     label="Invoice Date"
@@ -296,7 +311,10 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     onChange={handleChange}
                     error={touched.invoiceDate && errors.invoiceDate}
                     showError={showError}
-                    required={true}
+                    required={
+                      values.exposureType &&
+                      values.exposureType !== "confirmed_order"
+                    }
                   />
                   <CustomInput
                     label="BL Date"
@@ -308,6 +326,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     showError={showError}
                     required={true}
                   />
+
                   <CustomInput
                     label="Payment Terms"
                     name="paymentTerms"
@@ -318,7 +337,15 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     showError={showError}
                     required={true}
                   />
-                  {/* i did not find due date input */}
+                  <CustomInput
+                    label="Due Date"
+                    name="dueDate"
+                    type="date"
+                    value={values.dueDate}
+                    onChange={handleChange}
+                    error={touched.dueDate && errors.dueDate}
+                    showError={showError}
+                  />
                   <CustomInput
                     label="Currency"
                     type="select"
@@ -362,7 +389,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                   <CustomInput
                     label="Hedge Reference No."
                     name="hedgeDealRefNo"
-                    placeholder="Units"
+                    placeholder="Hedge Reference No."
                     value={values.hedgeDealRefNo}
                     onChange={handleChange}
                     error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
@@ -370,7 +397,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     required={true}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Exposure Input Date"
                     name="exposureInputDate"
                     type="date"
@@ -381,9 +408,9 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     }
                     showError={showError}
                     required={true}
-                  />
+                  /> */}
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Exposure Modification Date"
                     name="exposureModificationDate"
                     placeholder="Exposure Modification Date"
@@ -396,7 +423,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     }
                     showError={showError}
                     required={true}
-                  />
+                  /> */}
                 </SimpleGrid>
                 <CustomInput
                   label="Remark"
