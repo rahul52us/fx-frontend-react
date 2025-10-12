@@ -3,6 +3,7 @@ import {
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
+  DrawerHeader,
   DrawerOverlay,
   useDisclosure,
   useToast,
@@ -145,6 +146,8 @@ const ForwardRegisterTable = () => {
   // { headerName: "Month", key: "month" },
   { headerName: "Booking Date", key: "bookingDate" },
   { headerName: "Exposure Type", key: "exposureType" },
+  { headerName: "Forward Input Date", key: "forwardInputDate" },
+  { headerName: "Forward Modification Date", key: "forwardModificationDate" },
   { headerName: "Bank", key: "bank" },
   { headerName: "Business Unit", key: "bussinessUnit" },
   { headerName: "Exposure Ref Number", key: "exposureRefNumber" },
@@ -238,6 +241,7 @@ const ForwardRegisterTable = () => {
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
+          <DrawerHeader>Forward Register</DrawerHeader>
           <DrawerCloseButton />
           <DrawerBody>
             <ForwardRegisterForm submitForm={submitExportForm} />

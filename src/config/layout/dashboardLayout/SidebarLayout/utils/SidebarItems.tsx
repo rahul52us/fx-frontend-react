@@ -125,7 +125,35 @@ const sidebarDatas: SidebarItem[] = [
         icon: <CalendarIcon />,
         url: `${dashboard.dailyExposureSheet}`,
         role: ["user","superadmin","manager","admin"],
-      }
+      },
+      {
+        id: 602,
+        name: "Exposure Input",
+        icon: <CalendarIcon />,
+        url: `${dashboard.dailyExposureSheet}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 602,
+        name: "Exposure Settlement",
+        icon: <CalendarIcon />,
+        url: `${dashboard.dailyExposureSheet}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 602,
+        name: "Export Register",
+        icon: <CalendarIcon />,
+        url: `${dashboard.dailyExposureSheet}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 602,
+        name: "Import Register",
+        icon: <CalendarIcon />,
+        url: `${dashboard.dailyExposureSheet}`,
+        role: ["user","superadmin","manager","admin"],
+      },
     ]
   },
   {
@@ -141,7 +169,35 @@ const sidebarDatas: SidebarItem[] = [
         icon: <CalendarIcon />,
         url: `${dashboard.pcfc}`,
         role: ["user","superadmin","manager","admin"],
-      }
+      },
+      {
+        id: 502,
+        name: "Drawdown on spot basis",
+        icon: <CalendarIcon />,
+        url: `${dashboard.pcfc}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 502,
+        name: "Drawdown on forward basis",
+        icon: <CalendarIcon />,
+        url: `${dashboard.pcfc}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 502,
+        name: "PCFC Settlement",
+        icon: <CalendarIcon />,
+        url: `${dashboard.pcfc}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 502,
+        name: "PCFC Register",
+        icon: <CalendarIcon />,
+        url: `${dashboard.pcfc}`,
+        role: ["user","superadmin","manager","admin"],
+      },
     ]
   },
   {
@@ -157,7 +213,35 @@ const sidebarDatas: SidebarItem[] = [
         icon: <CalendarIcon />,
         url: `${dashboard.forwardRegister}`,
         role: ["user","superadmin","manager","admin"],
-      }
+      },
+      {
+        id: 606,
+        name: "Forward Booking",
+        icon: <CalendarIcon />,
+        url: `${dashboard.forwardRegister}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 606,
+        name: "Forward Cancellation",
+        icon: <CalendarIcon />,
+        url: `${dashboard.forwardRegister}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 606,
+        name: "Unitization against exposure",
+        icon: <CalendarIcon />,
+        url: `${dashboard.forwardRegister}`,
+        role: ["user","superadmin","manager","admin"],
+      },
+      {
+        id: 606,
+        name: "Unitization against PCFC",
+        icon: <CalendarIcon />,
+        url: `${dashboard.forwardRegister}`,
+        role: ["user","superadmin","manager","admin"],
+      },
     ]
   },
   {
