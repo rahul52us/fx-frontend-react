@@ -145,6 +145,7 @@ const PCFCColumns = [
   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr", label: "Outstanding Amount (INR)" },
   { headerName: "Amount Settled", key: "amountSettled", label: "Amount Settled" },
   {headerName:"PCFC Input Date",key:"pcfcInputDate",label:"PCFC Input Date"},
+  {headerName:"PCFC Modification Date",key:"pcfcModificationDate",label:"PCFC Modification Date"},
    {
       headerName: "Actions",
       key: "table-actions",
@@ -156,9 +157,6 @@ const PCFCColumns = [
       },
     },
 ];
-
-
-
   return (
     <>
       <CustomTable
