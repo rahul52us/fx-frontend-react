@@ -149,6 +149,7 @@ const ImportRegisterTable = () => {
   // ];
   
 const ImportRegisterTableColumns = [
+  { headerName: "Created On", key: "createdAt" },
   { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
   // { headerName: "Month", key: "month" },
   { headerName: "Exposure Type", key: "exposureType" },
@@ -178,6 +179,7 @@ const ImportRegisterTableColumns = [
   { headerName: "Outstanding Amount", key: "outstandingAmount" },
   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
   { headerName: "Advance Payment", key: "advancePayment" },
+  { headerName: "LC/BC Raised", key: "lc_bc_raised" },
   { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
   { headerName: "Amount Settled", key: "amountSettled" },
   { headerName: "Settlement Rate", key: "settlementRate" },
@@ -217,7 +219,7 @@ const ImportRegisterTableColumns = [
         actions={{
           search: { show: false },
           resetData: {
-            show: true,
+            show: false,
             text: "Reset Data",
             function: fetchImportRegisterData,
           },

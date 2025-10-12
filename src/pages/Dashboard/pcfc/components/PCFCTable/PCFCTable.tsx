@@ -130,6 +130,7 @@ const PCFCTable = () => {
  
 
 const PCFCColumns = [
+  { headerName: "Created On", key: "createdAt" },
   { headerName: "Drawdown Date", key: "drawdownDate", label: "Drawdown Date" },
   { headerName: "Mode of Conversion", key: "modeOfConversion", label: "Mode of Conversion" },
   { headerName: "Bank", key: "bank", label: "Bank" },

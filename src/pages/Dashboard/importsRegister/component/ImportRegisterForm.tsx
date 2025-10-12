@@ -17,13 +17,16 @@ import {
 } from "../../../../globalStyles";
 import {
   currencyOptions,
+  dummyPoData,
   importExposureTypeOptions,
-  priorityOptions
+  priorityOptions,
 } from "./utils/constant";
+import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);
   const [poData, setPoData] = useState<any[]>([]);
+  console.log(poData);
   const [loading, setLoading] = useState(true);
   const url = process.env.REACT_APP_FX_BASE_URL;
   const fetchPoDetails = async () => {
@@ -58,8 +61,8 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
     // exposureModificationDate: Yup.string().nullable(), // optional, as no validation message was originally given
     poDate: Yup.string().required("PO Date is required"),
     poNo: Yup.string().nullable(), // no validation mentioned, so nullable
-    invoiceNo: Yup.string().required("Invoice No is required"),
-    invoiceDate: Yup.string().nullable(), // no validation mentioned
+    // invoiceNo: Yup.string().required("Invoice No is required"),
+    // invoiceDate: Yup.string().nullable(), // no validation mentioned
     partyName: Yup.string().required("Party Name is required"),
     bank: Yup.string().required("Bank is required"),
     priority: Yup.mixed().required("Priority is required"),
@@ -69,8 +72,9 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
     dueDate: Yup.string().required("Due Date is required"),
     currency: Yup.mixed().required("Currency is required"),
     amount: Yup.number().required("Amount is required"),
+    hedgeRate: Yup.number().required("Hedge Rate is required"),
     budgetRate: Yup.string().nullable(),
-    hedgeDealRefNo: Yup.string().nullable(),
+    // hedgeDealRefNo: Yup.string().nullable(),
     remark: Yup.string().nullable(),
   });
   return (
@@ -121,33 +125,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     showError={showError}
                     required={true}
                   />
-
-                  {/* <CustomInput
-                    label="Exposure Input Date"
-                    name="exposureInputDate"
-                    type="date"
-                    value={values.exposureInputDate}
-                    onChange={handleChange}
-                    error={
-                      touched.exposureInputDate && errors.exposureInputDate
-                    }
-                    showError={showError}
-                    required={true}
-                  />
-                  <CustomInput
-                    label="Exposure Modification Date"
-                    name="exposureModificationDate"
-                    type="date"
-                    value={values.exposureModificationDate}
-                    onChange={handleChange}
-                    error={
-                      touched.exposureModificationDate &&
-                      errors.exposureModificationDate
-                    }
-                    showError={showError}
-                    required={true}
-                  /> */}
-                  {values.exposureType === "confirmed_order" ? (
+                  {values.exposureType !== "lc_bc_shifting" ? (
                     <CustomInput
                       label="PO No"
                       placeholder="Enter PO No"
@@ -165,18 +143,21 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       placeholder="Select PO No"
                       name="poNo"
                       type="select"
-                      options={poData}
-                      value={poData.find(
+                      options={dummyPoData}
+                      value={dummyPoData.find(
                         (option: any) => option.value === values.poNo
                       )}
                       onChange={(selectedOption) => {
-                        const selectedPo = poData.find(
+                        const selectedPo = dummyPoData.find(
                           (item: any) => item.poNo === selectedOption.value
                         );
-                        console.log("selectedPo", selectedOption, selectedPo);
 
-                        if (selectedPo) {
-                          setFieldValue("poNo", selectedPo.poNo);
+                        setFieldValue("poNo", selectedOption.value);
+
+                        if (
+                          values.exposureType === "lc_bc_shifting" &&
+                          selectedPo
+                        ) {
                           setFieldValue("poDate", selectedPo.poDate);
                           setFieldValue("partyName", selectedPo.partyName);
                           setFieldValue("bank", selectedPo.bank);
@@ -190,8 +171,40 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                           );
                           setFieldValue("currency", selectedPo.currency);
                           setFieldValue("budgetRate", selectedPo.budgetRate);
+                        } else {
+                          // clear the fields for manual entry
+                          setFieldValue("poDate", "");
+                          setFieldValue("partyName", "");
+                          setFieldValue("bank", "");
+                          setFieldValue("businessUnit", "");
+                          setFieldValue("paymentTerms", "");
+                          setFieldValue("currency", "");
+                          setFieldValue("budgetRate", "");
                         }
                       }}
+                      // onChange={(selectedOption) => {
+                      //   const selectedPo = poData.find(
+                      //     (item: any) => item.poNo === selectedOption.value
+                      //   );
+                      //   console.log("selectedPo", selectedOption, selectedPo);
+
+                      //   if (selectedPo) {
+                      //     setFieldValue("poNo", selectedPo.poNo);
+                      //     setFieldValue("poDate", selectedPo.poDate);
+                      //     setFieldValue("partyName", selectedPo.partyName);
+                      //     setFieldValue("bank", selectedPo.bank);
+                      //     setFieldValue(
+                      //       "businessUnit",
+                      //       selectedPo.businessUnit
+                      //     );
+                      //     setFieldValue(
+                      //       "paymentTerms",
+                      //       selectedPo.paymentTerms
+                      //     );
+                      //     setFieldValue("currency", selectedPo.currency);
+                      //     setFieldValue("budgetRate", selectedPo.budgetRate);
+                      //   }
+                      // }}
                       required={true}
                       error={touched.poNo && errors.poNo}
                       showError={showError}
@@ -217,16 +230,34 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     showError={showError}
                     required={true}
                   />
-                  <CustomInput
-                    label="Bank"
-                    name="bank"
-                    placeholder="Enter Bank"
-                    value={values.bank}
-                    onChange={handleChange}
-                    error={touched.bank && errors.bank}
-                    showError={showError}
-                    required={true}
-                  />
+                  {values.exposureType === "lc_bc_shifting" ? (
+                    <CustomInput
+                      label="Bank"
+                      name="bank"
+                      placeholder="Enter Bank"
+                      value={values.bank}
+                      onChange={handleChange}
+                      error={touched.bank && errors.bank}
+                      showError={showError}
+                      required={true}
+                    />
+                  ) : (
+                    <CustomInput
+                      label="Bank"
+                      type="select"
+                      name="bank"
+                      placeholder="Enter Bank Name"
+                      options={banks}
+                      value={banks.find(
+                        (option) => option.value === values.bank
+                      )}
+                      onChange={(selectedOption: any) =>
+                        setFieldValue("bank", selectedOption.value)
+                      }
+                      error={touched.bank && errors.bank}
+                      showError={showError}
+                    />
+                  )}
                   <CustomInput
                     label="Business Unit"
                     name="businessUnit"
@@ -245,7 +276,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     onChange={handleChange}
                     error={touched.invoiceNo && errors.invoiceNo}
                     showError={showError}
-                    required={true}
+                    // required={true}
                   />
                   <CustomInput
                     label="Invoice Date"
@@ -255,7 +286,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     onChange={handleChange}
                     error={touched.invoiceDate && errors.invoiceDate}
                     showError={showError}
-                    required={true}
+                    // required={true}
                   />
                   <CustomInput
                     label="BL Date"
@@ -334,19 +365,29 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     onChange={handleChange}
                     error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
                     showError={showError}
+                    // required={true}
+                  />
+
+                  <CustomInput
+                    label="Hedge Rate"
+                    name="hedgeRate"
+                    placeholder="Rate"
+                    value={values.hedgeRate}
+                    onChange={handleChange}
+                    error={touched.hedgeRate && errors.hedgeRate}
                     required={true}
                   />
 
-                  {/* <CustomInput
-                    label="Booked Forward Rate"
-                    name="bookedForwardRate"
-                    placeholder=""
-                    value={values.bookedForwardRate}
+                  <CustomInput
+                    label="Hedge Amount"
+                    name="hedgeAmount"
+                    type="number"
+                    placeholder="Enter Amount"
+                    value={values.hedgeAmount}
                     onChange={handleChange}
-                    error={
-                      touched.bookedForwardRate && errors.bookedForwardRate
-                    }
-                  /> */}
+                    error={touched.hedgeAmount && errors.hedgeAmount}
+                    // required={true}
+                  />
                   <CustomInput
                     label="Priority"
                     name="priority"

@@ -51,3 +51,47 @@ export const dealTypeOptions = [
   { label: 'A', value: 'a' },
   { label: 'B', value: 'b' },
 ]
+
+
+
+export const dummyPoData = [
+  {
+    sno: 1,
+    poNo: "PO001",
+    poDate: "2025-09-10",
+    partyName: "ABC Exports Pvt Ltd",
+    bank: "HDFC Bank",
+    businessUnit: "Import Division A",
+    paymentTerms: "30 Days",
+    currency: "USD",
+    budgetRate: "83.25",
+    label: "PO001",
+    value: "PO001",
+  },
+  {
+    sno: 2,
+    poNo: "PO002",
+    poDate: "2025-09-15",
+    partyName: "Global Traders Co",
+    bank: "ICICI Bank",
+    businessUnit: "Import Division B",
+    paymentTerms: "60 Days",
+    currency: "EUR",
+    budgetRate: "89.75",
+    label: "PO002",
+    value: "PO002",
+  },
+  {
+    sno: 3,
+    poNo: "PO003",
+    poDate: "2025-09-20",
+    partyName: "Zenith International",
+    bank: "SBI",
+    businessUnit: "Import Division C",
+    paymentTerms: "45 Days",
+    currency: "JPY",
+    budgetRate: "0.57",
+    label: "PO003",
+    value: "PO003",
+  },
+]

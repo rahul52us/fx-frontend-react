@@ -144,6 +144,7 @@ const ForwardRegisterTable = () => {
 
   const ForwardRegisterColumns = [
   // { headerName: "Month", key: "month" },
+  { headerName: "Created On", key: "createdAt" },
   { headerName: "Booking Date", key: "bookingDate" },
   { headerName: "Exposure Type", key: "exposureType" },
   { headerName: "Forward Input Date", key: "forwardInputDate" },
