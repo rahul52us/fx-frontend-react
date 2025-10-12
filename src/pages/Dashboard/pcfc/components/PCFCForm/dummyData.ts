@@ -1,19 +1,34 @@
 export const forwardRegDataAllData = [
   {
-    hedgeDealRefNo: "111",
-    outstandingAmount: "22222",
-    deliveryDateFrom: "44444",
-    deliveryDateTo: "55555",
-    hedgeRate: "22222",
+    hedgeDealRefNo: "HDL20251001",
+    outstandingAmount: "125,000",
+    deliveryDateFrom: "2025-11-01",
+    deliveryDateTo: "2025-12-31",
+    hedgeRate: "83.45",
   },
   {
-    hedgeDealRefNo: "222",
-    outstandingAmount: "33333",
-    deliveryDateFrom: "66666",
-    deliveryDateTo: "77777",
-    hedgeRate: "88888",
+    hedgeDealRefNo: "HDL20251002",
+    outstandingAmount: "98,500",
+    deliveryDateFrom: "2025-10-15",
+    deliveryDateTo: "2025-11-30",
+    hedgeRate: "82.90",
+  },
+  {
+    hedgeDealRefNo: "HDL20251003",
+    outstandingAmount: "150,000",
+    deliveryDateFrom: "2025-12-01",
+    deliveryDateTo: "2026-01-15",
+    hedgeRate: "84.10",
+  },
+  {
+    hedgeDealRefNo: "HDL20251004",
+    outstandingAmount: "210,000",
+    deliveryDateFrom: "2025-09-25",
+    deliveryDateTo: "2025-10-25",
+    hedgeRate: "81.75",
   },
 ];
+
 
 export const banks = [
   {
