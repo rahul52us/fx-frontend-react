@@ -11,13 +11,14 @@ import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../../globalStyles";
+import { banks } from "../../../pcfc/components/PCFCForm/dummyData";
 const ForwardRegisterForm = ({ submitForm }: any) => {
   const validationSchema = Yup.object({
     bookingDate: Yup.string().required("Booking Date is required"),
     exposureType: Yup.string().required("Exposure Type is required"),
     bank: Yup.string().required("Bank is required"),
     bussinessUnit: Yup.string().required("Business Unit is required"),
-    exposureRefNumber: Yup.string().required("Exposure Ref Number is required"),
+    // exposureRefNumber: Yup.string().required("Exposure Ref Number is required"),
     hedgeDealReferenceNumber: Yup.string().required(
       "Hedge Deal Reference Number is required"
     ),
@@ -69,16 +70,34 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.bookingDate}
                     onChange={handleChange}
                     error={touched.bookingDate && errors.bookingDate}
+                    required={true}
                   />
 
                   <CustomInput
+                    label="Bank"
+                    type="select"
+                    name="bank"
+                    placeholder="Enter Bank Name"
+                    options={banks}
+                    value={banks.find((option) => option.value === values.bank)}
+                    onChange={(option) =>
+                      handleChange({
+                        target: { name: "bank", value: option.value },
+                      })
+                    }
+                    error={touched.bank && errors.bank}
+                    // showError={showError}
+                  />
+
+                  {/* <CustomInput
                     label="Bank"
                     name="bank"
                     placeholder="Enter Bank Name"
                     value={values.bank}
                     onChange={handleChange}
                     error={touched.bank && errors.bank}
-                  />
+                    required={true}
+                    /> */}
 
                   <CustomInput
                     label="Business Unit"
@@ -87,6 +106,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.bussinessUnit}
                     onChange={handleChange}
                     error={touched.bussinessUnit && errors.bussinessUnit}
+                    required={true}
                   />
 
                   <CustomInput
@@ -110,6 +130,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                       touched.hedgeDealReferenceNumber &&
                       errors.hedgeDealReferenceNumber
                     }
+                    required={true}
                   />
 
                   <CustomInput
@@ -129,6 +150,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                       })
                     }
                     error={touched.currency && errors.currency}
+                    required={true}
                   />
 
                   <CustomInput
@@ -139,6 +161,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.hedgeAmount}
                     onChange={handleChange}
                     error={touched.hedgeAmount && errors.hedgeAmount}
+                    required={true}
                   />
 
                   <CustomInput
@@ -148,6 +171,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.spotBooked}
                     onChange={handleChange}
                     error={touched.spotBooked && errors.spotBooked}
+                    required={true}
                   />
 
                   <CustomInput
@@ -157,6 +181,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.forwardPoints}
                     onChange={handleChange}
                     error={touched.forwardPoints && errors.forwardPoints}
+                    required={true}
                   />
 
                   <CustomInput
@@ -166,6 +191,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.bankMargin}
                     onChange={handleChange}
                     error={touched.bankMargin && errors.bankMargin}
+                    required={true}
                   />
 
                   <CustomInput
@@ -175,6 +201,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.hedgeRate}
                     onChange={handleChange}
                     error={touched.hedgeRate && errors.hedgeRate}
+                    required={true}
                   />
 
                   <CustomInput
@@ -184,6 +211,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.dueDateFrom}
                     onChange={handleChange}
                     error={touched.dueDateFrom && errors.dueDateFrom}
+                    required={true}
                   />
 
                   <CustomInput
@@ -193,6 +221,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.dueDateTo}
                     onChange={handleChange}
                     error={touched.dueDateTo && errors.dueDateTo}
+                    required={true}
                   />
                 </SimpleGrid>
 

@@ -919,7 +919,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   return (
     <FormControl id={name} isInvalid={!!error && showError}>
       <FormLabel color={labelcolor} fontSize={"small"} mt={2}>
-        {required && <span style={{ color: "red" }}>*</span>} {label}
+        {label} {required && <span style={{ color: "red" }}>*</span>} 
       </FormLabel>
       {renderInputComponent()}
       {showError && error && <FormErrorMessage>{error}</FormErrorMessage>}
