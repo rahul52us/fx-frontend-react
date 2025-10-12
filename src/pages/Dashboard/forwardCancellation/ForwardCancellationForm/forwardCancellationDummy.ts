@@ -1,0 +1,26 @@
+export const forwardDeals = [
+  {
+    poNumber:"PO123456",
+    forwardDealId: "FDL-001",
+    exposureType: "Export",
+    bank: "HDFC Bank",
+    currency: "USD",
+    outstandingAmount: "50000",
+    bookedRate: "83.25",
+    deliveryDateFrom: "2025-10-10",
+    deliveryDateTo: "2025-12-10",
+    bankMargin: "0.5",
+  },
+  {
+    poNumber:"PO123456",
+    forwardDealId: "FDL-002",
+    exposureType: "Import",
+    bank: "ICICI Bank",
+    currency: "EUR",
+    outstandingAmount: "30000",
+    bookedRate: "89.45",
+    deliveryDateFrom: "2025-11-01",
+    deliveryDateTo: "2025-12-20",
+    bankMargin: "0.7",
+  },
+];
