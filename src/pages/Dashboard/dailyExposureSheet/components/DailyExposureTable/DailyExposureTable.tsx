@@ -3,6 +3,7 @@ import {
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
+  DrawerHeader,
   DrawerOverlay,
   useDisclosure,
   useToast,
@@ -216,6 +217,7 @@ const DailyExposureTable = () => {
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
+          <DrawerHeader>Exposure Settlement Register</DrawerHeader>
           <DrawerCloseButton />
           {/* <DrawerHeader></DrawerHeader> */}
           <DrawerBody>

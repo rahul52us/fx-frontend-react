@@ -572,6 +572,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     />
                   </Button>
                 )}
+                
 
                 {actions?.resetData?.show && (
                   <MenuItem

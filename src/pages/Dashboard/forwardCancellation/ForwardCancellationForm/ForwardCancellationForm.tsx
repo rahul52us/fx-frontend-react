@@ -9,6 +9,7 @@ import {
 
 const forwardDeals = [
   {
+    poNumber:"PO123456",
     forwardDealId: "FDL-001",
     exposureType: "Export",
     bank: "HDFC Bank",
@@ -20,6 +21,7 @@ const forwardDeals = [
     bankMargin: "0.5",
   },
   {
+    poNumber:"PO123456",
     forwardDealId: "FDL-002",
     exposureType: "Import",
     bank: "ICICI Bank",

@@ -606,7 +606,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
                 inputProps: {
                   size: "md",
                   fontSize: "14px",
-                  placeholder: placeholder,
+                  placeholder: placeholder || "Select Date",
                 },
               }}
             />

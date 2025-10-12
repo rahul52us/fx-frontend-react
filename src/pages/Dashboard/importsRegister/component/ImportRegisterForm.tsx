@@ -6,20 +6,20 @@ import {
   SimpleGrid,
   VStack,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
+import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
-import {
-  currencyOptions,
-  exposureTypeOptions,
-  priorityOptions,
-} from "./utils/constant";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
+import {
+  currencyOptions,
+  importExposureTypeOptions,
+  priorityOptions
+} from "./utils/constant";
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);
@@ -101,8 +101,8 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     label="Exposure Type"
                     name="exposureType"
                     type="select"
-                    options={exposureTypeOptions}
-                    value={exposureTypeOptions.find(
+                    options={importExposureTypeOptions}
+                    value={importExposureTypeOptions.find(
                       (option) => option.value === values.exposureType
                     )}
                     // onChange={(option) => setFieldValue("exposureType", option)}

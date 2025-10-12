@@ -3,6 +3,7 @@ import {
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
+  DrawerHeader,
   DrawerOverlay,
   useDisclosure,
   useToast,
@@ -129,7 +130,6 @@ const PCFCTable = () => {
  
 
 const PCFCColumns = [
-  // { headerName: "Month", key: "month", label: "Month" },
   { headerName: "Drawdown Date", key: "drawdownDate", label: "Drawdown Date" },
   { headerName: "Mode of Conversion", key: "modeOfConversion", label: "Mode of Conversion" },
   { headerName: "Bank", key: "bank", label: "Bank" },
@@ -144,6 +144,7 @@ const PCFCColumns = [
   { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr", label: "Outstanding Amount (INR)" },
   { headerName: "Amount Settled", key: "amountSettled", label: "Amount Settled" },
+  {headerName:"PCFC Input Date",key:"pcfcInputDate",label:"PCFC Input Date"},
    {
       headerName: "Actions",
       key: "table-actions",
@@ -167,7 +168,7 @@ const PCFCColumns = [
         actions={{
           search: { show: false },
           resetData: {
-            show: true,
+            show: false,
             text: "Reset Data",
             function: fetchExportRegisterData,
           },
@@ -217,6 +218,7 @@ const PCFCColumns = [
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
+          <DrawerHeader>PCFC Register Form</DrawerHeader>
           <DrawerCloseButton />
           <DrawerBody>
             <PCFCForm submitForm={submitExportForm} />

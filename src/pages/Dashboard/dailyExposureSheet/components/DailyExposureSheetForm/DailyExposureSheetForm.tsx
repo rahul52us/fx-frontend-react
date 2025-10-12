@@ -1,18 +1,14 @@
 "use client";
 
-import {
-  Box,
-  Button,
-  Divider,
-  Flex,
-  Heading,
-  SimpleGrid,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, SimpleGrid, VStack } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import { useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
+import {
+  primaryButtonHoverStyle,
+  primaryButtonStyle,
+} from "../../../../../globalStyles";
 import {
   exposureTypeOptions,
   modeOfConversionOptions,
@@ -23,9 +19,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
   const [showError, setShowError] = useState(false);
   const validationSchema = Yup.object({
     settlementDate: Yup.string().required("Settlement Date is required"),
-    settlementInputDate: Yup.mixed().required(
-      "Settlement Input Date is required"
-    ),
+   
     exposureType: Yup.mixed().required("Exposure Type is required"),
     settlementType: Yup.string().required("Settlement Type is required"),
     poNumber: Yup.string().required("PO Number is required"),
@@ -35,7 +29,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
       "Conversion Reference Number is required"
     ),
     settledAmount: Yup.number().required("Settled Amount is required"),
-    forwardPremiumReveresed: Yup.string().required(
+    forwardPremium: Yup.string().required(
       "Forward Premium Reversed is required"
     ),
     spotBooked: Yup.string().required("Spot Booked is required"),
@@ -44,16 +38,8 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
   });
 
   return (
-    <Box bg="whiteAlpha.700" py={4}>
-      <Box
-        maxW="5xl"
-        mx="auto"
-        p={6}
-        borderRadius="2xl"
-      >
-        <Heading size="lg" mb={6} textAlign="center">
-          Exposure Settlement Register
-        </Heading>
+    <Box bg="whiteAlpha.700">
+      <Box maxW="5xl" mx="auto" p={2} borderRadius="2xl">
         <Formik
           initialValues={{}}
           validationSchema={validationSchema}
@@ -66,8 +52,6 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
           {({ values, handleChange, isSubmitting, errors, touched }: any) => (
             <FormikForm>
               <VStack spacing={6} align="stretch">
-                <Divider mb={4} />
-
                 <SimpleGrid columns={[1, null, 2]} spacing={8}>
                   <CustomInput
                     label="Exposure Type"
@@ -84,7 +68,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     }
                     error={touched.exposureType && errors.exposureType}
                     showError={showError}
-                    />
+                  />
                   <CustomInput
                     label="Settlement Type"
                     name="settlementType"
@@ -100,18 +84,8 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     }
                     error={touched.settlementType && errors.settlementType}
                     showError={showError}
-                    />
-                  <CustomInput
-                    label="Settlement Input Date"
-                    name="settlementInputDate"
-                    type="date"
-                    value={values.settlementInputDate}
-                    onChange={handleChange}
-                    error={
-                      touched.settlementInputDate && errors.settlementInputDate
-                    }
-                    showError={showError}
-                    />
+                  />
+                
                   <CustomInput
                     label="Settlement Date"
                     name="settlementDate"
@@ -120,7 +94,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     onChange={handleChange}
                     error={errors.settlementDate}
                     showError={showError}
-                    />
+                  />
                   <CustomInput
                     label="PO Number"
                     name="poNumber"
@@ -129,7 +103,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     onChange={handleChange}
                     error={touched.poNumber && errors.poNumber}
                     showError={showError}
-                    />
+                  />
                   <CustomInput
                     label="Invoice LC/BC Number"
                     name="invoiceBcNumber"
@@ -138,7 +112,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     onChange={handleChange}
                     error={touched.invoiceBcNumber && errors.invoiceBcNumber}
                     showError={showError}
-                    />
+                  />
                   <CustomInput
                     label="Mode Of Conversion"
                     name="modeOfConversion"
@@ -150,16 +124,19 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     )}
                     onChange={(option) =>
                       handleChange({
-                        target: { name: "modeOfConversion", value: option.value },
+                        target: {
+                          name: "modeOfConversion",
+                          value: option.value,
+                        },
                       })
                     }
                     error={touched.modeOfConversion && errors.modeOfConversion}
                     showError={showError}
-                    />
+                  />
                   <CustomInput
                     label="Conversion Ref No"
                     name="conversionReferenceNumber"
-                    placeholder="Conversion Mode"
+                    placeholder="Conversion Reference Number"
                     value={values.conversionReferenceNumber}
                     onChange={handleChange}
                     error={
@@ -167,7 +144,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                       errors.conversionReferenceNumber
                     }
                     showError={showError}
-                    />
+                  />
                   <CustomInput
                     label="Settlement Amount"
                     type="number"
@@ -177,7 +154,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     onChange={handleChange}
                     error={touched.settledAmount && errors.settledAmount}
                     showError={showError}
-                    />
+                  />
                   <CustomInput
                     label="Spot Booked"
                     name="spotBooked"
@@ -186,8 +163,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     onChange={handleChange}
                     error={touched.spotBooked && errors.spotBooked}
                     showError={showError}
-                    />
-
+                  />
                   <CustomInput
                     label="Cash Tom Spot"
                     name="cashTomSpot"
@@ -196,7 +172,7 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     onChange={handleChange}
                     error={touched.cashTomSpot && errors.cashTomSpot}
                     showError={showError}
-                    />
+                  />
                   <CustomInput
                     label="Bank Margin"
                     name="bankMargin"
@@ -205,34 +181,122 @@ const DailyExposureSheetForm = ({ submitForm }: any) => {
                     onChange={handleChange}
                     error={touched.bankMargin && errors.bankMargin}
                     showError={showError}
-                    />
-
+                  />
                   <CustomInput
-                    label="Forward Presume Reversed"
-                    name="forwardPremiumReveresed"
-                    placeholder="Enter Benchmark Rate"
-                    value={values.forwardPremiumReveresed}
+                    label="Settlement Rate"
+                    name="settlementRate"
+                    placeholder="Enter Settlement Rate"
+                    value={values.settlementRate}
                     onChange={handleChange}
-                    error={
-                      touched.forwardPremiumReveresed &&
-                      errors.forwardPremiumReveresed
-                    }
+                    error={touched.settlementRate && errors.settlementRate}
                     showError={showError}
                   />
-                </SimpleGrid>
+                  <CustomInput
+                    label="Forward Premium"
+                    name="forwardPremium"
+                    placeholder="Enter Forward Premium"
+                    value={values.forwardPremium}
+                    onChange={handleChange}
+                    error={touched.forwardPremium && errors.forwardPremium}
+                    showError={showError}
+                  />
 
+                  {/* ✅ Added Missing Fields */}
+                  <CustomInput
+                    label="Net Rate"
+                    name="netRate"
+                    placeholder="Enter Net Rate"
+                    value={values.netRate}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Amount"
+                    name="amount"
+                    placeholder="Enter Amount"
+                    type="number"
+                    value={values.amount}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Booked Rate"
+                    name="bookedRate"
+                    placeholder="Enter Booked Rate"
+                    value={values.bookedRate}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Outstanding Amount"
+                    name="outstandingAmount"
+                    placeholder="Enter Outstanding Amount"
+                    type="number"
+                    value={values.outstandingAmount}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Drawdown Rate"
+                    name="drawdownRate"
+                    placeholder="Enter Drawdown Rate"
+                    value={values.drawdownRate}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Due Date"
+                    name="dueDate"
+                    type="date"
+                    value={values.dueDate}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Hedge Rate"
+                    name="hedgeRate"
+                    placeholder="Enter Hedge Rate"
+                    value={values.hedgeRate}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Delivery Date From"
+                    name="deliveryDateFrom"
+                    type="date"
+                    value={values.deliveryDateFrom}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Delivery Date To"
+                    name="deliveryDateTo"
+                    type="date"
+                    value={values.deliveryDateTo}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Utilization Amount"
+                    name="utilizationAmount"
+                    placeholder="Enter Utilization Amount"
+                    type="number"
+                    value={values.utilizationAmount}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Net Settlement Rate"
+                    name="netSettlementRate"
+                    placeholder="Enter Net Settlement Rate"
+                    value={values.netSettlementRate}
+                    onChange={handleChange}
+                  />
+                  <CustomInput
+                    label="Settled Amount in INR"
+                    name="settledAmountInINR"
+                    placeholder="Enter Settled Amount in INR"
+                    type="number"
+                    value={values.settledAmountInINR}
+                    onChange={handleChange}
+                  />
+                </SimpleGrid>
                 <Flex justify={"end"}>
                   <Button
-                    rounded={"full"}
+                    rounded="full"
                     fontWeight={500}
-                    _hover={{
-                      bg: "blue.600",
-                      color: "white",
-                      transform: "translateY(-2px)",
-                    }}
-                    transition={"transform 0.3s ease-in-out"}
-                    bg={"blue.500"}
-                    shadow={"xl"}
+                    {...primaryButtonStyle}
+                    _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
                     type="submit"
                     size="lg"
                     isLoading={isSubmitting}
