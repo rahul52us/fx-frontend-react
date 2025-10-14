@@ -476,10 +476,12 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                         // Auto-fill hedgeRate & hedgeAmount
                         if (selectedDeal) {
                           setFieldValue("hedgeRate", selectedDeal.hedgeRate);
-                          setFieldValue(
-                            "hedgeAmount",
-                            selectedDeal.hedgeAmount
-                          );
+                          setFieldValue("deliveryDateFrom",selectedDeal.deliveryDateFrom);
+                          setFieldValue("deliveryDateTo",selectedDeal.deliveryDateTo);
+                          // setFieldValue(
+                          //   "hedgeAmount",
+                          //   selectedDeal.hedgeAmount
+                          // );
                         }
                       }}
                       error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
@@ -499,15 +501,37 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                           disabled={true}
                         />
 
+                       <CustomInput
+                        label="Delivery Date From"
+                        name="deliveryDateFrom"
+                        placeholder="Delivery Date From"
+                        value={values.deliveryDateFrom}
+                        onChange={handleChange}
+                        error={touched.deliveryDateFrom && errors.deliveryDateFrom}
+                        showError={showError}
+                        disabled={true}
+                      />
+                      <CustomInput
+                        label="Delivery Date To"
+                        name="deliveryDateTo"
+                        placeholder="Delivery Date From"
+                        value={values.deliveryDateTo}
+                        onChange={handleChange}
+                        error={touched.deliveryDateTo && errors.deliveryDateTo}
+                        showError={showError}
+                        disabled={true}
+                      />
+
                         <CustomInput
                           label="Hedge Amount"
+                          type="number"
                           name="hedgeAmount"
                           placeholder="Amount (Auto-populated)"
                           value={values.hedgeAmount}
                           onChange={handleChange}
                           error={touched.hedgeAmount && errors.hedgeAmount}
                           showError={showError}
-                          disabled={true}
+                          // disabled={true}
                         />
                       </>
                     )}

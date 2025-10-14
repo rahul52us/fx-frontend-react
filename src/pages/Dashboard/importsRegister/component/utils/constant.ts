@@ -1,5 +1,5 @@
 export const currencyOptions = [
-  { label: 'IND', value: 'IND' },
+  { label: 'INR', value: 'INR' },
   { label: 'USD', value: 'USD' },
   { label: 'EUR', value: 'EUR' },
 ];
@@ -164,16 +164,22 @@ export const dummyHedgeDeals = [
     hedgeDealRefNo: "HD001",
     hedgeAmount: "50000",
     hedgeRate: "83.25",
+    deliveryDateFrom: "2025-10-15",
+    deliveryDateTo: "2025-11-15",
   },
   {
     hedgeDealRefNo: "HD002",
     hedgeAmount: "60000",
     hedgeRate: "90.50",
+    deliveryDateFrom: "2025-09-20",
+    deliveryDateTo: "2025-10-20",
   },
   {
     hedgeDealRefNo: "HD003",
     hedgeAmount: "70000",
     hedgeRate: "105.75",
+    deliveryDateFrom: "2025-11-01",
+    deliveryDateTo: "2025-12-01",
   },
 ];
 export const hedgeDealOptions = dummyHedgeDeals.map((item) => ({

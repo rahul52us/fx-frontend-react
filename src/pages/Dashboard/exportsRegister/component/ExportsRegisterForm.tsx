@@ -4,7 +4,7 @@ import {
   Flex,
   SimpleGrid,
   VStack,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
@@ -197,25 +197,25 @@ const ExposureForm = ({ submitExportForm }: any) => {
                       //   setFieldValue("poNo", "");
                       // }
                       if (selectedOption.value === "confirmed_order") {
-                          setFieldValue("poNo", "");
-                          setFieldValue("poDate", "");
-                          setFieldValue("partyName", "");
-                          setFieldValue("bank", "");
-                          setFieldValue("businessUnit", "");
-                          setFieldValue("paymentTerms", "");
-                          setFieldValue("currency", "");
-                          setFieldValue("budgetRate", "");
-                        } else {
-                          // Clear fields when switching to other types
-                          setFieldValue("poNo", "");
-                          setFieldValue("poDate", "");
-                          setFieldValue("partyName", "");
-                          setFieldValue("bank", "");
-                          setFieldValue("businessUnit", "");
-                          setFieldValue("paymentTerms", "");
-                          setFieldValue("currency", "");
-                          setFieldValue("budgetRate", "");
-                        }
+                        setFieldValue("poNo", "");
+                        setFieldValue("poDate", "");
+                        setFieldValue("partyName", "");
+                        setFieldValue("bank", "");
+                        setFieldValue("businessUnit", "");
+                        setFieldValue("paymentTerms", "");
+                        setFieldValue("currency", "");
+                        setFieldValue("budgetRate", "");
+                      } else {
+                        // Clear fields when switching to other types
+                        setFieldValue("poNo", "");
+                        setFieldValue("poDate", "");
+                        setFieldValue("partyName", "");
+                        setFieldValue("bank", "");
+                        setFieldValue("businessUnit", "");
+                        setFieldValue("paymentTerms", "");
+                        setFieldValue("currency", "");
+                        setFieldValue("budgetRate", "");
+                      }
                       setSelectedExposureType(selectedOption.value);
                     }}
                     showError={showError}
@@ -337,7 +337,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     disabled={selectedExposureType === "shipment"}
                   />
                   {selectedExposureType === "shipment" ? (
-                    
                     <CustomInput
                       label="Bank"
                       // type="select"
@@ -346,29 +345,30 @@ const ExposureForm = ({ submitExportForm }: any) => {
                       // options={banks}
                       value={values.bank}
                       onChange={handleChange}
-                      
                       error={touched.bank && errors.bank}
                       disabled={selectedExposureType === "shipment"}
                       showError={showError}
                       required={true}
                     />
-                  ):(
+                  ) : (
                     <CustomInput
-                    label="Bank"
-                    type="select"
-                    name="bank"
-                    placeholder="Enter Bank Name"
-                    options={banks}
-                    value={banks.find((option) => option.value === values.bank)}
-                    onChange={(option) =>
-                      handleChange({
-                        target: { name: "bank", value: option.value },
-                      })
-                    }
-                    error={touched.bank && errors.bank}
-                    disabled={selectedExposureType === "shipment"}
-                    showError={showError}
-                    required={true}
+                      label="Bank"
+                      type="select"
+                      name="bank"
+                      placeholder="Enter Bank Name"
+                      options={banks}
+                      value={banks.find(
+                        (option) => option.value === values.bank
+                      )}
+                      onChange={(option) =>
+                        handleChange({
+                          target: { name: "bank", value: option.value },
+                        })
+                      }
+                      error={touched.bank && errors.bank}
+                      disabled={selectedExposureType === "shipment"}
+                      showError={showError}
+                      required={true}
                     />
                   )}
                   <CustomInput
@@ -504,7 +504,9 @@ const ExposureForm = ({ submitExportForm }: any) => {
                       // Auto-fill hedgeRate & hedgeAmount
                       if (selectedDeal) {
                         setFieldValue("hedgeRate", selectedDeal.hedgeRate);
-                        setFieldValue("hedgeAmount", selectedDeal.hedgeAmount);
+                        setFieldValue("deliveryDateFrom",selectedDeal.deliveryDateFrom);
+                        setFieldValue("deliveryDateTo",selectedDeal.deliveryDateTo);
+                        // setFieldValue("hedgeAmount", selectedDeal.hedgeAmount);
                       }
                     }}
                     error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
@@ -523,16 +525,37 @@ const ExposureForm = ({ submitExportForm }: any) => {
                         showError={showError}
                         disabled={true}
                       />
+                      <CustomInput
+                        label="Delivery Date From"
+                        name="deliveryDateFrom"
+                        placeholder="Delivery Date From"
+                        value={values.deliveryDateFrom}
+                        onChange={handleChange}
+                        error={touched.deliveryDateFrom && errors.deliveryDateFrom}
+                        showError={showError}
+                        disabled={true}
+                      />
+                      <CustomInput
+                        label="Delivery Date To"
+                        name="deliveryDateTo"
+                        placeholder="Delivery Date From"
+                        value={values.deliveryDateTo}
+                        onChange={handleChange}
+                        error={touched.deliveryDateTo && errors.deliveryDateTo}
+                        showError={showError}
+                        disabled={true}
+                      />
 
                       <CustomInput
                         label="Hedge Amount"
                         name="hedgeAmount"
-                        placeholder="Amount (Auto-populated)"
+                        type="number"
+                        placeholder="Hedge Amount"
                         value={values.hedgeAmount}
                         onChange={handleChange}
                         error={touched.hedgeAmount && errors.hedgeAmount}
                         showError={showError}
-                        disabled={true}
+                        // disabled={true}
                       />
                     </>
                   )}

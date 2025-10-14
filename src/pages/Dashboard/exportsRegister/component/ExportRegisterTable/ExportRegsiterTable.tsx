@@ -121,8 +121,7 @@ const ExportRegisterTable = () => {
 const ExportRegisterTableColumns = [
   { headerName: "Created On", key: "createdAt" },
   { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
-  // { headerName: "Month", key: "month" },
-  { headerName: "Exposure Type", key: "exposureType" },
+  { headerName: "Exposure Type", key: "exposureType"},
   { headerName: "Exposure Date", key: "exposureInputDate" },
   { headerName: "Exposure Modification Date", key: "exposureModificationDate" },
   { headerName: "PO Date", key: "poDate" },
