@@ -4,7 +4,7 @@ import {
   Flex,
   SimpleGrid,
   useToast,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
@@ -17,14 +17,18 @@ import {
   primaryButtonStyle,
 } from "../../../../globalStyles";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
-import { currencyOptions, dummyHedgeDeals, dummyPoData, hedgeDealOptions, importExposureTypeOptions } from "./utils/constant";
-
-
+import {
+  currencyOptions,
+  dummyHedgeDeals,
+  dummyPoData,
+  hedgeDealOptions,
+  importExposureTypeOptions,
+} from "./utils/constant";
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);
   const [poData, setPoData] = useState<any[]>([]);
-  console.log(poData);
+  // console.log(poData);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL;
@@ -33,7 +37,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const fetchPoDetails = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${url}/importregister/polist/`);
+      const response: any = await axios.post(`${url}/importregister/polist/`);
       const result = response.data?.data || [];
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
@@ -45,7 +49,12 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
         ...item,
       }));
       setLoading(false);
-      setPoData(exportRegOptions);
+      console.log("--------", response.status);
+      if (response.status === "success" || response.status === 200) {
+        setPoData(exportRegOptions);
+      } else {
+        setPoData(dummyPoData);
+      }
     } catch (error) {
       setPoData([]);
     } finally {
@@ -71,16 +80,16 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
     amount: Yup.number().required("Amount is required"),
     budgetRate: Yup.string().required("Budget Rate is required"),
 
-       invoiceNo: Yup.string().when("exposureType", {
-          is: (val: string) => val !== "da_dp",
-          then: (schema) => schema.required("Invoice No is required"),
-          otherwise: (schema) => schema.notRequired(),
-        }),
-        invoiceDate: Yup.date().when("exposureType", {
-          is: (val: string) => val !== "da_dp",
-          then: (schema) => schema.required("Invoice Date is required"),
-          otherwise: (schema) => schema.notRequired(),
-        }),
+    invoiceNo: Yup.string().when("exposureType", {
+      is: (val: string) => val !== "da_dp",
+      then: (schema) => schema.required("Invoice No is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    invoiceDate: Yup.date().when("exposureType", {
+      is: (val: string) => val !== "da_dp",
+      then: (schema) => schema.required("Invoice Date is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     // invoiceNo: Yup.string().nullable(),
     // invoiceDate: Yup.string().nullable(),
 
@@ -89,7 +98,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
     // hedgeAmount: Yup.number().nullable(),
     // remark: Yup.string().nullable(),
   });
-   const handleFormSubmit = (handleSubmit: any, errors: any) => {
+  const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
 
     // Check if there are errors
@@ -147,7 +156,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
             isSubmitting,
             errors,
             touched,
-            handleSubmit
+            handleSubmit,
           }: any) => {
             // Helper function to check if field should be readonly
             const isFieldReadOnly = (fieldName: string) => {
@@ -201,15 +210,15 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                         placeholder="Select PO No"
                         name="poNo"
                         type="select"
-                        options={dummyPoData.map((item: any) => ({
+                        options={poData.map((item: any) => ({
                           label: item.poNo,
                           value: item.poNo,
                         }))}
-                        value={dummyPoData.find(
+                        value={poData.find(
                           (option: any) => option.value === values.poNo
                         )}
                         onChange={(selectedOption) => {
-                          const selectedPo = dummyPoData.find(
+                          const selectedPo = poData.find(
                             (item: any) => item.poNo === selectedOption.value
                           );
 
@@ -251,10 +260,21 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     )}
 
                     {/* PO Date */}
-                    <CustomInput
+                    {/* <CustomInput
                       label="PO Date"
                       name="poDate"
                       type="date"
+                      value={values.poDate}
+                      onChange={handleChange}
+                      error={touched.poDate && errors.poDate}
+                      showError={showError}
+                      required={true}
+                      /> */}
+                    <CustomInput
+                      label="PO Date"
+                      name="poDate"
+                      type={ selectedExposureType === "lc_bc_shifting" ? "text" : "date"}
+                      placeholder="PO Date"
                       value={values.poDate}
                       onChange={handleChange}
                       error={touched.poDate && errors.poDate}
@@ -506,19 +526,21 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                   />
 
                   <Flex justify={"end"}>
-
-                        <Button
-                                        rounded={"full"}
-                                        fontWeight={500}
-                                        {...primaryButtonStyle}
-                                        _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
-                                        transition={"transform 0.3s ease-in-out"}
-                                        onClick={() => handleFormSubmit(handleSubmit, errors)}
-                                        size="lg"
-                                        isLoading={isSubmitting}
-                                      >
-                                        Submit
-                                      </Button>
+                    <Button
+                      rounded={"full"}
+                      fontWeight={500}
+                      {...primaryButtonStyle}
+                      _hover={{
+                        ...primaryButtonHoverStyle,
+                        border: "1px solid",
+                      }}
+                      transition={"transform 0.3s ease-in-out"}
+                      onClick={() => handleFormSubmit(handleSubmit, errors)}
+                      size="lg"
+                      isLoading={isSubmitting}
+                    >
+                      Submit
+                    </Button>
                     {/* <Button
                       rounded={"full"}
                       fontWeight={500}

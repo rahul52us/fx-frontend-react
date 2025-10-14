@@ -336,7 +336,24 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     required={true}
                     disabled={selectedExposureType === "shipment"}
                   />
-                  <CustomInput
+                  {selectedExposureType === "shipment" ? (
+                    
+                    <CustomInput
+                      label="Bank"
+                      // type="select"
+                      name="bank"
+                      placeholder="Enter Bank Name"
+                      // options={banks}
+                      value={values.bank}
+                      onChange={handleChange}
+                      
+                      error={touched.bank && errors.bank}
+                      disabled={selectedExposureType === "shipment"}
+                      showError={showError}
+                      required={true}
+                    />
+                  ):(
+                    <CustomInput
                     label="Bank"
                     type="select"
                     name="bank"
@@ -352,7 +369,8 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     disabled={selectedExposureType === "shipment"}
                     showError={showError}
                     required={true}
-                  />
+                    />
+                  )}
                   <CustomInput
                     label="Business Units"
                     name="businessUnit"
