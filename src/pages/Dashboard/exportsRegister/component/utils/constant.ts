@@ -12,7 +12,7 @@ export const exposureTypeOptions = [
 export const exportRegisterexposureTypeOptions = [
   { label: "Shipment", value: "shipment" },
   { label: "Confirmed Order", value: "confirmed_order" },
-]
+];
 
 export const priorityOptions = [
   { label: "High", value: "high" },
@@ -54,7 +54,7 @@ export const modeOfConversionOptions = [
 export const pcfcModeOfConversionOptions = [
   { label: "Spot Conversion", value: "spot" },
   { label: "Forward", value: "forward" },
-]
+];
 
 export const dealTypeOptions = [
   { label: "A", value: "a" },
@@ -179,14 +179,14 @@ export const dummyImportRegisterData = [
     poDate: "2025-06-12",
     blDate: "2025-06-11",
     collectionDate: "2025-06-20",
-    exposureModificationDate:"2025-06-15",
+    exposureModificationDate: "2025-06-15",
     amount: "56",
     adjustmentAmount: "3",
     currency: "IND",
     budgetRate: "4",
     hedgedAmount: "8",
-    dueDate:"2025-06-24",
-    hedgeDealRefNo:"234",
+    dueDate: "2025-06-24",
+    hedgeDealRefNo: "234",
     poNo: "234234",
     invoiceNo: "5",
     invoiceDate: "2025-06-15",
@@ -201,11 +201,10 @@ export const dummyImportRegisterData = [
   },
 ];
 
-
 export const dummyExporPOtData = [
   {
     poNo: "899",
-    poDate: "2025-10-15", 
+    poDate: "15.10.2025",
     partyName: "name",
     bank: "bank name",
     businessUnit: "7",
@@ -213,5 +212,14 @@ export const dummyExporPOtData = [
     currency: "USD",
     budgetRate: "8",
   },
-];
-
+  {
+    poNo: "8996666",
+    poDate: "15.10.2025",
+    partyName: "name",
+    bank: "bank name",
+    businessUnit: "7",
+    paymentTerms: "200",
+    currency: "USD",
+    budgetRate: "8",
+  },
+]
