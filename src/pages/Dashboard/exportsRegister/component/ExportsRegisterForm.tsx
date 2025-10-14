@@ -1,11 +1,10 @@
 import {
   Box,
   Button,
-  Divider,
   Flex,
   SimpleGrid,
   VStack,
-  useToast,
+  useToast
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
@@ -21,12 +20,12 @@ import {
   dummyHedgeDeals,
   hedgeDealOptions,
 } from "../../importsRegister/component/utils/constant";
+import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 import {
   currencyOptions,
   dummyExporPOtData,
   exportRegisterexposureTypeOptions,
 } from "./utils/constant";
-import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 
 const ExposureForm = ({ submitExportForm }: any) => {
   const [showError, setShowError] = useState(false);
@@ -176,7 +175,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
           }: any) => (
             <FormikForm>
               <VStack spacing={6} align="stretch">
-                <Divider mb={4} />
                 <SimpleGrid columns={[1, null, 2]} spacing={8}>
                   <CustomInput
                     label="Exposure Type"
@@ -315,9 +313,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     //   showError={showError}
                     // />
                   )}
-
-                  {console.log(values.poDate)}
-
                   <CustomInput
                     label="PO Date"
                     name="poDate"
@@ -355,18 +350,9 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     }
                     error={touched.bank && errors.bank}
                     disabled={selectedExposureType === "shipment"}
-                    // showError={showError}
+                    showError={showError}
+                    required={true}
                   />
-                  {/* <CustomInput
-                      label="Bank"
-                      name="bank"
-                      placeholder="Enter Bank"
-                      value={values.bank}
-                      onChange={handleChange}
-                      error={touched.bank && errors.bank}
-                      showError={showError}
-                      required={true}
-                    /> */}
                   <CustomInput
                     label="Business Units"
                     name="businessUnit"
@@ -462,6 +448,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                   <CustomInput
                     label="Amount"
                     name="amount"
+                    placeholder="Enter Amount"
                     type="number"
                     value={values.amount}
                     onChange={handleChange}
