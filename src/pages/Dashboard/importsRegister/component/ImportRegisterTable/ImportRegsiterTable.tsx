@@ -149,10 +149,10 @@ const ImportRegisterTable = () => {
   // ];
   
 const ImportRegisterTableColumns = [
-  { headerName: "Created On", key: "createdAt" },
   { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
+  { headerName: "Created On", key: "createdAt" },
   // { headerName: "Month", key: "month" },
-  { headerName: "Exposure Type", key: "exposureType" },
+  { headerName: "Exposure Type", key: "exposureType", props: { row: { textAlign: "center" } } },
   { headerName: "Exposure Date", key: "exposureInputDate" },
   { headerName: "Exposure Modification Date", key: "exposureModificationDate" },
   { headerName: "PO Date", key: "poDate" },

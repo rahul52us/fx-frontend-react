@@ -297,6 +297,7 @@ const GenerateRows: React.FC<{
         <Td
           whiteSpace="normal"
           cursor="pointer"
+           px={'1.25rem'}
           fontSize="sm"
           {...column?.props?.row}
           {...cellProps}
@@ -399,6 +400,7 @@ const GenerateRows: React.FC<{
         <Td
           whiteSpace="normal"
           cursor="pointer"
+           px={'1.25rem'}
           fontSize="sm"
           {...column?.props?.row}
           {...cellProps}
@@ -640,7 +642,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   key={colIndex}
                   textAlign="center"
                   // minW={'8rem'}
-                  px={'1rem'}
+                  px={'1.25rem'}
                   position={column?.props?.isSticky ? "sticky" : "relative"}
                   right={column?.props?.isSticky ? "0" : undefined}
                   // bg={headerBg}
