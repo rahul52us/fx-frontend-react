@@ -59,7 +59,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
     currency: Yup.mixed().required("Currency is required"),
     amount: Yup.number().required("Amount is required"),
     budgetRate: Yup.string().required("Budget Rate is required"),
-    remark: Yup.string().nullable(),
+    // remark: Yup.string().nullable(),
     dueDate: Yup.string().required("Due Date is required"),
   });
 
@@ -339,6 +339,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     error={touched.partyName && errors.partyName}
                     showError={showError}
                     required={true}
+                    disabled={selectedExposureType === "shipment"}
                   />
                   <CustomInput
                     label="Bank"
@@ -375,6 +376,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     error={touched.businessUnit && errors.businessUnit}
                     showError={showError}
                     required={true}
+                    disabled={selectedExposureType === "shipment"}
                   />
                   <CustomInput
                     label="Invoice No"
@@ -424,6 +426,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     error={touched.paymentTerms && errors.paymentTerms}
                     showError={showError}
                     required={true}
+                    disabled={selectedExposureType === "shipment"}
                   />
                   <CustomInput
                     label="Due Date"
@@ -454,6 +457,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     error={touched.currency && errors.currency}
                     showError={showError}
                     required={true}
+                    disabled={selectedExposureType === "shipment"}
                   />
                   <CustomInput
                     label="Amount"
