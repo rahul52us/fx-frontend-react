@@ -2,7 +2,6 @@ export const currencyOptions = [
   { label: 'IND', value: 'IND' },
   { label: 'USD', value: 'USD' },
   { label: 'EUR', value: 'EUR' },
-  { label: 'GBP', value: 'GBP' },
 ];
 
 export const exposureTypeOptions = [
@@ -158,3 +157,26 @@ export const hedgeDeals = [
     exposureType: "Export",
   },
 ];
+
+
+export const dummyHedgeDeals = [
+  {
+    hedgeDealRefNo: "HD001",
+    hedgeAmount: "50000",
+    hedgeRate: "83.25",
+  },
+  {
+    hedgeDealRefNo: "HD002",
+    hedgeAmount: "60000",
+    hedgeRate: "90.50",
+  },
+  {
+    hedgeDealRefNo: "HD003",
+    hedgeAmount: "70000",
+    hedgeRate: "105.75",
+  },
+];
+export const hedgeDealOptions = dummyHedgeDeals.map((item) => ({
+  label: item.hedgeDealRefNo,
+  value: item.hedgeDealRefNo,
+}));

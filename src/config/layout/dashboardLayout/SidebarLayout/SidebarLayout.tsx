@@ -29,12 +29,12 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { primaryColor, secondaryColor } from "../../../../globalColors";
+import { glassCardStyle } from "../../../../globalStyles";
 import store from "../../../../store/store";
 import { mediumSidebarWidth, sidebarWidth } from "../../../constant/variable";
 import SidebarLogo from "./component/SidebarLogo";
 import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
-import { primaryColor, secondaryColor } from "../../../../globalColors";
-import { glassCardStyle } from "../../../../globalStyles";
 
 export interface SidebarItem {
   id: number;
@@ -409,8 +409,9 @@ const SidebarAccordion = observer(
                       <Flex align="center">
                         {renderIcon(depth, item.icon, colorMode)}
                         <Text
-                          fontSize={isMainMenu ? "sm" : "sxs"} // smaller font for children
-                          ml={depth === 0 ? 3 : 6} // indent children
+                          fontSize={isMainMenu ? "sm" : "xs"} // smaller font for children
+                          ml={depth === 0 ? 3 : 4} // indent children
+                          
                         >
                           {item.name}
                         </Text>

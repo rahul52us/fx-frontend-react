@@ -1,27 +1,25 @@
-import { useEffect, useRef } from "react";
-import { Suspense } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import HeaderLayout from "./HeaderLayout/HeaderLayout";
-import {
-  headerHeight,
-} from "../../constant/variable";
-import Loader from "../../component/Loader/Loader";
-import { observer } from "mobx-react-lite";
-import store from "../../../store/store";
-import styled from "styled-components";
-import SidebarLayout from "./SidebarLayout/SidebarLayout";
 import {
   Box,
   useBreakpointValue,
   useMediaQuery,
   useTheme,
 } from "@chakra-ui/react";
-import PermissionDeniedPage from "../../component/commonPages/PermissionDeniedPage";
-import { authentication } from "../../constant/routes";
+import { observer } from "mobx-react-lite";
+import { Suspense, useEffect, useRef } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import { glassCardStyle } from "../../../globalStyles";
+import store from "../../../store/store";
+import PermissionDeniedPage from "../../component/commonPages/PermissionDeniedPage";
+import Loader from "../../component/Loader/Loader";
+import { authentication } from "../../constant/routes";
+import {
+  headerHeight,
+} from "../../constant/variable";
+import HeaderLayout from "./HeaderLayout/HeaderLayout";
+import SidebarLayout from "./SidebarLayout/SidebarLayout";
 const RedirectComponent = observer(() => {
   const navigate = useNavigate();
-
   const {
     auth: { restoreUser },
   } = store;
@@ -45,10 +43,8 @@ const DashboardLayout = observer(() => {
       setOpenMobileSideDrawer,
     },
   } = store;
-
   const navigate = useNavigate();
   const theme = useTheme();
-
   const [sizeStatus] = useMediaQuery(`(max-width: ${theme.breakpoints.xl})`);
   const isMobile = useBreakpointValue({ base: true, lg: false }) ?? false;
   const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -141,14 +137,12 @@ const MainContainer = styled.div<{ isMobile: boolean }>`
   transition: all 0.3s ease-in-out;
   overflow: hidden;
 `;
-
 const Container = styled.div<{ fullScreenMode: boolean }>`
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease-in-out;
   WIDTH: 100%;
 `;
-
 const HeaderContainer = styled.div<{
   fullScreenMode: boolean;
   sizeStatus: boolean;
@@ -160,7 +154,7 @@ const HeaderContainer = styled.div<{
   position: sticky;
   top: 0;
   right: 0;  
-  // width: ${({ isMobile }) => (isMobile ? "100%" : "calc(100% - 250px)")};
+
   transition: all 0.3s ease-in-out;
   display: flex;
   align-items: center;
@@ -173,8 +167,8 @@ const ContentContainer = styled.div<{
   mediumScreenMode: boolean;
   isMobile: boolean;
 }>`
-  padding:5px 20px;
-  overflow-x: hidden;
+  padding:5px 10px;
+  overflow-x: auto;
   height: calc(100vh - ${headerHeight});
   transition: all 0.3s ease-in-out;  
 `;

@@ -26,18 +26,18 @@ const ForwardCancellationTable = () => {
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
+
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
-      // let payload = type === "excel" ? values : [values];
       let payload = {
         userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        // "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/form/",
         `${url}/forwardCancellationpcfc/form/`,
         payload
       );
+      console.log('response-------',response)
 
       if (response.status === 200 && response.data.status === "success") {
         toast({
@@ -66,14 +66,14 @@ const ForwardCancellationTable = () => {
         });
       }
     } catch (error: any) {
-      // toast({
-      //   title: "Error",
-      //   description: error?.response?.data?.message || "Something went wrong.",
-      //   status: "error",
-      //   duration: 5000,
-      //   isClosable: true,
-      //   position: "top-right",
-      // });
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Something went wrong.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
     } finally {
       actions.setSubmitting(false);
     }

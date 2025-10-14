@@ -16,74 +16,53 @@ import {
   primaryButtonStyle,
 } from "../../../../globalStyles";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
-import {
-  currencyOptions,
-  importExposureTypeOptions,
-} from "./utils/constant";
+import { currencyOptions, dummyHedgeDeals, hedgeDealOptions, importExposureTypeOptions } from "./utils/constant";
+import Loader from "../../../../config/component/Loader/Loader";
 
 // Dummy data for autofill (LC/BC Shifting)
 const dummyPoData = [
   {
-    value: 'PO001',
-    label: 'PO001',
-    poNo: 'PO001',
-    poDate: '2024-01-15',
-    partyName: 'ABC Corp',
-    bank: 'hdfc',
-    businessUnit: 'Unit A',
-    paymentTerms: 'Net 30',
-    currency: 'usd',
-    budgetRate: '82.50'
+    value: "PO001",
+    label: "PO001",
+    poNo: "PO001",
+    poDate: "2024-01-15",
+    partyName: "ABC Corp",
+    bank: "hdfc",
+    businessUnit: "Unit A",
+    paymentTerms: "Net 30",
+    currency: "usd",
+    budgetRate: "82.50",
   },
   {
-    value: 'PO002',
-    label: 'PO002',
-    poNo: 'PO002',
-    poDate: '2024-02-10',
-    partyName: 'XYZ Ltd',
-    bank: 'icici',
-    businessUnit: 'Unit B',
-    paymentTerms: 'Net 60',
-    currency: 'eur',
-    budgetRate: '89.75'
+    value: "PO002",
+    label: "PO002",
+    poNo: "PO002",
+    poDate: "2024-02-10",
+    partyName: "XYZ Ltd",
+    bank: "icici",
+    businessUnit: "Unit B",
+    paymentTerms: "Net 60",
+    currency: "eur",
+    budgetRate: "89.75",
   },
   {
-    value: 'PO003',
-    label: 'PO003',
-    poNo: 'PO003',
-    poDate: '2024-03-05',
-    partyName: 'Global Traders',
-    bank: 'sbi',
-    businessUnit: 'Unit C',
-    paymentTerms: 'Net 45',
-    currency: 'gbp',
-    budgetRate: '104.20'
-  }
-];
-
-// Dummy hedge deals for auto-populating hedge rate
-const dummyHedgeDeals = [
-  {
-    value: 'HD001',
-    label: 'HD001',
-    hedgeRate: '83.25'
+    value: "PO003",
+    label: "PO003",
+    poNo: "PO003",
+    poDate: "2024-03-05",
+    partyName: "Global Traders",
+    bank: "sbi",
+    businessUnit: "Unit C",
+    paymentTerms: "Net 45",
+    currency: "gbp",
+    budgetRate: "104.20",
   },
-  {
-    value: 'HD002',
-    label: 'HD002',
-    hedgeRate: '90.50'
-  },
-  {
-    value: 'HD003',
-    label: 'HD003',
-    hedgeRate: '105.75'
-  }
 ];
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);
   const [poData, setPoData] = useState<any[]>([]);
-  console.log(poData)
+  console.log(poData);
   const [loading, setLoading] = useState(true);
   const url = process.env.REACT_APP_FX_BASE_URL;
 
@@ -137,6 +116,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
 
   return (
     <Box maxW="5xl" mx="auto" borderRadius="2xl">
+      {loading && <Loader />}
       {!loading && (
         <Formik
           initialValues={{
@@ -243,8 +223,14 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                             setFieldValue("poDate", selectedPo.poDate);
                             setFieldValue("partyName", selectedPo.partyName);
                             setFieldValue("bank", selectedPo.bank);
-                            setFieldValue("businessUnit", selectedPo.businessUnit);
-                            setFieldValue("paymentTerms", selectedPo.paymentTerms);
+                            setFieldValue(
+                              "businessUnit",
+                              selectedPo.businessUnit
+                            );
+                            setFieldValue(
+                              "paymentTerms",
+                              selectedPo.paymentTerms
+                            );
                             setFieldValue("currency", selectedPo.currency);
                             setFieldValue("budgetRate", selectedPo.budgetRate);
                           }
@@ -313,7 +299,9 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                         name="bank"
                         placeholder="Select Bank"
                         options={banks}
-                        value={banks.find((option) => option.value === values.bank)}
+                        value={banks.find(
+                          (option) => option.value === values.bank
+                        )}
                         onChange={(selectedOption: any) =>
                           setFieldValue("bank", selectedOption.value)
                         }
@@ -449,55 +437,61 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       disabled={isFieldReadOnly("budgetRate")}
                     />
 
-                    {/* Hedge Deal Ref No - Optional with auto-populate */}
                     <CustomInput
                       label="Hedge Deal Ref No"
                       name="hedgeDealRefNo"
                       type="select"
                       placeholder="Select Reference No"
-                      options={dummyHedgeDeals}
-                      value={dummyHedgeDeals.find(
+                      options={hedgeDealOptions}
+                      value={hedgeDealOptions.find(
                         (option: any) => option.value === values.hedgeDealRefNo
                       )}
                       onChange={(selectedOption) => {
                         const selectedDeal = dummyHedgeDeals.find(
-                          (item: any) => item.value === selectedOption.value
+                          (item: any) =>
+                            item.hedgeDealRefNo === selectedOption.value
                         );
-
+                        // Set selected deal ref
                         setFieldValue("hedgeDealRefNo", selectedOption.value);
 
+                        // Auto-fill hedgeRate & hedgeAmount
                         if (selectedDeal) {
-                          // Auto-populate hedge rate
                           setFieldValue("hedgeRate", selectedDeal.hedgeRate);
+                          setFieldValue(
+                            "hedgeAmount",
+                            selectedDeal.hedgeAmount
+                          );
                         }
                       }}
                       error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
                       showError={showError}
                     />
 
-                    {/* Hedge Rate - Auto-populated from Hedge Deal */}
-                    <CustomInput
-                      label="Hedge Rate"
-                      name="hedgeRate"
-                      placeholder="Rate (Auto-populated)"
-                      value={values.hedgeRate}
-                      onChange={handleChange}
-                      error={touched.hedgeRate && errors.hedgeRate}
-                      showError={showError}
-                      disabled={!!values.hedgeDealRefNo}
-                    />
+                    {values.hedgeDealRefNo && (
+                      <>
+                        <CustomInput
+                          label="Hedge Rate"
+                          name="hedgeRate"
+                          placeholder="Rate (Auto-populated)"
+                          value={values.hedgeRate}
+                          onChange={handleChange}
+                          error={touched.hedgeRate && errors.hedgeRate}
+                          showError={showError}
+                          disabled={true}
+                        />
 
-                    {/* Hedge Amount - Optional */}
-                    <CustomInput
-                      label="Hedge Amount"
-                      name="hedgeAmount"
-                      type="number"
-                      placeholder="Enter Amount"
-                      value={values.hedgeAmount}
-                      onChange={handleChange}
-                      error={touched.hedgeAmount && errors.hedgeAmount}
-                      showError={showError}
-                    />
+                        <CustomInput
+                          label="Hedge Amount"
+                          name="hedgeAmount"
+                          placeholder="Amount (Auto-populated)"
+                          value={values.hedgeAmount}
+                          onChange={handleChange}
+                          error={touched.hedgeAmount && errors.hedgeAmount}
+                          showError={showError}
+                          disabled={true}
+                        />
+                      </>
+                    )}
                   </SimpleGrid>
 
                   {/* Remark */}
@@ -517,7 +511,10 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       rounded={"full"}
                       fontWeight={500}
                       {...primaryButtonStyle}
-                      _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
+                      _hover={{
+                        ...primaryButtonHoverStyle,
+                        border: "1px solid",
+                      }}
                       transition={"transform 0.3s ease-in-out"}
                       type="submit"
                       size="lg"
@@ -537,14 +534,6 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
 };
 
 export default ImportRegistrationForm;
-
-
-
-
-
-
-
-
 
 // import {
 //   Box,

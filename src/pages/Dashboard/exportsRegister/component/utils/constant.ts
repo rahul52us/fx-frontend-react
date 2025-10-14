@@ -200,3 +200,18 @@ export const dummyImportRegisterData = [
     remark: "Sample remark for shipment",
   },
 ];
+
+
+export const dummyExporPOtData = [
+  {
+    poNo: "899",
+    poDate: "2025-10-15", 
+    partyName: "name",
+    bank: "bank name",
+    businessUnit: "7",
+    paymentTerms: "100",
+    currency: "USD",
+    budgetRate: "8",
+  },
+];
+
