@@ -411,6 +411,7 @@ const SidebarAccordion = observer(
                         <Text
                           fontSize={isMainMenu ? "sm" : "xs"} // smaller font for children
                           ml={depth === 0 ? 3 : 4} // indent children
+                          textAlign={'start'}
                           
                         >
                           {item.name}

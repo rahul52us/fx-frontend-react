@@ -97,7 +97,7 @@ export const dealTypeOptions = [
 
 export const hedgeDeals = [
   {
-    hedgeDealRefNo: "HDL-001",
+    hedgeDealRefNumber: "HDL-001",
     hedgeRate: 83.45,
     currency: "USD",
     bank: "HDFC Bank",
@@ -109,7 +109,7 @@ export const hedgeDeals = [
     exposureType: "Import",
   },
   {
-    hedgeDealRefNo: "HDL-002",
+    hedgeDealRefNumber: "HDL-002",
     hedgeRate: 91.2,
     currency: "EUR",
     bank: "ICICI Bank",
@@ -121,7 +121,7 @@ export const hedgeDeals = [
     exposureType: "Import",
   },
   {
-    hedgeDealRefNo: "HDL-003",
+    hedgeDealRefNumber: "HDL-003",
     hedgeRate: 106.75,
     currency: "JPY",
     bank: "Axis Bank",
@@ -133,7 +133,7 @@ export const hedgeDeals = [
     exposureType: "Export",
   },
   {
-    hedgeDealRefNo: "HDL-004",
+    hedgeDealRefNumber: "HDL-004",
     hedgeRate: 0.79,
     currency: "GBP",
     bank: "SBI",
@@ -145,7 +145,7 @@ export const hedgeDeals = [
     exposureType: "Import",
   },
   {
-    hedgeDealRefNo: "HDL-005",
+    hedgeDealRefNumber: "HDL-005",
     hedgeRate: 1.11,
     currency: "CHF",
     bank: "Yes Bank",
@@ -161,30 +161,33 @@ export const hedgeDeals = [
 
 export const dummyHedgeDeals = [
   {
-    hedgeDealRefNo: "HD001",
+    hedgeDealRefNumber: "HD001",
     hedgeAmount: "50000",
     hedgeRate: "83.25",
     deliveryDateFrom: "2025-10-15",
     deliveryDateTo: "2025-11-15",
+    outstandingAmount: "20000",
   },
   {
-    hedgeDealRefNo: "HD002",
+    hedgeDealRefNumber: "HD002",
     hedgeAmount: "60000",
     hedgeRate: "90.50",
     deliveryDateFrom: "2025-09-20",
     deliveryDateTo: "2025-10-20",
+    outstandingAmount: "30000",
   },
   {
-    hedgeDealRefNo: "HD003",
+    hedgeDealRefNumber: "HD003",
     hedgeAmount: "70000",
     hedgeRate: "105.75",
     deliveryDateFrom: "2025-11-01",
     deliveryDateTo: "2025-12-01",
+    outstandingAmount: "40000",
   },
 ];
 export const hedgeDealOptions = dummyHedgeDeals.map((item) => ({
-  label: item.hedgeDealRefNo,
-  value: item.hedgeDealRefNo,
+  label: item.hedgeDealRefNumber,
+  value: item.hedgeDealRefNumber,
 }));
 
 

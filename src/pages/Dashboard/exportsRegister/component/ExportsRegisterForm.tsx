@@ -58,8 +58,18 @@ const ExposureForm = ({ submitExportForm }: any) => {
     currency: Yup.mixed().required("Currency is required"),
     amount: Yup.number().required("Amount is required"),
     budgetRate: Yup.string().required("Budget Rate is required"),
-    // remark: Yup.string().nullable(),
-    dueDate: Yup.string().required("Due Date is required"),
+    // dueDate: Yup.string().required("Due Date is required"),
+   dueDate: Yup.date()
+  .transform((value, originalValue) => {
+    return originalValue ? new Date(originalValue) : value;
+  })
+  .required("Due Date is required")
+  .when("blDate", (blDate: any, schema: any) => {
+    const dateValue = Array.isArray(blDate) ? blDate[0] : blDate;
+    return dateValue
+      ? schema.min(new Date(dateValue), "Due Date must be after BL Date")
+      : schema;
+  }),
   });
 
   const fetchPoDetails = async () => {
@@ -129,9 +139,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
 
     handleSubmit();
   };
-
-  // console.table('podata',poData)
-
   return (
     <Box maxW="5xl" mx="auto" borderRadius="2xl">
       {loading && <Loader />}
@@ -277,41 +284,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
                       error={touched.poNo && errors.poNo}
                       showError={showError}
                     />
-                    // <CustomInput
-                    //   label="PO No"
-                    //   placeholder="Select PO No"
-                    //   name="poNo"
-                    //   type="select"
-                    //   options={poData}
-                    //   required={true}
-                    //   value={poData.find(
-                    //     (option: any) => option.value === values.poNo
-                    //   )}
-                    //   onChange={(selectedOption) => {
-                    //     const selectedPo = poData.find(
-                    //       (item: any) => item.poNo === selectedOption.value
-                    //     );
-
-                    //     if (selectedPo) {
-                    //       setFieldValue("poNo", selectedPo.poNo);
-                    //       setFieldValue("poDate", formatDateForInput(selectedPo.poDate));
-                    //       setFieldValue("partyName", selectedPo.partyName);
-                    //       setFieldValue("bank", selectedPo.bank);
-                    //       setFieldValue(
-                    //         "businessUnit",
-                    //         selectedPo.businessUnit
-                    //       );
-                    //       setFieldValue(
-                    //         "paymentTerms",
-                    //         selectedPo.paymentTerms
-                    //       );
-                    //       setFieldValue("currency", selectedPo.currency);
-                    //       setFieldValue("budgetRate", selectedPo.budgetRate);
-                    //     }
-                    //   }}
-                    //   error={touched.poNo && errors.poNo}
-                    //   showError={showError}
-                    // />
                   )}
                   <CustomInput
                     label="PO Date"
@@ -482,6 +454,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     onChange={handleChange}
                     error={touched.budgetRate && errors.budgetRate}
                     showError={showError}
+                    disabled={selectedExposureType === "shipment"}
                     required={true}
                   />
                   <CustomInput
@@ -496,7 +469,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     onChange={(selectedOption) => {
                       const selectedDeal = dummyHedgeDeals.find(
                         (item: any) =>
-                          item.hedgeDealRefNo === selectedOption.value
+                          item.hedgeDealRefNumber === selectedOption.value
                       );
                       // Set selected deal ref
                       setFieldValue("hedgeDealRefNo", selectedOption.value);
@@ -506,6 +479,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                         setFieldValue("hedgeRate", selectedDeal.hedgeRate);
                         setFieldValue("deliveryDateFrom",selectedDeal.deliveryDateFrom);
                         setFieldValue("deliveryDateTo",selectedDeal.deliveryDateTo);
+                        setFieldValue("outstandingAmount",selectedDeal.outstandingAmount);
                         // setFieldValue("hedgeAmount", selectedDeal.hedgeAmount);
                       }
                     }}
@@ -555,7 +529,17 @@ const ExposureForm = ({ submitExportForm }: any) => {
                         onChange={handleChange}
                         error={touched.hedgeAmount && errors.hedgeAmount}
                         showError={showError}
-                        // disabled={true}
+                      />
+                      <CustomInput
+                        label="Outstanding Amount"
+                        name="outstandingAmount"
+                        type="number"
+                        placeholder="Hedge Amount"
+                        value={values.outstandingAmount}
+                        onChange={handleChange}
+                        error={touched.outstandingAmount && errors.outstandingAmount}
+                        showError={showError}
+                        disabled={true}
                       />
                     </>
                   )}
