@@ -211,6 +211,7 @@ export const dummyExporPOtData = [
     paymentTerms: "100",
     currency: "USD",
     budgetRate: "8",
+    outStandingAmount: "100000",
   },
   {
     poNo: "8996666",
@@ -221,5 +222,6 @@ export const dummyExporPOtData = [
     paymentTerms: "200",
     currency: "USD",
     budgetRate: "8",
+    outStandingAmount: "2300",
   },
 ]

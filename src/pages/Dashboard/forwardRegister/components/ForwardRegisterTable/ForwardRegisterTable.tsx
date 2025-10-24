@@ -193,7 +193,7 @@ const ForwardRegisterTable = () => {
         actions={{
           search: { show: false },
           resetData: {
-            show: true,
+            show: false,
             text: "Reset Data",
             function: fetchExportRegisterData,
           },

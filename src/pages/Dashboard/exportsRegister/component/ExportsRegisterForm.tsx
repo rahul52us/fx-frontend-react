@@ -56,7 +56,46 @@ const ExposureForm = ({ submitExportForm }: any) => {
     blDate: Yup.string().required("BL Date is required"),
     paymentTerms: Yup.number().required("Payment terms is required"),
     currency: Yup.mixed().required("Currency is required"),
-    amount: Yup.number().required("Amount is required"),
+    // amount: Yup.number().required("Amount is required"),
+
+  amount: Yup.number()
+  .required("Amount is required")
+  .when(["exposureType", "outStandingAmount"], {
+    is: (exposureType: string, outStandingAmount: any) =>
+      exposureType === "shipment" && !!outStandingAmount,
+    then: (schema) =>
+      schema.test(
+        "max-outStandingAmount",
+        function (value) {
+          const { outStandingAmount } = this.parent;
+          if (value && outStandingAmount && value > outStandingAmount) {
+            return this.createError({
+              message: `Amount must be less than or equal to Outstanding Amount (${outStandingAmount})`,
+            });
+          }
+          return true;
+        }
+      ),
+    otherwise: (schema) => schema,
+  }),
+
+
+// amount: Yup.number()
+//   .required("Amount is required")
+//   .when(["exposureType", "outStandingAmount"], {
+//     is: (exposureType: string, outStandingAmount: number) =>
+//       exposureType === "shipment" && !!outStandingAmount,
+//     then: (schema) =>
+//       schema.max(
+//         Yup.ref("outStandingAmount"),
+//         "Amount must be less than or equal to Outstanding Amount"
+//       ),
+//     otherwise: (schema) => schema,
+//   }),
+
+
+
+
     budgetRate: Yup.string().required("Budget Rate is required"),
     // dueDate: Yup.string().required("Due Date is required"),
    dueDate: Yup.date()
@@ -163,6 +202,14 @@ const ExposureForm = ({ submitExportForm }: any) => {
             hedgeDealRefNo: "",
             remark: "",
             dueDate: "",
+            outstandingAmount: "",
+            balanceAmount: "",
+            hedgeAmount:"",
+            hedgeRate:"",
+            deliveryDateFrom:"",
+            deliveryDateTo:""
+            // outStandingAmount: "",
+
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -170,6 +217,8 @@ const ExposureForm = ({ submitExportForm }: any) => {
             setShowError(true);
             submitExportForm(values, actions, "form");
           }}
+ 
+
         >
           {({
             values,
@@ -279,6 +328,9 @@ const ExposureForm = ({ submitExportForm }: any) => {
                           );
                           setFieldValue("currency", selectedPo.currency);
                           setFieldValue("budgetRate", selectedPo.budgetRate);
+                        setFieldValue("outStandingAmount", selectedPo.outStandingAmount || 0);
+
+
                         }
                       }}
                       error={touched.poNo && errors.poNo}
@@ -480,6 +532,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                         setFieldValue("deliveryDateFrom",selectedDeal.deliveryDateFrom);
                         setFieldValue("deliveryDateTo",selectedDeal.deliveryDateTo);
                         setFieldValue("outstandingAmount",selectedDeal.outstandingAmount);
+                        setFieldValue("balanceAmount",selectedDeal.balanceAmount);
                         // setFieldValue("hedgeAmount", selectedDeal.hedgeAmount);
                       }
                     }}
@@ -538,6 +591,17 @@ const ExposureForm = ({ submitExportForm }: any) => {
                         value={values.outstandingAmount}
                         onChange={handleChange}
                         error={touched.outstandingAmount && errors.outstandingAmount}
+                        showError={showError}
+                        disabled={true}
+                      />
+                      <CustomInput
+                        label="Balance Amount"
+                        name="balanceAmount"
+                        type="number"
+                        placeholder="Balance Amount"
+                        value={values.balanceAmount}
+                        onChange={handleChange}
+                        error={touched.balanceAmount && errors.balanceAmount}
                         showError={showError}
                         disabled={true}
                       />

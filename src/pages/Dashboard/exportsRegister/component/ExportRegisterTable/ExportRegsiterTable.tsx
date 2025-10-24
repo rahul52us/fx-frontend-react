@@ -138,6 +138,8 @@ const ExportRegisterTableColumns = [
   { headerName: "Amount", key: "amount" },
   { headerName: "Budget Rate", key: "budgetRate" },
   { headerName: "Hedge Deal Ref No", key: "hedgeDealRefNo" },
+  { headerName: "Outstanding Amount Forward", key: "outstandingAmountForwardReg" },
+  { headerName: "Balance Amount Forward", key: "balanceAmountForwardReg" },
   { headerName: "Hedged Amount", key: "hedgedAmount" },
   { headerName: "Hedged Rate", key: "hedgetRate" },
   { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
