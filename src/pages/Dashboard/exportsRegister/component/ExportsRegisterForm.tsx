@@ -16,11 +16,8 @@ import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
-import {
-  dummyHedgeDeals,
-  hedgeDealOptions,
-} from "../../importsRegister/component/utils/constant";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
+import { HedgeDealSelector } from "./ExportHedgeDealSection";
 import {
   currencyOptions,
   dummyExporPOtData,
@@ -58,57 +55,50 @@ const ExposureForm = ({ submitExportForm }: any) => {
     currency: Yup.mixed().required("Currency is required"),
     // amount: Yup.number().required("Amount is required"),
 
-  amount: Yup.number()
-  .required("Amount is required")
-  .when(["exposureType", "outStandingAmount"], {
-    is: (exposureType: string, outStandingAmount: any) =>
-      exposureType === "shipment" && !!outStandingAmount,
-    then: (schema) =>
-      schema.test(
-        "max-outStandingAmount",
-        function (value) {
-          const { outStandingAmount } = this.parent;
-          if (value && outStandingAmount && value > outStandingAmount) {
-            return this.createError({
-              message: `Amount must be less than or equal to Outstanding Amount (${outStandingAmount})`,
-            });
-          }
-          return true;
-        }
-      ),
-    otherwise: (schema) => schema,
-  }),
+    amount: Yup.number()
+      .required("Amount is required")
+      .when(["exposureType", "outStandingAmount"], {
+        is: (exposureType: string, outStandingAmount: any) =>
+          exposureType === "shipment" && !!outStandingAmount,
+        then: (schema) =>
+          schema.test("max-outStandingAmount", function (value) {
+            const { outStandingAmount } = this.parent;
+            if (value && outStandingAmount && value > outStandingAmount) {
+              return this.createError({
+                message: `Amount must be less than or equal to Outstanding Amount (${outStandingAmount})`,
+              });
+            }
+            return true;
+          }),
+        otherwise: (schema) => schema,
+      }),
 
-
-// amount: Yup.number()
-//   .required("Amount is required")
-//   .when(["exposureType", "outStandingAmount"], {
-//     is: (exposureType: string, outStandingAmount: number) =>
-//       exposureType === "shipment" && !!outStandingAmount,
-//     then: (schema) =>
-//       schema.max(
-//         Yup.ref("outStandingAmount"),
-//         "Amount must be less than or equal to Outstanding Amount"
-//       ),
-//     otherwise: (schema) => schema,
-//   }),
-
-
-
+    // amount: Yup.number()
+    //   .required("Amount is required")
+    //   .when(["exposureType", "outStandingAmount"], {
+    //     is: (exposureType: string, outStandingAmount: number) =>
+    //       exposureType === "shipment" && !!outStandingAmount,
+    //     then: (schema) =>
+    //       schema.max(
+    //         Yup.ref("outStandingAmount"),
+    //         "Amount must be less than or equal to Outstanding Amount"
+    //       ),
+    //     otherwise: (schema) => schema,
+    //   }),
 
     budgetRate: Yup.string().required("Budget Rate is required"),
     // dueDate: Yup.string().required("Due Date is required"),
-   dueDate: Yup.date()
-  .transform((value, originalValue) => {
-    return originalValue ? new Date(originalValue) : value;
-  })
-  .required("Due Date is required")
-  .when("blDate", (blDate: any, schema: any) => {
-    const dateValue = Array.isArray(blDate) ? blDate[0] : blDate;
-    return dateValue
-      ? schema.min(new Date(dateValue), "Due Date must be after BL Date")
-      : schema;
-  }),
+    dueDate: Yup.date()
+      .transform((value, originalValue) => {
+        return originalValue ? new Date(originalValue) : value;
+      })
+      .required("Due Date is required")
+      .when("blDate", (blDate: any, schema: any) => {
+        const dateValue = Array.isArray(blDate) ? blDate[0] : blDate;
+        return dateValue
+          ? schema.min(new Date(dateValue), "Due Date must be after BL Date")
+          : schema;
+      }),
   });
 
   const fetchPoDetails = async () => {
@@ -163,7 +153,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
     setShowError(true);
     setSubmitAttempted(true);
 
-    // Check if there are errors
     if (Object.keys(errors).length > 0) {
       const firstError = Object.values(errors)[0] as string;
       toast({
@@ -204,12 +193,10 @@ const ExposureForm = ({ submitExportForm }: any) => {
             dueDate: "",
             outstandingAmount: "",
             balanceAmount: "",
-            hedgeAmount:"",
-            hedgeRate:"",
-            deliveryDateFrom:"",
-            deliveryDateTo:""
-            // outStandingAmount: "",
-
+            hedgeAmount: "",
+            hedgeRate: "",
+            deliveryDateFrom: "",
+            deliveryDateTo: "",
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -217,8 +204,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
             setShowError(true);
             submitExportForm(values, actions, "form");
           }}
- 
-
         >
           {({
             values,
@@ -248,10 +233,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
                         },
                       });
 
-                      // 👇 Moved the 'if' condition inside the function body
-                      // if (selectedOption.value === "confirmed_order") {
-                      //   setFieldValue("poNo", "");
-                      // }
                       if (selectedOption.value === "confirmed_order") {
                         setFieldValue("poNo", "");
                         setFieldValue("poDate", "");
@@ -262,7 +243,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
                         setFieldValue("currency", "");
                         setFieldValue("budgetRate", "");
                       } else {
-                        // Clear fields when switching to other types
                         setFieldValue("poNo", "");
                         setFieldValue("poDate", "");
                         setFieldValue("partyName", "");
@@ -328,9 +308,10 @@ const ExposureForm = ({ submitExportForm }: any) => {
                           );
                           setFieldValue("currency", selectedPo.currency);
                           setFieldValue("budgetRate", selectedPo.budgetRate);
-                        setFieldValue("outStandingAmount", selectedPo.outStandingAmount || 0);
-
-
+                          setFieldValue(
+                            "outStandingAmount",
+                            selectedPo.outStandingAmount || 0
+                          );
                         }
                       }}
                       error={touched.poNo && errors.poNo}
@@ -509,36 +490,47 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     disabled={selectedExposureType === "shipment"}
                     required={true}
                   />
-                  <CustomInput
-                    label="Hedge Deal Ref No"
-                    name="hedgeDealRefNo"
-                    type="select"
-                    placeholder="Select Reference No"
-                    options={hedgeDealOptions}
-                    value={hedgeDealOptions.find(
-                      (option: any) => option.value === values.hedgeDealRefNo
-                    )}
-                    onChange={(selectedOption) => {
-                      const selectedDeal = dummyHedgeDeals.find(
-                        (item: any) =>
-                          item.hedgeDealRefNumber === selectedOption.value
-                      );
-                      // Set selected deal ref
-                      setFieldValue("hedgeDealRefNo", selectedOption.value);
 
-                      // Auto-fill hedgeRate & hedgeAmount
-                      if (selectedDeal) {
-                        setFieldValue("hedgeRate", selectedDeal.hedgeRate);
-                        setFieldValue("deliveryDateFrom",selectedDeal.deliveryDateFrom);
-                        setFieldValue("deliveryDateTo",selectedDeal.deliveryDateTo);
-                        setFieldValue("outstandingAmount",selectedDeal.outstandingAmount);
-                        setFieldValue("balanceAmount",selectedDeal.balanceAmount);
-                        // setFieldValue("hedgeAmount", selectedDeal.hedgeAmount);
-                      }
-                    }}
-                    error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
+                  <HedgeDealSelector
+                    url={url}
+                    values={values}
+                    setFieldValue={setFieldValue}
+                    touched={touched}
+                    errors={errors}
                     showError={showError}
                   />
+
+                  {/* <CustomInput
+        label="Hedge Deal Ref No"
+        name="hedgeDealRefNo"
+        type="select"
+        placeholder={loading ? "Loading..." : "Select Reference No"}
+        // isDisabled={loading}
+        options={hedgeDealOptions}
+        value={hedgeDealOptions.find(
+          (option: any) => option.value === values.hedgeDealRefNo
+        )}
+        onChange={(selectedOption) => {
+          const selectedDeal = hedgeDeals.find(
+            (item: any) =>
+              item.hedgeDealRefNumber === selectedOption.value
+          );
+
+          // Set selected deal ref
+          setFieldValue("hedgeDealRefNo", selectedOption.value);
+
+          // Auto-fill hedgeRate, delivery dates, outstanding, balance
+          if (selectedDeal) {
+            setFieldValue("hedgeRate", selectedDeal.headgerate || "");
+            setFieldValue("deliveryDateFrom", selectedDeal.deliveryDateFrom || "");
+            setFieldValue("deliveryDateTo", selectedDeal.deliveryDateTo || "");
+            setFieldValue("outstandingAmount", selectedDeal.outstandingAmount || "");
+            setFieldValue("balanceAmount", selectedDeal.balanceAmount || "");
+          }
+        }}
+        error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
+        showError={showError}
+      />
 
                   {values.hedgeDealRefNo && (
                     <>
@@ -606,7 +598,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                         disabled={true}
                       />
                     </>
-                  )}
+                  )} */}
                 </SimpleGrid>
                 <CustomInput
                   label="Remark"
