@@ -49,7 +49,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
         ...item,
       }));
       setLoading(false);
-      console.log("--------", response.status);
+      // console.log("--------", response.status);
       if (response.status === "success" || response.status === 200) {
         setPoData(exportRegOptions);
       } else {
@@ -141,6 +141,8 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
             hedgeRate: "",
             hedgeAmount: "",
             remark: "",
+            deliveryDateFrom:"",
+            deliveryDateTo: "",
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -273,7 +275,11 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     <CustomInput
                       label="PO Date"
                       name="poDate"
-                      type={ selectedExposureType === "lc_bc_shifting" ? "text" : "date"}
+                      type={
+                        selectedExposureType === "lc_bc_shifting"
+                          ? "text"
+                          : "date"
+                      }
                       placeholder="PO Date"
                       value={values.poDate}
                       onChange={handleChange}
@@ -456,7 +462,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       disabled={isFieldReadOnly("budgetRate")}
                     />
 
-                    <CustomInput
+                    {/* <CustomInput
                       label="Hedge Deal Ref No"
                       name="hedgeDealRefNo"
                       type="select"
@@ -478,10 +484,42 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                           setFieldValue("hedgeRate", selectedDeal.hedgeRate);
                           setFieldValue("deliveryDateFrom",selectedDeal.deliveryDateFrom);
                           setFieldValue("deliveryDateTo",selectedDeal.deliveryDateTo);
-                          // setFieldValue(
-                          //   "hedgeAmount",
-                          //   selectedDeal.hedgeAmount
-                          // );
+                       
+                        }
+                      }}
+                      error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
+                      showError={showError}
+                    /> */}
+                    <CustomInput
+                      label="Hedge Deal Ref No"
+                      name="hedgeDealRefNo"
+                      type="select"
+                      placeholder="Select Reference No"
+                      options={hedgeDealOptions}
+                      value={hedgeDealOptions.find(
+                        (option: any) => option.value === values.hedgeDealRefNo
+                      )}
+                      onChange={(selectedOption) => {
+                        const selectedDeal = dummyHedgeDeals.find(
+                          (item: any) =>
+                            item.hedgeDealRefNumber === selectedOption.value
+                        ); 
+
+                        // Set selected deal ref
+                        setFieldValue("hedgeDealRefNo", selectedOption.value);
+
+                        // Auto-fill hedgeRate, delivery dates, hedgeAmount
+                        if (selectedDeal) {
+                          setFieldValue("hedgeRate", selectedDeal.hedgeRate);
+                          setFieldValue(
+                            "deliveryDateFrom",
+                            selectedDeal.deliveryDateFrom
+                          );
+                          setFieldValue(
+                            "deliveryDateTo",
+                            selectedDeal.deliveryDateTo
+                          );
+                          // setFieldValue("hedgeAmount", selectedDeal.hedgeAmount);
                         }
                       }}
                       error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
@@ -500,33 +538,35 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                           showError={showError}
                           disabled={true}
                         />
-
-                       <CustomInput
-                        label="Delivery Date From"
-                        name="deliveryDateFrom"
-                        placeholder="Delivery Date From"
-                        value={values.deliveryDateFrom}
-                        onChange={handleChange}
-                        error={touched.deliveryDateFrom && errors.deliveryDateFrom}
-                        showError={showError}
-                        disabled={true}
-                      />
-                      <CustomInput
-                        label="Delivery Date To"
-                        name="deliveryDateTo"
-                        placeholder="Delivery Date From"
-                        value={values.deliveryDateTo}
-                        onChange={handleChange}
-                        error={touched.deliveryDateTo && errors.deliveryDateTo}
-                        showError={showError}
-                        disabled={true}
-                      />
-
+                        <CustomInput
+                          label="Delivery Date From"
+                          name="deliveryDateFrom"
+                          placeholder="Delivery Date From"
+                          value={values.deliveryDateFrom}
+                          onChange={handleChange}
+                          error={
+                            touched.deliveryDateFrom && errors.deliveryDateFrom
+                          }
+                          showError={showError}
+                          disabled={true}
+                        />
+                        <CustomInput
+                          label="Delivery Date To"
+                          name="deliveryDateTo"
+                          placeholder="Delivery Date From"
+                          value={values.deliveryDateTo}
+                          onChange={handleChange}
+                          error={
+                            touched.deliveryDateTo && errors.deliveryDateTo
+                          }
+                          showError={showError}
+                          disabled={true}
+                        />
                         <CustomInput
                           label="Hedge Amount"
                           type="number"
                           name="hedgeAmount"
-                          placeholder="Amount (Auto-populated)"
+                          placeholder="Enter Hedge Amount"
                           value={values.hedgeAmount}
                           onChange={handleChange}
                           error={touched.hedgeAmount && errors.hedgeAmount}
@@ -565,21 +605,6 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                     >
                       Submit
                     </Button>
-                    {/* <Button
-                      rounded={"full"}
-                      fontWeight={500}
-                      {...primaryButtonStyle}
-                      _hover={{
-                        ...primaryButtonHoverStyle,
-                        border: "1px solid",
-                      }}
-                      transition={"transform 0.3s ease-in-out"}
-                      type="submit"
-                      size="lg"
-                      isLoading={isSubmitting}
-                    >
-                      Submit
-                    </Button> */}
                   </Flex>
                 </VStack>
               </FormikForm>
