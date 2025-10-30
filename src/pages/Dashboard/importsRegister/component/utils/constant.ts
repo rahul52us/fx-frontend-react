@@ -162,7 +162,6 @@ export const hedgeDeals = [
 export const dummyHedgeDeals = [
   {
     hedgeDealRefNumber: "HD001",
-    // hedgeAmount: "50000",
     hedgeRate: "83.25",
     deliveryDateFrom: "2025-10-15",
     deliveryDateTo: "2025-11-15",
@@ -171,7 +170,6 @@ export const dummyHedgeDeals = [
   },
   {
     hedgeDealRefNumber: "HD002",
-    // hedgeAmount: "60000",
     hedgeRate: "90.50",
     deliveryDateFrom: "2025-09-20",
     deliveryDateTo: "2025-10-20",
@@ -180,7 +178,6 @@ export const dummyHedgeDeals = [
   },
   {
     hedgeDealRefNumber: "HD003",
-    // hedgeAmount: "70000",
     hedgeRate: "105.75",
     deliveryDateFrom: "2025-11-01",
     deliveryDateTo: "2025-12-01",

@@ -171,8 +171,7 @@ const ExportRegisterTable = () => {
 
 const ExportRegisterTableColumns = [
   { headerName: "Created On", key: "createdAt" },
-  { headerName: "Row ID", key: "rowId" },
-  { headerName: "Exposure Type", key: "exposureType" },
+  { headerName: "Exposure Type", key: "exposureType",type:"formattedString" },
   { headerName: "PO No", key: "poNo" },
   { headerName: "PO Date", key: "poDate" },
   { headerName: "Party Name", key: "partyName" },
@@ -197,7 +196,7 @@ const ExportRegisterTableColumns = [
   { headerName: "RM Policy Rate", key: "rmPolicyRate" },
   { headerName: "Outstanding Amount", key: "outstandingAmount" },
   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInINR" },
-  { headerName: "Invoice Raised", key: "invoiceRaised" },
+  { headerName: "Invoice Raised", key: "invoiceRaised",type:"number" },
   { headerName: "Advance Payment", key: "advancePayment" },
   { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
   { headerName: "Amount Settled", key: "amountSettled" },

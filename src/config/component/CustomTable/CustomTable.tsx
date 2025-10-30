@@ -153,132 +153,6 @@ const TableActions: React.FC<TableActionsProps> = ({
   );
 };
 
-// const GenerateRows: React.FC<{
-//   column: Column;
-//   row: RowData;
-//   action: any;
-//   cells: boolean;
-// }> = ({ column, row, action, cells }: any) => {
-//   const cellProps = cells ? { border: "1px solid gray" } : {};
-//   switch (column.type) {
-//     case "date":
-//       return (
-//         <Td
-//           whiteSpace="normal"
-//           cursor="pointer"
-//           fontSize="sm"
-//           {...column?.props?.row}
-//           {...cellProps}
-//         >
-//           {row[column.key] ? formatDate(row[column.key]) : "--"}
-//         </Td>
-//       );
-//     case "link":
-//       return (
-//         <Td
-//           whiteSpace="normal"
-//           cursor="pointer"
-//           fontSize="sm"
-//           color="blue.400"
-//           textDecoration="underline"
-//           {...column?.props?.row}
-//           {...cellProps}
-//           onClick={() => {
-//             if (column?.function) {
-//               column?.function(row);
-//             }
-//           }}
-//         >
-//           {row[column.key] || "--"}
-//         </Td>
-//       );
-//     case "tooltip":
-//       return (
-//         <Td
-//           whiteSpace="normal"
-//           cursor="pointer"
-//           fontSize="sm"
-//           {...column?.props?.row}
-//           {...cellProps}
-//         >
-//           <Tooltip label={row[column.key]}>
-//             {typeof row[column.key] === "string"
-//               ? row[column.key].substring(0, 15) || "--"
-//               : "-"}
-//           </Tooltip>
-//         </Td>
-//       );
-//     case "array":
-//       return (
-//         <Td
-//           whiteSpace="normal"
-//           cursor="pointer"
-//           fontSize="sm"
-//           {...column?.props?.row}
-//           {...cellProps}
-//         >
-//           <Tooltip label={JSON.stringify(row[column.key])}>
-//             <IconButton
-//               aria-label=""
-//               size="lg"
-//               bgColor={"transparent"}
-//               color={"gray.700"}
-//             >
-//               <IoMdInformationCircle />
-//             </IconButton>
-//           </Tooltip>
-//         </Td>
-//       );
-//     case "table-actions":
-//       return (
-//         <TableActions
-//           actions={action}
-//           column={column}
-//           row={row}
-//           cells={cells}
-//         />
-//       );
-//     case "combineKey":
-//       return (
-//         <Td
-//           whiteSpace="normal"
-//           cursor="pointer"
-//           fontSize="sm"
-//           {...column?.props?.row}
-//           {...cellProps}
-//           isTruncated={true}
-//         >
-//           {row[column.key] || "--"}
-//         </Td>
-//       );
-//     case "component":
-//       return (
-//         <Td
-//           whiteSpace="normal"
-//           cursor="pointer"
-//           fontSize="sm"
-//           {...column?.props?.row}
-//           {...cellProps}
-//         >
-//           {column.metaData?.component ? column.metaData.component(row) : null}
-//         </Td>
-//       );
-//     default:
-//       return (
-//         <Td
-//           whiteSpace="normal"
-//           cursor="pointer"
-//           fontSize="sm"
-//           {...column?.props?.row}
-//           {...cellProps}
-//           isTruncated={true}
-//         >
-//           {row[column.key] || "--"}
-//         </Td>
-//       );
-//   }
-// };
-
 const GenerateRows: React.FC<{
   column: Column;
   row: RowData;
@@ -395,6 +269,39 @@ const GenerateRows: React.FC<{
           {column.metaData?.component ? column.metaData.component(row) : null}
         </Td>
       );
+      // ✅ NEW CASE FOR NUMBER
+  case "number":
+    return (
+      <Td
+        whiteSpace="normal"
+        cursor="pointer"
+        px={'1.25rem'}
+        fontSize="sm"
+        textAlign="right"
+        {...column?.props?.row}
+        {...cellProps}
+      >
+        {row[column.key] !== undefined && row[column.key] !== null
+          ? row[column.key]
+          : "--"}
+      </Td>
+    );
+     case "formattedString":
+    return (
+      <Td
+        whiteSpace="nowrap"
+        cursor="pointer"
+        px={'1.25rem'}
+        fontSize="sm"
+        textTransform="capitalize"
+        {...column?.props?.row}
+        {...cellProps}
+      >
+        {typeof row[column.key] === "string"
+          ? row[column.key].replace(/_/g, " ")
+          : row[column.key] ?? "--"}
+      </Td>
+    );
     default:
       return (
         <Td
@@ -424,19 +331,6 @@ const CustomTable: React.FC<CustomTableProps> = ({
   // isActions = false,
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
-  // const cellProps = cells ? { border: "1px solid gray" } : {};
-  // const headerBg = useColorModeValue("gray.700", "gray.800");
-  // const borderColor = useColorModeValue("gray.300", "gray.600");
-
-  // const bodyBg = useColorModeValue("white", "gray.700");
-
-  // const hoverBg = useColorModeValue("blue.100", "blue.700");
-  // const menuItemHover = useColorModeValue("blue.100", "blue.700");
-  // const menuListBg = useColorModeValue("white", "gray.700");
-  // const titleColor = useColorModeValue("blue.700", "white");
-
-  // const boxBorder = useColorModeValue("gray.200", "gray.700");
-  // const mainBox = useColorModeValue("white", "gray.900");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   return (

@@ -109,50 +109,10 @@ const ImportRegisterTable = () => {
   }, []);
 
   
-
-  // const ImportRegisterTableColumns = [
-  //   {
-  //     headerName: "S.No.",
-  //     key: "sno",
-  //     props: { row: { textAlign: "center" } },
-  //   },
-  //   { headerName: "Exposure Type", key: "exposureType" },
-  //   { headerName: "Exposure Date", key: "exposureInputDate" },
-  //   { headerName: "PO Date", key: "poDate" },
-  //   { headerName: "BL Date", key: "blDate" },
-  //   { headerName: "Collection Date", key: "collectionDate" },
-  //   { headerName: "Amount", key: "amount" },
-  //   { headerName: "Currency", key: "currency" },
-  //   { headerName: "Budget Rate", key: "budgetRate" },
-  //   { headerName: "Hedged Amount", key: "hedgedAmount" },
-  //   { headerName: "Invoice No", key: "invoiceNo" },
-  //   { headerName: "PO No", key: "poNo" },
-  //   { headerName: "Party Name", key: "partyName" },
-  //   { headerName: "Bank", key: "bank" },
-  //   { headerName: "Payment Terms", key: "paymentTerms" },
-  //   { headerName: "Forward Contract No", key: "forwardContractNo" },
-  //   { headerName: "Priority", key: "priority" },
-  //   { headerName: "Booked Forward Rate", key: "bookedForwardRate" },
-  //   {
-  //     headerName: "Remark",
-  //     key: "remark",
-  //     type: "tooltip",
-  //     function: (row: any) =>
-  //       row.remark ? (
-  //         <Tooltip label={row.remark} hasArrow>
-  //           <span>{row.remark.slice(0, 20)}...</span>
-  //         </Tooltip>
-  //       ) : (
-  //         "-"
-  //       ),
-  //   },
-  // ];
-  
 const ImportRegisterTableColumns = [
   { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
   { headerName: "Created On", key: "createdAt" },
-  // { headerName: "Month", key: "month" },
-  { headerName: "Exposure Type", key: "exposureType", props: { row: { textAlign: "center",textTransform: "capitalize" } } },
+  { headerName: "Exposure Type", key: "exposureType", type:"formattedString"  },
   { headerName: "Exposure Date", key: "exposureInputDate" },
   { headerName: "Exposure Modification Date", key: "exposureModificationDate" },
   { headerName: "PO Date", key: "poDate" },
@@ -272,7 +232,6 @@ const ImportRegisterTableColumns = [
           <DrawerBody>
             <ImportRegistrationForm
               submitImportForm={submitImportForm}
-              // onClose={onClose}
             />
           </DrawerBody>
         </DrawerContent>
