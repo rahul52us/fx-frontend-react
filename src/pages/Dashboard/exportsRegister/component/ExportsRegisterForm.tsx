@@ -35,25 +35,17 @@ const ExposureForm = ({ submitExportForm }: any) => {
 
   const validationSchema = Yup.object({
     exposureType: Yup.mixed().required("Exposure Type is required"),
-    poDate: Yup.string().required("PO Date is required"),
     poNo: Yup.string().required("PO No is required"),
     invoiceNo: Yup.string().when("exposureType", {
       is: (val: string) => val !== "confirmed_order",
       then: (schema) => schema.required("Invoice No is required"),
       otherwise: (schema) => schema.notRequired(),
     }),
-    invoiceDate: Yup.date().when("exposureType", {
-      is: (val: string) => val !== "confirmed_order",
-      then: (schema) => schema.required("Invoice Date is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
     partyName: Yup.string().required("Party Name is required"),
     bank: Yup.string().required("Bank is required"),
     businessUnit: Yup.string().required("Business Unit is required"),
-    blDate: Yup.string().required("BL Date is required"),
     paymentTerms: Yup.number().required("Payment terms is required"),
     currency: Yup.mixed().required("Currency is required"),
-    // amount: Yup.number().required("Amount is required"),
 
     amount: Yup.number()
       .required("Amount is required")
@@ -73,21 +65,54 @@ const ExposureForm = ({ submitExportForm }: any) => {
         otherwise: (schema) => schema,
       }),
 
-    // amount: Yup.number()
-    //   .required("Amount is required")
-    //   .when(["exposureType", "outStandingAmount"], {
-    //     is: (exposureType: string, outStandingAmount: number) =>
-    //       exposureType === "shipment" && !!outStandingAmount,
-    //     then: (schema) =>
-    //       schema.max(
-    //         Yup.ref("outStandingAmount"),
-    //         "Amount must be less than or equal to Outstanding Amount"
-    //       ),
-    //     otherwise: (schema) => schema,
-    //   }),
-
     budgetRate: Yup.string().required("Budget Rate is required"),
-    // dueDate: Yup.string().required("Due Date is required"),
+
+    //date valitations----------------------
+    poDate: Yup.string().required("PO Date is required"),
+    invoiceDate: Yup.date()
+      .transform((value, originalValue) => {
+        return originalValue ? new Date(originalValue) : value;
+      })
+      .when("exposureType", {
+        is: (val: string) => val !== "confirmed_order",
+        then: (schema) => schema.required("Invoice Date is required"),
+        otherwise: (schema) => schema.notRequired(),
+      })
+      .when("poDate", (poDate: any, schema: any) => {
+        const dateValue = Array.isArray(poDate) ? poDate[0] : poDate;
+        return dateValue
+          ? schema.min(
+              new Date(dateValue),
+              "Invoice Date must be after PO Date"
+            )
+          : schema;
+      })
+      .when("dueDate", (dueDate: any, schema: any) => {
+        const dateValue = Array.isArray(dueDate) ? dueDate[0] : dueDate;
+        return dateValue
+          ? schema.max(
+              new Date(dateValue),
+              "Invoice Date cannot be after Due Date"
+            )
+          : schema;
+      }),
+    blDate: Yup.string()
+      .required("BL Date is required")
+      .test(
+        "bl-date-range",
+        "BL Date must be between PO Date and Due Date",
+        function (value) {
+          const { poDate, dueDate } = this.parent;
+
+          if (!value || !poDate || !dueDate) return true;
+
+          const blDate = new Date(value);
+          const poDateObj = new Date(poDate);
+          const dueDateObj = new Date(dueDate);
+
+          return blDate >= poDateObj && blDate <= dueDateObj;
+        }
+      ),
     dueDate: Yup.date()
       .transform((value, originalValue) => {
         return originalValue ? new Date(originalValue) : value;
@@ -98,7 +123,33 @@ const ExposureForm = ({ submitExportForm }: any) => {
         return dateValue
           ? schema.min(new Date(dateValue), "Due Date must be after BL Date")
           : schema;
+      })
+      .when("poDate", (poDate: any, schema: any) => {
+        const dateValue = Array.isArray(poDate) ? poDate[0] : poDate;
+        return dateValue
+          ? schema.min(new Date(dateValue), "Due Date must be after PO Date")
+          : schema;
       }),
+
+    // poDate: Yup.string().required("PO Date is required"),
+
+    // invoiceDate: Yup.date().when("exposureType", {
+    //   is: (val: string) => val !== "confirmed_order",
+    //   then: (schema) => schema.required("Invoice Date is required"),
+    //   otherwise: (schema) => schema.notRequired(),
+    // }),
+    // blDate: Yup.string().required("BL Date is required"),
+    // dueDate: Yup.date()
+    //   .transform((value, originalValue) => {
+    //     return originalValue ? new Date(originalValue) : value;
+    //   })
+    //   .required("Due Date is required")
+    //   .when("blDate", (blDate: any, schema: any) => {
+    //     const dateValue = Array.isArray(blDate) ? blDate[0] : blDate;
+    //     return dateValue
+    //       ? schema.min(new Date(dateValue), "Due Date must be after BL Date")
+    //       : schema;
+    //   }),
   });
 
   const fetchPoDetails = async () => {

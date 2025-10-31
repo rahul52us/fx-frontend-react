@@ -231,8 +231,8 @@ const ExportRegisterTableColumns = [
         actions={{
           search: { show: false },
           resetData: {
-            show: false,
-            text: "Reset Data",
+            show: true,
+            // text: "Reset Data",
             function: fetchExportRegisterData,
           },
           exportExcel: {

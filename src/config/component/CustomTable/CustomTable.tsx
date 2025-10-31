@@ -18,12 +18,12 @@ import {
   Tooltip,
   Tr,
   useBreakpointValue,
-  useColorModeValue,
+  useColorModeValue
 } from "@chakra-ui/react";
 import React, { useRef } from "react";
 import { BiDownload, BiPlus, BiUpload } from "react-icons/bi";
 import { FaEdit, FaEye } from "react-icons/fa";
-import { FcClearFilters } from "react-icons/fc";
+import { FiRefreshCw } from "react-icons/fi";
 import { HiDotsVertical } from "react-icons/hi";
 import { IoMdInformationCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
@@ -397,6 +397,16 @@ const CustomTable: React.FC<CustomTableProps> = ({
               />
             </Box>
           )}
+{actions?.resetData?.show && (
+  
+  <IconButton 
+  aria-label="refresh"
+  icon={<FiRefreshCw />}
+  colorScheme="teal"
+  variant={"outline"}
+  onClick={actions?.resetData?.function}
+  />
+)}
           {actions && (
             <Menu>
               <MenuButton
@@ -470,7 +480,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 )}
                 
 
-                {actions?.resetData?.show && (
+                {/* {actions?.resetData?.show && (
                   <MenuItem
                     onClick={actions?.resetData?.function}
                     icon={<FcClearFilters fontSize={"20px"} />}
@@ -479,7 +489,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   >
                     {actions?.resetData?.text || "Reset"}
                   </MenuItem>
-                )}
+                )} */}
               </MenuList>
             </Menu>
           )}
