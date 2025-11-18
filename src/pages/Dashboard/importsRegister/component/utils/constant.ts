@@ -51,6 +51,11 @@ export const dealTypeOptions = [
   { label: 'B', value: 'b' },
 ]
 
+export const mainExposureTypeOptions = [
+  { label: 'Import', value: 'import' },
+  { label: 'Export', value: 'export' },
+];
+
 
 
 // export const dummyPoData = [
