@@ -1,8 +1,26 @@
 export const currencyOptions = [
-  { label: "INR", value: "INR" },
-  { label: "USD", value: "USD" },
-  { label: "EUR", value: "EUR" },
+  { label: "USDINR", value: "USDINR" },
+  { label: "EURINR", value: "EURINR" },
+  { label: "CNYINR", value: "CNYINR" },
+  { label: "GBPINR", value: "GBPINR" },
+  { label: "JPYINR", value: "JPYINR" },
+  { label: "CHFINR", value: "CHFINR" },
+  { label: "RUBINR", value: "RUBINR" },
+  { label: "AEDINR", value: "AEDINR" },
+  { label: "SEKINR", value: "SEKINR" },
+  { label: "SGDINR", value: "SGDINR" },
+  { label: "BRLINR", value: "BRLINR" },
+  { label: "CADINR", value: "CADINR" },
+  { label: "INRKRW", value: "INRKRW" },
+  { label: "AUDINR", value: "AUDINR" },
+  { label: "TRYINR", value: "TRYINR" },
+  { label: "INRIDR", value: "INRIDR" },
+  { label: "ZARINR", value: "ZARINR" },
+  { label: "INRARS", value: "INRARS" },
+  { label: "SARINR", value: "SARINR" },
+  { label: "MXNINR", value: "MXNINR" },
 ];
+
 
 export const exposureTypeOptions = [
   { label: "Exports", value: "exports" },

@@ -18,12 +18,12 @@ import {
 } from "../../../../globalStyles";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 import {
-  currencyOptions,
   dummyHedgeDeals,
   dummyPoData,
   hedgeDealOptions,
   importExposureTypeOptions,
 } from "./utils/constant";
+import { currencyOptions } from "../../exportsRegister/component/utils/constant";
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);

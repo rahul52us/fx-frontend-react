@@ -87,7 +87,6 @@ const ImportRegisterTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        // "https://5cf5cb2fbb9b.ngrok-free.app/importregister/view/",
           `${url}/importregister/view/`,
         { userToken: "abcdxyz" }
       );
@@ -132,7 +131,7 @@ const ImportRegisterTableColumns = [
   { headerName: "Hedged Amount", key: "hedgedAmount" },
   { headerName: "Hedged Rate", key: "hedgedRate" },
   { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
-  { headerName: "Premium on BMK Date", key: "premimumOnBmkDate" },
+  { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
   { headerName: "BMK Rate", key: "bmkRate" },
   { headerName: "RM Policy Rate", key: "rmPolicyRate" },
   { headerName: "Outstanding Amount", key: "outstandingAmount" },

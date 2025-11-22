@@ -1,8 +1,8 @@
-export const currencyOptions = [
-  { label: 'INR', value: 'INR' },
-  { label: 'USD', value: 'USD' },
-  { label: 'EUR', value: 'EUR' },
-];
+// export const currencyOptions = [
+//   { label: 'INR', value: 'INR' },
+//   { label: 'USD', value: 'USD' },
+//   { label: 'EUR', value: 'EUR' },
+// ];
 
 export const exposureTypeOptions = [
   { label: 'Shipment', value: 'shipment' },
