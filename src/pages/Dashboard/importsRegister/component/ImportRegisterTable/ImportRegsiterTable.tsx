@@ -26,6 +26,7 @@ const ImportRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
+  // const url = "https://7b0fa03efa8d.ngrok-free.app"
   const { deleteItem } = useDeleteItem();
 
   const submitImportForm = async (values: any, actions: any, type: string) => {

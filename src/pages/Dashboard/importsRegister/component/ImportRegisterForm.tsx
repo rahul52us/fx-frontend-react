@@ -16,14 +16,13 @@ import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
+import { HedgeDealSelector } from "../../exportsRegister/component/ExportHedgeDealSection";
+import { currencyOptions } from "../../exportsRegister/component/utils/constant";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 import {
-  dummyHedgeDeals,
   dummyPoData,
-  hedgeDealOptions,
-  importExposureTypeOptions,
+  importExposureTypeOptions
 } from "./utils/constant";
-import { currencyOptions } from "../../exportsRegister/component/utils/constant";
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);
@@ -490,7 +489,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
                       showError={showError}
                     /> */}
-                    <CustomInput
+                    {/* <CustomInput
                       label="Hedge Deal Ref No"
                       name="hedgeDealRefNo"
                       type="select"
@@ -524,9 +523,9 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       }}
                       error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
                       showError={showError}
-                    />
+                    /> */}
 
-                    {values.hedgeDealRefNo && (
+                    {/* {values.hedgeDealRefNo && (
                       <>
                         <CustomInput
                           label="Hedge Rate"
@@ -574,7 +573,16 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                           // disabled={true}
                         />
                       </>
-                    )}
+                    )} */}
+
+                       <HedgeDealSelector
+                                        url={url}
+                                        values={values}
+                                        setFieldValue={setFieldValue}
+                                        touched={touched}
+                                        errors={errors}
+                                        showError={showError}
+                                      />
                   </SimpleGrid>
 
                   {/* Remark */}
