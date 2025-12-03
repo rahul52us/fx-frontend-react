@@ -1,0 +1,533 @@
+import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
+import {
+    Box,
+    Button,
+    Flex,
+    Heading,
+    IconButton,
+    SimpleGrid,
+    VStack
+} from "@chakra-ui/react";
+import { FieldArray, useFormikContext } from "formik";
+import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
+import { forwardRegDataAllData } from "./dummyData";
+import HedgeDealSelector from "./HedgeDealSelector";
+
+const ConversionManager = ({ showError }: any) => {
+  const { values, setFieldValue, errors, touched }: any = useFormikContext();
+
+  /* ------------ SPOT ROW CALCULATION ------------- */
+  const handleSpotFieldChange = (
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    // build updated row first (avoids race-cond)
+    const currentRow = values.spotList?.[index] || {};
+    const updatedRow = {
+      ...currentRow,
+      [field]: value,
+    };
+
+    const spot = parseFloat(updatedRow.spotBooked) || 0;
+    const cashTom = parseFloat(updatedRow.cashTomSpot) || 0;
+    const margin = parseFloat(updatedRow.bankMargin) || 0;
+
+    // Excel: Net Conversion Rate = Spot + Cash/Tom - Bank Margin
+    const netRate = spot + cashTom - margin;
+    updatedRow.netConversionRate = netRate ? netRate.toFixed(4) : "0.0000";
+
+    setFieldValue(`spotList.${index}`, updatedRow);
+  };
+  
+
+  /* ------------ FORWARD ROW CALCULATION ----------- */
+  const handleForwardFieldChange = (
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    const currentRow = values.forwardList?.[index] || {};
+
+    // if hedge ref changes, hydrate row from master
+    if (field === "hedgeDealRefNo") {
+      const selected = forwardRegDataAllData.find(
+        (x: any) => x.hedgeDealRefNo === value
+      );
+
+      if (selected) {
+        const updatedRow = {
+          ...currentRow,
+          hedgeDealRefNo: value,
+          outstandingAmount: selected.outstandingAmount,
+          hedgeRate: selected.hedgeRate,
+          deliveryDateFrom: selected.deliveryDateFrom,
+          deliveryDateTo: selected.deliveryDateTo,
+        };
+
+        const hedge = parseFloat(updatedRow.hedgeRate) || 0;
+        const premium = parseFloat(updatedRow.forwardPremium) || 0;
+        const cashTom = parseFloat(updatedRow.cashTomSpot) || 0;
+
+        // Net Settlement = Hedge + Premium + Cash/Tom
+        const net = hedge + premium + cashTom;
+        updatedRow.netSettlementRate = net ? net.toFixed(4) : "0.0000";
+
+        setFieldValue(`forwardList.${index}`, updatedRow);
+        return;
+      }
+    }
+
+    // normal field update
+    const updatedRow = {
+      ...currentRow,
+      [field]: value,
+    };
+
+    const hedge = parseFloat(updatedRow.hedgeRate) || 0;
+    const premium = parseFloat(updatedRow.forwardPremium) || 0;
+    const cashTom = parseFloat(updatedRow.cashTomSpot) || 0;
+    const net = hedge + premium + cashTom;
+    updatedRow.netSettlementRate = net ? net.toFixed(4) : "0.0000";
+
+    setFieldValue(`forwardList.${index}`, updatedRow);
+  };
+
+  return (
+    <VStack spacing={6} align="stretch" w="full">
+      {/* --------- SPOT SECTION --------- */}
+      {values.isSpotEnabled && (
+        <Box
+          p={5}
+          borderWidth="1px"
+          borderColor="blue.200"
+          bg="blue.50"
+          rounded="lg"
+        >
+          <Flex justify="space-between" mb={4}>
+            <Heading size="md" color="blue.700">
+              Spot Details
+            </Heading>
+            <FieldArray name="spotList">
+              {({ push }) => (
+                <Button
+                  size="sm"
+                  leftIcon={<AddIcon />}
+                  colorScheme="blue"
+                  variant="outline"
+                  onClick={() =>
+                    push({
+                      amountConverted: "",
+                      spotBooked: "",
+                      cashTomSpot: "",
+                      bankMargin: "",
+                      netConversionRate: 0,
+                    })
+                  }
+                >
+                  Add Spot Row
+                </Button>
+              )}
+            </FieldArray>
+          </Flex>
+
+          <FieldArray name="spotList">
+            {({ remove }) => (
+              <VStack spacing={4}>
+                {values.spotList?.map((spot: any, index: number) => {
+                  const spotTouched = (touched.spotList?.[index] as any) || {};
+                  const spotErrors = (errors.spotList?.[index] as any) || {};
+
+                  return (
+                    <Box
+                      key={index}
+                      p={4}
+                      bg="white"
+                      rounded="md"
+                      shadow="sm"
+                      w="full"
+                      position="relative"
+                    >
+                      <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+                        <CustomInput
+                          label="Amount Converted"
+                          name={`spotList.${index}.amountConverted`}
+                          value={spot.amountConverted}
+                          onChange={(e: any) =>
+                            handleSpotFieldChange(
+                              index,
+                              "amountConverted",
+                              e.target.value
+                            )
+                          }
+                          error={
+                            spotTouched.amountConverted &&
+                            spotErrors.amountConverted
+                          }
+                          showError={showError}
+                        />
+
+                        <CustomInput
+                          label="Spot Booked"
+                          name={`spotList.${index}.spotBooked`}
+                          value={spot.spotBooked}
+                          onChange={(e: any) =>
+                            handleSpotFieldChange(
+                              index,
+                              "spotBooked",
+                              e.target.value
+                            )
+                          }
+                          error={
+                            spotTouched.spotBooked && spotErrors.spotBooked
+                          }
+                          showError={showError}
+                        />
+
+                        <CustomInput
+                          label="Cash/Tom Spot"
+                          name={`spotList.${index}.cashTomSpot`}
+                          value={spot.cashTomSpot}
+                          onChange={(e: any) =>
+                            handleSpotFieldChange(
+                              index,
+                              "cashTomSpot",
+                              e.target.value
+                            )
+                          }
+                          error={
+                            spotTouched.cashTomSpot && spotErrors.cashTomSpot
+                          }
+                          showError={showError}
+                        />
+
+                        <CustomInput
+                          label="Bank Margin"
+                          name={`spotList.${index}.bankMargin`}
+                          value={spot.bankMargin}
+                          onChange={(e: any) =>
+                            handleSpotFieldChange(
+                              index,
+                              "bankMargin",
+                              e.target.value
+                            )
+                          }
+                          // usually auto, but no validation for now
+                          showError={showError}
+                        />
+
+                        <CustomInput
+                          label="Net Conversion Rate"
+                          name={`spotList.${index}.netConversionRate`}
+                          value={spot.netConversionRate}
+                          disabled={true}
+                          showError={false}
+                        />
+                      </SimpleGrid>
+
+                      {values.spotList.length > 1 && (
+                        <IconButton
+                          aria-label="Delete row"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          colorScheme="red"
+                          position="absolute"
+                          top={2}
+                          right={2}
+                          onClick={() => remove(index)}
+                        />
+                      )}
+                    </Box>
+                  );
+                })}
+              </VStack>
+            )}
+          </FieldArray>
+        </Box>
+      )}
+
+      {/* --------- FORWARD SECTION --------- */}
+      {values.isForwardEnabled && (
+        <Box
+          p={5}
+          borderWidth="1px"
+          borderColor="orange.200"
+          bg="orange.50"
+          rounded="lg"
+        >
+          <Flex justify="space-between" mb={4}>
+            <Heading size="md" color="orange.700">
+              Forward Details
+            </Heading>
+            <FieldArray name="forwardList">
+              {({ push }) => (
+                <Button
+                  size="sm"
+                  leftIcon={<AddIcon />}
+                  colorScheme="orange"
+                  variant="outline"
+                  onClick={() =>
+                    push({
+                      hedgeDealRefNo: "",
+                      outstandingAmount: "",
+                      utilizationAmount: "",
+                      hedgeRate: "",
+                      forwardPremium: "",
+                      cashTomSpot: "",
+                      deliveryDateFrom: "",
+                      deliveryDateTo: "",
+                      netSettlementRate: 0,
+                    })
+                  }
+                >
+                  Add Forward Row
+                </Button>
+              )}
+            </FieldArray>
+          </Flex>
+
+          <FieldArray name="forwardList">
+            {({ remove }) => (
+              <VStack spacing={4}>
+                {values.forwardList?.map((fw: any, index: number) => {
+                //   const fwTouched = (touched.forwardList?.[index] as any) || {};
+                //   const fwErrors = (errors.forwardList?.[index] as any) || {};
+
+                  return (
+                    <Box
+                      key={index}
+                      p={4}
+                      bg="white"
+                      rounded="md"
+                      shadow="sm"
+                      w="full"
+                      position="relative"
+                    >
+                        <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+  
+  {/* New Hedge Deal Component */}
+  <HedgeDealSelector
+    // url={process.env.NEXT_PUBLIC_API_URL}
+    index={index}
+    values={fw}
+    setFieldValue={setFieldValue}
+    touched={touched.forwardList?.[index]}
+    errors={errors.forwardList?.[index]}
+    showError={showError}
+  />
+
+  <CustomInput
+    label="Utilization Amount"
+    name={`forwardList.${index}.utilizationAmount`}
+    value={fw.utilizationAmount}
+    onChange={(e: any) =>
+      handleForwardFieldChange(
+        index,
+        "utilizationAmount",
+        e.target.value
+      )
+    }
+    error={
+      touched.forwardList?.[index]?.utilizationAmount &&
+      errors.forwardList?.[index]?.utilizationAmount
+    }
+    showError={showError}
+  />
+
+  <CustomInput
+    label="Forward Premium"
+    name={`forwardList.${index}.forwardPremium`}
+    value={fw.forwardPremium}
+    onChange={(e: any) =>
+      handleForwardFieldChange(
+        index,
+        "forwardPremium",
+        e.target.value
+      )
+    }
+    error={
+      touched.forwardList?.[index]?.forwardPremium &&
+      errors.forwardList?.[index]?.forwardPremium
+    }
+    showError={showError}
+  />
+
+  <CustomInput
+    label="Cash/Tom Spot"
+    name={`forwardList.${index}.cashTomSpot`}
+    value={fw.cashTomSpot}
+    onChange={(e: any) =>
+      handleForwardFieldChange(
+        index,
+        "cashTomSpot",
+        e.target.value
+      )
+    }
+    error={
+      touched.forwardList?.[index]?.cashTomSpot &&
+      errors.forwardList?.[index]?.cashTomSpot
+    }
+    showError={showError}
+  />
+
+  <CustomInput
+    label="Net Settlement Rate"
+    name={`forwardList.${index}.netSettlementRate`}
+    value={fw.netSettlementRate}
+    disabled={true}
+  />
+
+</SimpleGrid>
+
+                      {/* <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+                        
+                        <FormControl>
+                          <FormLabel>Hedge Deal Ref No</FormLabel>
+                          <select
+                            style={{
+                              width: "100%",
+                              padding: "8px",
+                              borderRadius: "5px",
+                              border: "1px solid #E2E8F0",
+                            }}
+                            value={fw.hedgeDealRefNo}
+                            onChange={(e) =>
+                              handleForwardFieldChange(
+                                index,
+                                "hedgeDealRefNo",
+                                e.target.value
+                              )
+                            }
+                          >
+                            <option value="">Select Deal</option>
+                            {forwardRegDataAllData.map((item: any) => (
+                              <option
+                                key={item.hedgeDealRefNo}
+                                value={item.hedgeDealRefNo}
+                              >
+                                {item.hedgeDealRefNo}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+
+                        <CustomInput
+                          label="Utilization Amount"
+                          name={`forwardList.${index}.utilizationAmount`}
+                          value={fw.utilizationAmount}
+                          onChange={(e: any) =>
+                            handleForwardFieldChange(
+                              index,
+                              "utilizationAmount",
+                              e.target.value
+                            )
+                          }
+                          error={
+                            fwTouched.utilizationAmount &&
+                            fwErrors.utilizationAmount
+                          }
+                          showError={showError}
+                        />
+
+                        <CustomInput
+                          label="Outstanding Amount"
+                          name={`forwardList.${index}.outstandingAmount`}
+                          value={fw.outstandingAmount}
+                          disabled={true}
+                          showError={false}
+                        />
+
+                        <CustomInput
+                          label="Hedge Rate"
+                          name={`forwardList.${index}.hedgeRate`}
+                          value={fw.hedgeRate}
+                          disabled={true}
+                          showError={false}
+                        />
+
+                        <CustomInput
+                          label="Forward Premium"
+                          name={`forwardList.${index}.forwardPremium`}
+                          value={fw.forwardPremium}
+                          onChange={(e: any) =>
+                            handleForwardFieldChange(
+                              index,
+                              "forwardPremium",
+                              e.target.value
+                            )
+                          }
+                          error={
+                            fwTouched.forwardPremium && fwErrors.forwardPremium
+                          }
+                          showError={showError}
+                        />
+
+                        <CustomInput
+                          label="Cash/Tom Spot"
+                          name={`forwardList.${index}.cashTomSpot`}
+                          value={fw.cashTomSpot}
+                          onChange={(e: any) =>
+                            handleForwardFieldChange(
+                              index,
+                              "cashTomSpot",
+                              e.target.value
+                            )
+                          }
+                          error={
+                            fwTouched.cashTomSpot && fwErrors.cashTomSpot
+                          }
+                          showError={showError}
+                        />
+
+                        <CustomInput
+                          label="Net Settlement Rate"
+                          name={`forwardList.${index}.netSettlementRate`}
+                          value={fw.netSettlementRate}
+                          disabled
+                          showError={false}
+                        />
+
+                        <CustomInput
+                          label="Delivery Date From"
+                          name={`forwardList.${index}.deliveryDateFrom`}
+                          type="date"
+                          value={fw.deliveryDateFrom}
+                          disabled
+                          showError={false}
+                        />
+
+                        <CustomInput
+                          label="Delivery Date To"
+                          name={`forwardList.${index}.deliveryDateTo`}
+                          type="date"
+                          value={fw.deliveryDateTo}
+                          disabled
+                          showError={false}
+                        />
+                      </SimpleGrid> */}
+
+                      {values.forwardList.length > 1 && (
+                        <IconButton
+                          aria-label="Delete row"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          colorScheme="red"
+                          position="absolute"
+                          top={2}
+                          right={2}
+                          onClick={() => remove(index)}
+                        />
+                      )}
+                    </Box>
+                  );
+                })}
+              </VStack>
+            )}
+          </FieldArray>
+        </Box>
+      )}
+    </VStack>
+  );
+};
+
+export default ConversionManager;
