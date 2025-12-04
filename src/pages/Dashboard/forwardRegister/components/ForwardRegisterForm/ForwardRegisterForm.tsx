@@ -26,8 +26,6 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
   const url = process.env.REACT_APP_FX_BASE_URL;
   // const url = "https://7b0fa03efa8d.ngrok-free.app";
 
-  console.log('exposureRefOptions',exposureRefOptions)
-
   const validationSchema = Yup.object({
     bookingDate: Yup.string().required("Booking Date is required"),
     exposureType: Yup.string().required("Exposure Type is required"),
@@ -500,7 +498,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                         disabled={true}
                       />
 
-                      {/* <CustomInput
+                       <CustomInput
                         label="Allocated Amount"
                         name="allocatedAmount"
                         type="number"
@@ -509,7 +507,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                         onChange={handleChange}
                         error={touched.allocatedAmount && errors.allocatedAmount}
                         showError={showError}
-                      /> */} 
+                      /> 
                     </SimpleGrid>
                   </Box>
                 )}

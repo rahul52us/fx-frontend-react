@@ -10,14 +10,14 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import { exposureSettlementReport } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
-import DailyExposureSheetForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
-import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
+import ExposureSettlementForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
 
 const DailyExposureTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -221,7 +221,7 @@ const DailyExposureTable = () => {
           <DrawerCloseButton />
           {/* <DrawerHeader></DrawerHeader> */}
           <DrawerBody>
-            <DailyExposureSheetForm submitForm={submitExportForm} />
+            <ExposureSettlementForm submitForm={submitExportForm} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
