@@ -35,7 +35,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
 
   const validationSchema = Yup.object({
     exposureType: Yup.mixed().required("Exposure Type is required"),
-    poNo: Yup.string().required("PO No is required"),
     invoiceNo: Yup.string().when("exposureType", {
       is: (val: string) => val !== "confirmed_order",
       then: (schema) => schema.required("Invoice No is required"),
@@ -43,6 +42,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
     }),
     partyName: Yup.string().required("Party Name is required"),
     bank: Yup.string().required("Bank is required"),
+    poNo: Yup.string().required("PO No is required"),
     businessUnit: Yup.string().required("Business Unit is required"),
     paymentTerms: Yup.number().required("Payment terms is required"),
     currency: Yup.mixed().required("Currency is required"),
@@ -130,26 +130,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
           ? schema.min(new Date(dateValue), "Due Date must be after PO Date")
           : schema;
       }),
-
-    // poDate: Yup.string().required("PO Date is required"),
-
-    // invoiceDate: Yup.date().when("exposureType", {
-    //   is: (val: string) => val !== "confirmed_order",
-    //   then: (schema) => schema.required("Invoice Date is required"),
-    //   otherwise: (schema) => schema.notRequired(),
-    // }),
-    // blDate: Yup.string().required("BL Date is required"),
-    // dueDate: Yup.date()
-    //   .transform((value, originalValue) => {
-    //     return originalValue ? new Date(originalValue) : value;
-    //   })
-    //   .required("Due Date is required")
-    //   .when("blDate", (blDate: any, schema: any) => {
-    //     const dateValue = Array.isArray(blDate) ? blDate[0] : blDate;
-    //     return dateValue
-    //       ? schema.min(new Date(dateValue), "Due Date must be after BL Date")
-    //       : schema;
-    //   }),
   });
 
   const fetchPoDetails = async () => {
@@ -323,51 +303,100 @@ const ExposureForm = ({ submitExportForm }: any) => {
                       required={true}
                     />
                   ) : (
+                    // <CustomInput
+                    //   label="PO No"
+                    //   placeholder="Select PO No"
+                    //   name="poNo"
+                    //   type="select"
+                    //   // map poData to { value, label } objects for the select
+                    //   options={poData.map((po: any) => ({
+                    //     value: po.poNo,
+                    //     label: po.poNo,
+                    //   }))}
+                    //   required={true}
+                    //   // set the value as { value, label } object
+                    //   value={
+                    //     values.poNo
+                    //       ? { value: values.poNo, label: values.poNo }
+                    //       : null
+                    //   }
+                    //   onChange={(selectedOption: any) => {
+                    //     const selectedPo = poData.find(
+                    //       (item: any) => item.poNo === selectedOption.value
+                    //     );
+                    //     if (selectedPo) {
+                    //       setFieldValue("poNo", selectedPo.poNo);
+                    //       setFieldValue("poDate", selectedPo.poDate);
+                    //       setFieldValue("partyName", selectedPo.partyName);
+                    //       setFieldValue("bank", selectedPo.bank);
+                    //       setFieldValue(
+                    //         "businessUnit",
+                    //         selectedPo.businessUnit
+                    //       );
+                    //       setFieldValue(
+                    //         "paymentTerms",
+                    //         selectedPo.paymentTerms
+                    //       );
+                    //       setFieldValue("currency", selectedPo.currency);
+                    //       setFieldValue("budgetRate", selectedPo.budgetRate);
+                    //       setFieldValue(
+                    //         "outStandingAmount",
+                    //         selectedPo.outStandingAmount || 0
+                    //       );
+                    //     }
+                    //   }}
+                    //   error={touched.poNo && errors.poNo}
+                    //   showError={showError}
+                    // />
+
                     <CustomInput
-                      label="PO No"
-                      placeholder="Select PO No"
-                      name="poNo"
-                      type="select"
-                      // map poData to { value, label } objects for the select
-                      options={poData.map((po: any) => ({
-                        value: po.poNo,
-                        label: po.poNo,
-                      }))}
-                      required={true}
-                      // set the value as { value, label } object
-                      value={
-                        values.poNo
-                          ? { value: values.poNo, label: values.poNo }
-                          : null
-                      }
-                      onChange={(selectedOption: any) => {
-                        const selectedPo = poData.find(
-                          (item: any) => item.poNo === selectedOption.value
-                        );
-                        if (selectedPo) {
-                          setFieldValue("poNo", selectedPo.poNo);
-                          setFieldValue("poDate", selectedPo.poDate);
-                          setFieldValue("partyName", selectedPo.partyName);
-                          setFieldValue("bank", selectedPo.bank);
-                          setFieldValue(
-                            "businessUnit",
-                            selectedPo.businessUnit
-                          );
-                          setFieldValue(
-                            "paymentTerms",
-                            selectedPo.paymentTerms
-                          );
-                          setFieldValue("currency", selectedPo.currency);
-                          setFieldValue("budgetRate", selectedPo.budgetRate);
-                          setFieldValue(
-                            "outStandingAmount",
-                            selectedPo.outStandingAmount || 0
-                          );
-                        }
-                      }}
-                      error={touched.poNo && errors.poNo}
-                      showError={showError}
-                    />
+  label="PO No"
+  placeholder="Select PO No"
+  name="poNo"
+  type="select"
+  options={poData.map((item: any) => ({
+    label: item.poNo,
+    value: item.poNo
+  }))}
+  value={
+    poData.find((option: any) => option.value === values.poNo) || null
+  }
+  onChange={(selectedOption) => {
+    const selectedPo = poData.find(
+      (item: any) => item.poNo === selectedOption.value
+    );
+
+    setFieldValue("poNo", selectedOption.value);
+
+    if (selectedPo) {
+      // convert date
+      const formatDate = (d: string) => {
+        if (!d) return "";
+        if (d.includes(".")) {
+          const [day, month, year] = d.split(".");
+          return `${year}-${month}-${day}`;
+        }
+        return d;
+      };
+
+      setFieldValue("poDate", formatDate(selectedPo.poDate));
+      setFieldValue("partyName", selectedPo.partyName);
+      setFieldValue("bank", selectedPo.bank);
+      setFieldValue("businessUnit", selectedPo.businessUnit);
+      setFieldValue("paymentTerms", selectedPo.paymentTerms);
+      setFieldValue("currency", selectedPo.currency);
+      setFieldValue("budgetRate", selectedPo.budgetRate);
+      setFieldValue(
+        "outstandingAmount",
+        selectedPo.outStandingAmount || 0
+      );
+    }
+  }}
+  required={true}
+  error={touched.poNo && errors.poNo}
+  showError={showError}
+/>
+
                   )}
                   <CustomInput
                     label="PO Date"

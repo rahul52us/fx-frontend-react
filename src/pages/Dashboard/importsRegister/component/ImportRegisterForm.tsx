@@ -259,18 +259,6 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                         required={true}
                       />
                     )}
-
-                    {/* PO Date */}
-                    {/* <CustomInput
-                      label="PO Date"
-                      name="poDate"
-                      type="date"
-                      value={values.poDate}
-                      onChange={handleChange}
-                      error={touched.poDate && errors.poDate}
-                      showError={showError}
-                      required={true}
-                      /> */}
                     <CustomInput
                       label="PO Date"
                       name="poDate"

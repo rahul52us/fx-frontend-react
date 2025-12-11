@@ -15,6 +15,7 @@ import { primaryButtonHoverStyle, primaryButtonStyle } from "../../../../../glob
 import { currencyOptions, exportRegisterexposureTypeOptions } from "../../../exportsRegister/component/utils/constant";
 import { banks } from "../../../pcfc/components/PCFCForm/dummyData";
 import { importExposureTypeOptions, mainExposureTypeOptions } from "../../../importsRegister/component/utils/constant";
+import { calculateHedgeRate } from "./constant";
 
 const ForwardRegisterForm = ({ submitForm }: any) => {
   const toast = useToast();
@@ -24,8 +25,6 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
   const [showExposureFields, setShowExposureFields] = useState(false);
   const [selectedMainExposureType, setSelectedMainExposureType] = useState('');
   const url = process.env.REACT_APP_FX_BASE_URL;
-  // const url = "https://7b0fa03efa8d.ngrok-free.app";
-
   const validationSchema = Yup.object({
     bookingDate: Yup.string().required("Booking Date is required"),
     exposureType: Yup.string().required("Exposure Type is required"),
@@ -87,7 +86,6 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
     setFieldValue("rmPolicyRate", "");
     setFieldValue("dueDate", "");
     setFieldValue("allocatedAmount", "");
-    
     // Recalculate hedge rate when exposure type changes
     const calculatedRate = calculateHedgeRate({
       ...currentValues,
@@ -145,8 +143,26 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
     return [];
   };
 
-  const handleFormSubmit = (handleSubmit: any, errors: any) => {
+  // const handleFormSubmit = (handleSubmit: any, errors: any) => {
+  //   setShowError(true);
+  //   if (Object.keys(errors).length > 0) {
+  //     const firstError = Object.values(errors)[0] as string;
+  //     toast({
+  //       title: "Validation Error",
+  //       description: firstError || "Please fill all required fields correctly",
+  //       status: "error",
+  //       duration: 4000,
+  //       isClosable: true,
+  //       position: "top-right",
+  //     });
+  //   }
+  //   handleSubmit();
+  // };  
+
+    const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
+
+    // Check if there are errors
     if (Object.keys(errors).length > 0) {
       const firstError = Object.values(errors)[0] as string;
       toast({
@@ -158,56 +174,48 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
         position: "top-right",
       });
     }
+
     handleSubmit();
   };
-
-  // Function to calculate hedge rate based on exposure type
-  const calculateHedgeRate = (values: any) => {
-    const { exposureType, spotBooked, forwardPoints, bankMargin } = values;
-
-    // Convert string values to numbers, handling empty strings
-    const spot = parseFloat(spotBooked) || 0;
-    const points = parseFloat(forwardPoints) || 0;
-    const margin = parseFloat(bankMargin) || 0;
-
-    if (exposureType && spotBooked && forwardPoints && bankMargin) {
-      let calculatedRate = 0;
-
-      if (
-        exposureType.toLowerCase().includes("export") ||
-        exposureType === "exports" ||
-        exposureType === "export"
-      ) {
-        // For exports: spot booked + forward points - bank margin
-        calculatedRate = spot + points - margin;
-      } else if (
-        exposureType.toLowerCase().includes("import") ||
-        exposureType === "imports" ||
-        exposureType === "import"
-      ) {
-        // For imports: spot booked + forward points + bank margin
-        calculatedRate = spot + points + margin;
-      }
-
-      return calculatedRate.toFixed(2); // Return with precision for rates
-    }
-
-    return "";
-  };
-
   return (
     <Box py={4}>
       <Box px={2}>
         <Formik
+          // initialValues={{
+          //   exposureRefNumber: "",
+          //   subExposureType: "",
+          //   allocatedAmount:"",
+          //   exposureType: "",
+          //   rmPolicyRate: "",
+          //   dueDate:"",
+          //   outStandingAmount:"",
+          //   currency:"",
+          //   bankMargin:""
+          // }}
           initialValues={{
-            exposureRefNumber: "",
-            subExposureType: "",
-            allocatedAmount:"",
-            exposureType: "",
-            rmPolicyRate: "",
-            dueDate:"",
-            outStandingAmount:""
-          }}
+  bookingDate: "",
+  exposureType: "",
+  subExposureType: "",
+  bank: "",
+  bussinessUnit: "",
+  hedgeDealReferenceNumber: "",
+  currency: "",
+  hedgeAmount: "",
+  spotBooked: "",
+  forwardPoints: "",
+  bankMargin: "",
+  hedgeRate: "",
+  dueDateFrom: "",
+  dueDateTo: "",
+
+  // Exposure Ref related fields
+  exposureRefNumber: "",
+  outStandingAmount: "",
+  rmPolicyRate: "",
+  dueDate: "",
+  allocatedAmount: "",
+}}
+
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values: any, actions: any) => {
@@ -238,8 +246,8 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     onChange={(option) => {
                       handleMainExposureTypeChange(option, setFieldValue, values);
                     }}
-                    error={touched.exposureType && errors.exposureType}
                     showError={showError}
+                    error={touched.exposureType && errors.exposureType}
                   />
 
                   {(values.exposureType === 'import' || values.exposureType === 'export') && (
@@ -254,8 +262,8 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                       onChange={(option) => {
                         handleSubExposureTypeChange(option, setFieldValue);
                       }}
-                      error={touched.subExposureType && errors.subExposureType}
                       showError={showError}
+                      error={touched.subExposureType && errors.subExposureType}
                       placeholder={`Select ${values.exposureType} type`}
                     />
                   )}
@@ -283,8 +291,8 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                         target: { name: "bank", value: option.value },
                       })
                     }
-                    error={touched.bank && errors.bank}
                     showError={showError}
+                    error={touched.bank && errors.bank}
                   />
 
                   <CustomInput
@@ -293,9 +301,9 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     placeholder="Enter Business Unit"
                     value={values.bussinessUnit}
                     onChange={handleChange}
+                    showError={showError}
                     error={touched.bussinessUnit && errors.bussinessUnit}
                     required={true}
-                    showError={showError}
                   />
 
                   <CustomInput
@@ -304,12 +312,12 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     placeholder="Enter Deal Reference Number"
                     value={values.hedgeDealReferenceNumber}
                     onChange={handleChange}
+                    showError={showError}
                     error={
                       touched.hedgeDealReferenceNumber &&
                       errors.hedgeDealReferenceNumber
                     }
                     required={true}
-                    showError={showError}
                   />
 
                   <CustomInput
@@ -328,9 +336,9 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                         },
                       })
                     }
+                    showError={showError}
                     error={touched.currency && errors.currency}
                     required={true}
-                    showError={showError}
                   />
 
                   <CustomInput
@@ -340,9 +348,9 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     placeholder="Enter Amount"
                     value={values.hedgeAmount}
                     onChange={handleChange}
+                    showError={showError}
                     error={touched.hedgeAmount && errors.hedgeAmount}
                     required={true}
-                    showError={showError}
                   />
 
                   <CustomInput
@@ -352,16 +360,15 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.spotBooked}
                     onChange={(e: any) => {
                       handleChange(e);
-                      // Recalculate hedge rate when spot booked changes
                       const calculatedRate = calculateHedgeRate({
                         ...values,
                         spotBooked: e.target.value,
                       });
                       setFieldValue("hedgeRate", calculatedRate);
                     }}
+                    showError={showError}
                     error={touched.spotBooked && errors.spotBooked}
                     required={true}
-                    showError={showError}
                   />
 
                   <CustomInput
@@ -371,7 +378,6 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.forwardPoints}
                     onChange={(e: any) => {
                       handleChange(e);
-                      // Recalculate hedge rate when forward points change
                       const calculatedRate = calculateHedgeRate({
                         ...values,
                         forwardPoints: e.target.value,
@@ -379,8 +385,8 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                       setFieldValue("hedgeRate", calculatedRate);
                     }}
                     error={touched.forwardPoints && errors.forwardPoints}
-                    required={true}
                     showError={showError}
+                    required={true}
                   />
 
                   <CustomInput
@@ -390,7 +396,6 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     value={values.bankMargin}
                     onChange={(e: any) => {
                       handleChange(e);
-                      // Recalculate hedge rate when bank margin changes
                       const calculatedRate = calculateHedgeRate({
                         ...values,
                         bankMargin: e.target.value,
@@ -522,7 +527,8 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                       border: "1px solid",
                     }}
                     transition={"transform 0.3s ease-in-out"}
-                    onClick={() => handleFormSubmit(handleSubmit, errors)}
+                     onClick={() => handleFormSubmit(handleSubmit, errors)}
+                    // onClick={() => handleFormSubmit(handleSubmit, errors)}
                     size="lg"
                     isLoading={isSubmitting}
                   >

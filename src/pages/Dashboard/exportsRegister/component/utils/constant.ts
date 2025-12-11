@@ -243,3 +243,85 @@ export const dummyExporPOtData = [
     outStandingAmount: "2300",
   },
 ]
+
+
+
+
+
+
+
+// const validationSchema = Yup.object({
+//     exposureType: Yup.string().required("Exposure Type is required"),
+//     poNo: Yup.string().required("PO No is required"),
+//     invoiceNo: Yup.string().when("exposureType", {
+//       is: (val: string) => val !== "confirmed_order",
+//       then: (schema) => schema.required("Invoice No is required"),
+//       otherwise: (schema) => schema.notRequired(),
+//     }),
+//     partyName: Yup.string().required("Party Name is required"),
+//     bank: Yup.string().required("Bank is required"),
+//     businessUnit: Yup.string().required("Business Unit is required"),
+//     paymentTerms: Yup.number().required("Payment terms is required"),
+//     currency: Yup.string().required("Currency is required"),
+
+//     amount: Yup.number()
+//       .required("Amount is required")
+//       .when(["exposureType", "outStandingAmount"], {
+//         is: (exposureType: string, outStandingAmount: any) =>
+//           exposureType === "shipment" && !!outStandingAmount,
+//         then: (schema) =>
+//           schema.test("max-outStandingAmount", function (value) {
+//             const { outStandingAmount } = this.parent;
+//             if (value && outStandingAmount && value > outStandingAmount) {
+//               return this.createError({
+//                 message: `Amount must be less than or equal to Outstanding Amount (${outStandingAmount})`,
+//               });
+//             }
+//             return true;
+//           }),
+//         otherwise: (schema) => schema,
+//       }),
+
+//     budgetRate: Yup.string().required("Budget Rate is required"),
+
+//     // Date Validations
+//     poDate: Yup.string().required("PO Date is required"),
+//     invoiceDate: Yup.date()
+//       .transform((value, originalValue) => originalValue ? new Date(originalValue) : value)
+//       .when("exposureType", {
+//         is: (val: string) => val !== "confirmed_order",
+//         then: (schema) => schema.required("Invoice Date is required"),
+//         otherwise: (schema) => schema.notRequired(),
+//       })
+//       .when("poDate", (poDate: any, schema: any) => {
+//         if (!poDate || !Date.parse(poDate)) return schema;
+//         return schema.min(new Date(poDate), "Invoice Date must be after PO Date");
+//       }),
+      
+//     blDate: Yup.string()
+//       .required("BL Date is required")
+//       .test(
+//         "bl-date-range",
+//         "BL Date must be between PO Date and Due Date",
+//         function (value) {
+//           const { poDate, dueDate } = this.parent;
+//           if (!value || !poDate || !dueDate) return true;
+//           const blDate = new Date(value);
+//           const poDateObj = new Date(poDate);
+//           const dueDateObj = new Date(dueDate);
+//           if(isNaN(blDate.getTime()) || isNaN(poDateObj.getTime()) || isNaN(dueDateObj.getTime())) return true;
+//           return blDate >= poDateObj && blDate <= dueDateObj;
+//         }
+//       ),
+//     dueDate: Yup.date()
+//       .transform((value, originalValue) => originalValue ? new Date(originalValue) : value)
+//       .required("Due Date is required")
+//       .when("blDate", (blDate: any, schema: any) => {
+//         if (!blDate || !Date.parse(blDate)) return schema;
+//         return schema.min(new Date(blDate), "Due Date must be after BL Date");
+//       })
+//       .when("poDate", (poDate: any, schema: any) => {
+//         if (!poDate || !Date.parse(poDate)) return schema;
+//         return schema.min(new Date(poDate), "Due Date must be after PO Date");
+//       }),
+//   });
