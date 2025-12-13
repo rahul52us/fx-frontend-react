@@ -1,12 +1,12 @@
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
-    Box,
-    Button,
-    Flex,
-    Heading,
-    IconButton,
-    SimpleGrid,
-    VStack
+  Box,
+  Button,
+  Flex,
+  Heading,
+  IconButton,
+  SimpleGrid,
+  VStack
 } from "@chakra-ui/react";
 import { FieldArray, useFormikContext } from "formik";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
@@ -87,7 +87,8 @@ const ConversionManager = ({ showError }: any) => {
     const hedge = parseFloat(updatedRow.hedgeRate) || 0;
     const premium = parseFloat(updatedRow.forwardPremium) || 0;
     const cashTom = parseFloat(updatedRow.cashTomSpot) || 0;
-    const net = hedge + premium + cashTom;
+    // const net = hedge + premium + cashTom;
+    const net = hedge - premium - cashTom;
     updatedRow.netSettlementRate = net ? net.toFixed(4) : "0.0000";
 
     setFieldValue(`forwardList.${index}`, updatedRow);
@@ -149,9 +150,25 @@ const ConversionManager = ({ showError }: any) => {
                       position="relative"
                     >
                       <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+                            <CustomInput
+                   label="Conversion Ref No"
+                    name="conversionRefNo"
+                    placeholder="Enter Conversion Ref No"
+                    value={values.conversionRefNo}
+                      onChange={(e: any) =>
+                            handleSpotFieldChange(
+                              index,
+                              "conversionRefNo",
+                              e.target.value
+                            )
+                          }
+                     error={touched.conversionRefNo && errors.conversionRefNo}
+                     showError={showError}
+                  />
                         <CustomInput
                           label="Amount Converted"
                           name={`spotList.${index}.amountConverted`}
+                          placeholder="0"
                           value={spot.amountConverted}
                           onChange={(e: any) =>
                             handleSpotFieldChange(

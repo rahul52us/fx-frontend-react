@@ -34,7 +34,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
   const toast = useToast();
 
   const validationSchema = Yup.object({
-    exposureType: Yup.mixed().required("Exposure Type is required"),
     invoiceNo: Yup.string().when("exposureType", {
       is: (val: string) => val !== "confirmed_order",
       then: (schema) => schema.required("Invoice No is required"),
@@ -46,6 +45,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
     businessUnit: Yup.string().required("Business Unit is required"),
     paymentTerms: Yup.number().required("Payment terms is required"),
     currency: Yup.mixed().required("Currency is required"),
+      exposureType: Yup.mixed().required("Exposure Type is required"),
 
     amount: Yup.number()
       .required("Amount is required")
