@@ -1,7 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { useColorModeValue } from "@chakra-ui/color-mode";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
-import { Box, Grid, Heading } from "@chakra-ui/layout";
+import { Box, Grid, Heading } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { Form, Formik } from "formik";
 import { ContactValidation } from "../utils/validation";

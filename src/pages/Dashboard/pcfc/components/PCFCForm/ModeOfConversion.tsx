@@ -53,11 +53,11 @@ const ModeOfConversion = () => {
   };
 
   return (
-    <Box p={4} bg="gray.50" rounded="md">
+    <Box p={4} bg="gray.50" rounded="2xl" shadow={"base"}>
       <HStack spacing={10}>
         <FormControl display="flex" alignItems="center">
           <FormLabel htmlFor="spot-switch" mb="0">
-            Enable Spot Conversion
+            Spot Conversion
           </FormLabel>
           <Switch
             id="spot-switch"
@@ -69,7 +69,7 @@ const ModeOfConversion = () => {
 
         <FormControl display="flex" alignItems="center">
           <FormLabel htmlFor="forward-switch" mb="0">
-            Enable Forward Conversion
+            Forward Conversion
           </FormLabel>
           <Switch
             id="forward-switch"

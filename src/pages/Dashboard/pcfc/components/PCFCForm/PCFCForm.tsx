@@ -15,103 +15,134 @@ import { banks } from "./dummyData"; // Adjust path as needed
 import ModeOfConversion from "./ModeOfConversion";
 
 // --- 1. Helper Component for Calculations (Fixes the Hook Error) ---
+// const FormAutoCalculator = () => {
+//   const { values, setFieldValue }: any = useFormikContext();
+
+//   // A. Calculate Total Interest Rate
+//   useEffect(() => {
+//     const floatRate = parseFloat(values.floatingInterestRate) || 0;
+//     const spread = parseFloat(values.bankSpread) || 0;
+//     // Only update if value actually changes to avoid infinite loops
+//     const newTotal = (floatRate + spread).toFixed(2);
+//     if (values.totalInterestRate !== newTotal) {
+//       setFieldValue("totalInterestRate", newTotal);
+//     }
+//   }, [values.floatingInterestRate, values.bankSpread, setFieldValue, values.totalInterestRate]);
+
+//   // B. Calculate Weighted Average Drawdown Rate & Total Drawdown Amount
+//   useEffect(() => {
+//     let totalAmount = 0;
+//     let weightedSum = 0;
+
+//     // Process Spot List
+//     if (values.isSpotEnabled && values.spotList?.length > 0) {
+//       values.spotList.forEach((item: any) => {
+//         const amt = parseFloat(item.amountConverted) || 0;
+//         const rate = parseFloat(item.netConversionRate) || 0;
+//         totalAmount += amt;
+//         weightedSum += (amt * rate);
+//       });
+//     }
+
+//     // Process Forward List
+//     if (values.isForwardEnabled && values.forwardList?.length > 0) {
+//       values.forwardList.forEach((item: any) => {
+//         const amt = parseFloat(item.utilizationAmount) || 0;
+//         const rate = parseFloat(item.netSettlementRate) || 0;
+//         totalAmount += amt;
+//         weightedSum += (amt * rate);
+//       });
+//     }
+
+//     // Update Formik
+//     if (values.drawdownAmount !== totalAmount) {
+//       setFieldValue("drawdownAmount", totalAmount);
+//     }
+
+//     const avgRate = totalAmount > 0 ? (weightedSum / totalAmount).toFixed(4) : "0";
+//     if (values.drawdownRate !== avgRate) {
+//       setFieldValue("drawdownRate", avgRate);
+//     }
+
+//   }, [values.spotList, values.forwardList, values.isSpotEnabled, values.isForwardEnabled, setFieldValue, values.drawdownAmount, values.drawdownRate]);
+
+//   return null; // This component renders nothing, just handles logic
+// };
+
+
 const FormAutoCalculator = () => {
   const { values, setFieldValue }: any = useFormikContext();
 
-  // A. Calculate Total Interest Rate
+  // A. Total Interest Rate
   useEffect(() => {
     const floatRate = parseFloat(values.floatingInterestRate) || 0;
     const spread = parseFloat(values.bankSpread) || 0;
-    // Only update if value actually changes to avoid infinite loops
-    const newTotal = (floatRate + spread).toFixed(2);
-    if (values.totalInterestRate !== newTotal) {
-      setFieldValue("totalInterestRate", newTotal);
-    }
-  }, [values.floatingInterestRate, values.bankSpread, setFieldValue, values.totalInterestRate]);
 
-  // B. Calculate Weighted Average Drawdown Rate & Total Drawdown Amount
+    const totalInterest = (floatRate + spread).toFixed(2);
+    if (values.totalInterestRate !== totalInterest) {
+      setFieldValue("totalInterestRate", totalInterest);
+    }
+  }, [
+    values.floatingInterestRate,
+    values.bankSpread,
+    values.totalInterestRate,
+    setFieldValue,
+  ]);
+
+  // B. Spot + Forward Weighted Drawdown Rate
   useEffect(() => {
     let totalAmount = 0;
     let weightedSum = 0;
 
-    // Process Spot List
-    if (values.isSpotEnabled && values.spotList?.length > 0) {
+    // Spot
+    if (values.isSpotEnabled && values.spotList?.length) {
       values.spotList.forEach((item: any) => {
         const amt = parseFloat(item.amountConverted) || 0;
         const rate = parseFloat(item.netConversionRate) || 0;
+
         totalAmount += amt;
-        weightedSum += (amt * rate);
+        weightedSum += amt * rate;
       });
     }
 
-    // Process Forward List
-    if (values.isForwardEnabled && values.forwardList?.length > 0) {
+    // Forward
+    if (values.isForwardEnabled && values.forwardList?.length) {
       values.forwardList.forEach((item: any) => {
         const amt = parseFloat(item.utilizationAmount) || 0;
         const rate = parseFloat(item.netSettlementRate) || 0;
+
         totalAmount += amt;
-        weightedSum += (amt * rate);
+        weightedSum += amt * rate;
       });
     }
 
-    // Update Formik
-    if (values.drawdownAmount !== totalAmount) {
-      setFieldValue("drawdownAmount", totalAmount);
+    const avgRate =
+      totalAmount > 0 ? (weightedSum / totalAmount).toFixed(4) : "0";
+
+    if (Number(values.drawdownAmount) !== totalAmount) {
+      setFieldValue("drawdownAmount", totalAmount.toFixed(2));
     }
 
-    const avgRate = totalAmount > 0 ? (weightedSum / totalAmount).toFixed(4) : "0";
     if (values.drawdownRate !== avgRate) {
       setFieldValue("drawdownRate", avgRate);
     }
+  }, [
+    values.isSpotEnabled,
+    values.isForwardEnabled,
+    values.spotList,
+    values.forwardList,
+    values.drawdownAmount,
+    values.drawdownRate,
+    setFieldValue,
+  ]);
 
-  }, [values.spotList, values.forwardList, values.isSpotEnabled, values.isForwardEnabled, setFieldValue, values.drawdownAmount, values.drawdownRate]);
-
-  return null; // This component renders nothing, just handles logic
+  return null;
 };
+
 
 // --- 2. Main Component ---
 const PCFCForm = ({ submitForm }: any) => {
   const [showError, setShowError] = useState(false); // Initially false, true on submit
-
-  // --- Validation Schema ---
-  // const validationSchema = Yup.object().shape({
-  //   drawdownDate: Yup.string().required("Drawdown Date is required"),
-  //   dueDate: Yup.string().required("Due Date is required"),
-  //   businessUnit: Yup.string().required("Business Unit is required"),
-  //   bank: Yup.string().required("Bank is required"),
-  //   tradeReferenceNumber: Yup.string().required("Trade Reference Number is required"),
-  //   currency: Yup.string().required("Currency is required"),
-  //   floatingInterestRate: Yup.string().required("Interest Rate is required"),
-  //   bankSpread: Yup.string().required("Bank Spread is required"),
-
-  //   // Conditional Array Validation
-  //   spotList: Yup.array().when("isSpotEnabled", {
-  //     is: true,
-  //     then: (schema) =>
-  //       schema.of(
-  //         Yup.object().shape({
-  //           amountConverted: Yup.string().required("Required"),
-  //           spotBooked: Yup.string().required("Required"),
-  //           cashTomSpot: Yup.string().required("Required"),
-  //         })
-  //       ).min(1, "At least one Spot entry is required"),
-  //     otherwise: (schema) => schema.nullable(),
-  //   }),
-
-  //   forwardList: Yup.array().when("isForwardEnabled", {
-  //     is: true,
-  //     then: (schema) =>
-  //       schema.of(
-  //         Yup.object().shape({
-  //           hedgeDealRefNo: Yup.string().required("Required"),
-  //           utilizationAmount: Yup.string().required("Required"),
-  //           forwardPremium: Yup.string().required("Required"),
-  //           cashTomSpot: Yup.string().required("Required"),
-  //         })
-  //       ).min(1, "At least one Forward entry is required"),
-  //     otherwise: (schema) => schema.nullable(),
-  //   }),
-  // });
 
   const validationSchema = Yup.object().shape({
   drawdownDate: Yup.string().required("Drawdown Date is required"),

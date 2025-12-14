@@ -15,7 +15,6 @@ import HedgeDealSelector from "./HedgeDealSelector";
 
 const ConversionManager = ({ showError }: any) => {
   const { values, setFieldValue, errors, touched }: any = useFormikContext();
-
   /* ------------ SPOT ROW CALCULATION ------------- */
   const handleSpotFieldChange = (
     index: number,
@@ -34,7 +33,7 @@ const ConversionManager = ({ showError }: any) => {
     const margin = parseFloat(updatedRow.bankMargin) || 0;
 
     // Excel: Net Conversion Rate = Spot + Cash/Tom - Bank Margin
-    const netRate = spot + cashTom - margin;
+    const netRate = spot - cashTom - margin;
     updatedRow.netConversionRate = netRate ? netRate.toFixed(4) : "0.0000";
 
     setFieldValue(`spotList.${index}`, updatedRow);
@@ -70,7 +69,7 @@ const ConversionManager = ({ showError }: any) => {
         const cashTom = parseFloat(updatedRow.cashTomSpot) || 0;
 
         // Net Settlement = Hedge + Premium + Cash/Tom
-        const net = hedge + premium + cashTom;
+        const net = hedge - premium - cashTom;
         updatedRow.netSettlementRate = net ? net.toFixed(4) : "0.0000";
 
         setFieldValue(`forwardList.${index}`, updatedRow);
@@ -87,6 +86,7 @@ const ConversionManager = ({ showError }: any) => {
     const hedge = parseFloat(updatedRow.hedgeRate) || 0;
     const premium = parseFloat(updatedRow.forwardPremium) || 0;
     const cashTom = parseFloat(updatedRow.cashTomSpot) || 0;
+    // const spotBooked = parseFloat(updatedRow.spotBooked) || 0;
     // const net = hedge + premium + cashTom;
     const net = hedge - premium - cashTom;
     updatedRow.netSettlementRate = net ? net.toFixed(4) : "0.0000";
@@ -307,9 +307,6 @@ const ConversionManager = ({ showError }: any) => {
             {({ remove }) => (
               <VStack spacing={4}>
                 {values.forwardList?.map((fw: any, index: number) => {
-                //   const fwTouched = (touched.forwardList?.[index] as any) || {};
-                //   const fwErrors = (errors.forwardList?.[index] as any) || {};
-
                   return (
                     <Box
                       key={index}
@@ -321,7 +318,6 @@ const ConversionManager = ({ showError }: any) => {
                       position="relative"
                     >
                         <SimpleGrid columns={[1, 2, 3]} spacing={4}>
-  
   {/* New Hedge Deal Component */}
   <HedgeDealSelector
     // url={process.env.NEXT_PUBLIC_API_URL}
@@ -350,7 +346,6 @@ const ConversionManager = ({ showError }: any) => {
     }
     showError={showError}
   />
-
   <CustomInput
     label="Forward Premium"
     name={`forwardList.${index}.forwardPremium`}
@@ -393,136 +388,7 @@ const ConversionManager = ({ showError }: any) => {
     value={fw.netSettlementRate}
     disabled={true}
   />
-
 </SimpleGrid>
-
-                      {/* <SimpleGrid columns={[1, 2, 3]} spacing={4}>
-                        
-                        <FormControl>
-                          <FormLabel>Hedge Deal Ref No</FormLabel>
-                          <select
-                            style={{
-                              width: "100%",
-                              padding: "8px",
-                              borderRadius: "5px",
-                              border: "1px solid #E2E8F0",
-                            }}
-                            value={fw.hedgeDealRefNo}
-                            onChange={(e) =>
-                              handleForwardFieldChange(
-                                index,
-                                "hedgeDealRefNo",
-                                e.target.value
-                              )
-                            }
-                          >
-                            <option value="">Select Deal</option>
-                            {forwardRegDataAllData.map((item: any) => (
-                              <option
-                                key={item.hedgeDealRefNo}
-                                value={item.hedgeDealRefNo}
-                              >
-                                {item.hedgeDealRefNo}
-                              </option>
-                            ))}
-                          </select>
-                        </FormControl>
-
-                        <CustomInput
-                          label="Utilization Amount"
-                          name={`forwardList.${index}.utilizationAmount`}
-                          value={fw.utilizationAmount}
-                          onChange={(e: any) =>
-                            handleForwardFieldChange(
-                              index,
-                              "utilizationAmount",
-                              e.target.value
-                            )
-                          }
-                          error={
-                            fwTouched.utilizationAmount &&
-                            fwErrors.utilizationAmount
-                          }
-                          showError={showError}
-                        />
-
-                        <CustomInput
-                          label="Outstanding Amount"
-                          name={`forwardList.${index}.outstandingAmount`}
-                          value={fw.outstandingAmount}
-                          disabled={true}
-                          showError={false}
-                        />
-
-                        <CustomInput
-                          label="Hedge Rate"
-                          name={`forwardList.${index}.hedgeRate`}
-                          value={fw.hedgeRate}
-                          disabled={true}
-                          showError={false}
-                        />
-
-                        <CustomInput
-                          label="Forward Premium"
-                          name={`forwardList.${index}.forwardPremium`}
-                          value={fw.forwardPremium}
-                          onChange={(e: any) =>
-                            handleForwardFieldChange(
-                              index,
-                              "forwardPremium",
-                              e.target.value
-                            )
-                          }
-                          error={
-                            fwTouched.forwardPremium && fwErrors.forwardPremium
-                          }
-                          showError={showError}
-                        />
-
-                        <CustomInput
-                          label="Cash/Tom Spot"
-                          name={`forwardList.${index}.cashTomSpot`}
-                          value={fw.cashTomSpot}
-                          onChange={(e: any) =>
-                            handleForwardFieldChange(
-                              index,
-                              "cashTomSpot",
-                              e.target.value
-                            )
-                          }
-                          error={
-                            fwTouched.cashTomSpot && fwErrors.cashTomSpot
-                          }
-                          showError={showError}
-                        />
-
-                        <CustomInput
-                          label="Net Settlement Rate"
-                          name={`forwardList.${index}.netSettlementRate`}
-                          value={fw.netSettlementRate}
-                          disabled
-                          showError={false}
-                        />
-
-                        <CustomInput
-                          label="Delivery Date From"
-                          name={`forwardList.${index}.deliveryDateFrom`}
-                          type="date"
-                          value={fw.deliveryDateFrom}
-                          disabled
-                          showError={false}
-                        />
-
-                        <CustomInput
-                          label="Delivery Date To"
-                          name={`forwardList.${index}.deliveryDateTo`}
-                          type="date"
-                          value={fw.deliveryDateTo}
-                          disabled
-                          showError={false}
-                        />
-                      </SimpleGrid> */}
-
                       {values.forwardList.length > 1 && (
                         <IconButton
                           aria-label="Delete row"
