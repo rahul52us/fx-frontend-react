@@ -2,51 +2,48 @@
 
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
-    Box,
-    Button,
-    Select as ChakraSelect,
-    Flex,
-    FormControl,
-    FormLabel,
-    IconButton,
-    SimpleGrid,
-    VStack,
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  SimpleGrid,
+  VStack
 } from "@chakra-ui/react";
 import { FieldArray, useFormikContext } from "formik";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
 
 // Dummy EEFC register data (replace with API later)
-const dummyEEFCExportsRegister = [
-  {
-    conversionRefNo: "EEFCEXP001",
-    outstandingAmount: "50000",
-    hedgeRate: "82.35",
-    deliveryDateFrom: "2025-03-10",
-    deliveryDateTo: "2025-03-15",
-  },
-  {
-    conversionRefNo: "EEFCEXP002",
-    outstandingAmount: "20000",
-    hedgeRate: "82.12",
-    deliveryDateFrom: "2025-03-18",
-    deliveryDateTo: "2025-03-25",
-  },
-];
+// const dummyEEFCExportsRegister = [
+//   {
+//     conversionRefNo: "EEFCEXP001",
+//     outstandingAmount: "50000",
+//     hedgeRate: "82.35",
+//     deliveryDateFrom: "2025-03-10",
+//     deliveryDateTo: "2025-03-15",
+//   },
+//   {
+//     conversionRefNo: "EEFCEXP002",
+//     outstandingAmount: "20000",
+//     hedgeRate: "82.12",
+//     deliveryDateFrom: "2025-03-18",
+//     deliveryDateTo: "2025-03-25",
+//   },
+// ];
 
 const EEFCExportsSection = ({ showError }: any) => {
   const { values, setFieldValue, errors, touched }: any = useFormikContext();
 
   // template for a new row
   const emptyRow = {
-    conversionReferenceNumber: "",
-    outstandingAmount: "",
     utilizationAmount: "",
-    hedgeRate: "",
-    forwardPremium: "",
-    cashTomSpot: "",
-    deliveryDateFrom: "",
-    deliveryDateTo: "",
-    netSettlementRate: "",
+    netConversionRate: "",
+    // conversionReferenceNumber: "",
+    // outstandingAmount: "",
+    // hedgeRate: "",
+    // forwardPremium: "",
+    // cashTomSpot: "",
+    // deliveryDateFrom: "",
+    // deliveryDateTo: "",
   };
 
   // Recalculate per-row net settlement rate
@@ -70,27 +67,27 @@ const EEFCExportsSection = ({ showError }: any) => {
   };
 
   // When conversionRefNo is selected
-  const handleSelectReference = (index: number, ref: string) => {
-    const selected = dummyEEFCExportsRegister.find(
-      (x) => x.conversionRefNo === ref
-    );
+  // const handleSelectReference = (index: number, ref: string) => {
+  //   const selected = dummyEEFCExportsRegister.find(
+  //     (x) => x.conversionRefNo === ref
+  //   );
 
-    if (!selected) return;
+  //   if (!selected) return;
 
-    const updatedRow = {
-      ...values.eefcExportsList[index],
-      conversionReferenceNumber: ref,
-      outstandingAmount: selected.outstandingAmount,
-      hedgeRate: selected.hedgeRate,
-      deliveryDateFrom: selected.deliveryDateFrom,
-      deliveryDateTo: selected.deliveryDateTo,
-    };
+  //   const updatedRow = {
+  //     ...values.eefcExportsList[index],
+  //     conversionReferenceNumber: ref,
+  //     outstandingAmount: selected.outstandingAmount,
+  //     hedgeRate: selected.hedgeRate,
+  //     deliveryDateFrom: selected.deliveryDateFrom,
+  //     deliveryDateTo: selected.deliveryDateTo,
+  //   };
 
-    // recalc
-    updatedRow.netSettlementRate = calculateNetSettlementRate(updatedRow);
+  //   // recalc
+  //   updatedRow.netSettlementRate = calculateNetSettlementRate(updatedRow);
 
-    setFieldValue(`eefcExportsList.${index}`, updatedRow);
-  };
+  //   setFieldValue(`eefcExportsList.${index}`, updatedRow);
+  // };
 
   return (
     <Box
@@ -137,10 +134,37 @@ const EEFCExportsSection = ({ showError }: any) => {
                   w="full"
                   position="relative"
                 >
-                  <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+                  <SimpleGrid columns={[1, 2, 2]} spacing={4}>
+
+                    <CustomInput
+                      label="Utilization Amount"
+                      placeholder="Enter Utilization Amount"
+                      name={`eefcExportsList.${index}.utilizationAmount`}
+                      type="number"
+                      value={row.utilizationAmount}
+                      onChange={(e: any) =>
+                        handleChange(
+                          index,
+                          "utilizationAmount",
+                          e.target.value
+                        )
+                      }
+                      error={
+                        rowTouched.utilizationAmount &&
+                        rowErrors.utilizationAmount
+                      }
+                      showError={showError}
+                    />
+                        <CustomInput
+                       label="Net Conversion Rate"
+                       placeholder="Net Conversion Rate"
+                       name={`eefcExportsList.${index}.netConversionRate`}
+                       value={row.netConversionRate}
+                       // disabled
+                     />
 
                     {/* Conversion Ref No */}
-                    <FormControl>
+                    {/* <FormControl>
                       <FormLabel>Conversion Reference No</FormLabel>
                       <ChakraSelect
                         placeholder="Select Reference"
@@ -190,24 +214,7 @@ const EEFCExportsSection = ({ showError }: any) => {
                       disabled
                     />
 
-                    <CustomInput
-                      label="Utilization Amount"
-                      name={`eefcExportsList.${index}.utilizationAmount`}
-                      type="number"
-                      value={row.utilizationAmount}
-                      onChange={(e: any) =>
-                        handleChange(
-                          index,
-                          "utilizationAmount",
-                          e.target.value
-                        )
-                      }
-                      error={
-                        rowTouched.utilizationAmount &&
-                        rowErrors.utilizationAmount
-                      }
-                      showError={showError}
-                    />
+                 
 
                     <CustomInput
                       label="Forward Premium"
@@ -227,14 +234,8 @@ const EEFCExportsSection = ({ showError }: any) => {
                         handleChange(index, "cashTomSpot", e.target.value)
                       }
                       showError={showError}
-                    />
+                    /> */}
 
-                    <CustomInput
-                      label="Net Settlement Rate"
-                      name={`eefcExportsList.${index}.netSettlementRate`}
-                      value={row.netSettlementRate}
-                      disabled
-                    />
                   </SimpleGrid>
 
                   {values.eefcExportsList.length > 1 && (

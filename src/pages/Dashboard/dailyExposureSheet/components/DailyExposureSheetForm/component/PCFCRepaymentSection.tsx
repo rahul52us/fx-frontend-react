@@ -20,16 +20,16 @@ const dummyPCFCRegister = [
   {
     conversionRefNo: "PCFC001",
     outstandingAmount: "45000",
-    hedgeRate: "82.30",
-    deliveryDateFrom: "2025-04-05",
-    deliveryDateTo: "2025-04-15",
+    netDrawdownRate: "82.30",
+    dueDate: "2025-04-05",
+    // deliveryDateTo: "2025-04-15",
   },
   {
     conversionRefNo: "PCFC002",
     outstandingAmount: "28000",
-    hedgeRate: "82.05",
-    deliveryDateFrom: "2025-04-18",
-    deliveryDateTo: "2025-04-30",
+    netDrawdownRate: "82.05",
+    dueDate: "2025-04-18",
+    // deliveryDateTo: "2025-04-30",
   },
 ];
 
@@ -39,18 +39,19 @@ const PCFCRepaymentSection = ({ showError }: any) => {
   const emptyRow = {
     conversionReferenceNumber: "",
     outstandingAmount: "",
-    hedgeRate: "",
+    // hedgeRate: "",
+    netDrawdownRate: "",
     deliveryDateFrom: "",
     deliveryDateTo: "",
     utilizationAmount: "",
-    forwardPremium: "",
-    cashTomSpot: "",
+    // forwardPremium: "",
+    // cashTomSpot: "",
     netSettlementRate: "",
   };
 
   // calculate net settlement rate
   const calculateNetSettlementRate = (row: any) => {
-    const hedge = parseFloat(row.hedgeRate) || 0;
+    const hedge = parseFloat(row.netDrawdownRate) || 0;
     const premium = parseFloat(row.forwardPremium) || 0;
     const cashTom = parseFloat(row.cashTomSpot) || 0;
     const net = hedge + premium + cashTom;
@@ -75,9 +76,9 @@ const PCFCRepaymentSection = ({ showError }: any) => {
       ...values.pcfcList[index],
       conversionReferenceNumber: ref,
       outstandingAmount: selected.outstandingAmount,
-      hedgeRate: selected.hedgeRate,
-      deliveryDateFrom: selected.deliveryDateFrom,
-      deliveryDateTo: selected.deliveryDateTo,
+      netDrawdownRate: selected.netDrawdownRate,
+      dueDate: selected.dueDate,
+      // deliveryDateTo: selected.deliveryDateTo,
     };
 
     updatedRow.netSettlementRate = calculateNetSettlementRate(updatedRow);
@@ -160,27 +161,28 @@ const PCFCRepaymentSection = ({ showError }: any) => {
                     />
 
                     <CustomInput
-                      label="Hedge Rate"
-                      name={`pcfcList.${index}.hedgeRate`}
-                      value={row.hedgeRate}
+                      label="Net Drawdown Rate"
+                      placeholder="Drawdown Rate"
+                      name={`pcfcList.${index}.netDrawdownRate`}
+                      value={row.netDrawdownRate}
                       disabled
                     />
 
                     <CustomInput
-                      label="Delivery Date From"
-                      name={`pcfcList.${index}.deliveryDateFrom`}
+                      label="Due Date"
+                      name={`pcfcList.${index}.dueDate`}
                       type="date"
-                      value={row.deliveryDateFrom}
+                      value={row.dueDate}
                       disabled
                     />
 
-                    <CustomInput
+                    {/* <CustomInput
                       label="Delivery Date To"
                       name={`pcfcList.${index}.deliveryDateTo`}
                       type="date"
                       value={row.deliveryDateTo}
                       disabled
-                    />
+                    /> */}
 
                     <CustomInput
                       label="Utilization Amount"
@@ -197,7 +199,7 @@ const PCFCRepaymentSection = ({ showError }: any) => {
                       showError={showError}
                     />
 
-                    <CustomInput
+                    {/* <CustomInput
                       label="Forward Premium"
                       name={`pcfcList.${index}.forwardPremium`}
                       value={row.forwardPremium}
@@ -220,7 +222,7 @@ const PCFCRepaymentSection = ({ showError }: any) => {
                       name={`pcfcList.${index}.netSettlementRate`}
                       value={row.netSettlementRate}
                       disabled
-                    />
+                    /> */}
                   </SimpleGrid>
 
                   {values.pcfcList.length > 1 && (

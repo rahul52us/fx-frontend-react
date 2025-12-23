@@ -320,9 +320,10 @@ const ConversionManager = ({ showError }: any) => {
                         <SimpleGrid columns={[1, 2, 3]} spacing={4}>
   {/* New Hedge Deal Component */}
   <HedgeDealSelector
-    // url={process.env.NEXT_PUBLIC_API_URL}
     index={index}
     values={fw}
+    bank={values.bank}
+    businessUnit={values.businessUnit}
     setFieldValue={setFieldValue}
     touched={touched.forwardList?.[index]}
     errors={errors.forwardList?.[index]}

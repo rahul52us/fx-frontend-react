@@ -132,34 +132,8 @@ const {
 
   useEffect(() => {
     fetchExportRegisterData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
- 
-
-// const PCFCColumns = [
-//   { headerName: "Created On", key: "createdAt" },
-//   { headerName: "Drawdown Date", key: "drawdownDate", label: "Drawdown Date" },
-//   { headerName: "Mode of Conversion", key: "modeOfConversion", label: "Mode of Conversion" },
-//   { headerName: "Bank", key: "bank", label: "Bank" },
-//   { headerName: "Currency", key: "currency", label: "Currency" },
-//   { headerName: "Drawdown Amount", key: "drawdownAmount", label: "Drawdown Amount" },
-//   { headerName: "Drawdown Rate", key: "drawdownRate", label: "Drawdown Rate" },
-//   { headerName: "Total Interest Rate", key: "totalInterestRate", label: "Total Interest Rate" },
-//   { headerName: "Due Date", key: "dueDate", label: "Due Date" },
-//   {headerName:"PCFC Input Date",key:"pcfcInputDate",label:"PCFC Input Date"},
-//   {headerName:"PCFC Modification Date",key:"pcfcModificationDate",label:"PCFC Modification Date"},
-//    {
-  //       headerName: "Actions",
-  //       key: "table-actions",
-  //       type: "table-actions",
-  //       props: {
-    //         // isSticky: true,
-    //         row: { minW: 180, textAlign: "center" },
-    //         column: { textAlign: "center" },
-    //       },
-    //     },
-    // ];
     const PCFCColumns = [
       { headerName: "Created On", key: "createdAt" },
       { headerName: "Bank Spread", key: "bankSpread", label: "Bank Spread" },

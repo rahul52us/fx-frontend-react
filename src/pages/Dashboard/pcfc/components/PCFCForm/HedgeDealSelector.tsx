@@ -11,6 +11,8 @@ interface HedgeDealSelectorProps {
   touched: any;
   errors: any;
   showError: boolean;
+  bank: string;
+  businessUnit: string;
 }
 
 const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
@@ -21,6 +23,8 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
   touched,
   errors,
   showError,
+  bank,
+  businessUnit
 }) => {
   const [hedgeDeals, setHedgeDeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -30,8 +34,10 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
   const fetchHedgeDeal = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(`${url}/forwardregister/hedgedealid/`);
-
+      const response = await axios.post(`${url}/forwardregister/hedgedealid/`,{
+        bank: bank,
+        businessUnit: businessUnit
+      });
       if (response?.data?.status === "success") {
         setHedgeDeals(response.data.data || []);
       }
@@ -48,6 +54,8 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
       setLoading(false);
     }
   };
+
+ 
 
   useEffect(() => {
     fetchHedgeDeal();
