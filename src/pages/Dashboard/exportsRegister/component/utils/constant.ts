@@ -23,8 +23,8 @@ export const currencyOptions = [
 
 
 export const exposureTypeOptions = [
-  { label: "Exports", value: "exports" },
-  { label: "Imports", value: "imports" },
+  { label: "Exports", value: "export" },
+  { label: "Imports", value: "import" },
 ];
 
 export const exportRegisterexposureTypeOptions = [
