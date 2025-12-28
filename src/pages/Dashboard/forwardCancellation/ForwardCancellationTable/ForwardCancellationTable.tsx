@@ -152,7 +152,7 @@ const ForwardCancellationTable = () => {
   return (
     <>
       <CustomTable
-        title="Forward Cancellation & PCFC"
+        title="Forward Cancellation"
         data={exportData}
         columns={DealDataColumns}
         actions={{

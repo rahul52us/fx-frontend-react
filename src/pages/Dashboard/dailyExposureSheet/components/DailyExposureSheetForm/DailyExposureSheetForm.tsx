@@ -29,8 +29,6 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
   const [showError, setShowError] = useState(false);
   const [poOptions, setPoOptions] = useState<any[]>([]);
   const [invoiceOptions, setInvoiceOptions] = useState<any[]>([]);
-
-
   const validationSchema = Yup.object({
     settlementDate: Yup.string().required("Settlement Date is required"),
     settlementType: Yup.string().required("Settlement Type is required"),
@@ -118,9 +116,6 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
     handleChange({
       target: { name: "settlementType", value: option.value },
     });
-
-    // setFieldValue("poNumber", "");
-    // setFieldValue("invoiceBcNumber", "");
   }}
   error={touched.settlementType && errors.settlementType}
   showError={showError}
@@ -139,12 +134,12 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
     handleChange({
       target: { name: "exposureType", value: option.value },
     });
-
     setFieldValue("poNumber", "");
     setFieldValue("invoiceBcNumber", "");
     setFieldValue('outstandingAmount', '');
     setFieldValue("documentDueDate", "");
-
+     setFieldValue("isEEFCExportsEnabled", false);
+     setFieldValue("isEEFCImportsEnabled", false);
   }}
   error={touched.exposureType && errors.exposureType}
   showError={showError}
@@ -185,27 +180,28 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
 
                 <CustomInput
   label="Party Name"
+  required
   name="partyName"
   value={values.partyName}
   disabled
 />
-
 <CustomInput
   label="Business Unit"
+  required
   name="businessUnit"
   value={values.businessUnit}
   disabled
 />
-
 <CustomInput
+  required
   label="Bank"
   name="bank"
   value={values.bank}
   disabled
 />
-
 <CustomInput
   label="Currency"
+  required
   name="currency"
   value={values.currency}
   disabled
@@ -222,19 +218,13 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
   value={values.documentDueDate}
   disabled
 />
-
                 </SimpleGrid>
-
-
               <ConversionTypeSelector
         values={values}
         setFieldValue={setFieldValue}
       />
-
                 <SpotForwardCalculation />
-
                 {/* ===================== CONDITIONAL SECTIONS ===================== */}
-
                 {values.isSpotEnabled && (
                   <SpotConversionSection showError={showError} />
                 )}
@@ -250,13 +240,9 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
            {values.isPCFCEnabled && (
   <PCFCRepaymentSection showError={showError} />
 )}
-
-
              {values.isForwardEnabled && (
   <ForwardContractSection showError={showError} bank={values.bank} businessUnit={values.businessUnit} exposureType={values.exposureType} />
 )}
-
-
                 {/* ===================== SUMMARY SECTION ===================== */}
                 <Box p={4} bg="gray.100" borderRadius="lg">
                   <SimpleGrid columns={[1, 2, 3]} spacing={6}>
@@ -281,7 +267,6 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
                     />
                   </SimpleGrid>
                 </Box>
-
                 {/* ===================== ACTION BUTTON ===================== */}
                 <Flex justify={"end"}>
                   <Button

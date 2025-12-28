@@ -2,79 +2,27 @@
 
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
-    Box,
-    Button,
-    Select as ChakraSelect,
-    Flex,
-    FormControl,
-    FormLabel,
-    IconButton,
-    SimpleGrid,
-    VStack,
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  SimpleGrid,
+  VStack,
 } from "@chakra-ui/react";
 import { FieldArray, useFormikContext } from "formik";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
-
-// Dummy EEFC IMPORT register data (replace with API call)
-const dummyEEFCImportRegister = [
-  {
-    conversionRefNo: "EEFCPIMP001",
-    outstandingAmount: "60000",
-    bookedRate: "81.55",
-  },
-  {
-    conversionRefNo: "EEFCPIMP002",
-    outstandingAmount: "35000",
-    bookedRate: "82.10",
-  },
-];
 
 const EEFCImportsSection = ({ showError }: any) => {
   const { values, setFieldValue, errors, touched }: any = useFormikContext();
 
   const emptyRow = {
-    conversionReferenceNumber: "",
-    outstandingAmount: "",
-    bookedRate: "",
-    spotBooked: "",
-    cashTomSpot: "",
-    bankMargin: "",
-    netRate: "",
     amount: "",
     settlementRate: "",
-  };
-
-  const calculateNetRate = (row: any) => {
-    const spot = parseFloat(row.spotBooked) || 0;
-    const cashTom = parseFloat(row.cashTomSpot) || 0;
-    const margin = parseFloat(row.bankMargin) || 0;
-
-    const net = spot + cashTom - margin;
-    return net ? net.toFixed(4) : "0.0000";
+    closingAmount:""
   };
 
   const handleChange = (index: number, field: string, value: any) => {
     let updatedRow = { ...values.eefcImportsList[index], [field]: value };
-    updatedRow.netRate = calculateNetRate(updatedRow);
-    setFieldValue(`eefcImportsList.${index}`, updatedRow);
-  };
-
-  const handleSelectReference = (index: number, ref: string) => {
-    const selected = dummyEEFCImportRegister.find(
-      (x) => x.conversionRefNo === ref
-    );
-    if (!selected) return;
-
-    const updatedRow = {
-      ...values.eefcImportsList[index],
-      conversionReferenceNumber: ref,
-      outstandingAmount: selected.outstandingAmount,
-      bookedRate: selected.bookedRate,
-    };
-
-    // recalc
-    updatedRow.netRate = calculateNetRate(updatedRow);
-
     setFieldValue(`eefcImportsList.${index}`, updatedRow);
   };
 
@@ -124,84 +72,19 @@ const EEFCImportsSection = ({ showError }: any) => {
                   position="relative"
                 >
                   <SimpleGrid columns={[1, 2, 3]} spacing={4}>
-
-                    {/* Conversion Reference */}
-                    <FormControl>
-                      <FormLabel>Conversion Ref No</FormLabel>
-                      <ChakraSelect
-                        placeholder="Select Reference"
-                        value={row.conversionReferenceNumber}
-                        onChange={(e) =>
-                          handleSelectReference(index, e.target.value)
-                        }
-                      >
-                        {dummyEEFCImportRegister.map((item) => (
-                          <option
-                            key={item.conversionRefNo}
-                            value={item.conversionRefNo}
-                          >
-                            {item.conversionRefNo}
-                          </option>
-                        ))}
-                      </ChakraSelect>
-                    </FormControl>
-
                     <CustomInput
-                      label="Outstanding Amount"
-                      name={`eefcImportsList.${index}.outstandingAmount`}
-                      value={row.outstandingAmount}
-                      disabled
-                    />
-
-                    <CustomInput
-                      label="Booked Rate"
-                      name={`eefcImportsList.${index}.bookedRate`}
-                      value={row.bookedRate}
-                      disabled
-                    />
-
-                    <CustomInput
-                      label="Spot Booked"
-                      name={`eefcImportsList.${index}.spotBooked`}
-                      value={row.spotBooked}
+                      label="Settlement Rate"
+                      placeholder="Enter settlement rate"
+                      name={`eefcImportsList.${index}.settlementRate`}
+                      value={row.settlementRate}
                       onChange={(e: any) =>
-                        handleChange(index, "spotBooked", e.target.value)
+                        handleChange(index, "settlementRate", e.target.value)
                       }
-                      error={rowTouched.spotBooked && rowErrors.spotBooked}
-                      showError={showError}
-                    />
-
-                    <CustomInput
-                      label="Cash/Tom Spot"
-                      name={`eefcImportsList.${index}.cashTomSpot`}
-                      value={row.cashTomSpot}
-                      onChange={(e: any) =>
-                        handleChange(index, "cashTomSpot", e.target.value)
-                      }
-                      error={rowTouched.cashTomSpot && rowErrors.cashTomSpot}
-                      showError={showError}
-                    />
-
-                    <CustomInput
-                      label="Bank Margin"
-                      name={`eefcImportsList.${index}.bankMargin`}
-                      value={row.bankMargin}
-                      onChange={(e: any) =>
-                        handleChange(index, "bankMargin", e.target.value)
-                      }
-                      error={rowTouched.bankMargin && rowErrors.bankMargin}
-                      showError={showError}
-                    />
-
-                    <CustomInput
-                      label="Net Rate"
-                      name={`eefcImportsList.${index}.netRate`}
-                      value={row.netRate}
-                      disabled
                     />
 
                     <CustomInput
                       label="Amount"
+                      placeholder="Enter Amount"
                       name={`eefcImportsList.${index}.amount`}
                       type="number"
                       value={row.amount}
@@ -211,12 +94,17 @@ const EEFCImportsSection = ({ showError }: any) => {
                     />
 
                     <CustomInput
-                      label="Settlement Rate"
-                      name={`eefcImportsList.${index}.settlementRate`}
-                      value={row.settlementRate}
+                      label="Closing Amount"
+                      placeholder="Enter closing amount"
+                      name={`eefcImportsList.${index}.closingAmount`}
+                      value={row.closingAmount}
                       onChange={(e: any) =>
-                        handleChange(index, "settlementRate", e.target.value)
+                        handleChange(index, "closingAmount", e.target.value)
                       }
+                      error={
+                        rowTouched.closingAmount && rowErrors.closingAmount
+                      }
+                      showError={showError}
                     />
                   </SimpleGrid>
 
