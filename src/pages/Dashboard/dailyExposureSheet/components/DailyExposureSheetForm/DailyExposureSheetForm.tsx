@@ -14,7 +14,7 @@ import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../../globalStyles";
-import { exposureTypeOptions } from "../../../exportsRegister/component/utils/constant";
+import { exposureTypeOptions, settlementTypeOptions } from "../../../exportsRegister/component/utils/constant";
 import ConversionTypeSelector from "./component/ConversionTypeSelector";
 import EEFCExportsSection from "./component/EEFCExportsSection";
 import EEFCImportsSection from "./component/EEFCImportsSection";
@@ -48,6 +48,9 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
             settlementDate: "",
             settlementInputDate: new Date().toISOString().split("T")[0],
             settlementType: "",
+            outstandingAmount: "",
+            documentDueDate: "",
+            exposureType: "",
             poNumber: "",
             invoiceBcNumber: "",
             partyName: "",
@@ -71,7 +74,6 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
             forwardList: [],
 
             // Summary fields
-            netRate: "",
             settlementRate: "",
             settledAmountInINR: "",
           }}
@@ -89,6 +91,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
                <ExposureSettlementController
         setPoOptions={setPoOptions}
         setInvoiceOptions={setInvoiceOptions}
+        
       />
               <VStack spacing={6} align="stretch">
                 <SimpleGrid columns={[1, 2]} spacing={6}>
@@ -107,8 +110,8 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
   name="settlementType"
   type="select"
   required
-  options={exposureTypeOptions}
-  value={exposureTypeOptions.find(
+  options={settlementTypeOptions}
+  value={settlementTypeOptions.find(
     (opt) => opt.value === values.settlementType
   )}
   onChange={(option) => {
@@ -116,10 +119,34 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
       target: { name: "settlementType", value: option.value },
     });
 
-    setFieldValue("poNumber", "");
-    setFieldValue("invoiceBcNumber", "");
+    // setFieldValue("poNumber", "");
+    // setFieldValue("invoiceBcNumber", "");
   }}
   error={touched.settlementType && errors.settlementType}
+  showError={showError}
+/>
+
+<CustomInput
+  label="Exposure Type"
+  name="exposureType"
+  type="select"
+  required
+  options={exposureTypeOptions}
+  value={exposureTypeOptions.find(
+    (opt) => opt.value === values.exposureType
+  )}
+  onChange={(option) => {
+    handleChange({
+      target: { name: "exposureType", value: option.value },
+    });
+
+    setFieldValue("poNumber", "");
+    setFieldValue("invoiceBcNumber", "");
+    setFieldValue('outstandingAmount', '');
+    setFieldValue("documentDueDate", "");
+
+  }}
+  error={touched.exposureType && errors.exposureType}
   showError={showError}
 />
 
@@ -183,6 +210,18 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
   value={values.currency}
   disabled
 />
+<CustomInput
+  label="Outstanding Amount"
+  name="outstandingAmount"
+  value={values.outstandingAmount}
+  disabled
+/>
+<CustomInput
+  label="Document Due Date"
+  name="documentDueDate"
+  value={values.documentDueDate}
+  disabled
+/>
 
                 </SimpleGrid>
 
@@ -214,19 +253,20 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
 
 
              {values.isForwardEnabled && (
-  <ForwardContractSection showError={showError} />
+  <ForwardContractSection showError={showError} bank={values.bank} businessUnit={values.businessUnit} exposureType={values.exposureType} />
 )}
 
 
                 {/* ===================== SUMMARY SECTION ===================== */}
                 <Box p={4} bg="gray.100" borderRadius="lg">
-                  <SimpleGrid columns={[1, 2, 4]} spacing={6}>
-                    <CustomInput
-                      label="Net Rate"
-                      name="netRate"
-                      value={values.netRate}
-                      disabled
-                    />
+                  <SimpleGrid columns={[1, 2, 3]} spacing={6}>
+              
+                      <CustomInput
+                        label="Settled Amount"
+                        name="settledAmount"
+                        value={values.settledAmount}
+                        onChange={handleChange}
+                      />
                     <CustomInput
                       label="Settlement Rate"
                       name="settlementRate"
@@ -238,12 +278,6 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
                       name="settledAmountInINR"
                       value={values.settledAmountInINR}
                       disabled
-                    />
-                    <CustomInput
-                      label="Settled Amount"
-                      name="settledAmount"
-                      value={values.settledAmount}
-                      onChange={handleChange}
                     />
                   </SimpleGrid>
                 </Box>

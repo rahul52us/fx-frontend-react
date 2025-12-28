@@ -3,21 +3,32 @@
 import {
   Box,
   Button,
-  Select as ChakraSelect,
   Flex,
-  FormControl,
-  FormLabel,
   IconButton,
   SimpleGrid,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import { FieldArray, useFormikContext } from "formik";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
-import { dummyForwardRegister } from "../utils/constent";
 
-const ForwardContractSection = ({ showError }: any) => {
-  const { values, setFieldValue, touched, errors }: any = useFormikContext();
+const ForwardContractSection = ({
+  showError,
+  businessUnit,
+  bank,
+  exposureType,
+}: any) => {
+  const { values, setFieldValue, touched, errors }: any =
+    useFormikContext();
+
+  const url = process.env.REACT_APP_FX_BASE_URL;
+  const toast = useToast();
+
+  const [hedgeDeals, setHedgeDeals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const emptyRow = {
     hedgeDealRefNo: "",
@@ -31,24 +42,103 @@ const ForwardContractSection = ({ showError }: any) => {
     netSettlementRate: "",
   };
 
-  const handleSelectReference = (index: number, ref: string) => {
-    const selected = dummyForwardRegister.find(
-      (x) => x.hedgeDealRefNo === ref
+  // 🔹 Fetch Hedge Deals (POST)
+  const fetchHedgeDeals = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${url}/forwardregister/hedgedealid/`,
+        {
+          bank,
+          businessUnit,
+          exposureType,
+        }
+      );
+
+      if (res?.data?.status === "success") {
+        setHedgeDeals(res.data.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching hedge deals:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch hedge deal list",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHedgeDeals();
+  }, [bank, businessUnit, exposureType]);
+
+  // 🔹 Select options
+  const hedgeOptions = hedgeDeals.map((item: any) => ({
+    label: item.hedgeDealRefNumber,
+    value: item.hedgeDealRefNumber,
+  }));
+
+  // 🔹 Net Settlement Rate
+  const calculateNetSettlementRate = (row: any) => {
+    const hedgeRate = parseFloat(row.hedgeRate) || 0;
+    const premium = parseFloat(row.forwardPremium) || 0;
+    const cashTom = parseFloat(row.cashTomSpot) || 0;
+    const net = hedgeRate + premium + cashTom;
+    return net ? net.toFixed(4) : "0.0000";
+  };
+
+  // 🔹 On Hedge Ref Select
+  const handleHedgeChange = (index: number, option: any) => {
+    const selected = hedgeDeals.find(
+      (x: any) => x.hedgeDealRefNumber === option?.value
     );
     if (!selected) return;
 
-    setFieldValue(`forwardList.${index}`, {
+    const updatedRow = {
       ...values.forwardList[index],
-      hedgeDealRefNo: selected.hedgeDealRefNo,
+      hedgeDealRefNo: selected.hedgeDealRefNumber,
       outstandingAmount: selected.outstandingAmount,
-      hedgeRate: selected.hedgeRate,
+      hedgeRate: selected.headgerate,
       deliveryDateFrom: selected.deliveryDateFrom,
       deliveryDateTo: selected.deliveryDateTo,
-    });
+    };
+
+    updatedRow.netSettlementRate =
+      calculateNetSettlementRate(updatedRow);
+
+    setFieldValue(`forwardList.${index}`, updatedRow);
+  };
+
+  // 🔹 Generic change handler
+  const handleChange = (
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    const updatedRow = {
+      ...values.forwardList[index],
+      [field]: value,
+    };
+
+    updatedRow.netSettlementRate =
+      calculateNetSettlementRate(updatedRow);
+
+    setFieldValue(`forwardList.${index}`, updatedRow);
   };
 
   return (
-    <Box p={5} borderWidth="1px" borderColor="pink.300" bg="pink.50" rounded="lg">
+    <Box
+      p={5}
+      borderWidth="1px"
+      borderColor="pink.300"
+      bg="pink.50"
+      rounded="lg"
+    >
+      {/* Header */}
       <Flex justify="space-between" mb={4}>
         <Box fontWeight={700} fontSize="lg" color="pink.700">
           Forward Contract Settlement
@@ -69,139 +159,159 @@ const ForwardContractSection = ({ showError }: any) => {
         </FieldArray>
       </Flex>
 
+      {/* Rows */}
       <FieldArray name="forwardList">
         {({ remove }) => (
           <VStack spacing={4}>
-            {values.forwardList?.map((row: any, index: number) => {
-              const rowTouched = touched?.forwardList?.[index] || {};
-              const rowErrors = errors?.forwardList?.[index] || {};
+            {values.forwardList?.map(
+              (row: any, index: number) => {
+                const rowTouched =
+                  touched?.forwardList?.[index] || {};
+                const rowErrors =
+                  errors?.forwardList?.[index] || {};
 
-              return (
-                <Box
-                  key={index}
-                  p={4}
-                  bg="white"
-                  shadow="sm"
-                  rounded="md"
-                  w="full"
-                  position="relative"
-                >
-                  <SimpleGrid columns={[1, 2, 3]} spacing={4}>
-                    <FormControl>
-                      <FormLabel>Hedge Deal Ref No</FormLabel>
-                      <ChakraSelect
-                        placeholder="Select Hedge Ref"
-                        value={row.hedgeDealRefNo}
-                        onChange={(e) =>
-                          handleSelectReference(index, e.target.value)
+                return (
+                  <Box
+                    key={index}
+                    p={4}
+                    bg="white"
+                    shadow="sm"
+                    rounded="md"
+                    w="full"
+                    position="relative"
+                  >
+                    <SimpleGrid
+                      columns={[1, 2, 3]}
+                      spacing={4}
+                    >
+                      {/* Hedge Ref Select */}
+                      <CustomInput
+                        label="Hedge Deal Ref No"
+                        name={`forwardList.${index}.hedgeDealRefNo`}
+                        type="select"
+                        placeholder={
+                          loading
+                            ? "Loading..."
+                            : "Select Hedge Ref"
                         }
-                      >
-                        {dummyForwardRegister.map((item) => (
-                          <option
-                            key={item.hedgeDealRefNo}
-                            value={item.hedgeDealRefNo}
-                          >
-                            {item.hedgeDealRefNo}
-                          </option>
-                        ))}
-                      </ChakraSelect>
-                    </FormControl>
+                        options={hedgeOptions}
+                        value={hedgeOptions.find(
+                          (opt) =>
+                            opt.value === row.hedgeDealRefNo
+                        )}
+                        onChange={(selected) =>
+                          handleHedgeChange(
+                            index,
+                            selected
+                          )
+                        }
+                        error={
+                          rowTouched.hedgeDealRefNo &&
+                          rowErrors.hedgeDealRefNo
+                        }
+                        showError={showError}
+                      />
 
-                    <CustomInput
-                      label="Outstanding Amount"
-                      value={row.outstandingAmount}
-                      name="outstandingAmount"
-                      disabled
-                    />
+                      {/* Auto-filled */}
+                      <CustomInput
+                        label="Outstanding Amount"
+                        name={`forwardList.${index}.outstandingAmount`}
+                        value={row.outstandingAmount}
+                        disabled
+                      />
 
-                    <CustomInput
-                      label="Hedge Rate"
-                      value={row.hedgeRate}
-                      name="hedgeRate"
-                      disabled
-                    />
+                      <CustomInput
+                        label="Hedge Rate"
+                        name={`forwardList.${index}.hedgeRate`}
+                        value={row.hedgeRate}
+                        disabled
+                      />
 
-                    <CustomInput
-                      label="Delivery Date From"
-                      type="date"
-                      name="deliveryDateFrom"
-                      value={row.deliveryDateFrom}
-                      disabled
-                    />
+                      <CustomInput
+                        label="Delivery Date From"
+                        name={`forwardList.${index}.deliveryDateFrom`}
+                        value={row.deliveryDateFrom}
+                        disabled
+                      />
 
-                    <CustomInput
-                      label="Delivery Date To"
-                      type="date"
-                      value={row.deliveryDateTo}
-                      name="deliveryDateTo"
-                      disabled
-                    />
+                      <CustomInput
+                        label="Delivery Date To"
+                        name={`forwardList.${index}.deliveryDateTo`}
+                        value={row.deliveryDateTo}
+                        disabled
+                      />
 
-                    <CustomInput
-                      label="Utilization Amount"
-                      name={`forwardList.${index}.utilizationAmount`}
-                      type="number"
-                      value={row.utilizationAmount}
-                      onChange={(e: any) =>
-                        setFieldValue(
-                          `forwardList.${index}.utilizationAmount`,
-                          e.target.value
-                        )
-                      }
-                      error={
-                        rowTouched.utilizationAmount &&
-                        rowErrors.utilizationAmount
-                      }
-                      showError={showError}
-                    />
+                      {/* Manual inputs */}
+                      <CustomInput
+                        label="Utilization Amount"
+                        name={`forwardList.${index}.utilizationAmount`}
+                        type="number"
+                        value={row.utilizationAmount}
+                        onChange={(e: any) =>
+                          handleChange(
+                            index,
+                            "utilizationAmount",
+                            e.target.value
+                          )
+                        }
+                        error={
+                          rowTouched.utilizationAmount &&
+                          rowErrors.utilizationAmount
+                        }
+                        showError={showError}
+                      />
 
-                    <CustomInput
-                      label="Forward Premium"
-                      value={row.forwardPremium}
-                      name="forwardPremium"
-                      onChange={(e: any) =>
-                        setFieldValue(
-                          `forwardList.${index}.forwardPremium`,
-                          e.target.value
-                        )
-                      }
-                    />
+                      <CustomInput
+                        label="Forward Premium"
+                        name={`forwardList.${index}.forwardPremium`}
+                        value={row.forwardPremium}
+                        onChange={(e: any) =>
+                          handleChange(
+                            index,
+                            "forwardPremium",
+                            e.target.value
+                          )
+                        }
+                      />
 
-                    <CustomInput
-                      label="Cash/Tom Spot"
-                      value={row.cashTomSpot}
-                      name="cashTomSpot"
-                      onChange={(e: any) =>
-                        setFieldValue(
-                          `forwardList.${index}.cashTomSpot`,
-                          e.target.value
-                        )
-                      }
-                    />
+                      <CustomInput
+                        label="Cash/Tom Spot"
+                        name={`forwardList.${index}.cashTomSpot`}
+                        value={row.cashTomSpot}
+                        onChange={(e: any) =>
+                          handleChange(
+                            index,
+                            "cashTomSpot",
+                            e.target.value
+                          )
+                        }
+                      />
 
-                    <CustomInput
-                      label="Net Settlement Rate"
-                      value={row.netSettlementRate}
-                      disabled
-                      name="netSettlementRate"
-                    />
-                  </SimpleGrid>
+                      <CustomInput
+                        label="Net Settlement Rate"
+                        name={`forwardList.${index}.netSettlementRate`}
+                        value={row.netSettlementRate}
+                        disabled
+                      />
+                    </SimpleGrid>
 
-                  {values.forwardList.length > 1 && (
-                    <IconButton
-                      aria-label="Delete"
-                      icon={<DeleteIcon />}
-                      size="sm"
-                      colorScheme="red"
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      onClick={() => remove(index)}
-                    />
-                  )}
-                </Box>
-              );
-            })}
+                    {/* Delete */}
+                    {values.forwardList.length > 1 && (
+                      <IconButton
+                        aria-label="Delete"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        colorScheme="red"
+                        position="absolute"
+                        top={2}
+                        right={2}
+                        onClick={() => remove(index)}
+                      />
+                    )}
+                  </Box>
+                );
+              }
+            )}
           </VStack>
         )}
       </FieldArray>

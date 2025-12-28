@@ -2,86 +2,116 @@
 
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
-    Box,
-    Button,
-    Select as ChakraSelect,
-    Flex,
-    FormControl,
-    FormLabel,
-    IconButton,
-    SimpleGrid,
-    VStack,
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  SimpleGrid,
+  VStack,
+  useToast,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { FieldArray, useFormikContext } from "formik";
+import { useEffect, useState } from "react";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
 
-// Dummy PCFC register data (replace with API)
-const dummyPCFCRegister = [
-  {
-    conversionRefNo: "PCFC001",
-    outstandingAmount: "45000",
-    netDrawdownRate: "82.30",
-    dueDate: "2025-04-05",
-    // deliveryDateTo: "2025-04-15",
-  },
-  {
-    conversionRefNo: "PCFC002",
-    outstandingAmount: "28000",
-    netDrawdownRate: "82.05",
-    dueDate: "2025-04-18",
-    // deliveryDateTo: "2025-04-30",
-  },
-];
-
 const PCFCRepaymentSection = ({ showError }: any) => {
-  const { values, setFieldValue, touched, errors }: any = useFormikContext();
+  const { values, setFieldValue, touched, errors }: any =
+    useFormikContext();
+
+  const toast = useToast();
+  const url = process.env.REACT_APP_FX_BASE_URL;
+
+  const [pcfcTradeRefs, setPcfcTradeRefs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const emptyRow = {
-    conversionReferenceNumber: "",
+    tradeRefNumber: "",
     outstandingAmount: "",
-    // hedgeRate: "",
     netDrawdownRate: "",
-    deliveryDateFrom: "",
-    deliveryDateTo: "",
+    dueDate: "",
     utilizationAmount: "",
-    // forwardPremium: "",
-    // cashTomSpot: "",
     netSettlementRate: "",
   };
 
-  // calculate net settlement rate
+  // 🔹 Fetch PCFC Trade Ref Data (POST API)
+  const fetchPCFCTradeRefs = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${url}/pcfcregister/traderefdata/`,
+        {} // no payload as per current API
+      );
+
+      if (res?.data?.status === "success") {
+        setPcfcTradeRefs(res.data.data || []);
+      }
+    } catch (error) {
+      console.error("PCFC Trade Ref fetch error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch PCFC Trade Reference list",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPCFCTradeRefs();
+  }, []);
+
+  // 🔹 Dropdown options
+  const tradeRefOptions = pcfcTradeRefs.map((item: any) => ({
+    label: item.tradeRefNumber,
+    value: item.tradeRefNumber,
+  }));
+
+  // 🔹 Net Settlement Rate (PCFC = Drawdown Rate)
   const calculateNetSettlementRate = (row: any) => {
-    const hedge = parseFloat(row.netDrawdownRate) || 0;
-    const premium = parseFloat(row.forwardPremium) || 0;
-    const cashTom = parseFloat(row.cashTomSpot) || 0;
-    const net = hedge + premium + cashTom;
-    return net ? net.toFixed(4) : "0.0000";
+    const rate = parseFloat(row.netDrawdownRate) || 0;
+    return rate ? rate.toFixed(4) : "0.0000";
   };
 
-  // on change of any field
-  const handleChange = (index: number, field: string, value: any) => {
-    let updatedRow = { ...values.pcfcList[index], [field]: value };
-    updatedRow.netSettlementRate = calculateNetSettlementRate(updatedRow);
-    setFieldValue(`pcfcList.${index}`, updatedRow);
-  };
-
-  // when selecting the PCFC reference
-  const handleSelectReference = (index: number, ref: string) => {
-    const selected = dummyPCFCRegister.find(
-      (x) => x.conversionRefNo === ref
+  // 🔹 On Trade Ref select
+  const handleTradeRefChange = (
+    index: number,
+    option: any
+  ) => {
+    const selected = pcfcTradeRefs.find(
+      (x: any) => x.tradeRefNumber === option?.value
     );
     if (!selected) return;
 
     const updatedRow = {
       ...values.pcfcList[index],
-      conversionReferenceNumber: ref,
+      tradeRefNumber: selected.tradeRefNumber,
       outstandingAmount: selected.outstandingAmount,
       netDrawdownRate: selected.netDrawdownRate,
       dueDate: selected.dueDate,
-      // deliveryDateTo: selected.deliveryDateTo,
     };
 
-    updatedRow.netSettlementRate = calculateNetSettlementRate(updatedRow);
+    updatedRow.netSettlementRate =
+      calculateNetSettlementRate(updatedRow);
+
+    setFieldValue(`pcfcList.${index}`, updatedRow);
+  };
+
+  // 🔹 Utilization change (manual)
+  const handleUtilizationChange = (
+    index: number,
+    value: any
+  ) => {
+    const updatedRow = {
+      ...values.pcfcList[index],
+      utilizationAmount: value,
+    };
+
+    updatedRow.netSettlementRate =
+      calculateNetSettlementRate(updatedRow);
 
     setFieldValue(`pcfcList.${index}`, updatedRow);
   };
@@ -94,6 +124,7 @@ const PCFCRepaymentSection = ({ showError }: any) => {
       bg="orange.50"
       rounded="lg"
     >
+      {/* Header */}
       <Flex justify="space-between" mb={4}>
         <Box fontWeight={700} fontSize="lg" color="orange.700">
           PCFC Repayment
@@ -114,132 +145,118 @@ const PCFCRepaymentSection = ({ showError }: any) => {
         </FieldArray>
       </Flex>
 
+      {/* Rows */}
       <FieldArray name="pcfcList">
         {({ remove }) => (
           <VStack spacing={4}>
-            {values.pcfcList?.map((row: any, index: number) => {
-              const rowTouched = touched?.pcfcList?.[index] || {};
-              const rowErrors = errors?.pcfcList?.[index] || {};
+            {values.pcfcList?.map(
+              (row: any, index: number) => {
+                const rowTouched =
+                  touched?.pcfcList?.[index] || {};
+                const rowErrors =
+                  errors?.pcfcList?.[index] || {};
 
-              return (
-                <Box
-                  key={index}
-                  p={4}
-                  bg="white"
-                  rounded="md"
-                  shadow="sm"
-                  w="full"
-                  position="relative"
-                >
-                  <SimpleGrid columns={[1, 2, 3]} spacing={4}>
-                    {/* Conversion Ref Dropdown */}
-                    <FormControl>
-                      <FormLabel>Conversion Ref No</FormLabel>
-                      <ChakraSelect
-                        placeholder="Select Reference"
-                        value={row.conversionReferenceNumber}
-                        onChange={(e) =>
-                          handleSelectReference(index, e.target.value)
+                return (
+                  <Box
+                    key={index}
+                    p={4}
+                    bg="white"
+                    rounded="md"
+                    shadow="sm"
+                    w="full"
+                    position="relative"
+                  >
+                    <SimpleGrid
+                      columns={[1, 2, 3]}
+                      spacing={4}
+                    >
+                      {/* 🔹 Trade Ref Select */}
+                      <CustomInput
+                        label="Trade Ref No"
+                        name={`pcfcList.${index}.tradeRefNumber`}
+                        type="select"
+                        placeholder={
+                          loading
+                            ? "Loading..."
+                            : "Select Trade Ref No"
                         }
-                      >
-                        {dummyPCFCRegister.map((item) => (
-                          <option
-                            key={item.conversionRefNo}
-                            value={item.conversionRefNo}
-                          >
-                            {item.conversionRefNo}
-                          </option>
-                        ))}
-                      </ChakraSelect>
-                    </FormControl>
+                        options={tradeRefOptions}
+                        value={tradeRefOptions.find(
+                          (opt) =>
+                            opt.value === row.tradeRefNumber
+                        )}
+                        onChange={(selected) =>
+                          handleTradeRefChange(
+                            index,
+                            selected
+                          )
+                        }
+                        error={
+                          rowTouched.tradeRefNumber &&
+                          rowErrors.tradeRefNumber
+                        }
+                        showError={showError}
+                      />
 
-                    <CustomInput
-                      label="Outstanding Amount"
-                      name={`pcfcList.${index}.outstandingAmount`}
-                      value={row.outstandingAmount}
-                      disabled
-                    />
+                      {/* 🔹 Auto-filled fields */}
+                      <CustomInput
+                        label="Outstanding Amount"
+                        name={`pcfcList.${index}.outstandingAmount`}
+                        value={row.outstandingAmount}
+                        disabled
+                      />
 
-                    <CustomInput
-                      label="Net Drawdown Rate"
-                      placeholder="Drawdown Rate"
-                      name={`pcfcList.${index}.netDrawdownRate`}
-                      value={row.netDrawdownRate}
-                      disabled
-                    />
+                      <CustomInput
+                        label="Net Drawdown Rate"
+                        name={`pcfcList.${index}.netDrawdownRate`}
+                        value={row.netDrawdownRate}
+                        disabled
+                      />
 
-                    <CustomInput
-                      label="Due Date"
-                      name={`pcfcList.${index}.dueDate`}
-                      type="date"
-                      value={row.dueDate}
-                      disabled
-                    />
+                      <CustomInput
+                        label="Due Date"
+                        name={`pcfcList.${index}.dueDate`}
+                        value={row.dueDate}
+                        disabled
+                      />
 
-                    {/* <CustomInput
-                      label="Delivery Date To"
-                      name={`pcfcList.${index}.deliveryDateTo`}
-                      type="date"
-                      value={row.deliveryDateTo}
-                      disabled
-                    /> */}
+                      {/* 🔹 Manual Utilization */}
+                      <CustomInput
+                        label="Utilization Amount"
+                        name={`pcfcList.${index}.utilizationAmount`}
+                        type="number"
+                        value={row.utilizationAmount}
+                        onChange={(e: any) =>
+                          handleUtilizationChange(
+                            index,
+                            e.target.value
+                          )
+                        }
+                        error={
+                          rowTouched.utilizationAmount &&
+                          rowErrors.utilizationAmount
+                        }
+                        showError={showError}
+                      />
+                    </SimpleGrid>
 
-                    <CustomInput
-                      label="Utilization Amount"
-                      name={`pcfcList.${index}.utilizationAmount`}
-                      type="number"
-                      value={row.utilizationAmount}
-                      onChange={(e: any) =>
-                        handleChange(index, "utilizationAmount", e.target.value)
-                      }
-                      error={
-                        rowTouched.utilizationAmount &&
-                        rowErrors.utilizationAmount
-                      }
-                      showError={showError}
-                    />
-
-                    {/* <CustomInput
-                      label="Forward Premium"
-                      name={`pcfcList.${index}.forwardPremium`}
-                      value={row.forwardPremium}
-                      onChange={(e: any) =>
-                        handleChange(index, "forwardPremium", e.target.value)
-                      }
-                    />
-
-                    <CustomInput
-                      label="Cash/Tom Spot"
-                      name={`pcfcList.${index}.cashTomSpot`}
-                      value={row.cashTomSpot}
-                      onChange={(e: any) =>
-                        handleChange(index, "cashTomSpot", e.target.value)
-                      }
-                    />
-
-                    <CustomInput
-                      label="Net Settlement Rate"
-                      name={`pcfcList.${index}.netSettlementRate`}
-                      value={row.netSettlementRate}
-                      disabled
-                    /> */}
-                  </SimpleGrid>
-
-                  {values.pcfcList.length > 1 && (
-                    <IconButton
-                      aria-label="Delete row"
-                      icon={<DeleteIcon />}
-                      size="sm"
-                      colorScheme="red"
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      onClick={() => remove(index)}
-                    />
-                  )}
-                </Box>
-              );
-            })}
+                    {/* 🔹 Delete Row */}
+                    {values.pcfcList.length > 1 && (
+                      <IconButton
+                        aria-label="Delete row"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        colorScheme="red"
+                        position="absolute"
+                        top={2}
+                        right={2}
+                        onClick={() => remove(index)}
+                      />
+                    )}
+                  </Box>
+                );
+              }
+            )}
           </VStack>
         )}
       </FieldArray>

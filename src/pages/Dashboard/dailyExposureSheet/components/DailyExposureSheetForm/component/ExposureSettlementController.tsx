@@ -13,22 +13,23 @@ const ExposureSettlementController = ({
 const url = process.env.REACT_APP_FX_BASE_URL
 
   const {
-    settlementType,
+    exposureType,
     poNumber,
     invoiceBcNumber,
+    settlementType
   } = values;
 
   /* --------------------------------------------------
      1️⃣ Fetch PO / Invoice numbers on settlement type
   -------------------------------------------------- */
   useEffect(() => {
-    if (!settlementType) return;
+    if (!exposureType && !settlementType) return;
 
     const fetchPoInv = async () => {
       try {
         const res = await axios.post(
           `${url}/exportregister/exprtimprtpoinvnum/`,
-          { settlementType }
+          { exposureType,settlementType }
         );
 
         if (res.data?.status === "success") {
@@ -58,13 +59,13 @@ const url = process.env.REACT_APP_FX_BASE_URL
     };
 
     fetchPoInv();
-  }, [settlementType]);
+  }, [exposureType,settlementType]);
 
   /* --------------------------------------------------
      2️⃣ Auto-populate exposure data
   -------------------------------------------------- */
   useEffect(() => {
-    if (!settlementType) return;
+    if (!exposureType) return;
     if (!poNumber && !invoiceBcNumber) return;
 
     const fetchExposureData = async () => {
@@ -72,7 +73,7 @@ const url = process.env.REACT_APP_FX_BASE_URL
         const res = await axios.post(
           `${url}/exportregister/expimpexposuredata/`,
           {
-            settlementType,
+            exposureType,
             poNum: poNumber || "",
             invNum: invoiceBcNumber || "",
           }
@@ -88,6 +89,8 @@ const url = process.env.REACT_APP_FX_BASE_URL
           setFieldValue("businessUnit", d.businessUnit || "");
           setFieldValue("bank", d.bank || "");
           setFieldValue("currency", d.currency || "");
+          setFieldValue("outstandingAmount", d.outstandingAmount || "");
+          setFieldValue("documentDueDate", d.dueDate || "");
         }
       } catch (error) {
         console.error("Exposure data fetch failed", error);
@@ -96,6 +99,8 @@ const url = process.env.REACT_APP_FX_BASE_URL
         setFieldValue("businessUnit", "");
         setFieldValue("bank", "");
         setFieldValue("currency", "");
+        setFieldValue("outstandingAmount", "");
+        setFieldValue("documentDueDate", "");
       }
     };
 

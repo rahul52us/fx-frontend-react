@@ -37,7 +37,7 @@ const ConversionTypeSelector = ({
         </FormControl>
 
         {/* ===================== EEFC EXPORTS ===================== */}
-        {values.settlementType === "exports" && (
+        {values.settlementType === "export" && (
           <FormControl display="flex" alignItems="center">
             <FormLabel mb="0">EEFC – Exports</FormLabel>
             <Switch
@@ -53,7 +53,7 @@ const ConversionTypeSelector = ({
         )}
 
         {/* ===================== EEFC IMPORTS ===================== */}
-        {values.settlementType === "imports" && (
+        {values.settlementType === "import" && (
           <FormControl display="flex" alignItems="center">
             <FormLabel mb="0">EEFC – Imports</FormLabel>
             <Switch
