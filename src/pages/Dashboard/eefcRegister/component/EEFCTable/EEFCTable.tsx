@@ -96,7 +96,7 @@ const EEFCTable = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://5cf5cb2fbb9b.ngrok-free.app/eefcregister/view/",
+        `${url}/eefcregister/view/`,
         // "http://srv864630.hstgr.cloud:8000/eefcregister/view/",
          { userToken: "abcxyz" }
       );
@@ -121,12 +121,14 @@ const EEFCTable = () => {
  const EEFCColumns = [
   // {headerName:"Month", key:"month", label:"Month"},
   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
+  { headerName: "Created At", key: "createdAt", label: "Created At" },
   { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
   { headerName: "Exposure Reference Number", key: "exposureReferenceNumber", label: "Reference Number" },
   { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
   { headerName: "Bank", key: "bank", label: "Bank" },
   { headerName: "Currency", key: "currency", label: "Currency" },
   { headerName: "Amount", key: "amount", label: "Amount" },
+  { headerName: "Amount in INR", key: "amountInInr", label: "Amount (INR)" },
   { headerName: "Reference Rate", key: "referenceRate", label: "Reference Rate" },
   { headerName: "Closing Balance", key: "closingBalance", label: "Closing Balance" },
   { headerName: "Weighted Average Rate", key: "weightedAverageRate", label: "Weighted Avg Rate" },

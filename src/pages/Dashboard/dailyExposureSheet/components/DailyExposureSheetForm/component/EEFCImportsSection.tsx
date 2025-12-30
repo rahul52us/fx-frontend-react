@@ -1,30 +1,77 @@
 "use client";
 
-import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
+import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
-  Button,
+  Center,
   Flex,
   IconButton,
   SimpleGrid,
-  VStack,
+  Spinner,
+  VStack
 } from "@chakra-ui/react";
+import axios from "axios";
 import { FieldArray, useFormikContext } from "formik";
+import { useEffect, useState } from "react";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
 
 const EEFCImportsSection = ({ showError }: any) => {
   const { values, setFieldValue, errors, touched }: any = useFormikContext();
+  const url = process.env.REACT_APP_FX_BASE_URL
+  const [loading,setLoading]= useState(false)
 
-  const emptyRow = {
-    amount: "",
-    settlementRate: "",
-    closingAmount:""
-  };
+  // const emptyRow = {
+  //   amount: "",
+  //   settlementRate: "",
+  //   closingAmount:""
+  // };
 
   const handleChange = (index: number, field: string, value: any) => {
     let updatedRow = { ...values.eefcImportsList[index], [field]: value };
     setFieldValue(`eefcImportsList.${index}`, updatedRow);
   };
+
+  useEffect(() => {
+  const fetchEEFCData = async () => {
+    try {
+      setLoading(true)
+      const res = await axios.post(`${url}/eefcregister/eefcdata/`);
+
+      const { prevClosingBalance,prevClosingBalanceInInr } = res?.data?.data || {};
+
+      // Ensure at least one row exists
+      if (!values.eefcImportsList || values.eefcImportsList.length === 0) {
+        setFieldValue("eefcImportsList", [
+          {
+            amount: "",
+            settlementRate: "",
+            closingAmount: prevClosingBalance ?? 0,
+            closingAmountInr:prevClosingBalanceInInr ?? 0
+          },
+        ]);
+      } else {
+        // Only update 0th index
+        setFieldValue(
+          "eefcImportsList.0.closingAmount",
+          prevClosingBalance ?? 0
+        );
+        setFieldValue(
+          "eefcImportsList.0.closingAmountInr",
+          prevClosingBalanceInInr ?? 0
+        );
+      }
+    } catch (err) {
+      console.error("EEFC fetch error", err);
+    }finally{
+      setLoading(false)
+    }
+  };
+
+  fetchEEFCData();
+}, []);
+
+
+
 
   return (
     <Box
@@ -39,7 +86,7 @@ const EEFCImportsSection = ({ showError }: any) => {
           EEFC Conversion – Imports
         </Box>
 
-        <FieldArray name="eefcImportsList">
+        {/* <FieldArray name="eefcImportsList">
           {({ push }) => (
             <Button
               leftIcon={<AddIcon />}
@@ -51,8 +98,15 @@ const EEFCImportsSection = ({ showError }: any) => {
               Add EEFC Import Row
             </Button>
           )}
-        </FieldArray>
+        </FieldArray> */}
+
       </Flex>
+
+      {loading ? (
+        <Center>
+ <Spinner color="teal.500" />
+        </Center>
+      ):(
 
       <FieldArray name="eefcImportsList">
         {({ remove }) => (
@@ -93,19 +147,27 @@ const EEFCImportsSection = ({ showError }: any) => {
                       }
                     />
 
-                    <CustomInput
-                      label="Closing Amount"
-                      placeholder="Enter closing amount"
-                      name={`eefcImportsList.${index}.closingAmount`}
-                      value={row.closingAmount}
-                      onChange={(e: any) =>
-                        handleChange(index, "closingAmount", e.target.value)
-                      }
-                      error={
-                        rowTouched.closingAmount && rowErrors.closingAmount
-                      }
-                      showError={showError}
-                    />
+                <CustomInput
+  label="Closing Amount"
+  placeholder="Closing amount"
+  name={`eefcImportsList.${index}.closingAmount`}
+  value={row.closingAmount}
+  disabled
+  // isDisabled={index === 0}   // 👈 disabled only for 0th row
+  error={rowTouched.closingAmount && rowErrors.closingAmount}
+  showError={showError}
+/>
+
+                <CustomInput
+  label="Closing Amount (INR)"
+  placeholder="Closing amount in INR"
+  name={`eefcImportsList.${index}.closingAmountInr`}
+  value={row.closingAmountInr}
+  disabled
+  // isDisabled={index === 0}   // 👈 disabled only for 0th row
+  error={rowTouched.closingAmountInr && rowErrors.closingAmountInr}
+  showError={showError}
+/>
                   </SimpleGrid>
 
                   {values.eefcImportsList.length > 1 && (
@@ -126,6 +188,8 @@ const EEFCImportsSection = ({ showError }: any) => {
           </VStack>
         )}
       </FieldArray>
+      ) }
+
     </Box>
   );
 };

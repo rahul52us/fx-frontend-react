@@ -136,7 +136,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
     });
     setFieldValue("poNumber", "");
     setFieldValue("invoiceBcNumber", "");
-    setFieldValue('outstandingAmount', '');
+    setFieldValue('outStandingAmount', '');
     setFieldValue("documentDueDate", "");
      setFieldValue("isEEFCExportsEnabled", false);
      setFieldValue("isEEFCImportsEnabled", false);
