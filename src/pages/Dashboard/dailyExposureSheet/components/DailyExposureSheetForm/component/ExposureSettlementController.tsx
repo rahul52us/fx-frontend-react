@@ -5,9 +5,13 @@ import { useEffect, useRef } from "react";
 const ExposureSettlementController = ({
   setPoOptions,
   setInvoiceOptions,
+  setIsPoDisabled,
+  setIsInvoiceDisabled,
 }: {
   setPoOptions: (data: any[]) => void;
   setInvoiceOptions: (data: any[]) => void;
+  setIsPoDisabled: any;
+  setIsInvoiceDisabled: any;
 }) => {
   const { values, setFieldValue } = useFormikContext<any>();
   const url = process.env.REACT_APP_FX_BASE_URL;
@@ -19,19 +23,65 @@ const ExposureSettlementController = ({
     invoiceBcNumber,
   } = values;
 
-  // 🔒 Ref lock to prevent duplicate API calls
   const exposureFetchLock = useRef(false);
 
   /* --------------------------------------------------
-     1️⃣ Fetch PO / Invoice Numbers
-     Only when BOTH exposureType & settlementType exist
+     0️⃣ RESET on Exposure / Settlement change
   -------------------------------------------------- */
   useEffect(() => {
-    if (!exposureType || !settlementType) {
-      setPoOptions([]);
-      setInvoiceOptions([]);
-      return;
+    setFieldValue("poNumber", "");
+    setFieldValue("invoiceBcNumber", "");
+
+    setFieldValue("partyName", "");
+    setFieldValue("businessUnit", "");
+    setFieldValue("bank", "");
+    setFieldValue("currency", "");
+    setFieldValue("outstandingAmount", "");
+    setFieldValue("documentDueDate", "");
+
+    setPoOptions([]);
+    setInvoiceOptions([]);
+
+    setIsPoDisabled(false);
+    setIsInvoiceDisabled(false);
+
+    exposureFetchLock.current = false;
+  }, [exposureType, settlementType]);
+
+  /* --------------------------------------------------
+     1️⃣ PO ↔ Invoice mutual exclusivity + disable
+  -------------------------------------------------- */
+  useEffect(() => {
+    if (poNumber) {
+      setFieldValue("invoiceBcNumber", "");
+      setIsInvoiceDisabled(true);
+      setIsPoDisabled(false);
+    } else if (invoiceBcNumber) {
+      setFieldValue("poNumber", "");
+      setIsPoDisabled(true);
+      setIsInvoiceDisabled(false);
+    } else {
+      // none selected
+      setIsPoDisabled(false);
+      setIsInvoiceDisabled(false);
     }
+
+    // clear auto-populated exposure data on switch
+    setFieldValue("partyName", "");
+    setFieldValue("businessUnit", "");
+    setFieldValue("bank", "");
+    setFieldValue("currency", "");
+    setFieldValue("outstandingAmount", "");
+    setFieldValue("documentDueDate", "");
+
+    exposureFetchLock.current = false;
+  }, [poNumber, invoiceBcNumber]);
+
+  /* --------------------------------------------------
+     2️⃣ Fetch PO / Invoice numbers
+  -------------------------------------------------- */
+  useEffect(() => {
+    if (!exposureType || !settlementType) return;
 
     const fetchPoInv = async () => {
       try {
@@ -54,10 +104,6 @@ const ExposureSettlementController = ({
               value: inv,
             }))
           );
-
-          // reset dependent selections
-          setFieldValue("poNumber", "");
-          setFieldValue("invoiceBcNumber", "");
         }
       } catch (error) {
         console.error("PO/Invoice fetch failed", error);
@@ -70,10 +116,9 @@ const ExposureSettlementController = ({
   }, [exposureType, settlementType]);
 
   /* --------------------------------------------------
-     2️⃣ Fetch Exposure Data (LOCKED)
+     3️⃣ Fetch Exposure Data (LOCKED)
   -------------------------------------------------- */
   useEffect(() => {
-    // 🔐 Hard guards
     if (
       !exposureType ||
       !settlementType ||
@@ -82,7 +127,6 @@ const ExposureSettlementController = ({
       return;
     }
 
-    // 🔒 Prevent duplicate calls
     if (exposureFetchLock.current) return;
     exposureFetchLock.current = true;
 
@@ -113,7 +157,6 @@ const ExposureSettlementController = ({
       } catch (error) {
         console.error("Exposure data fetch failed", error);
       } finally {
-        // 🔓 Release lock
         exposureFetchLock.current = false;
       }
     };

@@ -29,6 +29,9 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
   const [showError, setShowError] = useState(false);
   const [poOptions, setPoOptions] = useState<any[]>([]);
   const [invoiceOptions, setInvoiceOptions] = useState<any[]>([]);
+  const [isPoDisabled, setIsPoDisabled] = useState(false);
+const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
+
   const validationSchema = Yup.object({
     settlementDate: Yup.string().required("Settlement Date is required"),
     settlementType: Yup.string().required("Settlement Type is required"),
@@ -47,7 +50,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
             settlementInputDate: new Date().toISOString().split("T")[0],
             settlementType: "",
             outstandingAmount: "",
-            documentDueDate: "",
+            dueDate: "",
             exposureType: "",
             poNumber: "",
             invoiceBcNumber: "",
@@ -86,11 +89,13 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
             <FormikForm>
               <ExposureAutoPopulateWatcher />
 
-               <ExposureSettlementController
-        setPoOptions={setPoOptions}
-        setInvoiceOptions={setInvoiceOptions}
-        
-      />
+      <ExposureSettlementController
+  setPoOptions={setPoOptions}
+  setInvoiceOptions={setInvoiceOptions}
+  setIsPoDisabled={setIsPoDisabled}
+  setIsInvoiceDisabled={setIsInvoiceDisabled}
+/>
+
               <VStack spacing={6} align="stretch">
                 <SimpleGrid columns={[1, 2]} spacing={6}>
                   <CustomInput
@@ -136,8 +141,8 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
     });
     setFieldValue("poNumber", "");
     setFieldValue("invoiceBcNumber", "");
-    setFieldValue('outStandingAmount', '');
-    setFieldValue("documentDueDate", "");
+    setFieldValue('outstandingAmount', '');
+    setFieldValue("dueDate", "");
      setFieldValue("isEEFCExportsEnabled", false);
      setFieldValue("isEEFCImportsEnabled", false);
   }}
@@ -148,6 +153,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
 <CustomInput
   label="PO Number"
   name="poNumber"
+  disabled={isPoDisabled}
   type="select"
   required
   options={poOptions}
@@ -163,6 +169,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
 <CustomInput
   label="Invoice BC Number"
   name="invoiceBcNumber"
+  disabled={isInvoiceDisabled}
   type="select"
   required
   options={invoiceOptions}
@@ -214,8 +221,8 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
 />
 <CustomInput
   label="Document Due Date"
-  name="documentDueDate"
-  value={values.documentDueDate}
+  name="dueDate"
+  value={values.dueDate}
   disabled
 />
                 </SimpleGrid>
