@@ -37,7 +37,7 @@ const ExposureSettlementController = ({
     setFieldValue("bank", "");
     setFieldValue("currency", "");
     setFieldValue("outstandingAmount", "");
-    setFieldValue("documentDueDate", "");
+    setFieldValue("dueDate", "");
 
     setPoOptions([]);
     setInvoiceOptions([]);
@@ -72,7 +72,7 @@ const ExposureSettlementController = ({
     setFieldValue("bank", "");
     setFieldValue("currency", "");
     setFieldValue("outstandingAmount", "");
-    setFieldValue("documentDueDate", "");
+    setFieldValue("dueDate", "");
 
     exposureFetchLock.current = false;
   }, [poNumber, invoiceBcNumber]);
@@ -152,7 +152,7 @@ const ExposureSettlementController = ({
           setFieldValue("bank", d.bank || "");
           setFieldValue("currency", d.currency || "");
           setFieldValue("outstandingAmount", d.outstandingAmount || "");
-          setFieldValue("documentDueDate", d.dueDate || "");
+          setFieldValue("dueDate", d.dueDate || "");
         }
       } catch (error) {
         console.error("Exposure data fetch failed", error);

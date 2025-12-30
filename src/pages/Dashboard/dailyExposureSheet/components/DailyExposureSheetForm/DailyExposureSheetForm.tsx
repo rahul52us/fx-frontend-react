@@ -4,6 +4,7 @@ import {
   Button,
   Flex,
   SimpleGrid,
+  useToast,
   VStack
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
@@ -31,15 +32,53 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
   const [invoiceOptions, setInvoiceOptions] = useState<any[]>([]);
   const [isPoDisabled, setIsPoDisabled] = useState(false);
 const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
+const toast = useToast();
+
+  // const validationSchema = Yup.object({
+  //   settlementDate: Yup.string().required("Settlement Date is required"),
+  //   settlementType: Yup.string().required("Settlement Type is required"),
+  //   settledAmount: Yup.number().required("Settled Amount is required"),
+  //   partyName: Yup.string().required("Party Name is required"),
+  //   bank: Yup.string().required("Bank is required"),
+  //   businessUnit: Yup.string().required("Business Unit is required"),
+  //   currency: Yup.string().required("Currency is required"),
+  //   dueDate: Yup.string().required("Due Date is required"),
+  //   outstandingAmount: Yup.string().required("Outstanding Amount is required"),
+  // });
+
 
   const validationSchema = Yup.object({
-    settlementDate: Yup.string().required("Settlement Date is required"),
-    settlementType: Yup.string().required("Settlement Type is required"),
-    settledAmount: Yup.number().required("Settled Amount is required"),
-    partyName: Yup.string().required("Party Name is required"),
-    bank: Yup.string().required("Bank is required"),
-    currency: Yup.string().required("Currency is required")
-  });
+  settlementDate: Yup.string().required("Settlement Date is required"),
+  settlementType: Yup.string().nullable(),
+  exposureType: Yup.string().nullable(),
+
+  settledAmount: Yup.number()
+    .typeError("Settled Amount is required")
+    .required("Settled Amount is required"),
+
+  partyName: Yup.string().required("Party Name is required"),
+  bank: Yup.string().required("Bank is required"),
+  businessUnit: Yup.string().required("Business Unit is required"),
+  currency: Yup.string().required("Currency is required"),
+  dueDate: Yup.string().required("Due Date is required"),
+  outstandingAmount: Yup.string().required("Outstanding Amount is required"),
+
+  // 👇 THESE ARE REQUIRED FOR FORM-LEVEL TEST
+  isSpotEnabled: Yup.boolean().required(),
+  isEEFCExportsEnabled: Yup.boolean().required(),
+  isEEFCImportsEnabled: Yup.boolean().required(),
+  isPCFCEnabled: Yup.boolean().required(),
+  isForwardEnabled: Yup.boolean().required(),
+
+    modeValidation: Yup.mixed().test(
+      "spot-or-forward-required",
+      "Please enable at least one mode",
+      function () {
+        const { isSpotEnabled, isForwardEnabled, isEEFCExportsEnabled, isEEFCImportsEnabled, isPCFCEnabled } = this.parent;
+        return isSpotEnabled || isForwardEnabled || isEEFCExportsEnabled || isEEFCImportsEnabled || isPCFCEnabled;
+      }
+    ),
+})
 
   return (
     <Box bg="whiteAlpha.700">
@@ -61,11 +100,11 @@ const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
             settledAmount: "",
 
             // === TOGGLES ===
-            isSpotEnabled: false,
-            isEEFCExportsEnabled: false,
-            isEEFCImportsEnabled: false,
-            isPCFCEnabled: false,
-            isForwardEnabled: false,
+         isSpotEnabled: false,
+  isEEFCExportsEnabled: false,
+  isEEFCImportsEnabled: false,
+  isPCFCEnabled: false,
+  isForwardEnabled: false,
 
             // === LISTS (MULTIPLE ROWS) ===
             spotList: [],
@@ -79,13 +118,29 @@ const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
             settledAmountInINR: "",
           }}
           validationSchema={validationSchema}
-          onSubmit={(values, actions) => {
-            console.log("Settlement Form Submitted: ", values);
-            setShowError(true);
-            submitForm(values, actions, "form");
-          }}
+
+          // validationSchema={validationSchema}
+  validateOnBlur={true}
+  validateOnChange={false}
+  onSubmit={(values, actions) => {
+    submitForm(values, actions, "form");
+  }}
+          // onSubmit={(values, actions) => {
+         
+          //   setShowError(true);
+          //   submitForm(values, actions, "form");
+          // }}
         >
-          {({ values, handleChange, setFieldValue, errors, touched, isSubmitting }) => (
+          {({
+  values,
+  handleChange,
+  setFieldValue,
+  errors,
+  touched,
+  isSubmitting,
+  validateForm,
+  submitForm,
+}) => (
             <FormikForm>
               <ExposureAutoPopulateWatcher />
 
@@ -191,18 +246,23 @@ const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
   name="partyName"
   value={values.partyName}
   disabled
+  // error={touched.partyName && errors.partyName}
+  showError={showError}
 />
 <CustomInput
   label="Business Unit"
   required
   name="businessUnit"
   value={values.businessUnit}
+  showError={showError}
+  
   disabled
 />
 <CustomInput
   required
   label="Bank"
   name="bank"
+  showError={showError}
   value={values.bank}
   disabled
 />
@@ -210,6 +270,7 @@ const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
   label="Currency"
   required
   name="currency"
+  showError={showError}
   value={values.currency}
   disabled
 />
@@ -217,11 +278,15 @@ const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
   label="Outstanding Amount"
   name="outstandingAmount"
   value={values.outstandingAmount}
+  showError={showError}
+  required
   disabled
 />
 <CustomInput
   label="Document Due Date"
   name="dueDate"
+  showError={showError}
+  // required
   value={values.dueDate}
   disabled
 />
@@ -277,6 +342,40 @@ const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
                 {/* ===================== ACTION BUTTON ===================== */}
                 <Flex justify={"end"}>
                   <Button
+  rounded="full"
+  {...primaryButtonStyle}
+  _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
+  isLoading={isSubmitting}
+  type="button"
+  size="lg"
+onClick={async () => {
+  setShowError(true);
+
+  const errors = await validateForm();
+
+  if (Object.keys(errors).length > 0) {
+    // 🔹 get first error message
+    const firstError = Object.values(errors)[0];
+
+    toast({
+      title: "Validation Error",
+      description: String(firstError),
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
+    return;
+  }
+
+  submitForm();
+}}
+
+>
+  Submit
+</Button>
+
+                  {/* <Button
                     rounded="full"
                     {...primaryButtonStyle}
                     _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
@@ -286,7 +385,7 @@ const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
                     onClick={() => setShowError(true)}
                   >
                     Submit
-                  </Button>
+                  </Button> */}
                 </Flex>
               </VStack>
             </FormikForm>
