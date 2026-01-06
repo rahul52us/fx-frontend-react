@@ -229,7 +229,7 @@ const LeaveDetails = observer(() => {
           </Flex>
         </Flex>
         <CustomTable
-           cells={true}
+          //  cells={true}
           columns={columns}
           data={data}
           loading={loading}

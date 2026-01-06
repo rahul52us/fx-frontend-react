@@ -36,7 +36,7 @@ const sidebarDatas: SidebarItem[] = [
   //   url: dashboard.exportRegister,
   //   role: ["user", "admin", "superadmin", "manager"],
   // },
-  
+
   // {
   //  id: 403,
   //   name: "Import Register",
@@ -305,6 +305,22 @@ const sidebarDatas: SidebarItem[] = [
         icon: <CalendarIcon />,
         url: `${dashboard.rp}`,
         role: ["user","superadmin","manager","admin"],
+      }
+    ]
+  },
+  {
+    id: 801,
+    name: "adminTab",
+    icon: <GrDocumentPerformance />,
+    url: dashboard.adminTab,
+    role: ["superadmin","admin"],
+    children: [
+      {
+        id: 802,
+        name: "index",
+        icon: <CalendarIcon />,
+        url: `${dashboard.adminTab}`,
+        role: ["superadmin","admin"],
       }
     ]
   },

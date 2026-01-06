@@ -192,7 +192,7 @@ const WorkLocationDetails = observer(({selectedPolicy, selectCompany} : any) => 
         </Button>
       </Flex>
       <CustomTable
-        cells={true}
+        // cells={true}
         actions={{
           applyFilter: {
             show: false,

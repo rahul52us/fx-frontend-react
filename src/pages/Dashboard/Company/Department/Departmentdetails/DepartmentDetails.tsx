@@ -166,7 +166,7 @@ const DepartmentDetails = ({ selectedCategory, setSelectedCategory }: any) => {
         close={() => setSelectedCategory({ open: false, data: null, id: null })}
       >
         <CustomTable
-          cells={true}
+          // cells={true}
           columns={columns}
           data={data}
           loading={loading}

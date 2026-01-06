@@ -178,7 +178,7 @@ const TripUsersTable = observer(() => {
     <>
       <Box>
         <CustomTable
-          cells={true}
+          // cells={true}
           actions={{
             search: {
               show: true,

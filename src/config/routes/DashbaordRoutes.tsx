@@ -12,6 +12,7 @@ import DailyExposureSheet from "../../pages/Dashboard/dailyExposureSheet/page";
 import MTMTable from "../../pages/Dashboard/mtm/component/MTMTable/MTMTable";
 import EEFCRegister from "../../pages/Dashboard/eefcRegister/EEFCRegister";
 import Rp from "../../pages/Dashboard/rp/Rp";
+
 const VerifyInvitationPage = lazy(() => import("../component/common/VerifyInvitationPages/VerifyInvitationPage"))
 
 const PersonalDetails = lazy(
@@ -20,6 +21,7 @@ const PersonalDetails = lazy(
 
 const ProfileEditIndex = lazy(() => import("../../pages/Dashboard/profile/ProfileEditIndex"));
 
+const AdminIndex = lazy(() => import('../../pages/Dashboard/admin/index'))
 const PersonalDetailUsersChart = lazy(
   () =>
     import(
@@ -222,6 +224,11 @@ export const DashboardRoutes = [
     element: <Rp />,
     path: dashboard.rp,
     privateRoutes: true,
+  },
+  {
+    element : <AdminIndex />,
+    path : dashboard.adminTab,
+    privateRoutes : true
   },
   {
     element: <ProfileEditIndex />,

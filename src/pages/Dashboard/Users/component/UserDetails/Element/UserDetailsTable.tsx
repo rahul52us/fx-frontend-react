@@ -195,7 +195,7 @@ const UserDetailsTable = observer(() => {
   return (
     <Box>
       <CustomTable
-        cells={true}
+        // cells={true}
         actions={{
           search: {
             show: true,

@@ -18,7 +18,7 @@ import {
   Tooltip,
   Tr,
   useBreakpointValue,
-  useColorModeValue
+  useColorModeValue,
 } from "@chakra-ui/react";
 import React, { useRef } from "react";
 import { BiDownload, BiPlus, BiUpload } from "react-icons/bi";
@@ -28,25 +28,18 @@ import { HiDotsVertical } from "react-icons/hi";
 import { IoMdInformationCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { litePrimaryColor, primaryColor } from "../../../globalColors";
-import {
-  glassCardStyle,
-  primaryButtonHoverStyle,
-  primaryButtonStyle,
-} from "../../../globalStyles";
 import { formatDate } from "../../constant/dateUtils";
-import CustomDateRange from "../CustomDateRange/CustomDateRange";
-import MultiDropdown from "../multiDropdown/MultiDropdown";
-import Pagination from "../pagination/Pagination";
 import TableLoader from "./TableLoader";
+import Pagination from "../pagination/Pagination";
+
+/* -------------------- Types -------------------- */
 
 interface Column {
   headerName?: string;
   key?: string;
   type?: string;
   function?: any;
-  addkey?: any;
   props?: any;
-  actions?: any;
   metaData?: {
     component?: (row: RowData) => JSX.Element;
     function?: (row: RowData) => void;
@@ -63,261 +56,99 @@ interface CustomTableProps {
   data: RowData[];
   serial?: any;
   loading: boolean;
-  totalPages?: number;
   actions?: any;
-  cells?: boolean;
   tableProps?: any;
 }
 
-interface TableActionsProps {
-  actions: any;
-  column: any;
-  row: any;
-  cells: boolean;
-}
+/* -------------------- Action Cell -------------------- */
 
-const TableActions: React.FC<TableActionsProps> = ({
-  actions,
-  column,
-  row,
-  // cells,
-}) => {
-  if (!actions) {
-    actions = {};
-  }
-  const { actionBtn } = actions;
-  // const cellProps = cells ? { border: "1px groove gray" } : {};
-
-  const iconColor = useColorModeValue("gray.700", "gray.200");
+const TableActions = ({ actions, column, row }: any) => {
+  const iconColor = useColorModeValue("gray.600", "gray.300");
   const deleteColor = useColorModeValue("red.500", "red.300");
 
   return (
-    <Td
-      // position="sticky" right={0} bg="white" zIndex={9999}
-      {...column?.props?.row}
-      // {...cellProps}
-      position={column?.props?.isSticky ? "sticky" : "relative"}
-      right={column?.props?.isSticky ? "0" : undefined}
-      p={1}
-      zIndex={column?.props?.isSticky ? "5" : undefined}
-      bgColor={column?.props?.isSticky ? "white" : undefined}
-    >
-      <Flex columnGap={0} justifyContent={"center"}>
-        {actionBtn?.editKey?.showEditButton && (
+    <Td textAlign="center" {...column?.props?.row}>
+      <Flex justify="center" gap={1}>
+        {actions?.actionBtn?.editKey?.showEditButton && (
           <IconButton
-            size="lg"
-            bgColor="transparent"
+            aria-label="edit"
+            icon={<FaEdit />}
+            size="sm"
+            variant="ghost"
             color={iconColor}
-            onClick={() => {
-              if (actionBtn?.editKey?.function)
-                actionBtn?.editKey.function(row);
-            }}
-            aria-label=""
-            title={actionBtn?.editKey?.title || "Edit Data"}
-          >
-            <FaEdit />
-          </IconButton>
+            _hover={{ bg: litePrimaryColor }}
+            onClick={() => actions.actionBtn.editKey.function(row)}
+          />
         )}
-        {actionBtn?.viewKey?.showViewButton && (
+        {actions?.actionBtn?.viewKey?.showViewButton && (
           <IconButton
-            size="lg"
-            bgColor="transparent"
+            aria-label="view"
+            icon={<FaEye />}
+            size="sm"
+            variant="ghost"
             color={iconColor}
-            onClick={() => {
-              if (actionBtn?.viewKey?.function)
-                actionBtn?.viewKey.function(row);
-            }}
-            aria-label=""
-            title={actionBtn?.viewKey?.title || "View Data"}
-          >
-            <FaEye />
-          </IconButton>
+            _hover={{ bg: litePrimaryColor }}
+            onClick={() => actions.actionBtn.viewKey.function(row)}
+          />
         )}
-        {actionBtn?.deleteKey?.showDeleteButton && (
+        {actions?.actionBtn?.deleteKey?.showDeleteButton && (
           <IconButton
-            size="lg"
-            bgColor="transparent"
+            aria-label="delete"
+            icon={<MdDelete />}
+            size="sm"
+            variant="ghost"
             color={deleteColor}
-            onClick={() => {
-              if (actionBtn?.deleteKey?.function)
-                actionBtn?.deleteKey.function(row);
-            }}
-            aria-label=""
-            title={actionBtn?.deleteKey?.title || "Delete Data"}
-          >
-            <MdDelete />
-          </IconButton>
+            _hover={{ bg: "red.50" }}
+            onClick={() => actions.actionBtn.deleteKey.function(row)}
+          />
         )}
       </Flex>
     </Td>
   );
 };
 
-const GenerateRows: React.FC<{
-  column: Column;
-  row: RowData;
-  action: any;
-  cells: boolean;
-}> = ({ column, row, action, cells }: any) => {
-  // Define cell border color based on color mode
-  const cellBorder = useColorModeValue("gray.200", "gray.700");
-  const cellProps = cells
-    ? { border: `1px solid ${cellBorder}` } // Conditional border only if cells prop is true
-    : {};
+/* -------------------- Cell Renderer -------------------- */
 
+const GenerateRows = ({ column, row, action }: any) => {
   switch (column.type) {
     case "date":
-      return (
-        <Td
-          whiteSpace="normal"
-          cursor="pointer"
-           px={'1.25rem'}
-          fontSize="sm"
-          {...column?.props?.row}
-          {...cellProps}
-        >
-          {row[column.key] ? formatDate(row[column.key]) : "--"}
-        </Td>
-      );
-    case "link":
-      return (
-        <Td
-          whiteSpace="normal"
-          cursor="pointer"
-          fontSize="sm"
-          color="blue.400"
-          textDecoration="underline"
-          {...column?.props?.row}
-          {...cellProps}
-          onClick={() => {
-            if (column?.function) {
-              column?.function(row);
-            }
-          }}
-        >
-          {row[column.key] || "--"}
-        </Td>
-      );
+      return <Td>{row[column.key] ? formatDate(row[column.key]) : "--"}</Td>;
+
     case "tooltip":
       return (
-        <Td
-          whiteSpace="normal"
-          cursor="pointer"
-          fontSize="sm"
-          {...column?.props?.row}
-          {...cellProps}
-        >
+        <Td>
           <Tooltip label={row[column.key]}>
-            {typeof row[column.key] === "string"
-              ? row[column.key].substring(0, 15) || "--"
-              : "-"}
+            {row[column.key]?.substring(0, 20) || "--"}
           </Tooltip>
         </Td>
       );
+
     case "array":
       return (
-        <Td
-          whiteSpace="normal"
-          cursor="pointer"
-          fontSize="sm"
-          {...column?.props?.row}
-          {...cellProps}
-        >
+        <Td textAlign="center">
           <Tooltip label={JSON.stringify(row[column.key])}>
             <IconButton
-              aria-label="array info"
-              size="lg"
-              bgColor="transparent"
-              color="gray.700"
-            >
-              <IoMdInformationCircle />
-            </IconButton>
+              aria-label="info"
+              icon={<IoMdInformationCircle />}
+              size="sm"
+              variant="ghost"
+            />
           </Tooltip>
         </Td>
       );
-    case "table-actions":
-      return (
-        <TableActions
-          actions={action}
-          column={column}
-          row={row}
-          cells={cells}
-        />
-      );
-    case "combineKey":
-      return (
-        <Td
-          whiteSpace="normal"
-          cursor="pointer"
-          fontSize="sm"
-          {...column?.props?.row}
-          {...cellProps}
-          isTruncated={true}
-        >
-          {row[column.key] || "--"}
-        </Td>
-      );
+
     case "component":
-      return (
-        <Td
-          whiteSpace="normal"
-          cursor="pointer"
-          fontSize="sm"
-          {...column?.props?.row}
-          {...cellProps}
-        >
-          {column.metaData?.component ? column.metaData.component(row) : null}
-        </Td>
-      );
-      // ✅ NEW CASE FOR NUMBER
-  case "number":
-    return (
-      <Td
-        whiteSpace="normal"
-        cursor="pointer"
-        px={'1.25rem'}
-        fontSize="sm"
-        textAlign="right"
-        {...column?.props?.row}
-        {...cellProps}
-      >
-        {row[column.key] !== undefined && row[column.key] !== null
-          ? row[column.key]
-          : "--"}
-      </Td>
-    );
-     case "formattedString":
-    return (
-      <Td
-        whiteSpace="nowrap"
-        cursor="pointer"
-        px={'1.25rem'}
-        fontSize="sm"
-        textTransform="capitalize"
-        {...column?.props?.row}
-        {...cellProps}
-      >
-        {typeof row[column.key] === "string"
-          ? row[column.key].replace(/_/g, " ")
-          : row[column.key] ?? "--"}
-      </Td>
-    );
+      return <Td>{column.metaData?.component?.(row)}</Td>;
+
+    case "table-actions":
+      return <TableActions actions={action} column={column} row={row} />;
+
     default:
-      return (
-        <Td
-          whiteSpace="normal"
-          cursor="pointer"
-           px={'1.25rem'}
-          fontSize="sm"
-          {...column?.props?.row}
-          {...cellProps}
-          isTruncated={true}
-        >
-          {row[column.key] || "--"}
-        </Td>
-      );
+      return <Td>{row[column.key] || "--"}</Td>;
   }
 };
+
+/* -------------------- Main Table -------------------- */
 
 const CustomTable: React.FC<CustomTableProps> = ({
   title,
@@ -326,240 +157,120 @@ const CustomTable: React.FC<CustomTableProps> = ({
   serial,
   loading,
   actions,
-  cells = false,
   tableProps = {},
-  // isActions = false,
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   return (
-    <Box rounded={12} {...glassCardStyle}>
-      <Flex
-        justifyContent="space-between"
-        alignItems="center"
-        p={title ? 3 : 0}
-      >
-        {title ? (
-          <Heading color={primaryColor} fontSize={isMobile ? "sm" : "xl"}>
-            {title || ""}
+    <Box
+      bg="white"
+      rounded="2xl"
+      border="1px solid"
+      borderColor="gray.200"
+      boxShadow="0 10px 25px rgba(0,0,0,0.08)"
+      p={4}
+    >
+      {/* ---------- Header ---------- */}
+      <Flex justify="space-between" align="center" mb={4}>
+        {title && (
+          <Heading fontSize={isMobile ? "md" : "lg"} fontWeight="600">
+            {title}
           </Heading>
-        ) : null}
+        )}
 
-        <Flex alignItems="center" columnGap={2} ml="auto">
-          {!isMobile && actions?.search && actions?.search?.show && (
+        <Flex gap={2}>
+          {actions?.search?.show && !isMobile && (
             <Input
-              placeholder={actions?.search?.placeholder || "Search"}
-              value={actions?.search?.searchValue}
-              onChange={actions?.search?.onSearchChange}
-              borderRadius="5rem"
-              // bg="white"
-              borderColor="gray.300"
-              _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
-              maxW="25rem"
+              placeholder={actions.search.placeholder || "Search"}
+              value={actions.search.searchValue}
+              onChange={actions.search.onSearchChange}
+              bg="gray.50"
+              borderRadius="full"
+              height="40px"
+              fontSize="sm"
             />
           )}
-          {actions?.datePicker?.show && actions?.datePicker?.date && (
-            <Box display={isMobile ? "none" : undefined}>
-              <CustomDateRange
-                isMobile={actions?.datePicker?.isMobile}
-                startDate={actions?.datePicker?.date.startDate}
-                endDate={actions?.datePicker?.date.endDate}
-                onStartDateChange={(e) => {
-                  if (actions?.datePicker?.onDateChange) {
-                    actions?.datePicker?.onDateChange(e, "startDate");
-                  }
-                }}
-                onEndDateChange={(e) => {
-                  if (actions?.datePicker?.onDateChange) {
-                    actions?.datePicker?.onDateChange(e, "endDate");
-                  }
-                }}
-              />
-            </Box>
+
+          {actions?.resetData?.show && (
+            <IconButton
+              aria-label="refresh"
+              icon={<FiRefreshCw />}
+              variant="outline"
+              onClick={actions.resetData.function}
+            />
           )}
-          {actions?.multidropdown?.show && (
-            <Box display={isMobile ? "block" : undefined}>
-              <MultiDropdown
-                title={actions?.multidropdown?.title}
-                dropdowns={actions?.multidropdown?.dropdowns || []}
-                onDropdownChange={actions?.multidropdown?.onDropdownChange}
-                selectedOptions={actions?.multidropdown?.selectedOptions}
-                onApply={actions?.multidropdown?.onApply}
-                search={{
-                  visible: actions?.multidropdown?.search?.visible,
-                  placeholder: actions?.multidropdown?.search?.placeholder,
-                  searchValue: actions?.multidropdown?.search?.searchValue,
-                  onSearchChange:
-                    actions?.multidropdown?.search?.onSearchChange,
-                }}
-                actions={actions}
-              />
-            </Box>
-          )}
-{actions?.resetData?.show && (
-  
-  <IconButton 
-  aria-label="refresh"
-  icon={<FiRefreshCw />}
-  colorScheme="teal"
-  variant={"outline"}
-  onClick={actions?.resetData?.function}
-  />
-)}
+
           {actions && (
             <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                {...primaryButtonStyle}
-                _hover={primaryButtonHoverStyle}
-                // minW={{ base: "6rem", md: "10rem" }}
-                textAlign={"center"}
-              >
-                <Icon as={HiDotsVertical} fontSize={"20px"} />
-                {/* Actions */}
+              <MenuButton as={Button} variant="outline" borderRadius="full">
+                <Icon as={HiDotsVertical} />
               </MenuButton>
-              <MenuList
-                zIndex={15}
-                {...glassCardStyle}
-                minW={"10rem"}
-                border={`1px solid ${primaryColor}`}
-                borderRadius={5}
-                py={0}
-                overflow={"hidden"}
-              >
+
+              <MenuList>
                 {actions?.actionBtn?.addKey?.showAddButton && (
                   <MenuItem
-                    onClick={() =>
-                      actions?.actionBtn?.addKey?.function?.("add")
-                    }
-                    _hover={{ bg: litePrimaryColor }}
-                    icon={<BiPlus fontSize={"20px"} />}
-                    p={"0.7rem"}
+                    icon={<BiPlus />}
+                    onClick={() => actions.actionBtn.addKey.function("add")}
                   >
                     Add
                   </MenuItem>
                 )}
+
                 {actions?.exportExcel?.show && (
                   <MenuItem
-                    onClick={actions?.exportExcel?.function}
-                    icon={<BiDownload fontSize={"20px"} />}
-                    _hover={{ bg: litePrimaryColor }}
-                    p={"0.7rem"}
+                    icon={<BiDownload />}
+                    onClick={actions.exportExcel.function}
                   >
-                    {actions?.exportExcel?.text || "Export Excel"}
+                    Export Excel
                   </MenuItem>
                 )}
+
                 {actions?.uploadFile?.show && (
-                  <Button
-                    as="label"
-                    // ml={-3}
-                    htmlFor="file-upload"
-                    w={"100%"}
-                    bg={"transparent"}
-                    justifyContent={"flex-start"}
-                    gap={"10px"}
-                    pl={"12px"}
-                    fontWeight={400}
-                    _hover={{ bg: litePrimaryColor, borderRadius: "0" }}
-                  >
-                    <Box>
-                      <BiUpload fontSize={"20px"} />
-                    </Box>
-                    {actions?.uploadFile?.text || "Upload Excel"}
+                  <MenuItem as="label" htmlFor="file-upload" icon={<BiUpload />}>
+                    Upload Excel
                     <input
                       id="file-upload"
-                      accept=".xlsx"
-                      ref={fileInputRef}
                       type="file"
-                      onChange={actions?.uploadFile?.function}
-                      style={{ display: "none" }}
+                      ref={fileInputRef}
+                      hidden
+                      onChange={actions.uploadFile.function}
                     />
-                  </Button>
-                )}
-                
-
-                {/* {actions?.resetData?.show && (
-                  <MenuItem
-                    onClick={actions?.resetData?.function}
-                    icon={<FcClearFilters fontSize={"20px"} />}
-                    _hover={{ bg: litePrimaryColor }}
-                    p={"0.7rem"}
-                  >
-                    {actions?.resetData?.text || "Reset"}
                   </MenuItem>
-                )} */}
+                )}
               </MenuList>
             </Menu>
           )}
         </Flex>
       </Flex>
 
-      <Box
-        overflow="auto"
-        className="customScrollBar"
-        minH={"65vh"}
-        maxH={"65vh"}
-        maxW={"70vw"}
-        minW={"100%"}
-        rounded={2}
-        px={2}
-        {...tableProps.tableBox}
-      >
-        <Table
-          size={"xs"}
-          // variant="striped"
-          {...tableProps.table}
-          // bg={bodyBg}
-          borderRadius="md"
-          overflow="hidden"  
-          sx={{
-            "& tr:nth-of-type(even)": {
-              background: litePrimaryColor, // Apply litePrimaryColor to odd rows (striped rows)
-            },
-            
-          }}       
-        >
+      {/* ---------- Table ---------- */}
+      <Box overflow="auto" maxH="65vh">
+        <Table size="sm" {...tableProps.table}>
           <Thead
-            bg={primaryColor}
-            position="sticky"
-            top="0"
-            zIndex="9"
-            height="50px"
+            bgGradient={`linear(to-r, ${primaryColor}, #1A365D)`}
+            boxShadow="inset 0 -1px 0 rgba(255,255,255,0.15)"
           >
-            <Tr>
+            <Tr h="56px">
               {serial?.show && (
                 <Th
                   color="white"
-                  w={serial?.width || undefined}
-                  border="none"
-                  textTransform="uppercase"
-                  letterSpacing="wider"
                   fontSize="xs"
+                  letterSpacing="0.08em"
+                  textTransform="uppercase"
                 >
-                  {serial?.text || "S.No."}
+                  S.No.
                 </Th>
               )}
-              {columns.map((column, colIndex) => (
+              {columns.map((col, i) => (
                 <Th
-                  key={colIndex}
-                  textAlign="center"
-                  // minW={'8rem'}
-                  px={'1.25rem'}
-                  position={column?.props?.isSticky ? "sticky" : "relative"}
-                  right={column?.props?.isSticky ? "0" : undefined}
-                  // bg={headerBg}
-                  whiteSpace={"nowrap"}
-                  fontSize="xs"
-                  textTransform="uppercase"
-                  letterSpacing="wider"
+                  key={i}
                   color="white"
-                  fontWeight="bold"
-                  border="none" // No borders on header cells
-                  {...column?.props?.column}
+                  fontSize="xs"
+                  letterSpacing="0.08em"
+                  textTransform="uppercase"
                 >
-                  {column.headerName}
+                  {col.headerName}
                 </Th>
               ))}
             </Tr>
@@ -571,31 +282,17 @@ const CustomTable: React.FC<CustomTableProps> = ({
                 <Tr
                   key={rowIndex}
                   _hover={{
-                    bg: litePrimaryColor,
-                    cursor: "pointer",
-                    transition: "0.3s",
+                    bg: "gray.50",
+                    transition: "0.2s",
                   }}
                 >
-                  {serial?.show && (
-                    <Td
-                      fontWeight="bold"
-                      w={serial?.width || undefined}
-                      textAlign="center"
-                      p={2}
-                      fontSize="sm"
-                      border="none" // No border on cells
-                    >
-                      {rowIndex + 1}
-                    </Td>
-                  )}
+                  {serial?.show && <Td>{rowIndex + 1}</Td>}
                   {columns.map((column, colIndex) => (
                     <GenerateRows
                       key={colIndex}
                       column={column}
                       row={row}
                       action={actions}
-                      cells={cells}
-                      // border="none" // No border on cells
                     />
                   ))}
                 </Tr>
@@ -604,17 +301,16 @@ const CustomTable: React.FC<CustomTableProps> = ({
           </TableLoader>
         </Table>
       </Box>
+
+      {/* ---------- Pagination ---------- */}
       {actions?.pagination?.show && (
-        <Pagination
-          currentPage={actions?.pagination?.currentPage || 1}
-          onPageChange={(e) => {
-            if (actions?.pagination?.onClick) {
-              actions?.pagination?.onClick(e);
-            }
-          }}
-          totalPages={actions?.pagination?.totalPages || 1}
-          props={{ style: { marginTop: "15px" } }}
-        />
+        <Flex justify="flex-end" mt={4}>
+          <Pagination
+            currentPage={actions.pagination.currentPage}
+            totalPages={actions.pagination.totalPages}
+            onPageChange={actions.pagination.onClick}
+          />
+        </Flex>
       )}
     </Box>
   );

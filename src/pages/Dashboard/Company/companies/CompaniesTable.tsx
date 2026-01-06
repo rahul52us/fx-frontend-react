@@ -147,7 +147,7 @@ const HolidaysDetailTable = observer(() => {
   return (
     <>
       <CustomTable
-        cells={true}
+        // cells={true}
         actions={{
           search: {
             show: true,
