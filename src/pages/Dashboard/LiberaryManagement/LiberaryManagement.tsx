@@ -6,7 +6,7 @@ import BookDetails from "./component/Books/BooksDetails/BookDetails";
 
 const BookLiberary = observer(() => {
   return (
-    <Box px={{ base: 2, md: 4 }}>
+    <Box px={{ base: 2, md: 2 }}>
       <DashPageHeader
         title="Dashboard"
         breadcrumb={booksBreadCrumb.index}

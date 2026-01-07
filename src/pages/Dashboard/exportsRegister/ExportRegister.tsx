@@ -1,25 +1,25 @@
-import { Box } from '@chakra-ui/react'
-import ExportRegisterTable from './component/ExportRegisterTable/ExportRegsiterTable'
-import DashPageHeader from '../../../config/component/common/DashPageHeader/DashPageHeader'
-import DashPageTitle from '../../../config/component/common/DashPageTitle/DashPageTitle'
+import { Box } from "@chakra-ui/react";
+import ExportRegisterTable from "./component/ExportRegisterTable/ExportRegsiterTable";
+import DashPageTitle from "../../../config/component/common/DashPageTitle/DashPageTitle";
 
 const ExportRegister = () => {
   return (
-    <Box p={{base : 2, md : 8}}>
-      <Box display="none">
-        <DashPageHeader
-          breadcrumb={[]}
-        />
-      </Box>
+    <Box
+      px={{ base: 2, md: 2 }}
+      py={{ base: 2, md: 2 }}
+      w="100%"
+      overflowX="hidden"
+    >
       <DashPageTitle
         title="Export Registrations"
         subTitle="Export Registrations Details"
       />
-      <Box>
-        <ExportRegisterTable
-        />
+
+      <Box w="100%">
+        <ExportRegisterTable />
       </Box>
     </Box>
-   )
-}
-export default ExportRegister
+  );
+};
+
+export default ExportRegister;

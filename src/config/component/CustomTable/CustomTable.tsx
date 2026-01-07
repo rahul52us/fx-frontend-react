@@ -67,7 +67,7 @@ const TableActions = ({ actions, column, row }: any) => {
   const deleteColor = useColorModeValue("red.500", "red.300");
 
   return (
-    <Td textAlign="center" {...column?.props?.row}>
+    <Td textAlign="center" whiteSpace="nowrap" {...column?.props?.row}>
       <Flex justify="center" gap={1}>
         {actions?.actionBtn?.editKey?.showEditButton && (
           <IconButton
@@ -112,20 +112,20 @@ const TableActions = ({ actions, column, row }: any) => {
 const GenerateRows = ({ column, row, action }: any) => {
   switch (column.type) {
     case "date":
-      return <Td>{row[column.key] ? formatDate(row[column.key]) : "--"}</Td>;
+      return <Td whiteSpace="nowrap">{row[column.key] ? formatDate(row[column.key]) : "--"}</Td>;
 
     case "tooltip":
       return (
-        <Td>
+        <Td maxW="200px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
           <Tooltip label={row[column.key]}>
-            {row[column.key]?.substring(0, 20) || "--"}
+            <span>{row[column.key]?.substring(0, 20) || "--"}</span>
           </Tooltip>
         </Td>
       );
 
     case "array":
       return (
-        <Td textAlign="center">
+        <Td textAlign="center" whiteSpace="nowrap">
           <Tooltip label={JSON.stringify(row[column.key])}>
             <IconButton
               aria-label="info"
@@ -138,13 +138,22 @@ const GenerateRows = ({ column, row, action }: any) => {
       );
 
     case "component":
-      return <Td>{column.metaData?.component?.(row)}</Td>;
+      return <Td whiteSpace="nowrap">{column.metaData?.component?.(row)}</Td>;
 
     case "table-actions":
       return <TableActions actions={action} column={column} row={row} />;
 
     default:
-      return <Td>{row[column.key] || "--"}</Td>;
+      return (
+        <Td
+          maxW="220px"
+          whiteSpace="nowrap"
+          overflow="hidden"
+          textOverflow="ellipsis"
+        >
+          {row[column.key] || "--"}
+        </Td>
+      );
   }
 };
 
@@ -170,16 +179,18 @@ const CustomTable: React.FC<CustomTableProps> = ({
       borderColor="gray.200"
       boxShadow="0 10px 25px rgba(0,0,0,0.08)"
       p={4}
+      w="100%"
+      overflow="hidden"
     >
       {/* ---------- Header ---------- */}
-      <Flex justify="space-between" align="center" mb={4}>
+      <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
         {title && (
           <Heading fontSize={isMobile ? "md" : "lg"} fontWeight="600">
             {title}
           </Heading>
         )}
 
-        <Flex gap={2}>
+        <Flex gap={2} align="center">
           {actions?.search?.show && !isMobile && (
             <Input
               placeholder={actions.search.placeholder || "Search"}
@@ -245,20 +256,23 @@ const CustomTable: React.FC<CustomTableProps> = ({
       </Flex>
 
       {/* ---------- Table ---------- */}
-      <Box overflow="auto" maxH="65vh">
-        <Table size="sm" {...tableProps.table}>
-          <Thead
-            bgGradient={`linear(to-r, ${primaryColor}, #1A365D)`}
-            boxShadow="inset 0 -1px 0 rgba(255,255,255,0.15)"
-          >
+      <Box
+        w="100%"
+        overflowX="auto"
+        overflowY="auto"
+        maxH="65vh"
+      >
+        <Table
+          size="sm"
+          w="100%"
+          minW="900px"
+          tableLayout="fixed"
+          {...tableProps.table}
+        >
+          <Thead bgGradient={`linear(to-r, ${primaryColor}, #1A365D)`}>
             <Tr h="56px">
               {serial?.show && (
-                <Th
-                  color="white"
-                  fontSize="xs"
-                  letterSpacing="0.08em"
-                  textTransform="uppercase"
-                >
+                <Th color="white" fontSize="xs" whiteSpace="nowrap">
                   S.No.
                 </Th>
               )}
@@ -267,8 +281,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   key={i}
                   color="white"
                   fontSize="xs"
-                  letterSpacing="0.08em"
-                  textTransform="uppercase"
+                  whiteSpace="nowrap"
                 >
                   {col.headerName}
                 </Th>
@@ -279,13 +292,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
           <TableLoader loader={loading} show={data.length}>
             <Tbody>
               {data.map((row, rowIndex) => (
-                <Tr
-                  key={rowIndex}
-                  _hover={{
-                    bg: "gray.50",
-                    transition: "0.2s",
-                  }}
-                >
+                <Tr key={rowIndex} _hover={{ bg: "gray.50" }}>
                   {serial?.show && <Td>{rowIndex + 1}</Td>}
                   {columns.map((column, colIndex) => (
                     <GenerateRows

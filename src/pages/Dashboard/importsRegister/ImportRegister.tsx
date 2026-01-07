@@ -5,7 +5,7 @@ import DashPageHeader from '../../../config/component/common/DashPageHeader/Dash
 
 const ImportRegister = () => {
   return (
-    <Box p={{base : 2, md : 8}}>
+    <Box p={{base : 2, md : 4}}>
       <Box display="none">
         <DashPageHeader
           breadcrumb={[]}

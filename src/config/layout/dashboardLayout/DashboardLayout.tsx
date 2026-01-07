@@ -13,23 +13,28 @@ import store from "../../../store/store";
 import PermissionDeniedPage from "../../component/commonPages/PermissionDeniedPage";
 import Loader from "../../component/Loader/Loader";
 import { authentication } from "../../constant/routes";
-import {
-  headerHeight,
-} from "../../constant/variable";
+import { headerHeight } from "../../constant/variable";
 import HeaderLayout from "./HeaderLayout/HeaderLayout";
 import SidebarLayout from "./SidebarLayout/SidebarLayout";
+
+/* ---------------- Redirect ---------------- */
+
 const RedirectComponent = observer(() => {
   const navigate = useNavigate();
   const {
     auth: { restoreUser },
   } = store;
+
   useEffect(() => {
     if (!restoreUser()) {
       navigate("/login");
     }
   }, [navigate, restoreUser]);
-  return <></>;
+
+  return null;
 });
+
+/* ---------------- Dashboard Layout ---------------- */
 
 const DashboardLayout = observer(() => {
   const {
@@ -43,6 +48,7 @@ const DashboardLayout = observer(() => {
       setOpenMobileSideDrawer,
     },
   } = store;
+
   const navigate = useNavigate();
   const theme = useTheme();
   const [sizeStatus] = useMediaQuery(`(max-width: ${theme.breakpoints.xl})`);
@@ -83,10 +89,11 @@ const DashboardLayout = observer(() => {
 
   return user ? (
     <PermissionDeniedPage
-    show={!checkPermission('dashboard', 'view')}
-    onClick={() => navigate(authentication.login)}
+      show={!checkPermission("dashboard", "view")}
+      onClick={() => navigate(authentication.login)}
     >
       <MainContainer isMobile={isMobile}>
+        {/* Sidebar */}
         <Box ref={sidebarRef} {...glassCardStyle}>
           <SidebarLayout
             onItemClick={handleSidebarItemClick}
@@ -96,6 +103,8 @@ const DashboardLayout = observer(() => {
             setOpenMobileSideDrawer={closeDrawerModel}
           />
         </Box>
+
+        {/* Main Content */}
         <Container fullScreenMode={fullScreenMode}>
           <HeaderContainer
             isMobile={isMobile}
@@ -105,9 +114,12 @@ const DashboardLayout = observer(() => {
           >
             <HeaderLayout />
           </HeaderContainer>
+
           <ContentContainer
             isMobile={isMobile}
             mediumScreenMode={mediumScreenMode}
+            fullScreenMode={fullScreenMode}
+            sizeStatus={sizeStatus}
             className={
               fullScreenMode
                 ? "fullscreen"
@@ -115,8 +127,6 @@ const DashboardLayout = observer(() => {
                 ? "mediumScreen"
                 : ""
             }
-            fullScreenMode={fullScreenMode}
-            sizeStatus={sizeStatus}
           >
             <Suspense fallback={<Loader height="90vh" />}>
               <Outlet />
@@ -132,33 +142,42 @@ const DashboardLayout = observer(() => {
 
 export default DashboardLayout;
 
+/* ===================== STYLES ===================== */
+
+/* 🔥 ROOT FIX: lock horizontal overflow at layout level */
+
 const MainContainer = styled.div<{ isMobile: boolean }>`
   display: flex;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;   /* 🔥 MOST IMPORTANT FIX */
   transition: all 0.3s ease-in-out;
-  overflow: hidden;
 `;
+
 const Container = styled.div<{ fullScreenMode: boolean }>`
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;   /* 🔥 REQUIRED */
   transition: all 0.3s ease-in-out;
-  WIDTH: 100%;
 `;
+
 const HeaderContainer = styled.div<{
   fullScreenMode: boolean;
   sizeStatus: boolean;
   mediumScreenMode: boolean;
   isMobile: boolean;
 }>`
-  zindex: 9999;
+  z-index: 9999;
   height: ${headerHeight};
   position: sticky;
   top: 0;
-  right: 0;  
-
-  transition: all 0.3s ease-in-out;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: inherit;
 `;
 
 const ContentContainer = styled.div<{
@@ -167,8 +186,9 @@ const ContentContainer = styled.div<{
   mediumScreenMode: boolean;
   isMobile: boolean;
 }>`
-  padding:5px 10px;
-  overflow-x: auto;
+  padding: 5px 10px;
   height: calc(100vh - ${headerHeight});
-  transition: all 0.3s ease-in-out;  
+  overflow-x: hidden;   /* 🔥 THIS FIX STOPS PAGE SHIFT */
+  overflow-y: auto;
+  transition: all 0.3s ease-in-out;
 `;
