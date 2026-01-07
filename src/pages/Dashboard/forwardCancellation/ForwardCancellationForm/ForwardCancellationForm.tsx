@@ -1,53 +1,20 @@
 "use client";
 import { Box, Button, Flex, SimpleGrid, VStack } from "@chakra-ui/react";
-import { Formik, Form as FormikForm, useFormikContext } from "formik";
-import { useEffect } from "react";
+import axios from "axios";
+import { Formik, Form as FormikForm } from "formik";
+import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
-import { forwardDeals } from "./forwardCancellationDummy";
-
-const AutoCalculation = () => {
-  const { values, setFieldValue } = useFormikContext<any>();
-
-  useEffect(() => {
-    const cancellationAmt = parseFloat(values.cancellationAmount || "0");
-    const bookedRate = parseFloat(values.bookedRate || "0");
-    const fwdPremium = parseFloat(values.fwdPremium || "0");
-    const cashTomSpot = parseFloat(values.cashTomSpot || "0");
-    const bankMargin = parseFloat(values.bankMargin || "0");
-
-    // Example Net Cancellation Rate formula
-    const netRate = bookedRate + fwdPremium + cashTomSpot - bankMargin;
-    // Example P/L in FCY
-    const plFCY = cancellationAmt * (bookedRate - netRate);
-    // Example P/L in INR
-    const washRate = parseFloat(values.washRate || "1");
-
-    const plINR =
-      values.currency === "INR" ? plFCY : plFCY * washRate;
-
-    if (!isNaN(netRate)) setFieldValue("netCancellationRate", netRate.toFixed(2));
-    if (!isNaN(plFCY)) setFieldValue("plInFCY", plFCY.toFixed(2));
-    if (!isNaN(plINR)) setFieldValue("plInINR", plINR.toFixed(2));
-  }, [
-    values.cancellationAmount,
-    values.bookedRate,
-    values.fwdPremium,
-    values.cashTomSpot,
-    values.bankMargin,
-    values.currency,
-    values.washRate,
-    setFieldValue,
-  ]);
-
-  return null;
-};
+import AutoCalculation from "./AutoCalculate";
 
 const ForwardCancellationForm = ({ submitForm }: any) => {
+  const [forwardDeals, setForwardDeals] = useState<any[]>([]);
+  const url = process.env.REACT_APP_FX_BASE_URL;
+
   // ---------------- Validation Schema ----------------
   const validationSchema = Yup.object().shape({
     transactionDate: Yup.string().required("Transaction Date is required"),
@@ -57,6 +24,35 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
     fwdPremium: Yup.number().required("Forward Premium is required"),
     cashTomSpot: Yup.number().required("Cash/Tom Spot is required"),
   });
+
+const fetchHedgeDealData = async () => {
+  try {
+    const response = await axios.post(
+      `${url}/forwardCancellationpcfc/dealid/`
+    );
+
+    if (response?.data?.status === "success") {
+      const mappedData = response.data.data.map((item: any) => ({
+        forwardDealId: item.forwardDealId,
+        exposureType: item.exposureType,
+        bank: item.bank,
+        currency: item.currency,
+        businessUnit: item.businessUnit,
+        outstandingAmount: item.outstandingAmount,
+        bookedRate: item.bookedRate,
+        deliveryDateFrom: item.deliveryDateFrom,
+        deliveryDateTo: item.deliveryDateTo,
+        bankMargin: item.bankMargine, // 🔥 mapping fix
+      }));
+
+      setForwardDeals(mappedData);
+    }
+  } catch (error) {
+    console.error("Error fetching hedge deal data:", error);
+  }
+};
+
+
   const initialValues = {
     dealType: "Cancellation",
     transactionDate: "",
@@ -78,6 +74,10 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
     washRate: "",
     plInINR: "",
   };
+
+  useEffect(()=>{
+    fetchHedgeDealData();
+  },[])
 
   return (
     <Box bg="whiteAlpha.700" py={4}>
@@ -117,37 +117,44 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
                   />
 
                   {/* Forward Deal ID Dropdown */}
-                  <CustomInput
-                    label="Forward Deal ID"
-                    name="forwardDealId"
-                    type="select"
-                    options={forwardDeals.map((deal) => ({
-                      label: deal.forwardDealId,
-                      value: deal.forwardDealId,
-                    }))}
-                    value={
-                      forwardDeals.find(
-                        (d) => d.forwardDealId === values.forwardDealId
-                      )
-                        ? {
-                            label: values.forwardDealId,
-                            value: values.forwardDealId,
-                          }
-                        : null
-                    }
-                    onChange={(option: any) => {
-                      const selected = forwardDeals.find(
-                        (deal) => deal.forwardDealId === option.value
-                      );
-                      if (selected) {
-                        Object.keys(selected).forEach((key) => {
-                          setFieldValue(key, (selected as any)[key]);
-                        });
-                      }
-                      setFieldValue("forwardDealId", option.value);
-                    }}
-                    error={touched.forwardDealId && errors.forwardDealId}
-                  />
+              <CustomInput
+  label="Forward Deal ID"
+  name="forwardDealId"
+  type="select"
+  disabled={!forwardDeals.length}
+placeholder={
+  forwardDeals.length ? "Select Forward Deal ID" : "Loading deals..."
+}
+  options={forwardDeals.map((deal) => ({
+    label: deal.forwardDealId,
+    value: deal.forwardDealId,
+  }))}
+  value={
+    forwardDeals.find(
+      (d) => d.forwardDealId === values.forwardDealId
+    )
+      ? {
+          label: values.forwardDealId,
+          value: values.forwardDealId,
+        }
+      : null
+  }
+  onChange={(option: any) => {
+    const selected = forwardDeals.find(
+      (deal) => deal.forwardDealId === option.value
+    );
+
+    if (selected) {
+      Object.entries(selected).forEach(([key, value]) => {
+        setFieldValue(key, value);
+      });
+    }
+
+    setFieldValue("forwardDealId", option.value);
+  }}
+  error={touched.forwardDealId && errors.forwardDealId}
+/>
+
 
                   {/* Automated Fields */}
                   <CustomInput label="Exposure Type" name="exposureType" value={values.exposureType} disabled />
@@ -203,9 +210,7 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
                     placeholder="Auto-calculated"
                     disabled
                   />
-
                   <CustomInput label="Bank Margin" name="bankMargin" value={values.bankMargin} disabled />
-
                   {/* Conditional: Non-INR Currencies */}
                   {values.currency !== "INR" && (
                     <>

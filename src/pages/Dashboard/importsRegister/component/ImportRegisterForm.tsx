@@ -16,13 +16,10 @@ import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
-import { HedgeDealSelector } from "../../exportsRegister/component/ExportHedgeDealSection";
+import { MultiHedgeDealExport } from "../../exportsRegister/component/MultiHedgeDealExport";
 import { currencyOptions } from "../../exportsRegister/component/utils/constant";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
-import {
-  dummyPoData,
-  importExposureTypeOptions
-} from "./utils/constant";
+import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
 
 const ImportRegistrationForm = ({ submitImportForm }: any) => {
   const [showError, setShowError] = useState(false);
@@ -136,12 +133,13 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
             currency: "",
             amount: "",
             budgetRate: "",
-            hedgeDealRefNo: "",
-            hedgeRate: "",
-            hedgeAmount: "",
             remark: "",
-            deliveryDateFrom:"",
-            deliveryDateTo: "",
+            // hedgeDealRefNo: "",
+            // hedgeRate: "",
+            // hedgeAmount: "",
+            // deliveryDateFrom:"",
+            // deliveryDateTo: "",
+            hedgeDeals: [],
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -449,129 +447,16 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       disabled={isFieldReadOnly("budgetRate")}
                     />
 
-                    {/* <CustomInput
-                      label="Hedge Deal Ref No"
-                      name="hedgeDealRefNo"
-                      type="select"
-                      placeholder="Select Reference No"
-                      options={hedgeDealOptions}
-                      value={hedgeDealOptions.find(
-                        (option: any) => option.value === values.hedgeDealRefNo
-                      )}
-                      onChange={(selectedOption) => {
-                        const selectedDeal = dummyHedgeDeals.find(
-                          (item: any) =>
-                            item.hedgeDealRefNo === selectedOption.value
-                        );
-                        // Set selected deal ref
-                        setFieldValue("hedgeDealRefNo", selectedOption.value);
-
-                        // Auto-fill hedgeRate & hedgeAmount
-                        if (selectedDeal) {
-                          setFieldValue("hedgeRate", selectedDeal.hedgeRate);
-                          setFieldValue("deliveryDateFrom",selectedDeal.deliveryDateFrom);
-                          setFieldValue("deliveryDateTo",selectedDeal.deliveryDateTo);
-                       
-                        }
-                      }}
-                      error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
-                      showError={showError}
-                    /> */}
-                    {/* <CustomInput
-                      label="Hedge Deal Ref No"
-                      name="hedgeDealRefNo"
-                      type="select"
-                      placeholder="Select Reference No"
-                      options={hedgeDealOptions}
-                      value={hedgeDealOptions.find(
-                        (option: any) => option.value === values.hedgeDealRefNo
-                      )}
-                      onChange={(selectedOption) => {
-                        const selectedDeal = dummyHedgeDeals.find(
-                          (item: any) =>
-                            item.hedgeDealRefNumber === selectedOption.value
-                        ); 
-
-                        // Set selected deal ref
-                        setFieldValue("hedgeDealRefNo", selectedOption.value);
-
-                        // Auto-fill hedgeRate, delivery dates, hedgeAmount
-                        if (selectedDeal) {
-                          setFieldValue("hedgeRate", selectedDeal.hedgeRate);
-                          setFieldValue(
-                            "deliveryDateFrom",
-                            selectedDeal.deliveryDateFrom
-                          );
-                          setFieldValue(
-                            "deliveryDateTo",
-                            selectedDeal.deliveryDateTo
-                          );
-                          // setFieldValue("hedgeAmount", selectedDeal.hedgeAmount);
-                        }
-                      }}
-                      error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
-                      showError={showError}
-                    /> */}
-
-                    {/* {values.hedgeDealRefNo && (
-                      <>
-                        <CustomInput
-                          label="Hedge Rate"
-                          name="hedgeRate"
-                          placeholder="Rate (Auto-populated)"
-                          value={values.hedgeRate}
-                          onChange={handleChange}
-                          error={touched.hedgeRate && errors.hedgeRate}
-                          showError={showError}
-                          disabled={true}
-                        />
-                        <CustomInput
-                          label="Delivery Date From"
-                          name="deliveryDateFrom"
-                          placeholder="Delivery Date From"
-                          value={values.deliveryDateFrom}
-                          onChange={handleChange}
-                          error={
-                            touched.deliveryDateFrom && errors.deliveryDateFrom
-                          }
-                          showError={showError}
-                          disabled={true}
-                        />
-                        <CustomInput
-                          label="Delivery Date To"
-                          name="deliveryDateTo"
-                          placeholder="Delivery Date From"
-                          value={values.deliveryDateTo}
-                          onChange={handleChange}
-                          error={
-                            touched.deliveryDateTo && errors.deliveryDateTo
-                          }
-                          showError={showError}
-                          disabled={true}
-                        />
-                        <CustomInput
-                          label="Hedge Amount"
-                          type="number"
-                          name="hedgeAmount"
-                          placeholder="Enter Hedge Amount"
-                          value={values.hedgeAmount}
-                          onChange={handleChange}
-                          error={touched.hedgeAmount && errors.hedgeAmount}
-                          showError={showError}
-                          // disabled={true}
-                        />
-                      </>
-                    )} */}
-
-                       <HedgeDealSelector
+                    {/* <HedgeDealSelector
                                         url={url}
                                         values={values}
                                         setFieldValue={setFieldValue}
                                         touched={touched}
                                         errors={errors}
                                         showError={showError}
-                                      />
+                                        /> */}
                   </SimpleGrid>
+                  <MultiHedgeDealExport url={url} showError={showError} />
 
                   {/* Remark */}
                   <CustomInput
