@@ -43,6 +43,7 @@ const fetchHedgeDealData = async () => {
         deliveryDateFrom: item.deliveryDateFrom,
         deliveryDateTo: item.deliveryDateTo,
         bankMargin: item.bankMargine, // 🔥 mapping fix
+        
       }));
 
       setForwardDeals(mappedData);
@@ -73,6 +74,7 @@ const fetchHedgeDealData = async () => {
     plInFCY: "",
     washRate: "",
     plInINR: "",
+    businessUnit:""
   };
 
   useEffect(()=>{
@@ -160,6 +162,7 @@ placeholder={
                   <CustomInput label="Exposure Type" name="exposureType" value={values.exposureType} disabled />
                   <CustomInput label="Bank" name="bank" value={values.bank} disabled />
                   <CustomInput label="Currency" name="currency" value={values.currency} disabled />
+                  <CustomInput label="Business Unit" name="businessUnit" value={values.businessUnit} disabled />
                   <CustomInput label="Outstanding Amount" name="outstandingAmount" value={values.outstandingAmount} disabled />
                   <CustomInput label="Booked Rate" name="bookedRate" value={values.bookedRate} disabled />
                   <CustomInput label="Delivery Date From" name="deliveryDateFrom" value={values.deliveryDateFrom} disabled />
