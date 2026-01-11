@@ -19,7 +19,7 @@ const SidebarLogo = observer(() => {
   const navigate = useNavigate();
 
   return (
-    <Flex     
+    <Flex
       justifyContent={isCallapse ? "center" : undefined}
       flexDirection={isCallapse ? "column" : undefined}
       alignItems="center"
@@ -44,7 +44,7 @@ const SidebarLogo = observer(() => {
               boxSize={isCallapse ? "35px" : "35px"} // Dynamic size based on isCallapse
               objectFit="contain" // Ensures the image fits well in the container
               src={
-                currentCompanyDetails?.logo?.url || "/path/to/fallback-logo.png"
+                "https://images.seeklogo.com/logo-png/47/1/fx-logo-png_seeklogo-477744.png"
               } // Fallback image
               alt={currentCompanyDetails?.company_name || "Company Logo"}
               fallbackSrc="/path/to/fallback-logo.png" // Image to show while loading or if the src is invalid
@@ -52,9 +52,8 @@ const SidebarLogo = observer(() => {
             />
             {/* Truncated Company Name with Tooltip */}
             <Tooltip
-              label={currentCompanyDetails?.company_name}
+              label={"FX"}
               hasArrow
-              isDisabled={currentCompanyDetails?.company_name.length <= 15}
             >
               <Text
                 textAlign="center"

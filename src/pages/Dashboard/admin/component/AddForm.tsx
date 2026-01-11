@@ -7,6 +7,9 @@ import {
   FormLabel,
   Grid,
   Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
   Select,
   Stack,
   Text,
@@ -16,6 +19,7 @@ import {
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
 /* ---------------- Helpers ---------------- */
@@ -65,7 +69,12 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
     contact: "",
     email: "",
     designation: "",
+    password: "",
+    confirmPassword: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   /* ================= GLOBAL CURRENCY ================= */
   const [currencyInput, setCurrencyInput] = useState("");
@@ -89,7 +98,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
   /* ================= BENCHMARKING MECHANISM ================= */
   const [benchmarking, setBenchmarking] = useState<"budget" | "bmk" | "">("");
 
-  /* ================= POLICY CRITERIA (Gross/Net + Import/Export %) ================= */
+  /* ================= POLICY CRITERIA ================= */
   const [criteriaType, setCriteriaType] = useState<"gross" | "net" | "">("");
   const [importPercent, setImportPercent] = useState("");
   const [exportPercent, setExportPercent] = useState("");
@@ -98,13 +107,15 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
   const exportNum = parseFloat(exportPercent) || 0;
   const percentValid = importNum + exportNum === 100;
 
-  /* ================= POLICY RATIO TYPE (Maximum/Minimum + Import/Export %) ================= */
+  /* ================= POLICY RATIO TYPE ================= */
   const [ratioType, setRatioType] = useState<"maximum" | "minimum" | "">("");
   const [ratioImport, setRatioImport] = useState("");
   const [ratioExport, setRatioExport] = useState("");
 
+  const passwordsMatch = basic.password === basic.confirmPassword;
+
   /* ================= HANDLERS ================= */
-  const handleBasicChange = (e: any) => {
+  const handleBasicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBasic({ ...basic, [e.target.name]: e.target.value });
   };
 
@@ -164,59 +175,77 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
   };
 
   const handleSubmit = () => {
-  const payload = {
-    basicDetails: basic,
-    currencies,
-    businessUnits,
-    policy,
-    benchmarking:
-      benchmarking === "budget"
-        ? "Budget Rate"
-        : benchmarking === "bmk"
-        ? "BMK Rate"
-        : "",
-    policyCriteria: criteriaType
-      ? {
-          type: criteriaType === "gross" ? "Gross" : "Net",
-          import: importPercent,
-          export: exportPercent,
-        }
-      : null,
-    policyRatioType: ratioType
-      ? {
-          type: ratioType === "maximum" ? "Maximum" : "Minimum",
-          import: ratioImport,
-          export: ratioExport,
-        }
-      : null,
+    if (basic.password && basic.password !== basic.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    if (basic.password && basic.password.length < 6) {
+      alert("Password must be at least 6 characters long!");
+      return;
+    }
+
+    const payload = {
+      basicDetails: {
+        userName: basic.userName,
+        fatherName: basic.fatherName,
+        organisationName: basic.organisationName,
+        address: basic.address,
+        contact: basic.contact,
+        email: basic.email,
+        designation: basic.designation,
+        // password: basic.password,     // ← only if you really need it (not recommended)
+      },
+      currencies,
+      businessUnits,
+      policy,
+      benchmarking:
+        benchmarking === "budget"
+          ? "Budget Rate"
+          : benchmarking === "bmk"
+          ? "BMK Rate"
+          : "",
+      policyCriteria: criteriaType
+        ? {
+            type: criteriaType === "gross" ? "Gross" : "Net",
+            import: importPercent,
+            export: exportPercent,
+          }
+        : null,
+      policyRatioType: ratioType
+        ? {
+            type: ratioType === "maximum" ? "Maximum" : "Minimum",
+            import: ratioImport,
+            export: ratioExport,
+          }
+        : null,
+    };
+
+    const existing = JSON.parse(localStorage.getItem("addFormData") || "[]");
+    const updated = [...existing, payload];
+    localStorage.setItem("addFormData", JSON.stringify(updated));
+
+    onSubmit(payload);
   };
-
-  // ✅ GET EXISTING ARRAY
-  const existing =
-    JSON.parse(localStorage.getItem("addFormData") || "[]");
-
-  // ✅ APPEND NEW RECORD
-  const updated = [...existing, payload];
-
-  // ✅ SAVE BACK
-  localStorage.setItem("addFormData", JSON.stringify(updated));
-
-  // notify parent
-  onSubmit(payload);
-};
-
-
 
   /* ================= UI ================= */
   return (
     <Stack spacing={6}>
-      {/* ================= USER DETAILS ================= */}
+      {/* ================= USER & ORGANISATION DETAILS ================= */}
       <Section
         title="User & Organisation Details"
-        subtitle="Basic identification and contact information"
+        subtitle="Basic identification, contact information and credentials"
       >
         <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-          {Object.entries(basic).map(([key]) => (
+          {[
+            "userName",
+            "fatherName",
+            "organisationName",
+            "address",
+            "contact",
+            "email",
+            "designation",
+          ].map((key) => (
             <FormControl key={key}>
               <FormLabel fontSize="sm" color="gray.600">
                 {key.replace(/([A-Z])/g, " $1").trim()}
@@ -224,11 +253,80 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
               <Input
                 placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").trim()}`}
                 name={key}
-                value={basic[key as keyof typeof basic]}
+                value={basic[key as keyof typeof basic] as string}
                 onChange={handleBasicChange}
               />
             </FormControl>
           ))}
+
+          {/* Password */}
+          <FormControl>
+            <FormLabel fontSize="sm" color="gray.600">
+              Password
+            </FormLabel>
+            <InputGroup>
+              <Input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Enter password"
+                value={basic.password}
+                onChange={handleBasicChange}
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
+
+          {/* Confirm Password */}
+          <FormControl>
+            <FormLabel fontSize="sm" color="gray.600">
+              Confirm Password
+            </FormLabel>
+            <InputGroup>
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Confirm password"
+                value={basic.confirmPassword}
+                onChange={handleBasicChange}
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
+                  icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                />
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
+
+          {/* Password match feedback */}
+          {basic.password && (
+            <Grid templateColumns="1fr" gap={2}>
+              {passwordsMatch ? (
+                <Alert status="success" fontSize="sm" variant="left-accent">
+                  <AlertIcon />
+                  Passwords match
+                </Alert>
+              ) : (
+                <Alert status="error" fontSize="sm" variant="left-accent">
+                  <AlertIcon />
+                  Passwords do not match
+                </Alert>
+              )}
+            </Grid>
+          )}
         </Grid>
       </Section>
 
@@ -442,7 +540,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         </RadioGroup>
       </Section>
 
-      {/* ================= POLICY CRITERIA (Gross/Net) ================= */}
+      {/* ================= POLICY CRITERIA ================= */}
       <Section
         title="Policy Criteria"
         subtitle="Choose Gross/Net and define Import vs Export ratio"
@@ -506,7 +604,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         </Stack>
       </Section>
 
-      {/* ================= POLICY RATIO TYPE (Maximum/Minimum) ================= */}
+      {/* ================= POLICY RATIO TYPE ================= */}
       <Section
         title="Policy Ratio Type"
         subtitle="Define maximum or minimum allowable ratios for Import and Export"

@@ -12,7 +12,7 @@ import {
   Text,
   IconButton,
 } from "@chakra-ui/react";
-import { CloseIcon } from "@chakra-ui/icons";
+import { CloseIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import store from "../../../../store/store";
@@ -27,7 +27,7 @@ const Section = ({ title, subtitle, children }: any) => (
   </Box>
 );
 
-const AddForm = observer(({ onSubmit,onCancel }: any) => {
+const AddForm = observer(({ onSubmit, onCancel }: any) => {
   const { auth: { user: admin } } = store;
 
   const [basic, setBasic] = useState({
@@ -37,7 +37,13 @@ const AddForm = observer(({ onSubmit,onCancel }: any) => {
     contact: "",
     email: "",
     designation: "",
+    password: "",
+    confirmPassword: "",
   });
+
+  const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [businessUnits, setBusinessUnits] = useState([
     { unitCode: "", banks: [] as any[] }
@@ -46,7 +52,22 @@ const AddForm = observer(({ onSubmit,onCancel }: any) => {
   const adminUnits = Array.isArray(admin?.businessUnits) ? admin.businessUnits : [];
 
   const handleBasicChange = (e: any) => {
-    setBasic({ ...basic, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const updated = { ...basic, [name]: value };
+
+    if (name === "password" || name === "confirmPassword") {
+      if (
+        updated.password &&
+        updated.confirmPassword &&
+        updated.password !== updated.confirmPassword
+      ) {
+        setPasswordError("Passwords do not match");
+      } else {
+        setPasswordError("");
+      }
+    }
+
+    setBasic(updated);
   };
 
   /* ---------------- Helpers ---------------- */
@@ -146,8 +167,21 @@ const AddForm = observer(({ onSubmit,onCancel }: any) => {
 
   /* ---------------- Submit ---------------- */
   const handleSubmit = () => {
+    if (!basic.password || !basic.confirmPassword) {
+      alert("Password and Confirm Password are required");
+      return;
+    }
+
+    if (basic.password !== basic.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
     const payload = {
-      basicDetails: basic,
+      basicDetails: {
+        ...basic,
+        confirmPassword: undefined,
+      },
       businessUnits,
       createdByAdmin: admin?._id,
       createdAt: new Date().toISOString()
@@ -156,7 +190,7 @@ const AddForm = observer(({ onSubmit,onCancel }: any) => {
     const existing = JSON.parse(localStorage.getItem("addUserFormData") || "[]");
     localStorage.setItem("addUserFormData", JSON.stringify([...existing, payload]));
 
-    onCancel()
+    onCancel();
     onSubmit(payload);
   };
 
@@ -167,9 +201,57 @@ const AddForm = observer(({ onSubmit,onCancel }: any) => {
       <Section title="User Details">
         <Grid templateColumns="repeat(2,1fr)" gap={4}>
           {Object.keys(basic).map((k) => (
-            <FormControl key={k}>
+            <FormControl key={k} isInvalid={k === "confirmPassword" && !!passwordError}>
               <FormLabel>{k.replace(/([A-Z])/g, " $1")}</FormLabel>
-              <Input name={k} value={(basic as any)[k]} onChange={handleBasicChange} />
+
+              {k === "password" || k === "confirmPassword" ? (
+                <Flex align="center">
+                  <Input
+                    name={k}
+                    type={
+                      k === "password"
+                        ? showPassword
+                          ? "text"
+                          : "password"
+                        : showConfirmPassword
+                        ? "text"
+                        : "password"
+                    }
+                    value={(basic as any)[k]}
+                    onChange={handleBasicChange}
+                  />
+                  <IconButton
+                    ml={2}
+                    size="sm"
+                    variant="ghost"
+                    aria-label="Toggle password"
+                    icon={
+                      k === "password"
+                        ? showPassword
+                          ? <ViewOffIcon />
+                          : <ViewIcon />
+                        : showConfirmPassword
+                        ? <ViewOffIcon />
+                        : <ViewIcon />
+                    }
+                    onClick={() =>
+                      k === "password"
+                        ? setShowPassword(!showPassword)
+                        : setShowConfirmPassword(!showConfirmPassword)
+                    }
+                  />
+                </Flex>
+              ) : (
+                <Input
+                  name={k}
+                  value={(basic as any)[k]}
+                  onChange={handleBasicChange}
+                />
+              )}
+
+              {k === "confirmPassword" && passwordError && (
+                <Text color="red.500" fontSize="sm">{passwordError}</Text>
+              )}
             </FormControl>
           ))}
         </Grid>

@@ -1,4 +1,5 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
+"use client"; // Add this directive since this is a client component
+import React, { useState, useEffect } from "react";
 import {
   Accordion,
   AccordionButton,
@@ -6,11 +7,6 @@ import {
   AccordionItem,
   AccordionPanel,
   Box,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerOverlay,
   Flex,
   Icon,
   Popover,
@@ -22,92 +18,59 @@ import {
   Portal,
   Text,
   VStack,
+  useColorModeValue,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
   useBreakpointValue,
   useColorMode,
-  useColorModeValue,
+  Tooltip,
 } from "@chakra-ui/react";
+import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { primaryColor, secondaryColor } from "../../../../globalColors";
-import { glassCardStyle } from "../../../../globalStyles";
+import SidebarLogo from "./component/SidebarLogo";
 import store from "../../../../store/store";
 import { mediumSidebarWidth, sidebarWidth } from "../../../constant/variable";
-import SidebarLogo from "./component/SidebarLogo";
-import { getSidebarDataByRole, sidebarFooterData } from "./utils/SidebarItems";
+import { useNavigate } from "react-router-dom";
 
+// Define interfaces with TypeScript
 export interface SidebarItem {
   id: number;
   name: string;
-  icon: JSX.Element;
+  icon: React.ReactElement; // Changed JSX.Element to React.ReactElement
   url: string;
   children?: SidebarItem[];
 }
 
 interface SidebarProps {
   isCollapsed: boolean;
-  onItemClick: (item: SidebarItem) => void;
-  onLeafItemClick: (item: SidebarItem) => void;
+  onItemClick: any;
+  onLeafItemClick: any;
   openMobileSideDrawer: boolean;
-  setOpenMobileSideDrawer: any;
+  setOpenMobileSideDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// const renderIcon = (depth: number, icon: JSX.Element, colorMode: string) => {
-//   const iconColor = colorMode === "light" ? "gray.800" : "gray.200";
-
-//   if (depth === 1) {
-//     return (
-//       <Text fontSize={"18px"} mr={2} color={iconColor}>
-//         -
-//       </Text>
-//     );
-//   }
-//   if (depth > 1) {
-//     return (
-//       <Text fontSize={"18px"} mr={2} color={iconColor}>
-//         ◦
-//       </Text>
-//     );
-//   }
-//   return <Icon as={icon.type} boxSize={5} color={iconColor} />;
-// };
-
-// import { Tooltip, Icon, Text, Box } from "@chakra-ui/react";
-
-const renderIcon = (depth: number, icon: JSX.Element, colorMode: string) => {
+const renderIcon = (depth: number, icon: any, colorMode: string) => {
   const iconColor = colorMode === "light" ? "gray.800" : "gray.200";
 
   if (depth === 1) {
     return (
-      // <Tooltip label={label} hasArrow placement="right">
-      <Box as="span"  cursor="pointer">
-        <Text fontSize="18px" color={iconColor}>
-          -
-        </Text>
-      </Box>
-      // </Tooltip>
+      <Text fontSize={"18px"} mr={2} color={iconColor}>
+        -
+      </Text>
     );
   }
-
   if (depth > 1) {
     return (
-      // <Tooltip label={label} hasArrow placement="right">
-      <Box as="span"  cursor="pointer">
-        <Text fontSize="18px" color={iconColor}>
-          ◦
-        </Text>
-      </Box>
-      // </Tooltip>
+      <Text fontSize={"18px"} mr={2} color={iconColor}>
+        ◦
+      </Text>
     );
   }
-
-  return (
-    // <Tooltip label={label} hasArrow placement="right">
-    <Box as="span" mr={2} cursor="pointer">
-      <Icon as={icon.type} boxSize={5} color={iconColor} />
-    </Box>
-    // </Tooltip>
-  );
+  return <Icon as={icon.type} boxSize={5} color={iconColor} />;
 };
 
 const findPathToActiveItem = (
@@ -151,11 +114,14 @@ const SidebarPopover = observer(
   }: {
     item: SidebarItem;
     depth: number;
-    onClick: (item: SidebarItem) => void;
-    onLeafClick: (item: SidebarItem) => void;
+    onClick: any;
+    onLeafClick: any;
     isCollapsed: boolean;
     activeItemId: number | null;
   }) => {
+    const {
+      themeStore: { themeConfig },
+    } = store;
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const { colorMode } = useColorMode();
 
@@ -199,57 +165,77 @@ const SidebarPopover = observer(
         trigger="hover"
       >
         <PopoverTrigger>
-          <Flex
-            align={"center"}
-            width={"100%"}
-            onMouseEnter={handleMouseEnter}
-            onClick={handleItemClick}
+          <Tooltip
+            label={item.name}
+            isDisabled={!isCollapsed}
+            placement="right"
+            hasArrow
+            bg={useColorModeValue(
+              themeConfig.colors.custom.light.primary,
+              "gray.800"
+            )}
+            color={useColorModeValue("white", "gray.200")}
+            px={4}
+            py={2}
+            borderRadius="md"
+            fontSize="md"
+            boxShadow="lg"
+            border="1px solid"
+            borderColor={useColorModeValue("gray.200", "gray.700")}
+            transition="opacity 0.2s ease-in-out"
+            zIndex={100}
           >
             <Flex
-              align="center"
-              justify={depth === 0 ? "center" : "unset"}
+              align={"center"}
               width={"100%"}
-              cursor="pointer"
-              py={depth === 0 ? 3 : 1}
-              color={
-                itemIsActive
-                  ? primaryColor
-                  : "inherit"
-              }
-              borderRight={
-                itemIsActive
-                  ? `3px solid ${primaryColor}`
-                  : "3px solid transparent"
-              }
-              _hover={{
-                color: primaryColor,
-                bg: "rgba(0,124,138,0.05)", // subtle hover background
-              }}
-              fontWeight={itemIsActive ? "600" : "inherit"}
-              // _hover={{
-              //   bg: useColorModeValue("blue.50", "blue.700"),
-              //   color: useColorModeValue(
-              //     themeConfig.colors.custom.light.primary,
-              //     themeConfig.colors.custom.dark.primary
-              //   ),
-              // }}
+              onMouseEnter={handleMouseEnter}
+              onClick={handleItemClick}
             >
-              {renderIcon(depth, item.icon, colorMode)}
-              {depth > 0 && (
-                <Flex flex={1} align={"center"} justify={"space-between"}>
-                  <Text fontSize={"sm"}>
-                    {item.name}
-                  </Text>
-                  {/* {item.children && (
-                    <ChevronRightIcon
-                      ml={2}
-                      color={colorMode === "light" ? "gray.800" : "gray.200"}
-                    />
-                  )} */}
-                </Flex>
-              )}
+              <Flex
+                align="center"
+                justify={depth === 0 ? "center" : "unset"}
+                width={"100%"}
+                cursor="pointer"
+                py={depth === 0 ? 3 : 1}
+                bg={
+                  itemIsActive
+                    ? useColorModeValue("blue.50", "blue.900")
+                    : "transparent"
+                }
+                color={
+                  itemIsActive
+                    ? useColorModeValue(
+                        themeConfig.colors.custom.light.primary,
+                        themeConfig.colors.custom.dark.primary
+                      )
+                    : "inherit"
+                }
+                fontWeight={itemIsActive ? "600" : "inherit"}
+                _hover={{
+                  bg: useColorModeValue("blue.50", "blue.700"),
+                  color: useColorModeValue(
+                    themeConfig.colors.custom.light.primary,
+                    themeConfig.colors.custom.dark.primary
+                  ),
+                }}
+              >
+                {renderIcon(depth, item.icon, colorMode)}
+                {depth > 0 && (
+                  <Flex flex={1} align={"center"} justify={"space-between"}>
+                    <Text ml={2} fontSize={"sm"}>
+                      {item.name}
+                    </Text>
+                    {item.children && (
+                      <ChevronRightIcon
+                        ml={2}
+                        color={colorMode === "light" ? "gray.800" : "gray.200"}
+                      />
+                    )}
+                  </Flex>
+                )}
+              </Flex>
             </Flex>
-          </Flex>
+          </Tooltip>
         </PopoverTrigger>
         {item.children && (
           <Portal>
@@ -257,11 +243,10 @@ const SidebarPopover = observer(
               zIndex={15}
               w={"200px"}
               onMouseEnter={handleMouseEnter}
-              {...glassCardStyle}
               bg={useColorModeValue("white", "gray.800")}
             >
-              <PopoverArrow color={primaryColor}/>
-              <PopoverHeader bg={primaryColor} >
+              <PopoverArrow />
+              <PopoverHeader bg={useColorModeValue("blue.50", "blue.900")}>
                 <Flex
                   align="center"
                   justify="space-between"
@@ -272,17 +257,23 @@ const SidebarPopover = observer(
                 >
                   <Flex align="center" py={0}>
                     <Text
-                      color={"white"}
+                      color={useColorModeValue(
+                        themeConfig.colors.custom.light.primary,
+                        "gray.200"
+                      )}
                       fontSize="sm"
                       fontWeight={600}
+                      ml={depth === 0 ? 5 : 2}
                     >
                       {item.name}
                     </Text>
                   </Flex>
                   {item.children && (
                     <ChevronDownIcon
-                      //  color={colorMode === "light" ? "gray.800" : "gray.200"}
-                      color={"white"}
+                      color={useColorModeValue(
+                        themeConfig.colors.custom.light.primary,
+                        "gray.200"
+                      )}
                       fontSize="19px"
                       fontWeight={600}
                     />
@@ -323,29 +314,28 @@ const SidebarAccordion = observer(
   }: {
     items: SidebarItem[];
     depth?: number;
-    onClick: (item: SidebarItem) => void;
-    onLeafClick: (item: SidebarItem) => void;
+    onClick: any;
+    onLeafClick: any;
     activeItemId: number | null;
     expandedPath: number[];
   }) => {
-    // const {
-    //   themeStore: { themeConfig },
-    // } = store;
+    const {
+      themeStore: { themeConfig },
+    } = store;
 
     const { colorMode } = useColorMode();
 
-    // const activeBg = useColorModeValue(
-    //   themeConfig.colors.custom.light.primary,
-    //   "blue.900"
-    // );
-    // const hoverBg = useColorModeValue("blue.50", "blue.700");
-    // const hoverColor = useColorModeValue("teal.700", "teal.300");
-    // const primaryColor = useColorModeValue(
-    //   themeConfig.colors.custom.light.primary,
-    //   themeConfig.colors.custom.dark.primary
-    // );
+    const activeBg = useColorModeValue(
+      themeConfig.colors.custom.light.primary,
+      "blue.900"
+    );
+    const hoverBg = useColorModeValue("blue.50", "blue.700");
+    const hoverColor = useColorModeValue("teal.700", "teal.300");
+    const primaryColor = useColorModeValue(
+      themeConfig.colors.custom.light.primary,
+      themeConfig.colors.custom.dark.primary
+    );
 
-    // Determine the index to expand based on the depth and expandedPath
     const expandedIndex =
       expandedPath.length > depth ? expandedPath[depth] : null;
 
@@ -361,35 +351,29 @@ const SidebarAccordion = observer(
 
     return (
       <Accordion
-        width="100%"
+        width={"100%"}
         px={3}
         allowMultiple
         defaultIndex={expandedIndex !== null ? [expandedIndex] : []}
       >
         {items.map((item) => {
           const itemIsActive = isActive(item);
-          const isMainMenu = depth === 0;
-
           return (
-            <AccordionItem key={item.id} border="none" width="100%">
+            <AccordionItem key={item.id} border="none" width={"100%"}>
               {() => (
                 <>
                   <AccordionButton
-                    my={1}
-                    px={2}
-                    py={2}
-                    borderRadius="6px"
-                    bg="transparent"
-                    color={itemIsActive ? primaryColor : secondaryColor}
-                    fontWeight={itemIsActive ? "600" : "500"}
-                    borderLeft={
-                      itemIsActive
-                        ? `3px solid ${primaryColor}`
-                        : "3px solid transparent"
-                    }
+                    my={1.5}
+                    px={1}
+                    borderRadius={"10px"}
+                    bg={itemIsActive ? activeBg : "transparent"}
+                    color={itemIsActive ? primaryColor : "inherit"}
+                    fontWeight={itemIsActive ? "600" : "inherit"}
                     _hover={{
-                      color: primaryColor,
-                      bg: "rgba(0,124,138,0.05)", // subtle hover background
+                      bg: hoverBg,
+                      color: hoverColor,
+                      fontWeight: "600",
+                      boxShadow: "rgb(0 0 0 / 10%) 0px 0px 5px",
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -404,29 +388,41 @@ const SidebarAccordion = observer(
                       align="center"
                       justify="space-between"
                       width="100%"
+                      pl={2}
+                      my={0}
                       cursor="pointer"
+                      color={
+                        activeItemId === item.id
+                          ? useColorModeValue(
+                              themeConfig.colors.custom.light.primary,
+                              themeConfig.colors.custom.dark.primary
+                            )
+                          : "inherit"
+                      }
+                      fontWeight={activeItemId === item.id ? "600" : "inherit"}
                     >
                       <Flex align="center">
                         {renderIcon(depth, item.icon, colorMode)}
                         <Text
-                          fontSize={isMainMenu ? "sm" : "xs"} // smaller font for children
-                          ml={depth === 0 ? 3 : 4} // indent children
-                          textAlign={'start'}
-
+                          fontSize="sm"
+                          color={colorMode === "dark" ? "white" : "black"}
+                          ml={depth === 0 ? 5 : 2}
                         >
                           {item.name}
                         </Text>
                       </Flex>
-
                       {item.children && (
-                        <AccordionIcon color={secondaryColor} />
+                        <AccordionIcon
+                          color={
+                            colorMode === "light" ? "gray.800" : "gray.200"
+                          }
+                        />
                       )}
                     </Flex>
                   </AccordionButton>
-
                   {item.children && (
-                    <AccordionPanel pl={0} pr={0} pb={0} mt="-4px">
-                      <VStack align="start" spacing={0} width="100%">
+                    <AccordionPanel pl={4} pr={0} pb={0} mt={"-5px"}>
+                      <VStack align="start" spacing={0}>
                         <SidebarAccordion
                           items={item.children}
                           depth={depth + 1}
@@ -459,14 +455,18 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
     const {
       auth: { user },
     } = store;
-    const navigate = useNavigate();
+    const router = useNavigate(); // Replace useNavigate with useRouter
     const isMobile = useBreakpointValue({ base: true, lg: false }) ?? false;
     const borderColor = useColorModeValue("gray.200", "gray.700");
-    // const headerBgColor = useColorModeValue("gray.200", "gray.700");
-    const [sidebarData, setSidebarData] = useState<any>([]);
+    const headerBgColor = useColorModeValue("gray.200", "gray.700");
+    const [sidebarData, setSidebarData] = useState<SidebarItem[]>([]);
     const [activeItemId, setActiveItemId] = useState<number | null>(() => {
-      const storedActiveItemId = localStorage.getItem("activeSidebarItemId");
-      return storedActiveItemId ? parseInt(storedActiveItemId, 10) : 1;
+      if (typeof window !== "undefined") {
+        // Add check for client-side
+        const storedActiveItemId = localStorage.getItem("activeSidebarItemId");
+        return storedActiveItemId ? parseInt(storedActiveItemId, 10) : 1;
+      }
+      return 1;
     });
     const { colorMode } = useColorMode();
 
@@ -475,7 +475,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
     }, [user]);
 
     useEffect(() => {
-      if (activeItemId !== null) {
+      if (activeItemId !== null && typeof window !== "undefined") {
         localStorage.setItem("activeSidebarItemId", activeItemId.toString());
       }
     }, [activeItemId]);
@@ -483,7 +483,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
     const handleLeafItemClick = (item: SidebarItem) => {
       setActiveItemId(item.id);
       onLeafItemClick(item);
-      navigate(item.url);
+      router(item.url); // Replace navigate with router.push
     };
 
     useEffect(() => {
@@ -502,7 +502,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
         <Drawer
           isOpen={openMobileSideDrawer}
           placement="right"
-          onClose={() => setOpenMobileSideDrawer()}
+          onClose={() => setOpenMobileSideDrawer(false)} // Changed to false directly
         >
           <DrawerOverlay />
           <DrawerContent>
@@ -529,27 +529,29 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
         </Drawer>
         {!isMobile && (
           <Box
-            // pos={"fixed"}
-            // top={0}
-            // bottom={0}
-            // left={0}
+            pos={"fixed"}
+            top={0}
+            bottom={0}
+            left={0}
             width={isCollapsed ? mediumSidebarWidth : sidebarWidth}
-            // minH={"100vh"}
-            // transition="width 0.3s"
-            // color="gray.700"
-            // zIndex={10}
+            minH={"100vh"}
+            transition="width 0.3s"
+            color="gray.700"
+            zIndex={1000}
             bg={colorMode === "dark" ? "gray.800" : "white"}
-            // borderRight="1px"
-            // boxShadow="rgb(0 0 0 / 20%) 0px 0px 11px"
+            borderRight="1px"
+            boxShadow="rgb(0 0 0 / 20%) 0px 0px 11px"
             borderRightColor={borderColor}
-            // className="customScrollBar"
+            className="customScrollBar"
           >
             <Box
               position="sticky"
               top={0}
-              zIndex={11}
+              zIndex={200}
               bg={"white"}
-              boxShadow="0px -1px 3px 0 rgba(0, 0, 0, 0.12)"
+              borderBottom={"1px solid"}
+              borderBottomColor={headerBgColor}
+              boxShadow="0px 10px 10px -10px rgba(0, 0, 0, 0.1)"
             >
               <SidebarLogo />
             </Box>
@@ -557,13 +559,11 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
               overflowY="auto"
               overflowX={"hidden"}
               className="customScrollBar"
-              // py={6}
-              // bg={"gray.50"}
-              height="calc(100vh - 165px)" // Adjust based on the height of your header
+              height="calc(100vh - 165px)"
             >
               {isCollapsed ? (
                 <VStack align="start" spacing={3}>
-                  {sidebarData.map((item: any) => (
+                  {sidebarData.map((item) => (
                     <SidebarPopover
                       key={item.id}
                       item={item}
@@ -594,11 +594,10 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
               py={4}
               zIndex={11}
               overflowX={"hidden"}
-              // bg={"gray.100"}
             >
               {isCollapsed ? (
                 <VStack align="start" spacing={3}>
-                  {sidebarFooterData.map((item: any) => (
+                  {sidebarFooterData.map((item) => (
                     <SidebarPopover
                       key={item.id}
                       item={item}

@@ -1,44 +1,34 @@
+'use client';
+
+import { useEffect, useRef, startTransition } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
   Box,
+  Spinner,
   useBreakpointValue,
+  useColorModeValue,
   useMediaQuery,
   useTheme,
-} from "@chakra-ui/react";
-import { observer } from "mobx-react-lite";
-import { Suspense, useEffect, useRef } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { glassCardStyle } from "../../../globalStyles";
-import store from "../../../store/store";
-import PermissionDeniedPage from "../../component/commonPages/PermissionDeniedPage";
-import Loader from "../../component/Loader/Loader";
-import { authentication } from "../../constant/routes";
-import { headerHeight } from "../../constant/variable";
-import HeaderLayout from "./HeaderLayout/HeaderLayout";
-import SidebarLayout from "./SidebarLayout/SidebarLayout";
+} from '@chakra-ui/react';
+import styled from 'styled-components';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
-/* ---------------- Redirect ---------------- */
-
-const RedirectComponent = observer(() => {
-  const navigate = useNavigate();
-  const {
-    auth: { restoreUser },
-  } = store;
-
-  useEffect(() => {
-    if (!restoreUser()) {
-      navigate("/login");
-    }
-  }, [navigate, restoreUser]);
-
-  return null;
-});
-
-/* ---------------- Dashboard Layout ---------------- */
+import SidebarLayout from './SidebarLayout/SidebarLayout';
+import HeaderLayout from './HeaderLayout/HeaderLayout';
+import store from '../../../store/store';
+import ThemeChangeContainer from '../../component/themeChangeContainer/ThemeChangeContainer';
+import PageLoader from '../../component/Loader/PageLoader';
+import {
+  contentLargeBodyPadding,
+  contentSmallBodyPadding,
+  headerHeight,
+  mediumSidebarWidth,
+} from '../../constant/variable';
+import { dashboard } from '../../constant/routes';
 
 const DashboardLayout = observer(() => {
   const {
-    auth: { restoreUser, user, checkPermission },
+    auth: { user },
     layout: {
       fullScreenMode,
       mediumScreenMode,
@@ -47,19 +37,15 @@ const DashboardLayout = observer(() => {
       openMobileSideDrawer,
       setOpenMobileSideDrawer,
     },
+    themeStore: { themeConfig },
   } = store;
 
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const [sizeStatus] = useMediaQuery(`(max-width: ${theme.breakpoints.xl})`);
   const isMobile = useBreakpointValue({ base: true, lg: false }) ?? false;
   const sidebarRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!restoreUser()) {
-      navigate("/login");
-    }
-  }, [restoreUser, navigate]);
 
   const closeDrawerModel = () => {
     setOpenMobileSideDrawer(false);
@@ -67,10 +53,11 @@ const DashboardLayout = observer(() => {
 
   const handleSidebarItemClick = (item: any) => {
     if (!item.children || item.url) {
-      localStorage.setItem("activeComponentName", item.id);
+      localStorage.setItem('activeComponentName', item.id);
     }
   };
 
+  /* ------------------ OUTSIDE CLICK ------------------ */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -81,20 +68,71 @@ const DashboardLayout = observer(() => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isCallapse, openDashSidebarFun]);
 
-  return user ? (
-    <PermissionDeniedPage
-      show={!checkPermission("dashboard", "view")}
-      onClick={() => navigate(authentication.login)}
-    >
+  /* ------------------ SAVE LAST PAGE ------------------ */
+  useEffect(() => {
+    if (!store.auth.user) return;
+
+    if (
+      location.pathname.startsWith('/login') ||
+      location.pathname.startsWith('/forgot') ||
+      location.pathname.startsWith('/register')
+    ) {
+      return;
+    }
+
+    if (!sessionStorage.getItem('justLoggedIn')) {
+      sessionStorage.setItem('lastRoute', location.pathname);
+    }
+  }, [location.pathname]);
+
+  /* ------------------ ROLE + REFRESH SAFE NAV ------------------ */
+  useEffect(() => {
+    if (!user?.role) return;
+
+    const justLoggedIn = sessionStorage.getItem('justLoggedIn');
+    const lastRoute = sessionStorage.getItem('lastRoute');
+
+    startTransition(() => {
+      if (justLoggedIn) {
+        sessionStorage.removeItem('justLoggedIn');
+
+        switch (user.role) {
+          case 'superadmin':
+            navigate(dashboard.superAdminTab, { replace: true });
+            break;
+          case 'admin':
+            navigate(dashboard.adminTab, { replace: true });
+            break;
+          default:
+            navigate(dashboard.home, { replace: true });
+        }
+        return;
+      }
+
+      if (lastRoute) {
+        navigate(lastRoute, { replace: true });
+      }
+    });
+  }, [user?.role]);
+
+  /* ------------------ LOADER ------------------ */
+  if (!user) {
+    return (
+      <PageLoader loading>
+        <Spinner />
+      </PageLoader>
+    );
+  }
+
+  /* ------------------ UI (UNCHANGED) ------------------ */
+  return (
+    <Box>
       <MainContainer isMobile={isMobile}>
-        {/* Sidebar */}
-        <Box ref={sidebarRef} {...glassCardStyle}>
+        <Box ref={sidebarRef}>
           <SidebarLayout
             onItemClick={handleSidebarItemClick}
             isCollapsed={isCallapse}
@@ -104,13 +142,16 @@ const DashboardLayout = observer(() => {
           />
         </Box>
 
-        {/* Main Content */}
         <Container fullScreenMode={fullScreenMode}>
           <HeaderContainer
             isMobile={isMobile}
             sizeStatus={sizeStatus}
             mediumScreenMode={mediumScreenMode}
             fullScreenMode={fullScreenMode}
+            backgroundColor={useColorModeValue(
+              themeConfig.colors.custom.light.primary,
+              themeConfig.colors.custom.dark.primary
+            )}
           >
             <HeaderLayout />
           </HeaderContainer>
@@ -118,48 +159,36 @@ const DashboardLayout = observer(() => {
           <ContentContainer
             isMobile={isMobile}
             mediumScreenMode={mediumScreenMode}
+            className={
+              fullScreenMode ? 'fullscreen' : mediumScreenMode ? 'mediumScreen' : ''
+            }
             fullScreenMode={fullScreenMode}
             sizeStatus={sizeStatus}
-            className={
-              fullScreenMode
-                ? "fullscreen"
-                : mediumScreenMode
-                ? "mediumScreen"
-                : ""
-            }
           >
-            <Suspense fallback={<Loader height="90vh" />}>
-              <Outlet />
-            </Suspense>
+            <Outlet />
           </ContentContainer>
         </Container>
       </MainContainer>
-    </PermissionDeniedPage>
-  ) : (
-    <RedirectComponent />
+
+      <ThemeChangeContainer />
+    </Box>
   );
 });
 
 export default DashboardLayout;
 
-/* ===================== STYLES ===================== */
-
-/* 🔥 ROOT FIX: lock horizontal overflow at layout level */
+/* ================= STYLES ================= */
 
 const MainContainer = styled.div<{ isMobile: boolean }>`
   display: flex;
-  width: 100%;
-  max-width: 100vw;
-  overflow-x: hidden;   /* 🔥 MOST IMPORTANT FIX */
   transition: all 0.3s ease-in-out;
+  overflow: hidden;
+  margin-left: ${(props) => (props.isMobile ? '0px' : mediumSidebarWidth)};
 `;
 
 const Container = styled.div<{ fullScreenMode: boolean }>`
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;   /* 🔥 REQUIRED */
   transition: all 0.3s ease-in-out;
 `;
 
@@ -167,17 +196,17 @@ const HeaderContainer = styled.div<{
   fullScreenMode: boolean;
   sizeStatus: boolean;
   mediumScreenMode: boolean;
+  backgroundColor: string;
   isMobile: boolean;
 }>`
-  z-index: 9999;
+  z-index: 99;
   height: ${headerHeight};
-  position: sticky;
+  position: fixed;
   top: 0;
   right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: inherit;
+  background-color: ${(props) => props.backgroundColor};
+  left: ${(props) => (props.isMobile ? '0px' : mediumSidebarWidth)};
+  transition: all 0.3s ease-in-out;
 `;
 
 const ContentContainer = styled.div<{
@@ -186,9 +215,12 @@ const ContentContainer = styled.div<{
   mediumScreenMode: boolean;
   isMobile: boolean;
 }>`
-  padding: 5px 10px;
+  padding: ${({ isMobile }) =>
+    isMobile ? `${contentSmallBodyPadding}` : `${contentLargeBodyPadding}`};
+  width: ${({ isMobile }) =>
+    isMobile ? '100vw' : `calc(100vw - ${mediumSidebarWidth})`};
+  overflow-x: hidden;
   height: calc(100vh - ${headerHeight});
-  overflow-x: hidden;   /* 🔥 THIS FIX STOPS PAGE SHIFT */
-  overflow-y: auto;
   transition: all 0.3s ease-in-out;
+  margin-top: ${headerHeight};
 `;

@@ -59,12 +59,12 @@ const UserList = observer(() => {
   /* -------------------- Keep testimonials logic -------------------- */
   useEffect(() => {
     if (!testimonials.hasFetch) {
-      getTestimonials({ page: 1 }).catch((err) => {
-        openNotification({
-          title: "Failed to get testimonials",
-          message: err.message,
-          type: "error",
-        });
+      getTestimonials({ page: 1 }).catch(() => {
+        // openNotification({
+        //   title: "Failed to get testimonials",
+        //   message: err.message,
+        //   type: "error",
+        // });
       });
     }
   }, [getTestimonials, openNotification, testimonials.hasFetch]);

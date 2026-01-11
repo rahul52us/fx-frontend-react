@@ -95,69 +95,13 @@ class AuthStore {
   setUserOptions = () => {
     this.webLoader = true;
     axios
-      .post("/auth/me")
+      .post("/auth/me/")
       .then(({ data }: AxiosResponse<{ data: any }>) => {
-        let dts = {
-          basicDetails: {
-            userName: "RAHUL52US@GMAIL.COM",
-            fatherName: "prakash kushwah",
-            organisationName: "techsahayata",
-            address: "DOMBIVLI MIDC THA MH, THANE, 421203",
-            contact: "08120758780",
-            email: "rahul52us@gmail.com",
-            designation: "full stack developer",
-          },
-          currencies: ["GAME", "SECOND"],
-          businessUnits: [
-            {
-              unitCode: "unit bank 1",
-              banks: [
-                {
-                  bankName: "bank 1",
-                  currency: "GAME",
-                  margin: "20",
-                },
-                {
-                  bankName: "bank 2",
-                  currency: "SECOND",
-                  margin: "50",
-                },
-              ],
-            },
-            {
-              unitCode: "NOS",
-              banks: [
-                {
-                  bankName: "second bank 1",
-                  currency: "GAME",
-                  margin: "50",
-                },
-              ],
-            },
-          ],
-          policy: {
-            tenureType: "quarterly",
-            tenureMode: "financial",
-            tenureValues: ["200", "45", "200"],
-          },
-          benchmarking: "Budget Rate",
-          policyCriteria: {
-            type: "Gross",
-            import: "60",
-            export: "40",
-          },
-          policyRatioType: {
-            type: "Maximum",
-            import: "50",
-            export: "60",
-          }
-        };
-
-        this.company = data.data?.companyDetail?.company?._id;
-        data.data = { ...data.data, ...dts };
+        console.log(data);
+        this.company = "company_id";
         this.user = data.data;
         this.role = this.user?.role;
-        this.currentCompanyDetails = data?.data?.companyDetail?.company;
+        this.currentCompanyDetails = this.company;
         sessionStorage.setItem(
           process.env.REACT_APP_AUTHORIZATION_USER_DATA!,
           CryptoJS.AES.encrypt(
@@ -201,15 +145,14 @@ class AuthStore {
   }) => {
     try {
       this.isRememberCredential = sendData.remember_me;
-      const { data } = await axios.post<{ data: any }>("/auth/login", {
+      const { data }: any = await axios.post<{ data: any }>("/auth/login/", {
         username: sendData.username,
         password: sendData.password,
         loginType: sendData.loginType,
       });
-      console.log(data);
       const headersToUpdate = {
         Accept: "application/json",
-        Authorization: `Bearer ${data.data.authorization_token}`,
+        Authorization: `Bearer ${data.access_token}`,
       };
       axios.defaults.headers = Object.assign(
         {},
@@ -218,7 +161,7 @@ class AuthStore {
       );
       localStorage.setItem(
         process.env.REACT_APP_AUTHORIZATION_TOKEN as string,
-        data.data.authorization_token
+        data.access_token
       );
       this.setUserOptions();
       return data;
@@ -282,6 +225,9 @@ class AuthStore {
 
   doLogout = () => {
     this.user = null;
+    sessionStorage.removeItem("lastRoute");
+    sessionStorage.removeItem("justLoggedIn");
+
     this.clearLocalStorage();
   };
 

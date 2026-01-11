@@ -32,12 +32,12 @@ const DashWidgetCard = observer(() => {
       fetchData(getCompanyCount),
     ])
       .then(() => {})
-      .catch((error: any) => {
-        openNotification({
-          type: "error",
-          message: error?.message || "Something went wrong",
-          title: "Failed to get dashboard data",
-        });
+      .catch(() => {
+        // openNotification({
+        //   type: "error",
+        //   message: error?.message || "Something went wrong",
+        //   title: "Failed to get dashboard data",
+        // });
       });
   }, [
     getTripCounts,
@@ -64,7 +64,7 @@ const DashWidgetCard = observer(() => {
           title: "Users",
           link: dashboard.Users.index,
           loading: UsersCounts.loading,
-          icon: HiMiniUsers,          
+          icon: HiMiniUsers,
           bg:"#F4F2FF"
         },
         {

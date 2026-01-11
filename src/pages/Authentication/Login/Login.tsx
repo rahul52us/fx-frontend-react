@@ -14,8 +14,8 @@ import { Formik, Form, Field } from "formik";
 import CustomInput from "../../../config/component/CustomInput/CustomInput";
 import { LoginValidation } from "../utils/validation";
 import store from "../../../store/store";
-import { authentication, main } from "../../../config/constant/routes";
-import { useState } from "react";
+import { authentication } from "../../../config/constant/routes";
+import {  useState } from "react";
 import DashPageHeader from "../../../config/component/common/DashPageHeader/DashPageHeader";
 import { primaryColor } from "../../../globalColors";
 import {
@@ -29,6 +29,9 @@ const Login = observer(() => {
     auth: { openNotification, login },
   } = store;
   const navigate = useNavigate();
+
+
+
 
   return (
     <>
@@ -67,12 +70,12 @@ const Login = observer(() => {
             onSubmit={(values, { setSubmitting }) => {
               login({ ...values, loginType: "username" })
                 .then((data: any) => {
+                      sessionStorage.setItem("justLoggedIn", "true"); // 👈 ADD THIS
                   openNotification({
                     title: "Login Success",
                     message: data.message,
                     type: "success",
                   });
-                  navigate(main.home);
                 })
                 .catch((error) => {
                   openNotification({
