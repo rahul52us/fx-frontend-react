@@ -116,38 +116,82 @@ const ForwardCancellationTable = () => {
   useEffect(() => {
     fetchExportRegisterData();
   }, []);
- const DealDataColumns = [
+
+
+  
+//  const DealDataColumns = [
+//   { headerName: "Deal Type", key: "dealType" },
+//   { headerName: "Exposure Type", key: "exposureType" },
+//   { headerName: "Transaction Date", key: "transactionDate" },
+//   { headerName: "Transaction Input Date", key: "transactionInputDate" },
+//   { headerName: "Transaction Modification Date", key: "transactionModificationDate" },
+//   { headerName: "Forward Deal ID", key: "forwardDealId" },
+//   { headerName: "Bank", key: "bank" },
+//   { headerName: "PCFC Ref Number", key: "pcfcRefNumber" },
+//   { headerName: "Currency", key: "currency" },
+//   { headerName: "Amount", key: "amount" },
+//   { headerName: "Booked Rate", key: "bookedRate" },
+//   { headerName: "Spot Booked", key: "spotBooked" },
+//   { headerName: "Forward Premium", key: "forwardPremium" },
+//   { headerName: "Cash To Spot", key: "cashTomSpot" },
+//   { headerName: "Bank Margin", key: "bankMargin" },
+//   { headerName: "Net Settlement Rate", key: "netSettlementRate" },
+//   { headerName: "INR Amount", key: "inrAmount" },
+//   { headerName: "Maturity", key: "maturity" },
+//   { headerName: "P/L on Cancellation", key: "profitAndLossOnCancellation" },
+//   { headerName: "Wash Rate", key: "washRate" },
+//   {
+//       headerName: "Actions",
+//       key: "table-actions",
+//       type: "table-actions",
+//       props: {
+//         row: { minW: 180, textAlign: "center" },
+//         column: { textAlign: "center" },
+//       },
+//   },
+// ];
+
+
+const DealDataColumns = [
   { headerName: "Deal Type", key: "dealType" },
   { headerName: "Exposure Type", key: "exposureType" },
   { headerName: "Transaction Date", key: "transactionDate" },
-  { headerName: "Transaction Input Date", key: "transactionInputDate" },
-  { headerName: "Transaction Modification Date", key: "transactionModificationDate" },
+  { headerName: "Created Date", key: "createdAt" },
+
   { headerName: "Forward Deal ID", key: "forwardDealId" },
+  { headerName: "PO Number", key: "poNumber" },
+
   { headerName: "Bank", key: "bank" },
-  { headerName: "PCFC Ref Number", key: "pcfcRefNumber" },
+  { headerName: "Business Unit", key: "businessUnit" },
   { headerName: "Currency", key: "currency" },
-  { headerName: "Amount", key: "amount" },
+
+  { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  { headerName: "Cancellation Amount", key: "cancellationAmount" },
+
   { headerName: "Booked Rate", key: "bookedRate" },
   { headerName: "Spot Booked", key: "spotBooked" },
-  { headerName: "Forward Premium", key: "forwardPremium" },
-  { headerName: "Cash To Spot", key: "cashTomSpot" },
+  { headerName: "Forward Premium", key: "fwdPremium" },
+  { headerName: "Cash Tom Spot", key: "cashTomSpot" },
   { headerName: "Bank Margin", key: "bankMargin" },
-  { headerName: "Net Settlement Rate", key: "netSettlementRate" },
-  { headerName: "INR Amount", key: "inrAmount" },
-  { headerName: "Maturity", key: "maturity" },
-  { headerName: "P/L on Cancellation", key: "profitAndLossOnCancellation" },
+
+  { headerName: "Delivery Date From", key: "deliveryDateFrom" },
+  { headerName: "Delivery Date To", key: "deliveryDateTo" },
+
+  { headerName: "Net Cancellation Rate", key: "netCancellationRate" },
+  { headerName: "P/L in FCY", key: "plInFCY" },
+  { headerName: "P/L in INR", key: "plInINR" },
   { headerName: "Wash Rate", key: "washRate" },
+
   {
-      headerName: "Actions",
-      key: "table-actions",
-      type: "table-actions",
-      props: {
-        row: { minW: 180, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
+    headerName: "Actions",
+    key: "table-actions",
+    type: "table-actions",
+    props: {
+      row: { minW: 180, textAlign: "center" },
+      column: { textAlign: "center" },
+    },
   },
 ];
-
 
   return (
     <>

@@ -17,7 +17,7 @@ import {
   primaryButtonStyle,
 } from "../../../../globalStyles";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
-import { HedgeDealSelector } from "./ExportHedgeDealSection";
+import { MultiHedgeDealExport } from "./MultiHedgeDealExport";
 import {
   currencyOptions,
   dummyExporPOtData,
@@ -219,15 +219,16 @@ const ExposureForm = ({ submitExportForm }: any) => {
             amount: "",
             budgetRate: "",
             paymentTerms: "",
-            hedgeDealRefNo: "",
             remark: "",
             dueDate: "",
-            outstandingAmount: "",
-            balanceAmount: "",
-            hedgeAmount: "",
-            hedgeRate: "",
-            deliveryDateFrom: "",
-            deliveryDateTo: "",
+            // hedgeDealRefNo: "",
+            // outstandingAmount: "",
+            // balanceAmount: "",
+            // hedgeAmount: "",
+            // hedgeRate: "",
+            // deliveryDateFrom: "",
+            // deliveryDateTo: "",
+ hedgeDeals: [],
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
@@ -303,51 +304,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
                       required={true}
                     />
                   ) : (
-                    // <CustomInput
-                    //   label="PO No"
-                    //   placeholder="Select PO No"
-                    //   name="poNo"
-                    //   type="select"
-                    //   // map poData to { value, label } objects for the select
-                    //   options={poData.map((po: any) => ({
-                    //     value: po.poNo,
-                    //     label: po.poNo,
-                    //   }))}
-                    //   required={true}
-                    //   // set the value as { value, label } object
-                    //   value={
-                    //     values.poNo
-                    //       ? { value: values.poNo, label: values.poNo }
-                    //       : null
-                    //   }
-                    //   onChange={(selectedOption: any) => {
-                    //     const selectedPo = poData.find(
-                    //       (item: any) => item.poNo === selectedOption.value
-                    //     );
-                    //     if (selectedPo) {
-                    //       setFieldValue("poNo", selectedPo.poNo);
-                    //       setFieldValue("poDate", selectedPo.poDate);
-                    //       setFieldValue("partyName", selectedPo.partyName);
-                    //       setFieldValue("bank", selectedPo.bank);
-                    //       setFieldValue(
-                    //         "businessUnit",
-                    //         selectedPo.businessUnit
-                    //       );
-                    //       setFieldValue(
-                    //         "paymentTerms",
-                    //         selectedPo.paymentTerms
-                    //       );
-                    //       setFieldValue("currency", selectedPo.currency);
-                    //       setFieldValue("budgetRate", selectedPo.budgetRate);
-                    //       setFieldValue(
-                    //         "outStandingAmount",
-                    //         selectedPo.outStandingAmount || 0
-                    //       );
-                    //     }
-                    //   }}
-                    //   error={touched.poNo && errors.poNo}
-                    //   showError={showError}
-                    // />
 
                     <CustomInput
   label="PO No"
@@ -396,7 +352,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
   error={touched.poNo && errors.poNo}
   showError={showError}
 />
-
                   )}
                   <CustomInput
                     label="PO Date"
@@ -571,120 +526,20 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     required={true}
                   />
 
-                  <HedgeDealSelector
-                    url={url}
-                    values={values}
-                    setFieldValue={setFieldValue}
-                    touched={touched}
-                    errors={errors}
-                    showError={showError}
-                  />
-
-                  {/* <CustomInput
-        label="Hedge Deal Ref No"
-        name="hedgeDealRefNo"
-        type="select"
-        placeholder={loading ? "Loading..." : "Select Reference No"}
-        // isDisabled={loading}
-        options={hedgeDealOptions}
-        value={hedgeDealOptions.find(
-          (option: any) => option.value === values.hedgeDealRefNo
-        )}
-        onChange={(selectedOption) => {
-          const selectedDeal = hedgeDeals.find(
-            (item: any) =>
-              item.hedgeDealRefNumber === selectedOption.value
-          );
-
-          // Set selected deal ref
-          setFieldValue("hedgeDealRefNo", selectedOption.value);
-
-          // Auto-fill hedgeRate, delivery dates, outstanding, balance
-          if (selectedDeal) {
-            setFieldValue("hedgeRate", selectedDeal.headgerate || "");
-            setFieldValue("deliveryDateFrom", selectedDeal.deliveryDateFrom || "");
-            setFieldValue("deliveryDateTo", selectedDeal.deliveryDateTo || "");
-            setFieldValue("outstandingAmount", selectedDeal.outstandingAmount || "");
-            setFieldValue("balanceAmount", selectedDeal.balanceAmount || "");
-          }
-        }}
-        error={touched.hedgeDealRefNo && errors.hedgeDealRefNo}
-        showError={showError}
-      />
-
-                  {values.hedgeDealRefNo && (
-                    <>
-                      <CustomInput
-                        label="Hedge Rate"
-                        name="hedgeRate"
-                        placeholder="Rate (Auto-populated)"
-                        value={values.hedgeRate}
-                        onChange={handleChange}
-                        error={touched.hedgeRate && errors.hedgeRate}
-                        showError={showError}
-                        disabled={true}
-                      />
-                      <CustomInput
-                        label="Delivery Date From"
-                        name="deliveryDateFrom"
-                        placeholder="Delivery Date From"
-                        value={values.deliveryDateFrom}
-                        onChange={handleChange}
-                        error={touched.deliveryDateFrom && errors.deliveryDateFrom}
-                        showError={showError}
-                        disabled={true}
-                      />
-                      <CustomInput
-                        label="Delivery Date To"
-                        name="deliveryDateTo"
-                        placeholder="Delivery Date From"
-                        value={values.deliveryDateTo}
-                        onChange={handleChange}
-                        error={touched.deliveryDateTo && errors.deliveryDateTo}
-                        showError={showError}
-                        disabled={true}
-                      />
-
-                      <CustomInput
-                        label="Hedge Amount"
-                        name="hedgeAmount"
-                        type="number"
-                        placeholder="Hedge Amount"
-                        value={values.hedgeAmount}
-                        onChange={handleChange}
-                        error={touched.hedgeAmount && errors.hedgeAmount}
-                        showError={showError}
-                      />
-                      <CustomInput
-                        label="Outstanding Amount"
-                        name="outstandingAmount"
-                        type="number"
-                        placeholder="Hedge Amount"
-                        value={values.outstandingAmount}
-                        onChange={handleChange}
-                        error={touched.outstandingAmount && errors.outstandingAmount}
-                        showError={showError}
-                        disabled={true}
-                      />
-                      <CustomInput
-                        label="Balance Amount"
-                        name="balanceAmount"
-                        type="number"
-                        placeholder="Balance Amount"
-                        value={values.balanceAmount}
-                        onChange={handleChange}
-                        error={touched.balanceAmount && errors.balanceAmount}
-                        showError={showError}
-                        disabled={true}
-                      />
-                    </>
-                  )} */}
                 </SimpleGrid>
+                  <MultiHedgeDealExport
+                    url={url}
+                    showError={showError}
+                    // values={values}
+                    // setFieldValue={setFieldValue}
+                    // touched={touched}
+                    // errors={errors}
+                  />
                 <CustomInput
                   label="Remark"
                   name="remark"
                   type="textarea"
-                  placeholder="Enter Remarks"
+                  placeholder="Enter Remarks" 
                   value={values.remark}
                   onChange={handleChange}
                   error={touched.remark && errors.remark}
