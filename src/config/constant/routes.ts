@@ -30,7 +30,8 @@ export const dashboard = {
   rp: `/${dashboardName}/rp`,
   quiz: `/${dashboardName}/quiz`,
   verifyInvitation : `/${dashboardName}/:invitationType/verify-invitation/:token`,
-  adminTab: `/${dashboardName}/admin`,
+  superAdminTab: `/${dashboardName}/admin`,
+  adminTab:`/${dashboardName}/users`,
 
   // Profile
 

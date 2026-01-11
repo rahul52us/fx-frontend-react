@@ -22,7 +22,7 @@ class AuthStore {
   companyUsers = [];
   role: any = "user";
   webLoader: boolean = false;
-  currentCompanyDetails : any = {}
+  currentCompanyDetails: any = {};
 
   constructor() {
     this.initiatAppOptions();
@@ -35,7 +35,7 @@ class AuthStore {
       company: observable,
       role: observable,
       webLoader: observable,
-      currentCompanyDetails:observable,
+      currentCompanyDetails: observable,
       openLoginModel: action,
       login: action,
       register: action,
@@ -56,17 +56,16 @@ class AuthStore {
       createOrganisation: action,
       getCompanyUsers: action,
       getCurrentCompany: action,
-      hasComponentAccess:action,
-      getPolicy:action,
-      verifyAppEmail:action,
-      handleContactMail:action
+      hasComponentAccess: action,
+      getPolicy: action,
+      verifyAppEmail: action,
+      handleContactMail: action,
     });
   }
 
   setAppAxiosDefaults = async () => {
     axios.defaults.baseURL = backendBaseUrl;
   };
-
 
   initiatAppOptions = () => {
     this.loading = true;
@@ -98,10 +97,67 @@ class AuthStore {
     axios
       .post("/auth/me")
       .then(({ data }: AxiosResponse<{ data: any }>) => {
+        let dts = {
+          basicDetails: {
+            userName: "RAHUL52US@GMAIL.COM",
+            fatherName: "prakash kushwah",
+            organisationName: "techsahayata",
+            address: "DOMBIVLI MIDC THA MH, THANE, 421203",
+            contact: "08120758780",
+            email: "rahul52us@gmail.com",
+            designation: "full stack developer",
+          },
+          currencies: ["GAME", "SECOND"],
+          businessUnits: [
+            {
+              unitCode: "unit bank 1",
+              banks: [
+                {
+                  bankName: "bank 1",
+                  currency: "GAME",
+                  margin: "20",
+                },
+                {
+                  bankName: "bank 2",
+                  currency: "SECOND",
+                  margin: "50",
+                },
+              ],
+            },
+            {
+              unitCode: "NOS",
+              banks: [
+                {
+                  bankName: "second bank 1",
+                  currency: "GAME",
+                  margin: "50",
+                },
+              ],
+            },
+          ],
+          policy: {
+            tenureType: "quarterly",
+            tenureMode: "financial",
+            tenureValues: ["200", "45", "200"],
+          },
+          benchmarking: "Budget Rate",
+          policyCriteria: {
+            type: "Gross",
+            import: "60",
+            export: "40",
+          },
+          policyRatioType: {
+            type: "Maximum",
+            import: "50",
+            export: "60",
+          }
+        };
+
         this.company = data.data?.companyDetail?.company?._id;
+        data.data = { ...data.data, ...dts };
         this.user = data.data;
         this.role = this.user?.role;
-        this.currentCompanyDetails = data?.data?.companyDetail?.company
+        this.currentCompanyDetails = data?.data?.companyDetail?.company;
         sessionStorage.setItem(
           process.env.REACT_APP_AUTHORIZATION_USER_DATA!,
           CryptoJS.AES.encrypt(
@@ -150,6 +206,7 @@ class AuthStore {
         password: sendData.password,
         loginType: sendData.loginType,
       });
+      console.log(data);
       const headersToUpdate = {
         Accept: "application/json",
         Authorization: `Bearer ${data.data.authorization_token}`,
@@ -166,6 +223,7 @@ class AuthStore {
       this.setUserOptions();
       return data;
     } catch (err: any) {
+      console.log(err?.message);
       return Promise.reject(err?.response?.data || err.message);
     }
   };
@@ -185,11 +243,8 @@ class AuthStore {
 
   handleContactMail = async (value: any) => {
     try {
-      const {...sendData } = value;
-      const { data } = await axios.post(
-        `/auth/contact/mail`,
-        sendData
-      );
+      const { ...sendData } = value;
+      const { data } = await axios.post(`/auth/contact/mail`, sendData);
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err.message);
@@ -238,10 +293,9 @@ class AuthStore {
     return this.company;
   };
 
-
   getPolicy = () => {
-    return this?.user?.companyDetail?.company?.policy?._id
-  }
+    return this?.user?.companyDetail?.company?.policy?._id;
+  };
 
   updateProfile = async (sendData: any) => {
     try {
@@ -299,17 +353,18 @@ class AuthStore {
     }
   };
 
-
-  verifyAppEmail = async(sendData : any) => {
-    try
-    {
-      const { data } = await axios.post(`${sendData.type}/token/verify`,{userId : this.user._id, company : this.getCurrentCompany(),...sendData});
+  verifyAppEmail = async (sendData: any) => {
+    try {
+      const { data } = await axios.post(`${sendData.type}/token/verify`, {
+        userId: this.user._id,
+        company: this.getCurrentCompany(),
+        ...sendData,
+      });
       return data;
-    }
-    catch(err: any){
+    } catch (err: any) {
       return Promise.reject(err?.response || err);
     }
-  }
+  };
 
   openNotification = (data: {
     title: any;
@@ -332,26 +387,33 @@ class AuthStore {
   };
 
   checkPermission = (key: string, value: string) => {
-    if (this.user?.role === "superadmin" || this.user?.role === "admin" || this.user?.permissions?.adminAccess?.add) {
+    if (
+      this.user?.role === "superadmin" ||
+      this.user?.role === "admin" ||
+      this.user?.permissions?.adminAccess?.add
+    ) {
       return true;
     } else {
-        var status = false;
-        Object.entries(this.user?.permissions || {}).forEach((item: any) => {
-          if (item[0] === key) {
-            if (item[1][value]) {
-              status = true;
-            } else {
-              status = false;
-            }
+      var status = false;
+      Object.entries(this.user?.permissions || {}).forEach((item: any) => {
+        if (item[0] === key) {
+          if (item[1][value]) {
+            status = true;
+          } else {
+            status = false;
           }
-        });
-        return status;
+        }
+      });
+      return status;
     }
   };
 
   hasComponentAccess = () => {
     // Check if the user has an admin or superadmin role or hasAdminAcccess
-    if (['admin', 'superadmin'].includes(this.user?.role) || this.user?.permissions?.adminAccess?.add) {
+    if (
+      ["admin", "superadmin"].includes(this.user?.role) ||
+      this.user?.permissions?.adminAccess?.add
+    ) {
       return true;
     }
     return false;
@@ -375,10 +437,16 @@ class AuthStore {
     }
   };
 
-  getCompanyUsers = async (sendData : any = {}) => {
+  getCompanyUsers = async (sendData: any = {}) => {
     try {
-      const { data } = await axios.post(`auth/get/users`,{company : [this.getCurrentCompany()]},{params : {...sendData}});
-      this.companyUsers = data.data?.map((item : any) => ({user : {...item}}));
+      const { data } = await axios.post(
+        `auth/get/users`,
+        { company: [this.getCurrentCompany()] },
+        { params: { ...sendData } }
+      );
+      this.companyUsers = data.data?.map((item: any) => ({
+        user: { ...item },
+      }));
       return this.companyUsers;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);

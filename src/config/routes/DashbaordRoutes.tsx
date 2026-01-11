@@ -22,6 +22,7 @@ const PersonalDetails = lazy(
 const ProfileEditIndex = lazy(() => import("../../pages/Dashboard/profile/ProfileEditIndex"));
 
 const AdminIndex = lazy(() => import('../../pages/Dashboard/admin/index'))
+const UserList = lazy(() => import("../../pages/Dashboard/user/index"))
 const PersonalDetailUsersChart = lazy(
   () =>
     import(
@@ -227,6 +228,11 @@ export const DashboardRoutes = [
   },
   {
     element : <AdminIndex />,
+    path : dashboard.superAdminTab,
+    privateRoutes : true
+  },
+  {
+    element : <UserList />,
     path : dashboard.adminTab,
     privateRoutes : true
   },

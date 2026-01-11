@@ -213,7 +213,7 @@ const SidebarPopover = observer(
               py={depth === 0 ? 3 : 1}
               color={
                 itemIsActive
-                  ? primaryColor 
+                  ? primaryColor
                   : "inherit"
               }
               borderRight={
@@ -412,7 +412,7 @@ const SidebarAccordion = observer(
                           fontSize={isMainMenu ? "sm" : "xs"} // smaller font for children
                           ml={depth === 0 ? 3 : 4} // indent children
                           textAlign={'start'}
-                          
+
                         >
                           {item.name}
                         </Text>
@@ -471,7 +471,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
     const { colorMode } = useColorMode();
 
     useEffect(() => {
-      setSidebarData(getSidebarDataByRole(["user", user.role]));
+      setSidebarData(getSidebarDataByRole([user.role]));
     }, [user]);
 
     useEffect(() => {
