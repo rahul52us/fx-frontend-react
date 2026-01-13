@@ -82,14 +82,14 @@ const fetchHedgeDealData = async () => {
   },[])
 
   return (
-    <Box bg="whiteAlpha.700" py={4}>
+    <Box bg="whiteAlpha.700" py={4}> cx
       <Box maxW="5xl" mx="auto" px={2}>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
           enableReinitialize
           onSubmit={(values, actions) => {
-            console.log("Submitted Values:", values);
+            // console.log("Submitted Values:", values);
             submitForm(values, actions, "form");
             actions.setSubmitting(false);
           }}
