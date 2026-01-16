@@ -221,6 +221,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
             paymentTerms: "",
             remark: "",
             dueDate: "",
+            outstandingAmount:"",
             // hedgeDealRefNo: "",
             // outstandingAmount: "",
             // balanceAmount: "",

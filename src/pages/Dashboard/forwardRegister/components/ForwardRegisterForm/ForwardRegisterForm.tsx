@@ -16,13 +16,14 @@ import { currencyOptions, exportRegisterexposureTypeOptions } from "../../../exp
 import { banks } from "../../../pcfc/components/PCFCForm/dummyData";
 import { importExposureTypeOptions, mainExposureTypeOptions } from "../../../importsRegister/component/utils/constant";
 import { calculateHedgeRate } from "./constant";
+import ExposureRefSelector from "./ExposureRefSelector";
 
 const ForwardRegisterForm = ({ submitForm }: any) => {
   const toast = useToast();
   const [showError, setShowError] = useState(false);
   const [exposureRefOptions, setExposureRefOptions] = useState<any[]>([]);
-  const [selectedExposureData, setSelectedExposureData] = useState<any>(null);
-  const [showExposureFields, setShowExposureFields] = useState(false);
+  // const [selectedExposureData, setSelectedExposureData] = useState<any>(null);
+  // const [showExposureFields, setShowExposureFields] = useState(false);
   const [selectedMainExposureType, setSelectedMainExposureType] = useState('');
   const url = process.env.REACT_APP_FX_BASE_URL;
   const validationSchema = Yup.object({
@@ -78,8 +79,8 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
     setFieldValue("exposureType", mainType);
     
     // Clear existing exposure data when main exposure type changes
-    setSelectedExposureData(null);
-    setShowExposureFields(false);
+    // setSelectedExposureData(null);
+    // setShowExposureFields(false);
     setFieldValue("exposureRefNumber", "");
     setFieldValue("subExposureType", "");
     setFieldValue("outStandingAmount", "");
@@ -103,36 +104,36 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
     }
   };
 
-  const handleExposureRefChange = (selectedOption: any, setFieldValue: any) => {
-    if (selectedOption) {
-      // Find the complete exposure data from the options
-      const exposureData = exposureRefOptions.find(
-        (option) => option.value === selectedOption.value
-      );
+  // const handleExposureRefChange = (selectedOption: any, setFieldValue: any) => {
+  //   if (selectedOption) {
+  //     // Find the complete exposure data from the options
+  //     const exposureData = exposureRefOptions.find(
+  //       (option) => option.value === selectedOption.value
+  //     );
       
-      if (exposureData) {
-        setSelectedExposureData(exposureData);
-        setShowExposureFields(true);
+  //     if (exposureData) {
+  //       setSelectedExposureData(exposureData);
+  //       setShowExposureFields(true);
         
-        // Set the exposureRefNumber value
-        setFieldValue("exposureRefNumber", selectedOption.value);
-        // Auto-populate the fields with the exposure data
-        setFieldValue("outStandingAmount", exposureData.outStandingAmount);
-        setFieldValue("rmPolicyRate", exposureData.rmPolicyRate);
-        setFieldValue("dueDate", exposureData.dueDate);
-        setFieldValue("allocatedAmount", exposureData.allocatedAmount || "");
-      }
-    } else {
-      // Clear the fields if no option is selected
-      setSelectedExposureData(null);
-      setShowExposureFields(false);
-      setFieldValue("exposureRefNumber", "");
-      setFieldValue("outStandingAmount", "");
-      setFieldValue("rmPolicyRate", "");
-      setFieldValue("dueDate", "");
-      setFieldValue("allocatedAmount", "");
-    }
-  };
+  //       // Set the exposureRefNumber value
+  //       setFieldValue("exposureRefNumber", selectedOption.value);
+  //       // Auto-populate the fields with the exposure data
+  //       setFieldValue("outStandingAmount", exposureData.outStandingAmount);
+  //       setFieldValue("rmPolicyRate", exposureData.rmPolicyRate);
+  //       setFieldValue("dueDate", exposureData.dueDate);
+  //       setFieldValue("allocatedAmount", exposureData.allocatedAmount || "");
+  //     }
+  //   } else {
+  //     // Clear the fields if no option is selected
+  //     setSelectedExposureData(null);
+  //     setShowExposureFields(false);
+  //     setFieldValue("exposureRefNumber", "");
+  //     setFieldValue("outStandingAmount", "");
+  //     setFieldValue("rmPolicyRate", "");
+  //     setFieldValue("dueDate", "");
+  //     setFieldValue("allocatedAmount", "");
+  //   }
+  // };
 
   const getSubExposureTypeOptions = () => {
     if (selectedMainExposureType === 'import') {
@@ -143,21 +144,6 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
     return [];
   };
 
-  // const handleFormSubmit = (handleSubmit: any, errors: any) => {
-  //   setShowError(true);
-  //   if (Object.keys(errors).length > 0) {
-  //     const firstError = Object.values(errors)[0] as string;
-  //     toast({
-  //       title: "Validation Error",
-  //       description: firstError || "Please fill all required fields correctly",
-  //       status: "error",
-  //       duration: 4000,
-  //       isClosable: true,
-  //       position: "top-right",
-  //     });
-  //   }
-  //   handleSubmit();
-  // };  
 
     const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
@@ -177,21 +163,19 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
 
     handleSubmit();
   };
+
+  const getExposureDataByRef = (refNumber: string) => {
+  return exposureRefOptions.find(
+    (item) => item.value === refNumber
+  );
+};
+
+
   return (
     <Box py={4}>
       <Box px={2}>
         <Formik
-          // initialValues={{
-          //   exposureRefNumber: "",
-          //   subExposureType: "",
-          //   allocatedAmount:"",
-          //   exposureType: "",
-          //   rmPolicyRate: "",
-          //   dueDate:"",
-          //   outStandingAmount:"",
-          //   currency:"",
-          //   bankMargin:""
-          // }}
+          
           initialValues={{
   bookingDate: "",
   exposureType: "",
@@ -209,11 +193,14 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
   dueDateTo: "",
 
   // Exposure Ref related fields
-  exposureRefNumber: "",
-  outStandingAmount: "",
-  rmPolicyRate: "",
-  dueDate: "",
-  allocatedAmount: "",
+
+            exposureRefs: [],
+
+  // exposureRefNumber: "",
+  // outStandingAmount: "",
+  // rmPolicyRate: "",
+  // dueDate: "",
+  // allocatedAmount: "",
 }}
 
           validationSchema={validationSchema}
@@ -441,7 +428,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     showError={showError}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Exposure Ref Number"
                     name="exposureRefNumber"
                     type="select"
@@ -457,11 +444,20 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                       touched.exposureRefNumber && errors.exposureRefNumber
                     }
                     showError={showError}
-                  />
+                  /> */}
                 </SimpleGrid>
+{(values.exposureType === "import" || values.exposureType === "export") &&
+ exposureRefOptions.length > 0 && (
+  <ExposureRefSelector
+    values={values}
+    setFieldValue={setFieldValue}
+    exposureRefOptions={exposureRefOptions}
+    fetchExposureData={getExposureDataByRef}
+  />
+)}
 
-                {/* Show exposure fields only when exposure ref number is selected */}
-                {showExposureFields && selectedExposureData && (
+               
+                {/* {showExposureFields && selectedExposureData && (
                   <Box 
                     p={4} 
                     border="1px" 
@@ -515,7 +511,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                       /> 
                     </SimpleGrid>
                   </Box>
-                )}
+                )} */}
 
                 <Flex justify={"end"}>
                   <Button
@@ -528,7 +524,6 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     }}
                     transition={"transform 0.3s ease-in-out"}
                      onClick={() => handleFormSubmit(handleSubmit, errors)}
-                    // onClick={() => handleFormSubmit(handleSubmit, errors)}
                     size="lg"
                     isLoading={isSubmitting}
                   >
