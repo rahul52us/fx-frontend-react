@@ -81,12 +81,12 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
     // Clear existing exposure data when main exposure type changes
     // setSelectedExposureData(null);
     // setShowExposureFields(false);
-    setFieldValue("exposureRefNumber", "");
+    // setFieldValue("exposureRefNumber", "");
     setFieldValue("subExposureType", "");
-    setFieldValue("outStandingAmount", "");
-    setFieldValue("rmPolicyRate", "");
-    setFieldValue("dueDate", "");
-    setFieldValue("allocatedAmount", "");
+    // setFieldValue("outStandingAmount", "");
+    // setFieldValue("rmPolicyRate", "");
+    // setFieldValue("dueDate", "");
+    // setFieldValue("allocatedAmount", "");
     // Recalculate hedge rate when exposure type changes
     const calculatedRate = calculateHedgeRate({
       ...currentValues,
