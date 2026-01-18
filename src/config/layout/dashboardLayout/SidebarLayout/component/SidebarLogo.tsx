@@ -1,10 +1,6 @@
-import {
-  Box,
-  Flex,
-  Image,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
+"use client";
+
+import { Box, Flex, Image, Text, Tooltip } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { dashboard } from "../../../../constant/routes";
@@ -13,62 +9,96 @@ import { headerHeight } from "../../../../constant/variable";
 
 const SidebarLogo = observer(() => {
   const {
-    layout: { isCallapse },
+    layout: { isCallapse: isCollapsed }, // ← fixed typo: isCallapse → isCollapsed
     auth: { currentCompanyDetails },
   } = store;
+
   const navigate = useNavigate();
+  const companyName = currentCompanyDetails?.company_name || "FX Platform";
 
   return (
     <Flex
-      justifyContent={isCallapse ? "center" : undefined}
-      flexDirection={isCallapse ? "column" : undefined}
-      alignItems="center"
+      as="button" // Makes it more semantically correct + better accessibility
+      onClick={() => navigate(dashboard.home)}
+      align="center"
+      justify={isCollapsed ? "center" : "flex-start"}
       height={headerHeight}
+      width="100%"
+      px={isCollapsed ? 0 : 4}
+      cursor="pointer"
+      borderBottom="2px"
+      transition="all 0.3s ease"
+      _hover={{ bg: "rgba(0,0,0,0.03)" }}
+      _active={{ bg: "rgba(0,0,0,0.06)" }}
+      role="group"
     >
-      <Box
-        cursor="pointer"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        onClick={() => navigate(dashboard.home)}
+      <Flex
+        align="center"
+        gap={isCollapsed ? 0 : 3}
+        maxW="100%"
       >
-        {isCallapse ? (
-          <Text fontWeight={600} fontSize="lg">
-             Fx
-          </Text>
-        ) : (
-          <Flex alignItems="center" columnGap={4} maxW="100%" px={2} ml={3}>
-            {/* Company Logo with fallback and dynamic sizing */}
-            <Image
-              borderRadius="full" // Optional: Adds a rounded look to the logo
-              boxSize={isCallapse ? "35px" : "35px"} // Dynamic size based on isCallapse
-              objectFit="contain" // Ensures the image fits well in the container
-              src={
-                "https://images.seeklogo.com/logo-png/47/1/fx-logo-png_seeklogo-477744.png"
-              } // Fallback image
-              alt={currentCompanyDetails?.company_name || "Company Logo"}
-              fallbackSrc="/path/to/fallback-logo.png" // Image to show while loading or if the src is invalid
-              boxShadow="md" // Optional: Adds a subtle shadow to make the logo stand out
-            />
-            {/* Truncated Company Name with Tooltip */}
-            <Tooltip
-              label={"FX"}
-              hasArrow
+        {/* Logo Image */}
+        <Box
+          position="relative"
+          flexShrink={0}
+        >
+          <Image
+            src="https://images.seeklogo.com/logo-png/47/1/fx-logo-png_seeklogo-477744.png"
+            alt={`${companyName} logo`}
+            fallbackSrc="https://via.placeholder.com/40?text=FX" // Better fallback
+            boxSize={isCollapsed ? "36px" : "40px"}
+            objectFit="contain"
+            borderRadius="full"
+            border="2px solid"
+            borderColor="whiteAlpha.400"
+            boxShadow="sm"
+            transition="transform 0.2s ease"
+            _groupHover={{ transform: "scale(1.05)" }}
+          />
+        </Box>
+
+        {/* Company Name - only shown when NOT collapsed */}
+        {!isCollapsed && (
+          <Tooltip
+            label={companyName}
+            hasArrow
+            placement="right"
+            openDelay={500}
+            bg="gray.800"
+            color="white"
+            fontSize="sm"
+            px={3}
+            py={2}
+            borderRadius="md"
+          >
+            <Text
+              fontSize="lg"
+              fontWeight="600"
+              letterSpacing="wide"
+              color="gray.800"
+              _dark={{ color: "whiteAlpha.900" }}
+              noOfLines={1}
+              maxW="160px"
+              isTruncated
             >
-              <Text
-                textAlign="center"
-                fontSize="md"
-                fontWeight="500"
-                noOfLines={1}
-                maxW="180px" // Set a maximum width to avoid overflow
-                isTruncated
-              >
-                FX
-              </Text>
-            </Tooltip>
-          </Flex>
+              {companyName}
+            </Text>
+          </Tooltip>
         )}
-      </Box>
+
+        {/* Collapsed mode - simple "FX" text */}
+        {/* {isCollapsed && (
+          <Text
+            fontSize="xl"
+            fontWeight="bold"
+            color="blue.600"
+            _dark={{ color: "blue.300" }}
+            letterSpacing="tight"
+          >
+            FX
+          </Text>
+        )} */}
+      </Flex>
     </Flex>
   );
 });

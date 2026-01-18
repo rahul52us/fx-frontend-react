@@ -3,7 +3,7 @@ import { BsFillForwardFill } from "react-icons/bs";
 import { CgArrowsExchange } from "react-icons/cg";
 import {
   FaCalendarAlt,
-  FaShip
+  FaShip,
 } from "react-icons/fa";
 import { GiCheckMark } from "react-icons/gi";
 import { GrDocumentPerformance } from "react-icons/gr";
@@ -23,346 +23,297 @@ interface SidebarItem {
 
 const sidebarDatas: SidebarItem[] = [
   {
-    id: 401,
+    id: 101,
     name: "Dashboard",
     icon: <IoPieChartSharp />,
     url: "/dashboard",
-    role: ["user", "admin", "manager"],
+    role: ["user", "admin", "manager", "superadmin"],
   },
-  // {
-  //   id: 402,
-  //   name: "Export Register",
-  //   icon: <MdLocalShipping />,
-  //   url: dashboard.exportRegister,
-  //   role: ["user", "admin", "superadmin", "manager"],
-  // },
 
-  // {
-  //  id: 403,
-  //   name: "Import Register",
-  //   icon: <FaShip />,
-  //   url: dashboard.importRegister,
-  //   role: ["user","manager","admin"],
-  // },
-  // {
-  // id: 404,
-  //   name: "Exposure Settlement",
-  //   icon: <FaCalendarAlt />,
-  //   url: dashboard.dailyExposureSheet,
-  //   role: ["user","manager","admin"],
-  // },
-  // {
-  //   id: 405,
-  //   name: "Pcfc",
-  //   icon: <IoDocumentText />,
-  //   url: dashboard.pcfc,
-  //   role: ["user","manager","admin"],
-  // },
-  // {
-  //  id: 406,
-  //   name: "Forward Register",
-  //   icon: <BsFillForwardFill />,
-  //   url: dashboard.forwardRegister,
-  //   role: ["user","manager","admin"],
-  // },
-  // {
-  // id: 407,
-  //   name: "Forward Cancellation",
-  //   icon: <ImCancelCircle />,
-  //   url: dashboard.forwardCancellation,
-  //   role: ["user","manager","admin"],
-  // },
-  // {
-  // id: 408,
-  //   name: "MTM",
-  //   icon: <GiCheckMark />,
-  //   url: dashboard.mtm,
-  //   role: ["user","manager","admin"],
-  // },
-  //  Blogs
+  // ───────────────────────────────────────────────
+  // Export Register Section
+  // ───────────────────────────────────────────────
   {
-    id: 505,
+    id: 200,
     name: "Export Register",
     icon: <MdLocalShipping />,
     url: dashboard.exportRegister,
-    role: ["user","manager","admin"],
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 506,
-        name: "index",
+        id: 201,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.exportRegister}`,
-        role: ["user","manager","admin"],
-      }
-    ]
+        url: dashboard.exportRegister,
+        role: ["user", "manager", "admin", "superadmin"],
+      },
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // Import Register Section
+  // ───────────────────────────────────────────────
   {
-    id: 601,
+    id: 300,
     name: "Import Register",
     icon: <FaShip />,
     url: dashboard.importRegister,
-    role: ["user","manager","admin"],
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 602,
-        name: "index",
+        id: 301,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.importRegister}`,
-        role: ["user","manager","admin"],
-      }
-    ]
+        url: dashboard.importRegister,
+        role: ["user", "manager", "admin", "superadmin"],
+      },
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // Exposure Settlement Section
+  // ───────────────────────────────────────────────
   {
-    id: 601,
+    id: 400,
     name: "Exposure Settlement",
     icon: <FaCalendarAlt />,
-    url: dashboard.importRegister,
-    role: ["user","manager","admin"],
+    url: dashboard.dailyExposureSheet,
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 602,
-        name: "index",
+        id: 401,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.dailyExposureSheet}`,
-        role: ["user","manager","admin"],
+        url: dashboard.dailyExposureSheet,
+        role: ["user", "manager", "admin", "superadmin"],
       },
       {
-        id: 602,
+        id: 402,
         name: "Exposure Input",
         icon: <CalendarIcon />,
-        url: `${dashboard.dailyExposureSheet}`,
-        role: ["user","manager","admin"],
+        url: dashboard.dailyExposureSheet, // ← update if different route exists
+        role: ["user", "manager", "admin", "superadmin"],
       },
       {
-        id: 602,
+        id: 403,
         name: "Exposure Settlement",
         icon: <CalendarIcon />,
-        url: `${dashboard.dailyExposureSheet}`,
-        role: ["user","manager","admin"],
+        url: dashboard.dailyExposureSheet,
+        role: ["user", "manager", "admin", "superadmin"],
       },
-      {
-        id: 602,
-        name: "Export Register",
-        icon: <CalendarIcon />,
-        url: `${dashboard.dailyExposureSheet}`,
-        role: ["user","manager","admin"],
-      },
-      {
-        id: 602,
-        name: "Import Register",
-        icon: <CalendarIcon />,
-        url: `${dashboard.dailyExposureSheet}`,
-        role: ["user","manager","admin"],
-      },
-    ]
+      // You can remove duplicates or update URLs later
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // PCFC Section
+  // ───────────────────────────────────────────────
   {
-    id: 501,
-    name: "Pcfc",
+    id: 500,
+    name: "PCFC",
     icon: <IoDocumentText />,
     url: dashboard.pcfc,
-    role: ["user","manager","admin"],
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 502,
-        name: "index",
+        id: 501,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.pcfc}`,
-        role: ["user","manager","admin"],
+        url: dashboard.pcfc,
+        role: ["user", "manager", "admin", "superadmin"],
       },
-      // {
-      //   id: 502,
-      //   name: "Drawdown on spot basis",
-      //   icon: <CalendarIcon />,
-      //   url: `${dashboard.pcfc}`,
-      //   role: ["user","manager","admin"],
-      // },
-      // {
-      //   id: 502,
-      //   name: "Drawdown on forward basis",
-      //   icon: <CalendarIcon />,
-      //   url: `${dashboard.pcfc}`,
-      //   role: ["user","manager","admin"],
-      // },
-      // {
-      //   id: 502,
-      //   name: "PCFC Settlement",
-      //   icon: <CalendarIcon />,
-      //   url: `${dashboard.pcfc}`,
-      //   role: ["user","manager","admin"],
-      // },
-      // {
-      //   id: 502,
-      //   name: "PCFC Register",
-      //   icon: <CalendarIcon />,
-      //   url: `${dashboard.pcfc}`,
-      //   role: ["user","manager","admin"],
-      // },
-    ]
+      // Add more sub-items when ready (they were commented out)
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // Forward Register Section
+  // ───────────────────────────────────────────────
   {
-    id: 605,
+    id: 600,
     name: "Forward Register",
     icon: <BsFillForwardFill />,
     url: dashboard.forwardRegister,
-    role: ["user","manager","admin"],
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 606,
-        name: "index",
+        id: 601,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.forwardRegister}`,
-        role: ["user","manager","admin"],
+        url: dashboard.forwardRegister,
+        role: ["user", "manager", "admin", "superadmin"],
       },
       {
-        id: 606,
+        id: 602,
         name: "Forward Booking",
         icon: <CalendarIcon />,
-        url: `${dashboard.forwardRegister}`,
-        role: ["user","manager","admin"],
+        url: dashboard.forwardRegister, // ← update if different route
+        role: ["user", "manager", "admin", "superadmin"],
       },
       {
-        id: 606,
+        id: 603,
         name: "Forward Cancellation",
         icon: <CalendarIcon />,
-        url: `${dashboard.forwardRegister}`,
-        role: ["user","manager","admin"],
+        url: dashboard.forwardRegister,
+        role: ["user", "manager", "admin", "superadmin"],
       },
       {
-        id: 606,
+        id: 604,
         name: "Unitization against exposure",
         icon: <CalendarIcon />,
-        url: `${dashboard.forwardRegister}`,
-        role: ["user","manager","admin"],
+        url: dashboard.forwardRegister,
+        role: ["user", "manager", "admin", "superadmin"],
       },
       {
-        id: 606,
+        id: 605,
         name: "Unitization against PCFC",
         icon: <CalendarIcon />,
-        url: `${dashboard.forwardRegister}`,
-        role: ["user","manager","admin"],
+        url: dashboard.forwardRegister,
+        role: ["user", "manager", "admin", "superadmin"],
       },
-    ]
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // Forward Cancellation (Top Level)
+  // ───────────────────────────────────────────────
   {
     id: 700,
     name: "Forward Cancellation",
     icon: <ImCancelCircle />,
     url: dashboard.forwardCancellation,
-    role: ["user","manager","admin"],
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 601,
-        name: "index",
+        id: 701,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.forwardCancellation}`,
-        role: ["user","manager","admin"],
-      }
-    ]
+        url: dashboard.forwardCancellation,
+        role: ["user", "manager", "admin", "superadmin"],
+      },
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // EEFC Register
+  // ───────────────────────────────────────────────
   {
-    id: 700,
+    id: 800,
     name: "EEFC Register",
     icon: <CgArrowsExchange />,
     url: dashboard.eefcRegister,
-    role: ["user","manager","admin"],
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 601,
-        name: "index",
+        id: 801,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.eefcRegister}`,
-        role: ["user","manager","admin"],
-      }
-    ]
+        url: dashboard.eefcRegister,
+        role: ["user", "manager", "admin", "superadmin"],
+      },
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // MTM / Mark to Market
+  // ───────────────────────────────────────────────
   {
-    id: 800,
-    name: "MTC",
+    id: 900,
+    name: "MTM",
     icon: <GiCheckMark />,
-    url: dashboard.forwardCancellation,
-    role: ["user","manager","admin"],
+    url: dashboard.mtm,
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 601,
-        name: "index",
+        id: 901,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.mtm}`,
-        role: ["user","manager","admin"],
-      }
-    ]
+        url: dashboard.mtm,
+        role: ["user", "manager", "admin", "superadmin"],
+      },
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // RP (Risk Position?)
+  // ───────────────────────────────────────────────
   {
-    id: 800,
+    id: 1000,
     name: "RP",
     icon: <GrDocumentPerformance />,
     url: dashboard.rp,
-    role: ["user","manager","admin"],
+    role: ["user", "manager", "admin", "superadmin"],
     children: [
       {
-        id: 601,
-        name: "index",
+        id: 1001,
+        name: "Index / List",
         icon: <CalendarIcon />,
-        url: `${dashboard.rp}`,
-        role: ["user","manager","admin"],
-      }
-    ]
+        url: dashboard.rp,
+        role: ["user", "manager", "admin", "superadmin"],
+      },
+    ],
   },
+
+  // ───────────────────────────────────────────────
+  // Super Admin & Admin sections (role restricted)
+  // ───────────────────────────────────────────────
   {
-    id: 801,
-    name: "superAdminTab",
+    id: 1100,
+    name: "Super Admin",
     icon: <GrDocumentPerformance />,
     url: dashboard.superAdminTab,
     role: ["superadmin"],
     children: [
       {
-        id: 802,
-        name: "index",
+        id: 1101,
+        name: "Index / Overview",
         icon: <CalendarIcon />,
-        url: `${dashboard.superAdminTab}`,
+        url: dashboard.superAdminTab,
         role: ["superadmin"],
-      }
-    ]
+      },
+    ],
   },
   {
-    id: 802,
-    name: "admin",
+    id: 1200,
+    name: "Admin Panel",
     icon: <GrDocumentPerformance />,
     url: dashboard.adminTab,
-    role: ["admin"],
+    role: ["admin", "superadmin"],
     children: [
       {
-        id: 802,
-        name: "index",
+        id: 1201,
+        name: "Index / Overview",
         icon: <CalendarIcon />,
-        url: `${dashboard.adminTab}`,
-        role: ["admin"],
-      }
-    ]
+        url: dashboard.adminTab,
+        role: ["admin", "superadmin"],
+      },
+    ],
   },
 ];
 
 export const sidebarFooterData: SidebarItem[] = [
+  // You can add footer items here later if needed
+  // Example:
   // {
-  //   id: 34,
+  //   id: 9999,
   //   name: "Settings",
   //   icon: <FaCog />,
-  //   url: "/profile",
-  //   role: ["user", "admin", "superadmin", "manager"],
+  //   url: "/settings",
+  //   role: ["user", "admin", "manager", "superadmin"],
   // },
 ];
 
-const getSidebarDataByRole = (role: string[] = ["admin"]): SidebarItem[] => {
+const getSidebarDataByRole = (roles: string[] = ["admin"]): SidebarItem[] => {
   const filterByRole = (items: SidebarItem[]): SidebarItem[] => {
     return items
-      .filter((item) => !item.role || item.role.some((r) => role.includes(r)))
+      .filter((item) => !item.role || item.role.some((r) => roles.includes(r)))
       .map((item) => ({
         ...item,
         children: item.children ? filterByRole(item.children) : undefined,
       }));
   };
+
   return filterByRole(sidebarDatas);
 };
 
 export { getSidebarDataByRole, sidebarDatas };
-
