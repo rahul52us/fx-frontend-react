@@ -21,7 +21,7 @@ const ConversionTypeSelector = ({
         Select Conversion Types
       </Box>
 
-      <Grid gap={6} templateColumns="repeat(3, 1fr)">
+      <Grid gap={4} templateColumns="repeat(3, 1fr)">
         {/* ===================== SPOT ===================== */}
         <FormControl display="flex" alignItems="center">
           <FormLabel mb="0">Spot Conversion</FormLabel>

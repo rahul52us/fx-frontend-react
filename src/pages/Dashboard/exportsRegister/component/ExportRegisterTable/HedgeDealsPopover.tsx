@@ -1,16 +1,16 @@
 import {
-    Badge,
-    Box,
-    Button,
-    Grid,
-    GridItem,
-    Popover,
-    PopoverArrow,
-    PopoverBody,
-    PopoverContent,
-    PopoverTrigger,
-    Stack,
-    Text
+  Badge,
+  Box,
+  Button,
+  Grid,
+  GridItem,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Stack,
+  Text
 } from "@chakra-ui/react";
 
 const LabelValue = ({ label, value }: any) => (
@@ -81,7 +81,7 @@ const HedgeDealsCell = (row: any) => {
                     value={`${deal.deliveryDateFrom} → ${deal.deliveryDateTo}`}
                   />
                   <LabelValue
-                    label="Hedge Amount"
+                    label="Allocated Amount"
                     value={deal.hedgeAmount}
                   />
                   <LabelValue

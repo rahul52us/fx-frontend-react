@@ -153,3 +153,12 @@ export   const formatDateForInput = (dateString: string) => {
     
     return "";
   };
+
+  export const calculateDueDate = (blDate: string, paymentTerms: number) => {
+  if (!blDate || !paymentTerms) return "";
+
+  const date = new Date(blDate);
+  date.setDate(date.getDate() + Number(paymentTerms));
+
+  return date.toISOString().split("T")[0]; // YYYY-MM-DD
+};

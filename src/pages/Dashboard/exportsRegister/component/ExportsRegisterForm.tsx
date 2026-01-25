@@ -23,6 +23,7 @@ import {
   dummyExporPOtData,
   exportRegisterexposureTypeOptions,
 } from "./utils/constant";
+import { calculateDueDate } from "./utils/function";
 
 const ExposureForm = ({ submitExportForm }: any) => {
   const [showError, setShowError] = useState(false);
@@ -222,13 +223,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
             remark: "",
             dueDate: "",
             outstandingAmount:"",
-            // hedgeDealRefNo: "",
-            // outstandingAmount: "",
-            // balanceAmount: "",
-            // hedgeAmount: "",
-            // hedgeRate: "",
-            // deliveryDateFrom: "",
-            // deliveryDateTo: "",
+          
  hedgeDeals: [],
           }}
           validationSchema={validationSchema}
@@ -423,7 +418,9 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     required={true}
                     disabled={selectedExposureType === "shipment"}
                   />
-                  <CustomInput
+                  {selectedExposureType === "shipment" && (
+                    <>
+                    <CustomInput
                     label="Invoice No"
                     name="invoiceNo"
                     placeholder="Enter Invoice No"
@@ -435,7 +432,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                       values.exposureType &&
                       values.exposureType !== "confirmed_order"
                     }
-                  />
+                    />
                   <CustomInput
                     label="Invoice Date"
                     name="invoiceDate"
@@ -449,8 +446,10 @@ const ExposureForm = ({ submitExportForm }: any) => {
                       values.exposureType &&
                       values.exposureType !== "confirmed_order"
                     }
-                  />
-                  <CustomInput
+                    />
+                    </>
+                  )}
+                  {/* <CustomInput
                     label="BL Date"
                     name="blDate"
                     type="date"
@@ -459,9 +458,47 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     error={touched.blDate && errors.blDate}
                     showError={showError}
                     required={true}
-                  />
+                  /> */}
 
-                  <CustomInput
+<CustomInput
+  label="BL Date"
+  name="blDate"
+  type="date"
+  value={values.blDate}
+  onChange={(e) => {
+    handleChange(e);
+
+    const newBlDate = e.target.value;
+    const dueDate = calculateDueDate(newBlDate, values.paymentTerms);
+
+    setFieldValue("dueDate", dueDate);
+  }}
+  error={touched.blDate && errors.blDate}
+  showError={showError}
+  required
+/>
+
+<CustomInput
+  label="Payment Terms"
+  name="paymentTerms"
+  type="number"
+  placeholder="Terms"
+  value={values.paymentTerms}
+  onChange={(e) => {
+    handleChange(e);
+
+    const terms = e.target.value;
+    const dueDate = calculateDueDate(values.blDate, terms);
+
+    setFieldValue("dueDate", dueDate);
+  }}
+  error={touched.paymentTerms && errors.paymentTerms}
+  showError={showError}
+  required
+  disabled={selectedExposureType === "shipment"}
+/>
+
+                  {/* <CustomInput
                     label="Payment Terms"
                     name="paymentTerms"
                     type="number"
@@ -472,8 +509,19 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     showError={showError}
                     required={true}
                     disabled={selectedExposureType === "shipment"}
-                  />
+                  /> */}
                   <CustomInput
+  label="Due Date"
+  name="dueDate"
+  type="date"
+  value={values.dueDate}
+  error={touched.dueDate && errors.dueDate}
+  showError={showError}
+  required
+  disabled
+/>
+
+                  {/* <CustomInput
                     label="Due Date"
                     name="dueDate"
                     type="date"
@@ -482,7 +530,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     error={touched.dueDate && errors.dueDate}
                     showError={showError}
                     required={true}
-                  />
+                  /> */}
                   <CustomInput
                     label="Currency"
                     type="select"

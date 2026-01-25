@@ -87,20 +87,20 @@ const sidebarDatas: SidebarItem[] = [
         url: dashboard.dailyExposureSheet,
         role: ["user", "manager", "admin", "superadmin"],
       },
-      {
-        id: 402,
-        name: "Exposure Input",
-        icon: <CalendarIcon />,
-        url: dashboard.dailyExposureSheet, // ← update if different route exists
-        role: ["user", "manager", "admin", "superadmin"],
-      },
-      {
-        id: 403,
-        name: "Exposure Settlement",
-        icon: <CalendarIcon />,
-        url: dashboard.dailyExposureSheet,
-        role: ["user", "manager", "admin", "superadmin"],
-      },
+      // {
+      //   id: 402,
+      //   name: "Exposure Input",
+      //   icon: <CalendarIcon />,
+      //   url: dashboard.dailyExposureSheet, // ← update if different route exists
+      //   role: ["user", "manager", "admin", "superadmin"],
+      // },
+      // {
+      //   id: 403,
+      //   name: "Exposure Settlement",
+      //   icon: <CalendarIcon />,
+      //   url: dashboard.dailyExposureSheet,
+      //   role: ["user", "manager", "admin", "superadmin"],
+      // },
       // You can remove duplicates or update URLs later
     ],
   },
@@ -143,34 +143,34 @@ const sidebarDatas: SidebarItem[] = [
         url: dashboard.forwardRegister,
         role: ["user", "manager", "admin", "superadmin"],
       },
-      {
-        id: 602,
-        name: "Forward Booking",
-        icon: <CalendarIcon />,
-        url: dashboard.forwardRegister, // ← update if different route
-        role: ["user", "manager", "admin", "superadmin"],
-      },
-      {
-        id: 603,
-        name: "Forward Cancellation",
-        icon: <CalendarIcon />,
-        url: dashboard.forwardRegister,
-        role: ["user", "manager", "admin", "superadmin"],
-      },
-      {
-        id: 604,
-        name: "Unitization against exposure",
-        icon: <CalendarIcon />,
-        url: dashboard.forwardRegister,
-        role: ["user", "manager", "admin", "superadmin"],
-      },
-      {
-        id: 605,
-        name: "Unitization against PCFC",
-        icon: <CalendarIcon />,
-        url: dashboard.forwardRegister,
-        role: ["user", "manager", "admin", "superadmin"],
-      },
+      // {
+      //   id: 602,
+      //   name: "Forward Booking",
+      //   icon: <CalendarIcon />,
+      //   url: dashboard.forwardRegister, // ← update if different route
+      //   role: ["user", "manager", "admin", "superadmin"],
+      // },
+      // {
+      //   id: 603,
+      //   name: "Forward Cancellation",
+      //   icon: <CalendarIcon />,
+      //   url: dashboard.forwardRegister,
+      //   role: ["user", "manager", "admin", "superadmin"],
+      // },
+      // {
+      //   id: 604,
+      //   name: "Unitization against exposure",
+      //   icon: <CalendarIcon />,
+      //   url: dashboard.forwardRegister,
+      //   role: ["user", "manager", "admin", "superadmin"],
+      // },
+      // {
+      //   id: 605,
+      //   name: "Unitization against PCFC",
+      //   icon: <CalendarIcon />,
+      //   url: dashboard.forwardRegister,
+      //   role: ["user", "manager", "admin", "superadmin"],
+      // },
     ],
   },
 

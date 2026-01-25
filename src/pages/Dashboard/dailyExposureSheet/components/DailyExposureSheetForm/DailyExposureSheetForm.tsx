@@ -34,19 +34,6 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
 const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
 const toast = useToast();
 
-  // const validationSchema = Yup.object({
-  //   settlementDate: Yup.string().required("Settlement Date is required"),
-  //   settlementType: Yup.string().required("Settlement Type is required"),
-  //   settledAmount: Yup.number().required("Settled Amount is required"),
-  //   partyName: Yup.string().required("Party Name is required"),
-  //   bank: Yup.string().required("Bank is required"),
-  //   businessUnit: Yup.string().required("Business Unit is required"),
-  //   currency: Yup.string().required("Currency is required"),
-  //   dueDate: Yup.string().required("Due Date is required"),
-  //   outstandingAmount: Yup.string().required("Outstanding Amount is required"),
-  // });
-
-
   const validationSchema = Yup.object({
   settlementDate: Yup.string().required("Settlement Date is required"),
   settlementType: Yup.string().nullable(),
@@ -118,18 +105,11 @@ const toast = useToast();
             settledAmountInINR: "",
           }}
           validationSchema={validationSchema}
-
-          // validationSchema={validationSchema}
   validateOnBlur={true}
   validateOnChange={false}
   onSubmit={(values, actions) => {
     submitForm(values, actions, "form");
   }}
-          // onSubmit={(values, actions) => {
-         
-          //   setShowError(true);
-          //   submitForm(values, actions, "form");
-          // }}
         >
           {({
   values,
@@ -143,14 +123,12 @@ const toast = useToast();
 }) => (
             <FormikForm>
               <ExposureAutoPopulateWatcher />
-
       <ExposureSettlementController
   setPoOptions={setPoOptions}
   setInvoiceOptions={setInvoiceOptions}
   setIsPoDisabled={setIsPoDisabled}
   setIsInvoiceDisabled={setIsInvoiceDisabled}
 />
-
               <VStack spacing={6} align="stretch">
                 <SimpleGrid columns={[1, 2]} spacing={6}>
                   <CustomInput
@@ -205,6 +183,7 @@ const toast = useToast();
   showError={showError}
 />
 
+{values.settlementType === "advance" && (
 <CustomInput
   label="PO Number"
   name="poNumber"
@@ -221,6 +200,7 @@ const toast = useToast();
   error={touched.poNumber && errors.poNumber}
   showError={showError}
 />
+)}
 <CustomInput
   label="Invoice BC Number"
   name="invoiceBcNumber"
@@ -239,7 +219,6 @@ const toast = useToast();
   error={touched.invoiceBcNumber && errors.invoiceBcNumber}
   showError={showError}
 />
-
                 <CustomInput
   label="Party Name"
   required
@@ -350,13 +329,10 @@ const toast = useToast();
   size="lg"
 onClick={async () => {
   setShowError(true);
-
   const errors = await validateForm();
-
   if (Object.keys(errors).length > 0) {
     // 🔹 get first error message
     const firstError = Object.values(errors)[0];
-
     toast({
       title: "Validation Error",
       description: String(firstError),
@@ -367,25 +343,11 @@ onClick={async () => {
     });
     return;
   }
-
   submitForm();
 }}
-
 >
   Submit
 </Button>
-
-                  {/* <Button
-                    rounded="full"
-                    {...primaryButtonStyle}
-                    _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
-                    isLoading={isSubmitting}
-                    type="submit"
-                    size="lg"
-                    onClick={() => setShowError(true)}
-                  >
-                    Submit
-                  </Button> */}
                 </Flex>
               </VStack>
             </FormikForm>
