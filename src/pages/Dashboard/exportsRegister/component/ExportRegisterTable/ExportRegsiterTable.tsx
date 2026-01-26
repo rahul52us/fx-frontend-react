@@ -20,6 +20,9 @@ import HedgeDealsCell from "./HedgeDealsPopover";
 const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+const [editRow, setEditRow] = useState<any | null>(null);
+const [originalRow, setOriginalRow] = useState<any | null>(null);
+const [formKey, setFormKey] = useState(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -27,7 +30,12 @@ const ExportRegisterTable = () => {
 
   const url = process.env.REACT_APP_FX_BASE_URL;
 
-  /* ---------------- Submit Form ---------------- */
+  function handleEdit(row: any) {
+  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+  setEditRow(row);
+  onOpen();
+}
+
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -95,35 +103,17 @@ const ExportRegisterTable = () => {
     }
   };
 
+  const handleDrawerClose = () => {
+  setEditRow(null);
+  setOriginalRow(null);
+  setFormKey((prev) => prev + 1); // 🔥 force remount
+  onClose();
+};
+
+
   useEffect(() => {
     fetchExportRegisterData();
   }, []);
-
-  /* ---------------- Columns ---------------- */
-
-  // const ExportRegisterTableColumns = [
-  //   { headerName: "Created On", key: "createdAt" },
-  //   { headerName: "Exposure Type", key: "exposureType" },
-  //   { headerName: "PO No", key: "poNo" },
-  //   { headerName: "PO Date", key: "poDate" },
-  //   { headerName: "Party Name", key: "partyName" },
-  //   { headerName: "Bank", key: "bank" },
-  //   { headerName: "Business Unit", key: "businessUnit" },
-  //   { headerName: "Invoice No", key: "invoiceNo" },
-  //   { headerName: "Invoice Date", key: "invoiceDate" },
-  //   { headerName: "Currency", key: "currency" },
-  //   { headerName: "Amount", key: "amount" },
-  //   { headerName: "Outstanding Amount", key: "outstandingAmount" },
-  //   {
-  //     headerName: "Actions",
-  //     key: "table-actions",
-  //     type: "table-actions",
-  //     props: {
-  //       row: { minW: 180, textAlign: "center" },
-  //     },
-  //   },
-  // ];
-
    const ExportRegisterTableColumns = [
   { headerName: "Created On", key: "createdAt" },
   { headerName: "Exposure Type", key: "exposureType" },
@@ -169,14 +159,6 @@ const ExportRegisterTable = () => {
   { headerName: "Invoice Settlement", key: "invoiceSettlement" },
 
   { headerName: "Remark", key: "remark" },
-
-  // {
-  //   headerName: "Hedge Deals",
-  //   key: "hedgeDeals",
-  //   type: "custom",
-  //   component: HedgeDealsPopover,
-  // },
-
  {
   headerName: "Hedge Deals",
   key: "hedgeDeals",
@@ -185,8 +167,6 @@ const ExportRegisterTable = () => {
     component: (row:any) => <HedgeDealsCell {...row} />,
   },
 },
-
-
   {
     headerName: "Actions",
     key: "table-actions",
@@ -196,8 +176,6 @@ const ExportRegisterTable = () => {
     },
   },
 ];
-
-  /* ---------------- Render ---------------- */
 
   return (
     <>
@@ -240,6 +218,13 @@ const ExportRegisterTable = () => {
               showAddButton: true,
               function: onOpen,
             },
+            editKey:{
+              showEditButton: true,
+              function: (row: any) => {
+                handleEdit(row);
+                // onOpen();
+              },
+            },
 
             deleteKey: {
               showDeleteButton: true,
@@ -256,17 +241,18 @@ const ExportRegisterTable = () => {
       />
 
       {/* ---------- Drawer ---------- */}
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
+      <Drawer  isOpen={isOpen} placement="right" onClose={handleDrawerClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>Add Export Entry</DrawerHeader>
           <DrawerBody>
-            <ExposureForm
-              fetchData={fetchExportRegisterData}
-              onClose={onClose}
-              submitExportForm={submitExportForm}
-            />
+          <ExposureForm
+   key={formKey}          // 🔥 THIS is the reset
+    submitExportForm={submitExportForm}
+    editData={editRow}
+    originalData={originalRow}
+/>
           </DrawerBody>
         </DrawerContent>
       </Drawer>

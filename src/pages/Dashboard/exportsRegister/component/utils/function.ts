@@ -154,11 +154,67 @@ export   const formatDateForInput = (dateString: string) => {
     return "";
   };
 
-  export const calculateDueDate = (blDate: string, paymentTerms: number) => {
+//   export const calculateDueDate = (blDate: string, paymentTerms: number) => {
+//   if (!blDate || !paymentTerms) return "";
+
+//   const date = new Date(blDate);
+//   date.setDate(date.getDate() + Number(paymentTerms));
+
+//   return date.toISOString().split("T")[0]; // YYYY-MM-DD
+// };
+
+
+export const calculateDueDate = (
+  blDate: string,
+  paymentTerms: number
+) => {
   if (!blDate || !paymentTerms) return "";
 
   const date = new Date(blDate);
+  if (isNaN(date.getTime())) return "";
+
   date.setDate(date.getDate() + Number(paymentTerms));
 
-  return date.toISOString().split("T")[0]; // YYYY-MM-DD
+  return date.toISOString().split("T")[0];
+};
+
+export const normalizeDate = (value?: string | Date) => {
+  if (!value) return "";
+
+  // already Date
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return value.toISOString().split("T")[0];
+  }
+
+  if (typeof value === "string") {
+    // dd.mm.yyyy → yyyy-mm-dd
+    if (value.includes(".")) {
+      const [day, month, year] = value.split(".");
+      if (day && month && year) {
+        return `${year}-${month}-${day}`;
+      }
+    }
+
+    // yyyy-mm-dd (already valid)
+    if (!isNaN(new Date(value).getTime())) {
+      return value;
+    }
+  }
+
+  return ""; // ⛑️ SAFE FALLBACK
+};
+
+export const updateDueDate = (
+  blDate: string,
+  paymentTerms: number,
+  setFieldValue: any
+) => {
+  if (blDate && paymentTerms) {
+    setFieldValue(
+      "dueDate",
+      calculateDueDate(blDate, paymentTerms)
+    );
+  } else {
+    setFieldValue("dueDate", "");
+  }
 };

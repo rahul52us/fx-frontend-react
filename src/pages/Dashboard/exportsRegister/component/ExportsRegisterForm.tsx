@@ -4,7 +4,7 @@ import {
   Flex,
   SimpleGrid,
   VStack,
-  useToast,
+  useToast
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
@@ -17,15 +17,16 @@ import {
   primaryButtonStyle,
 } from "../../../../globalStyles";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
+import DueDateSync from "./DueDateSync";
 import { MultiHedgeDealExport } from "./MultiHedgeDealExport";
 import {
   currencyOptions,
   dummyExporPOtData,
   exportRegisterexposureTypeOptions,
 } from "./utils/constant";
-import { calculateDueDate } from "./utils/function";
+import { normalizeDate } from "./utils/function";
 
-const ExposureForm = ({ submitExportForm }: any) => {
+const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
   const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [_, setSubmitAttempted] = useState(false);
@@ -33,6 +34,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
   const url = process.env.REACT_APP_FX_BASE_URL;
   const [selectedExposureType, setSelectedExposureType] = useState<string>("");
   const toast = useToast();
+  const isEdit = Boolean(editData);
 
   const validationSchema = Yup.object({
     invoiceNo: Yup.string().when("exposureType", {
@@ -181,6 +183,8 @@ const ExposureForm = ({ submitExportForm }: any) => {
     fetchPoDetails();
   }, []);
 
+  
+
   const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
     setSubmitAttempted(true);
@@ -199,39 +203,75 @@ const ExposureForm = ({ submitExportForm }: any) => {
 
     handleSubmit();
   };
+
+  
   return (
     <Box maxW="5xl" mx="auto" borderRadius="2xl">
       {loading && <Loader />}
       {!loading && (
         <Formik
-          initialValues={{
-            exposureType: "",
-            exposureInputDate: "",
-            poDate: "",
-            poNo: "",
-            invoiceNo: "",
-            invoiceDate: "",
-            exposureModificationDate: "",
-            partyName: "",
-            bank: "",
-            businessUnit: "",
-            blDate: "",
-            currency: "",
-            amount: "",
-            budgetRate: "",
-            paymentTerms: "",
-            remark: "",
-            dueDate: "",
-            outstandingAmount:"",
-          
- hedgeDeals: [],
-          }}
+        initialValues={{
+  exposureType: editData?.exposureType || "",
+  poNo: editData?.poNo || "",
+  poDate: normalizeDate(editData?.poDate),
+  invoiceDate: normalizeDate(editData?.invoiceDate),
+  blDate: normalizeDate(editData?.blDate),
+  dueDate: normalizeDate(editData?.dueDate),
+  // poDate: formatDate(editData?.poDate) || "",
+  partyName: editData?.partyName || "",
+  bank: editData?.bank || "",
+  businessUnit: editData?.businessUnit || "",
+  invoiceNo: editData?.invoiceNo || "",
+  // invoiceDate: formatDate(editData?.invoiceDate) || "",
+  // blDate: formatDate(editData?.blDate) || "",
+  paymentTerms: editData?.paymentTerms || "",
+  // dueDate: formatDate(editData?.dueDate) || "",
+  currency: editData?.currency || "",
+  amount: editData?.amount || "",
+  budgetRate: editData?.budgetRate || "",
+  remark: editData?.remark || "",
+  hedgeDeals: editData?.hedgeDeals || [],
+}}
+
+          // initialValues={{
+          //   exposureType: "",
+          //   exposureInputDate: "",
+          //   poDate: "",
+          //   poNo: "",
+          //   invoiceNo: "",
+          //   invoiceDate: "",
+          //   exposureModificationDate: "",
+          //   partyName: "",
+          //   bank: "",
+          //   businessUnit: "",
+          //   blDate: "",
+          //   currency: "",
+          //   amount: "",
+          //   budgetRate: "",
+          //   paymentTerms: "",
+          //   remark: "",
+          //   dueDate: "",
+          //   outstandingAmount:"",
+          //   hedgeDeals: [],
+          // }}
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, actions) => {
-            setShowError(true);
-            submitExportForm(values, actions, "form");
-          }}
+  submitExportForm(
+    {
+      original: originalData,
+      updated: values,
+      rowId: editData?.rowId,
+    },
+    actions,
+    isEdit ? "edit" : "form"
+  );
+}}
+
+          // onSubmit={(values, actions) => {
+          //   setShowError(true);
+          //   submitExportForm(values, actions, "form");
+          // }}
         >
           {({
             values,
@@ -449,36 +489,98 @@ const ExposureForm = ({ submitExportForm }: any) => {
                     />
                     </>
                   )}
-                  {/* <CustomInput
-                    label="BL Date"
-                    name="blDate"
-                    type="date"
-                    value={values.blDate}
-                    onChange={handleChange}
-                    error={touched.blDate && errors.blDate}
-                    showError={showError}
-                    required={true}
-                  /> */}
-
-<CustomInput
+{/* <CustomInput
   label="BL Date"
   name="blDate"
   type="date"
   value={values.blDate}
   onChange={(e) => {
     handleChange(e);
-
     const newBlDate = e.target.value;
     const dueDate = calculateDueDate(newBlDate, values.paymentTerms);
-
     setFieldValue("dueDate", dueDate);
   }}
   error={touched.blDate && errors.blDate}
   showError={showError}
   required
+/> */}
+{/* 
+<CustomInput
+  label="BL Date"
+  name="blDate"
+  type="date"
+  value={values.blDate || ""}
+  onChange={(e) => {
+    const blDate = e.target.value;
+    const terms = values.paymentTerms;
+
+    setFieldValue("blDate", blDate);
+
+    if (blDate && terms) {
+      const dueDate = calculateDueDate(blDate, Number(terms));
+      setFieldValue("dueDate", dueDate);
+    } else {
+      setFieldValue("dueDate", "");
+    }
+  }}
+  error={touched.blDate && errors.blDate}
+  showError={showError}
+  required
+/> */}
+
+
+ <DueDateSync />
+
+ <CustomInput
+  label="BL Date"
+  name="blDate"
+  type="date"
 />
 
 <CustomInput
+  label="Payment Terms"
+  name="paymentTerms"
+  type="number"
+  value={values.paymentTerms ?? ""}
+  onChange={(e) =>
+    setFieldValue("paymentTerms", e.target.value)
+  }
+  disabled={selectedExposureType === "shipment"}
+  showError={showError}
+/>
+
+<CustomInput
+  label="Due Date"
+  name="dueDate"
+  type="date"
+  disabled
+/>
+
+{/* <CustomInput
+  label="Payment Terms"
+  name="paymentTerms"
+  type="number"
+  value={values.paymentTerms || ""}
+  onChange={(e) => {
+    const terms = e.target.value;
+    const blDate = values.blDate;
+
+    setFieldValue("paymentTerms", terms);
+
+    if (blDate && terms) {
+      const dueDate = calculateDueDate(blDate, Number(terms));
+      setFieldValue("dueDate", dueDate);
+    } else {
+      setFieldValue("dueDate", "");
+    }
+  }}
+  error={touched.paymentTerms && errors.paymentTerms}
+  showError={showError}
+  required
+/> */}
+
+
+{/* <CustomInput
   label="Payment Terms"
   name="paymentTerms"
   type="number"
@@ -496,21 +598,8 @@ const ExposureForm = ({ submitExportForm }: any) => {
   showError={showError}
   required
   disabled={selectedExposureType === "shipment"}
-/>
-
+/> */}
                   {/* <CustomInput
-                    label="Payment Terms"
-                    name="paymentTerms"
-                    type="number"
-                    placeholder="Terms"
-                    value={values.paymentTerms}
-                    onChange={handleChange}
-                    error={touched.paymentTerms && errors.paymentTerms}
-                    showError={showError}
-                    required={true}
-                    disabled={selectedExposureType === "shipment"}
-                  /> */}
-                  <CustomInput
   label="Due Date"
   name="dueDate"
   type="date"
@@ -519,18 +608,7 @@ const ExposureForm = ({ submitExportForm }: any) => {
   showError={showError}
   required
   disabled
-/>
-
-                  {/* <CustomInput
-                    label="Due Date"
-                    name="dueDate"
-                    type="date"
-                    value={values.dueDate}
-                    onChange={handleChange}
-                    error={touched.dueDate && errors.dueDate}
-                    showError={showError}
-                    required={true}
-                  /> */}
+/> */}
                   <CustomInput
                     label="Currency"
                     type="select"
@@ -579,10 +657,6 @@ const ExposureForm = ({ submitExportForm }: any) => {
                   <MultiHedgeDealExport
                     url={url}
                     showError={showError}
-                    // values={values}
-                    // setFieldValue={setFieldValue}
-                    // touched={touched}
-                    // errors={errors}
                   />
                 <CustomInput
                   label="Remark"
