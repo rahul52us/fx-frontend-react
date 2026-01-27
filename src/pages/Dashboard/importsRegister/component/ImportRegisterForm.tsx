@@ -20,16 +20,20 @@ import { MultiHedgeDealExport } from "../../exportsRegister/component/MultiHedge
 import { currencyOptions } from "../../exportsRegister/component/utils/constant";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
+import { normalizeDate } from "../../exportsRegister/component/utils/function";
 
-const ImportRegistrationForm = ({ submitImportForm }: any) => {
+const ImportRegistrationForm = ({
+  submitImportForm,
+  editData,
+  originalData,
+}: any) => {
   const [showError, setShowError] = useState(false);
   const [poData, setPoData] = useState<any[]>([]);
-  // console.log(poData);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL;
   const [selectedExposureType, setSelectedExposureType] = useState<string>("");
-
+  const isEdit = Boolean(editData);
   const fetchPoDetails = async () => {
     setLoading(true);
     try {
@@ -57,10 +61,6 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchPoDetails();
-  }, []);
 
   const validationSchema = Yup.object().shape({
     exposureType: Yup.mixed().required("Exposure Type is required"),
@@ -113,39 +113,70 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
     handleSubmit();
   };
 
+  useEffect(() => {
+    fetchPoDetails();
+  }, []);
+
   return (
     <Box maxW="5xl" mx="auto" borderRadius="2xl">
       {loading && <Loader />}
       {!loading && (
         <Formik
+          // initialValues={{
+          //   exposureType: "",
+          //   poNo: "",
+          //   poDate: "",
+          //   partyName: "",
+          //   bank: "",
+          //   businessUnit: "",
+          //   invoiceNo: "",
+          //   invoiceDate: "",
+          //   blDate: "",
+          //   paymentTerms: "",
+          //   dueDate: "",
+          //   currency: "",
+          //   amount: "",
+          //   budgetRate: "",
+          //   hedgeDeals: [],
+          //   remark: "",
+          // }}
+
           initialValues={{
-            exposureType: "",
-            poNo: "",
-            poDate: "",
-            partyName: "",
-            bank: "",
-            businessUnit: "",
-            invoiceNo: "",
-            invoiceDate: "",
-            blDate: "",
-            paymentTerms: "",
-            dueDate: "",
-            currency: "",
-            amount: "",
-            budgetRate: "",
-            remark: "",
-            // hedgeDealRefNo: "",
-            // hedgeRate: "",
-            // hedgeAmount: "",
-            // deliveryDateFrom:"",
-            // deliveryDateTo: "",
-            hedgeDeals: [],
+            exposureType: editData?.exposureType || "",
+            poNo: editData?.poNo || "",
+            poDate: normalizeDate(editData?.poDate),
+
+            invoiceDate: normalizeDate(editData?.invoiceDate),
+            blDate: normalizeDate(editData?.blDate),
+            dueDate: normalizeDate(editData?.dueDate),
+            partyName: editData?.partyName || "",
+            bank: editData?.bank || "",
+            businessUnit: editData?.businessUnit || "",
+            invoiceNo: editData?.invoiceNo || "",
+            paymentTerms: editData?.paymentTerms || "",
+            currency: editData?.currency || "",
+            amount: editData?.amount || "",
+            budgetRate: editData?.budgetRate || "",
+            remark: editData?.remark || "",
+            hedgeDeals: editData?.hedgeDeals || [],
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, actions) => {
-            setShowError(true);
-            submitImportForm(values, actions, "form");
+            if (isEdit) {
+              submitImportForm(
+                {
+                  original: originalData,
+                  updated: values,
+                  rowId: editData?.rowId,
+                },
+                actions,
+                isEdit ? "edit" : "form",
+              );
+            } else {
+              setShowError(true);
+              submitImportForm(values, actions, "form");
+            }
           }}
         >
           {({
@@ -183,7 +214,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                       type="select"
                       options={importExposureTypeOptions}
                       value={importExposureTypeOptions.find(
-                        (option) => option.value === values.exposureType
+                        (option) => option.value === values.exposureType,
                       )}
                       onChange={(selectedOption) => {
                         // Reset form when exposure type changes
@@ -214,11 +245,11 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                           value: item.poNo,
                         }))}
                         value={poData.find(
-                          (option: any) => option.value === values.poNo
+                          (option: any) => option.value === values.poNo,
                         )}
                         onChange={(selectedOption) => {
                           const selectedPo = poData.find(
-                            (item: any) => item.poNo === selectedOption.value
+                            (item: any) => item.poNo === selectedOption.value,
                           );
 
                           setFieldValue("poNo", selectedOption.value);
@@ -230,11 +261,11 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                             setFieldValue("bank", selectedPo.bank);
                             setFieldValue(
                               "businessUnit",
-                              selectedPo.businessUnit
+                              selectedPo.businessUnit,
                             );
                             setFieldValue(
                               "paymentTerms",
-                              selectedPo.paymentTerms
+                              selectedPo.paymentTerms,
                             );
                             setFieldValue("currency", selectedPo.currency);
                             setFieldValue("budgetRate", selectedPo.budgetRate);
@@ -308,7 +339,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                         placeholder="Select Bank"
                         options={banks}
                         value={banks.find(
-                          (option) => option.value === values.bank
+                          (option) => option.value === values.bank,
                         )}
                         onChange={(selectedOption: any) =>
                           setFieldValue("bank", selectedOption.value)
@@ -412,7 +443,7 @@ const ImportRegistrationForm = ({ submitImportForm }: any) => {
                         name="currency"
                         options={currencyOptions}
                         value={currencyOptions.find(
-                          (option) => option.value === values.currency
+                          (option) => option.value === values.currency,
                         )}
                         onChange={(selectedOption) =>
                           setFieldValue("currency", selectedOption.value)

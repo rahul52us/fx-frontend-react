@@ -217,15 +217,11 @@ const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
   invoiceDate: normalizeDate(editData?.invoiceDate),
   blDate: normalizeDate(editData?.blDate),
   dueDate: normalizeDate(editData?.dueDate),
-  // poDate: formatDate(editData?.poDate) || "",
   partyName: editData?.partyName || "",
   bank: editData?.bank || "",
   businessUnit: editData?.businessUnit || "",
   invoiceNo: editData?.invoiceNo || "",
-  // invoiceDate: formatDate(editData?.invoiceDate) || "",
-  // blDate: formatDate(editData?.blDate) || "",
   paymentTerms: editData?.paymentTerms || "",
-  // dueDate: formatDate(editData?.dueDate) || "",
   currency: editData?.currency || "",
   amount: editData?.amount || "",
   budgetRate: editData?.budgetRate || "",
@@ -256,17 +252,33 @@ const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
           // }}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={(values, actions) => {
-  submitExportForm(
-    {
-      original: originalData,
-      updated: values,
-      rowId: editData?.rowId,
-    },
-    actions,
-    isEdit ? "edit" : "form"
-  );
-}}
+              onSubmit={(values, actions) => {
+            if (isEdit) {
+              submitExportForm(
+                {
+                  original: originalData,
+                  updated: values,
+                  rowId: editData?.rowId,
+                },
+                actions,
+                isEdit ? "edit" : "form",
+              );
+            } else {
+              setShowError(true);
+              submitExportForm(values, actions, "form");
+            }
+          }}
+//           onSubmit={(values, actions) => {
+//   submitExportForm(
+//     {
+//       original: originalData,
+//       updated: values,
+//       rowId: editData?.rowId,
+//     },
+//     actions,
+//     isEdit ? "edit" : "form"
+//   );
+// }}
 
           // onSubmit={(values, actions) => {
           //   setShowError(true);

@@ -19,15 +19,26 @@ import {
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
 import ImportRegistrationForm from "../ImportRegisterForm";
+import HedgeDealsCell from "../../../exportsRegister/component/ExportRegisterTable/HedgeDealsPopover";
 
 const ImportRegisterTable = () => {
   const [importData, setImportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [editRow, setEditRow] = useState<any | null>(null);
+const [originalRow, setOriginalRow] = useState<any | null>(null);
+const [formKey, setFormKey] = useState(0);
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
   // const url = "https://7b0fa03efa8d.ngrok-free.app"
   const { deleteItem } = useDeleteItem();
+
+   const handleDrawerClose = () => {
+  setEditRow(null);
+  setOriginalRow(null);
+  setFormKey((prev) => prev + 1); // 🔥 force remount
+  onClose();
+};
 
   const submitImportForm = async (values: any, actions: any, type: string) => {
     // console.log('values',values)
@@ -145,16 +156,29 @@ const ImportRegisterTableColumns = [
   { headerName: "P/L in INR", key: "PlInINR" },
   { headerName: "Value in INR", key: "valueInInr" },
   {
+    headerName: "Hedge Deals",
+    key: "hedgeDeals",
+    type: "component",
+    metaData: {
+      component: (row:any) => <HedgeDealsCell {...row} />,
+    },
+  },
+  {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
       props: {
-        // isSticky: true,
         row: { minW: 180, textAlign: "center" },
         column: { textAlign: "center" },
       },
     },
 ];
+
+  function handleEdit(row: any) {
+  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+  setEditRow(row);
+  onOpen();
+}
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -178,7 +202,7 @@ const ImportRegisterTableColumns = [
         actions={{
           search: { show: false },
           resetData: {
-            show: false,
+            show: true,
             text: "Reset Data",
             function: fetchImportRegisterData,
           },
@@ -187,7 +211,6 @@ const ImportRegisterTableColumns = [
             text: "Export Excel",
             function: () =>
               exportToExcel({
-                // columns: ImportRegisterTableColumns,
                 data: dummyImportRegisterData,
                 fileName: "Import_Register.xlsx",
               }),
@@ -208,7 +231,12 @@ const ImportRegisterTableColumns = [
               showAddButton: true,
               function: onOpen,
             },
-            editKey: { showEditButton: false },
+           editKey:{
+              showEditButton: true,
+              function: (row: any) => {
+                handleEdit(row);
+              },
+            },
           deleteKey: {
               showDeleteButton: true,
               function: (row: any) =>
@@ -224,7 +252,7 @@ const ImportRegisterTableColumns = [
         loading={loading}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
+      <Drawer isOpen={isOpen} placement="right" onClose={handleDrawerClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
@@ -232,7 +260,12 @@ const ImportRegisterTableColumns = [
           <DrawerBody>
             <ImportRegistrationForm
               submitImportForm={submitImportForm}
-            />
+                key={formKey}          
+    // submitExportForm={submitExportForm}
+    editData={editRow}
+    originalData={originalRow}
+/>
+            {/* /> */}
           </DrawerBody>
         </DrawerContent>
       </Drawer>

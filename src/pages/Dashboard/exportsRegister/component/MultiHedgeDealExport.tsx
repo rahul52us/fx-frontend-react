@@ -1,7 +1,7 @@
 import { Button, Flex, Grid, Stack, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { FieldArray, useFormikContext } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 
 interface MultiHedgeDealExportProps {
@@ -57,6 +57,12 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     value: item.hedgeDealRefNumber,
   }));
 
+  useEffect(() => {
+    if (values?.hedgeDeals?.length > 0 && hedgeDealsMaster.length === 0) {
+      fetchHedgeDeals();
+    }
+  }, [values?.hedgeDeals]);
+
   return (
     <FieldArray name="hedgeDeals">
       {({ push, remove }) => (
@@ -80,25 +86,45 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
                   type="select"
                   placeholder={loading ? "Loading..." : "Select Reference No"}
                   options={hedgeDealOptions}
-                  value={hedgeDealOptions.find(
-                    (opt: any) => opt.value === item.hedgeDealRefNo
-                  )}
+                  value={
+                    hedgeDealOptions.find(
+                      (opt: any) => opt.value === item.hedgeDealRefNo,
+                    ) || null
+                  }
+                  // value={hedgeDealOptions.find(
+                  //   (opt: any) => opt.value === item.hedgeDealRefNo
+                  // )}
                   onChange={(selected: any) => {
                     const deal = hedgeDealsMaster.find(
-                      (d) => d.hedgeDealRefNumber === selected.value
+                      (d) => d.hedgeDealRefNumber === selected.value,
                     );
 
                     setFieldValue(`${base}.hedgeDealRefNo`, selected.value);
 
                     if (deal) {
                       setFieldValue(`${base}.hedgeRate`, deal.headgerate || "");
-                      setFieldValue(`${base}.deliveryDateFrom`, deal.deliveryDateFrom || "");
-                      setFieldValue(`${base}.deliveryDateTo`, deal.deliveryDateTo || "");
-                      setFieldValue(`${base}.outstandingAmount`, deal.outstandingAmount || "");
-                      setFieldValue(`${base}.balanceAmount`, deal.balanceAmount || "");
+                      setFieldValue(
+                        `${base}.deliveryDateFrom`,
+                        deal.deliveryDateFrom || "",
+                      );
+                      setFieldValue(
+                        `${base}.deliveryDateTo`,
+                        deal.deliveryDateTo || "",
+                      );
+                      setFieldValue(
+                        `${base}.outstandingAmount`,
+                        deal.outstandingAmount || "",
+                      );
+                      setFieldValue(
+                        `${base}.balanceAmount`,
+                        deal.balanceAmount || "",
+                      );
                     }
                   }}
-                  error={touched?.hedgeDeals?.[index]?.hedgeDealRefNo && errors?.hedgeDeals?.[index]?.hedgeDealRefNo}
+                  error={
+                    touched?.hedgeDeals?.[index]?.hedgeDealRefNo &&
+                    errors?.hedgeDeals?.[index]?.hedgeDealRefNo
+                  }
                   showError={showError}
                 />
 
@@ -130,7 +156,9 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
                   placeholder="Enter Hedge Amount"
                   value={item.hedgeAmount}
                   // ADDED: Manual onChange to update the specific index in FieldArray
-                  onChange={(e: any) => setFieldValue(`${base}.hedgeAmount`, e.target.value)}
+                  onChange={(e: any) =>
+                    setFieldValue(`${base}.hedgeAmount`, e.target.value)
+                  }
                 />
 
                 <CustomInput
