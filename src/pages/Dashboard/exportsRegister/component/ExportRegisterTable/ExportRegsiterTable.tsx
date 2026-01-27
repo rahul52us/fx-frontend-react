@@ -248,8 +248,8 @@ const [formKey, setFormKey] = useState(0);
           <DrawerHeader>Add Export Entry</DrawerHeader>
           <DrawerBody>
           <ExposureForm
-   key={formKey}          // 🔥 THIS is the reset
     submitExportForm={submitExportForm}
+   key={formKey}          
     editData={editRow}
     originalData={originalRow}
 />

@@ -181,28 +181,62 @@ export const calculateDueDate = (
 export const normalizeDate = (value?: string | Date) => {
   if (!value) return "";
 
-  // already Date
-  if (value instanceof Date && !isNaN(value.getTime())) {
+  // 1️⃣ Date object → ISO
+  if (value instanceof Date) {
+    if (isNaN(value.getTime())) return "";
     return value.toISOString().split("T")[0];
   }
 
   if (typeof value === "string") {
-    // dd.mm.yyyy → yyyy-mm-dd
-    if (value.includes(".")) {
-      const [day, month, year] = value.split(".");
-      if (day && month && year) {
-        return `${year}-${month}-${day}`;
-      }
+    const trimmed = value.trim();
+
+    // 2️⃣ dd.mm.yyyy → yyyy-mm-dd
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(trimmed)) {
+      const [day, month, year] = trimmed.split(".");
+      return `${year}-${month}-${day}`;
     }
 
-    // yyyy-mm-dd (already valid)
-    if (!isNaN(new Date(value).getTime())) {
-      return value;
+    // 3️⃣ dd-mm-yyyy → yyyy-mm-dd
+    if (/^\d{2}-\d{2}-\d{4}$/.test(trimmed)) {
+      const [day, month, year] = trimmed.split("-");
+      return `${year}-${month}-${day}`;
+    }
+
+    // 4️⃣ yyyy-mm-dd → accept ONLY this
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return trimmed;
     }
   }
 
-  return ""; // ⛑️ SAFE FALLBACK
+  return ""; // ⛑️ hard stop – prevents datepicker crash
 };
+
+
+// export const normalizeDate = (value?: string | Date) => {
+//   if (!value) return "";
+
+//   // already Date
+//   if (value instanceof Date && !isNaN(value.getTime())) {
+//     return value.toISOString().split("T")[0];
+//   }
+
+//   if (typeof value === "string") {
+//     // dd.mm.yyyy → yyyy-mm-dd
+//     if (value.includes(".")) {
+//       const [day, month, year] = value.split(".");
+//       if (day && month && year) {
+//         return `${year}-${month}-${day}`;
+//       }
+//     }
+
+//     // yyyy-mm-dd (already valid)
+//     if (!isNaN(new Date(value).getTime())) {
+//       return value;
+//     }
+//   }
+
+//   return ""; // ⛑️ SAFE FALLBACK
+// };
 
 export const updateDueDate = (
   blDate: string,

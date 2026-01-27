@@ -24,6 +24,9 @@ import PCFCViewDrawer from "./PCFCViewDrawer";
 const PCFCTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [editRow, setEditRow] = useState<any | null>(null);
+const [originalRow, setOriginalRow] = useState<any | null>(null);
+const [formKey, setFormKey] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
@@ -104,6 +107,12 @@ const {
     }
   };
 
+  function handleEdit(row: any) {
+  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+  setEditRow(row);
+  onOpen();
+}
+
   const fetchExportRegisterData = async () => {
     setLoading(true);
     try {
@@ -129,6 +138,14 @@ const {
       setLoading(false);
     }
   };
+
+    const handleDrawerClose = () => {
+  setEditRow(null);
+  setOriginalRow(null);
+  setFormKey((prev) => prev + 1); // 🔥 force remount
+  onClose();
+};
+
 
   useEffect(() => {
     fetchExportRegisterData();
@@ -201,6 +218,13 @@ return (
               showAddButton: true,
               function: onOpen,
             },
+             editKey:{
+              showEditButton: true,
+              function: (row: any) => {
+                handleEdit(row);
+                // onOpen();
+              },
+            },
             viewKey: {
     showViewButton: true,
     function: (row: any) => {
@@ -209,7 +233,7 @@ return (
     },
   },
 
-            editKey: { showEditButton: true, function: () => {}},
+            // editKey: { showEditButton: true, function: () => {}},
             deleteKey: {
               showDeleteButton: true,
               function: (row: any) =>
@@ -225,13 +249,18 @@ return (
         loading={loading}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
+      <Drawer isOpen={isOpen} placement="right" onClose={handleDrawerClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
           <DrawerHeader>PCFC Register Form</DrawerHeader>
           <DrawerCloseButton />
           <DrawerBody>
-            <PCFCForm submitForm={submitExportForm} />
+            <PCFCForm submitForm={submitExportForm}
+            
+            key={formKey}          
+    editData={editRow}
+    originalData={originalRow}
+            />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

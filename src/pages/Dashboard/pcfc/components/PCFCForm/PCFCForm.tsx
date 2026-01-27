@@ -14,7 +14,7 @@ import ConversionManager from "./ConversionManager";
 import { banks } from "./dummyData"; // Adjust path as needed
 import FormAutoCalculator from "./FormAutoCalculator";
 import ModeOfConversion from "./ModeOfConversion";
-import { pcfcInitialValues } from "./utils/constant";
+import { getPcfcInitialValues } from "./utils/constant";
 
 // const FormAutoCalculator = () => {
 //   const { values, setFieldValue }: any = useFormikContext();
@@ -85,8 +85,13 @@ import { pcfcInitialValues } from "./utils/constant";
 //   return null;
 // };
 
-const PCFCForm = ({ submitForm }: any) => {
+const PCFCForm = ({ submitForm , editData,
+  originalData,}: any) => {
   const [showError, setShowError] = useState(false); // Initially false, true on submit
+  const isEdit = Boolean(editData);
+
+  console.log('editData-----------',editData)
+
   const validationSchema = Yup.object().shape({
   drawdownDate: Yup.string().required("Drawdown Date is required"),
   dueDate: Yup.string().required("Due Date is required"),
@@ -183,14 +188,31 @@ const toast = useToast();
     <Box bg="whiteAlpha.700" py={4}>
       <Box px={2}>
         <Formik
-       initialValues={pcfcInitialValues}
+        initialValues={getPcfcInitialValues(editData)}
+      //  initialValues={pcfcInitialValues}
           validationSchema={validationSchema}
-          enableReinitialize={false} // Prevent resets on typing
-          onSubmit={(values, actions) => {
-            setShowError(true);
-            console.log("Submitting PCFC Form:", values);
-            submitForm(values, actions, "form");
+          enableReinitialize// Prevent resets on typing
+            onSubmit={(values, actions) => {
+            if (isEdit) {
+              submitForm(
+                {
+                  original: originalData,
+                  updated: values,
+                  rowId: editData?.rowId,
+                },
+                actions,
+                isEdit ? "edit" : "form",
+              );
+            } else {
+              setShowError(true);
+              submitForm(values, actions, "form");
+            }
           }}
+          // onSubmit={(values, actions) => {
+          //   setShowError(true);
+          //   console.log("Submitting PCFC Form:", values);
+          //   submitForm(values, actions, "form");
+          // }}
         >
           {({ values, handleChange, setFieldValue, isSubmitting, errors, touched ,handleSubmit}: any) => (
             <FormikForm>

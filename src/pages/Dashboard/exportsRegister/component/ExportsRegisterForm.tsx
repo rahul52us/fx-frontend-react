@@ -181,14 +181,11 @@ const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
 
   useEffect(() => {
     fetchPoDetails();
-  }, []);
-
-  
+  },[]);
 
   const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
     setSubmitAttempted(true);
-
     if (Object.keys(errors).length > 0) {
       const firstError = Object.values(errors)[0] as string;
       toast({
@@ -200,10 +197,8 @@ const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
         position: "top-right",
       });
     }
-
     handleSubmit();
   };
-
   
   return (
     <Box maxW="5xl" mx="auto" borderRadius="2xl">

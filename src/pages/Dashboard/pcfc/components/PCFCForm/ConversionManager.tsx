@@ -150,11 +150,11 @@ const ConversionManager = ({ showError }: any) => {
                       position="relative"
                     >
                       <SimpleGrid columns={[1, 2, 3]} spacing={4}>
-                            <CustomInput
-                   label="Conversion Ref No"
+                  <CustomInput
+                    label="Conversion Ref No"
                     name="conversionRefNo"
                     placeholder="Enter Conversion Ref No"
-                    value={values.conversionRefNo}
+                    value={spot.conversionRefNo}
                       onChange={(e: any) =>
                             handleSpotFieldChange(
                               index,
