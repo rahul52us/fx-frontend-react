@@ -1,3 +1,5 @@
+import { normalizeDate } from "../../../exportsRegister/component/utils/function";
+
 export const exposureRefNumberOptions = [
     {label:"123456",value:"123456"},
     {label:"123457",value:"123457"},
@@ -35,3 +37,26 @@ export const calculateHedgeRate = (values: any) => {
 
     return "";
   };
+
+  export const getForwardRegisterInitialValues = (editData: any = {}) => ({
+  bookingDate: normalizeDate(editData?.bookingDate) || "",
+  exposureType: editData?.exposureType ?? "",
+  subExposureType: editData?.subExposureType ?? "",
+
+  bank: editData?.bank ?? "",
+  bussinessUnit: editData?.bussinessUnit ?? "",
+
+  hedgeDealReferenceNumber: editData?.hedgeDealReferenceNumber ?? "",
+  currency: editData?.currency ?? "",
+
+  hedgeAmount: editData?.hedgeAmount ?? "",
+  spotBooked: editData?.spotBooked ?? "",
+  forwardPoints: editData?.forwardPoints ?? "",
+  bankMargin: editData?.bankMargin ?? "",
+  hedgeRate: editData?.hedgeRate ?? "",
+
+  dueDateFrom: normalizeDate(editData?.dueDateFrom) || "",
+  dueDateTo: normalizeDate(editData?.dueDateTo) || "",
+
+  exposureRefs: editData?.exposureRefs ?? [],
+});

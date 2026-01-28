@@ -107,11 +107,7 @@ const {
     }
   };
 
-  function handleEdit(row: any) {
-  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
-  setEditRow(row);
-  onOpen();
-}
+
 
   const fetchExportRegisterData = async () => {
     setLoading(true);
@@ -139,7 +135,13 @@ const {
     }
   };
 
-    const handleDrawerClose = () => {
+  function handleEdit(row: any) {
+  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+  setEditRow(row);
+  onOpen();
+}
+
+  const handleDrawerClose = () => {
   setEditRow(null);
   setOriginalRow(null);
   setFormKey((prev) => prev + 1); // 🔥 force remount

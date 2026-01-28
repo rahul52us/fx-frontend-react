@@ -8,22 +8,22 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import { primaryButtonHoverStyle, primaryButtonStyle } from "../../../../../globalStyles";
 import { currencyOptions, exportRegisterexposureTypeOptions } from "../../../exportsRegister/component/utils/constant";
-import { banks } from "../../../pcfc/components/PCFCForm/dummyData";
 import { importExposureTypeOptions, mainExposureTypeOptions } from "../../../importsRegister/component/utils/constant";
-import { calculateHedgeRate } from "./constant";
+import { banks } from "../../../pcfc/components/PCFCForm/dummyData";
+import { calculateHedgeRate, getForwardRegisterInitialValues } from "./constant";
 import ExposureRefSelector from "./ExposureRefSelector";
 
-const ForwardRegisterForm = ({ submitForm }: any) => {
+const ForwardRegisterForm = ({ submitForm , editData, originalData}: any) => {
   const toast = useToast();
   const [showError, setShowError] = useState(false);
   const [exposureRefOptions, setExposureRefOptions] = useState<any[]>([]);
-  // const [selectedExposureData, setSelectedExposureData] = useState<any>(null);
-  // const [showExposureFields, setShowExposureFields] = useState(false);
+  const isEdit = Boolean(editData);
+
   const [selectedMainExposureType, setSelectedMainExposureType] = useState('');
   const url = process.env.REACT_APP_FX_BASE_URL;
   const validationSchema = Yup.object({
@@ -76,18 +76,8 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
   const handleMainExposureTypeChange = (option: any, setFieldValue: any, currentValues: any) => {
     const mainType = option.value;
     setSelectedMainExposureType(mainType);
-    setFieldValue("exposureType", mainType);
-    
-    // Clear existing exposure data when main exposure type changes
-    // setSelectedExposureData(null);
-    // setShowExposureFields(false);
-    // setFieldValue("exposureRefNumber", "");
+    setFieldValue("exposureType", mainType); 
     setFieldValue("subExposureType", "");
-    // setFieldValue("outStandingAmount", "");
-    // setFieldValue("rmPolicyRate", "");
-    // setFieldValue("dueDate", "");
-    // setFieldValue("allocatedAmount", "");
-    // Recalculate hedge rate when exposure type changes
     const calculatedRate = calculateHedgeRate({
       ...currentValues,
       exposureType: mainType,
@@ -104,36 +94,7 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
     }
   };
 
-  // const handleExposureRefChange = (selectedOption: any, setFieldValue: any) => {
-  //   if (selectedOption) {
-  //     // Find the complete exposure data from the options
-  //     const exposureData = exposureRefOptions.find(
-  //       (option) => option.value === selectedOption.value
-  //     );
-      
-  //     if (exposureData) {
-  //       setSelectedExposureData(exposureData);
-  //       setShowExposureFields(true);
-        
-  //       // Set the exposureRefNumber value
-  //       setFieldValue("exposureRefNumber", selectedOption.value);
-  //       // Auto-populate the fields with the exposure data
-  //       setFieldValue("outStandingAmount", exposureData.outStandingAmount);
-  //       setFieldValue("rmPolicyRate", exposureData.rmPolicyRate);
-  //       setFieldValue("dueDate", exposureData.dueDate);
-  //       setFieldValue("allocatedAmount", exposureData.allocatedAmount || "");
-  //     }
-  //   } else {
-  //     // Clear the fields if no option is selected
-  //     setSelectedExposureData(null);
-  //     setShowExposureFields(false);
-  //     setFieldValue("exposureRefNumber", "");
-  //     setFieldValue("outStandingAmount", "");
-  //     setFieldValue("rmPolicyRate", "");
-  //     setFieldValue("dueDate", "");
-  //     setFieldValue("allocatedAmount", "");
-  //   }
-  // };
+  
 
   const getSubExposureTypeOptions = () => {
     if (selectedMainExposureType === 'import') {
@@ -170,44 +131,47 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
   );
 };
 
+useEffect(() => {
+  if (isEdit && editData?.exposureType) {
+    setSelectedMainExposureType(editData.exposureType);
+  }
+}, [isEdit, editData]);
+
+useEffect(() => {
+  if (
+    isEdit &&
+    editData?.exposureType &&
+    editData?.subExposureType
+  ) {
+    fetchExpoRefNos(
+      editData.exposureType,
+      editData.subExposureType
+    );
+  }
+}, [isEdit, editData]);
 
   return (
     <Box py={4}>
       <Box px={2}>
-        <Formik
-          
-          initialValues={{
-  bookingDate: "",
-  exposureType: "",
-  subExposureType: "",
-  bank: "",
-  bussinessUnit: "",
-  hedgeDealReferenceNumber: "",
-  currency: "",
-  hedgeAmount: "",
-  spotBooked: "",
-  forwardPoints: "",
-  bankMargin: "",
-  hedgeRate: "",
-  dueDateFrom: "",
-  dueDateTo: "",
-
-  // Exposure Ref related fields
-
-            exposureRefs: [],
-
-  // exposureRefNumber: "",
-  // outStandingAmount: "",
-  // rmPolicyRate: "",
-  // dueDate: "",
-  // allocatedAmount: "",
-}}
-
+        <Formik     
+        initialValues={getForwardRegisterInitialValues(editData)}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={(values: any, actions: any) => {
-            submitForm(values, actions, "form");
-            actions.setSubmitting(false);
+            onSubmit={(values, actions) => {
+            if (isEdit) {
+              submitForm(
+                {
+                  original: originalData,
+                  updated: values,
+                  rowId: editData?.rowId,
+                },
+                actions,
+                isEdit ? "edit" : "form",
+              );
+            } else {
+              setShowError(true);
+              submitForm(values, actions, "form");
+            }
           }}
         >
           {({
@@ -427,27 +391,19 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
                     required={true}
                     showError={showError}
                   />
-
-                  {/* <CustomInput
-                    label="Exposure Ref Number"
-                    name="exposureRefNumber"
-                    type="select"
-                    options={exposureRefOptions}
-                    placeholder="Enter Exposure Ref Number"
-                    value={exposureRefOptions.find(
-                      (option) => option.value === values.exposureRefNumber
-                    )}
-                    onChange={(selectedOption) =>
-                      handleExposureRefChange(selectedOption, setFieldValue)
-                    }
-                    error={
-                      touched.exposureRefNumber && errors.exposureRefNumber
-                    }
-                    showError={showError}
-                  /> */}
                 </SimpleGrid>
-{(values.exposureType === "import" || values.exposureType === "export") &&
+{/* {(values.exposureType === "import" || values.exposureType === "export") &&
  exposureRefOptions.length > 0 && (
+  <ExposureRefSelector
+    values={values}
+    setFieldValue={setFieldValue}
+    exposureRefOptions={exposureRefOptions}
+    fetchExposureData={getExposureDataByRef}
+  />
+)} */}
+
+{(values.exposureType === "import" || values.exposureType === "export") &&
+ values.exposureRefs?.length > 0 && (
   <ExposureRefSelector
     values={values}
     setFieldValue={setFieldValue}
@@ -456,62 +412,6 @@ const ForwardRegisterForm = ({ submitForm }: any) => {
   />
 )}
 
-               
-                {/* {showExposureFields && selectedExposureData && (
-                  <Box 
-                    p={4} 
-                    border="1px" 
-                    borderColor="gray.200" 
-                    borderRadius="md" 
-                    bg="gray.50"
-                  >
-                    <SimpleGrid columns={[1, null, 2]} spacing={6}>
-                      <CustomInput
-                        label="Outstanding Amount"
-                        name="outStandingAmount"
-                        placeholder="Outstanding Amount"
-                        value={values.outStandingAmount}
-                        onChange={handleChange}
-                        error={touched.outStandingAmount && errors.outStandingAmount}
-                        showError={showError}
-                        disabled={true}
-                      />
-
-                      <CustomInput
-                        label="RM Policy Rate"
-                        name="rmPolicyRate"
-                        placeholder="RM Policy Rate"
-                        value={values.rmPolicyRate}
-                        onChange={handleChange}
-                        error={touched.rmPolicyRate && errors.rmPolicyRate}
-                        showError={showError}
-                        disabled={true}
-                      />
-
-                      <CustomInput
-                        label="Due Date"
-                        name="dueDate"
-                        placeholder="Due Date"
-                        value={values.dueDate}
-                        onChange={handleChange}
-                        error={touched.dueDate && errors.dueDate}
-                        showError={showError}
-                        disabled={true}
-                      />
-
-                       <CustomInput
-                        label="Allocated Amount"
-                        name="allocatedAmount"
-                        type="number"
-                        placeholder="Enter Allocated Amount"
-                        value={values.allocatedAmount}
-                        onChange={handleChange}
-                        error={touched.allocatedAmount && errors.allocatedAmount}
-                        showError={showError}
-                      /> 
-                    </SimpleGrid>
-                  </Box>
-                )} */}
 
                 <Flex justify={"end"}>
                   <Button

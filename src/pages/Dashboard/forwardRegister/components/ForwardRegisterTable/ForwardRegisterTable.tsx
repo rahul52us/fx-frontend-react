@@ -23,6 +23,9 @@ import ExposureRefsCell from "./ExposureRefsCell";
 const ForwardRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+    const [editRow, setEditRow] = useState<any | null>(null);
+const [originalRow, setOriginalRow] = useState<any | null>(null);
+const [formKey, setFormKey] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
@@ -113,6 +116,19 @@ const ForwardRegisterTable = () => {
       setLoading(false);
     }
   };
+
+  function handleEdit(row: any) {
+  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+  setEditRow(row);
+  onOpen();
+}
+
+  const handleDrawerClose = () => {
+  setEditRow(null);
+  setOriginalRow(null);
+  setFormKey((prev) => prev + 1); // 🔥 force remount
+  onClose();
+};
 
   useEffect(() => {
     fetchExportRegisterData();
@@ -222,7 +238,7 @@ const ForwardRegisterTable = () => {
         actions={{
           search: { show: false },
           resetData: {
-            show: false,
+            show: true,
             text: "Reset Data",
             function: fetchExportRegisterData,
           },
@@ -252,7 +268,12 @@ const ForwardRegisterTable = () => {
               showAddButton: true,
               function: onOpen,
             },
-            editKey: { showEditButton: false },
+                editKey:{
+              showEditButton: true,
+              function: (row: any) => {
+                handleEdit(row);
+              },
+            },
              deleteKey: {
               showDeleteButton: true,
               function: (row: any) =>
@@ -268,13 +289,18 @@ const ForwardRegisterTable = () => {
         loading={loading}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
+      <Drawer isOpen={isOpen} placement="right" onClose={handleDrawerClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
           <DrawerHeader>Forward Register</DrawerHeader>
           <DrawerCloseButton />
           <DrawerBody>
-            <ForwardRegisterForm submitForm={submitExportForm} />
+            <ForwardRegisterForm submitForm={submitExportForm} 
+                 
+            key={formKey}          
+    editData={editRow}
+    originalData={originalRow}
+            />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
