@@ -31,7 +31,9 @@ export const useStoreEdited = () => {
         // }
       );
 
-      if (response.status === "success") {
+      console.log('response',response)
+
+      if (response.data.status === "success") {
         toast({
           title: "Changes saved successfully",
           description: response?.data?.message || "Data updated",

@@ -10,6 +10,7 @@ import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
+import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import Loader from "../../../../config/component/Loader/Loader";
 import {
@@ -25,7 +26,6 @@ import {
   exportRegisterexposureTypeOptions,
 } from "./utils/constant";
 import { normalizeDate } from "./utils/function";
-import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 
 const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) => {
   const [showError, setShowError] = useState(false);
@@ -38,8 +38,6 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
   const isEdit = Boolean(editData);
 
   const { storeEdited, editLoading  } = useStoreEdited();
-
-  
 
   const validationSchema = Yup.object({
     invoiceNo: Yup.string().when("exposureType", {
@@ -204,6 +202,34 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
     }
     handleSubmit();
   };
+
+//   const pickMatchedFields = (original: any, updated: any) => {
+//   return Object.keys(updated).reduce((acc: any, key) => {
+//     if (original?.hasOwnProperty(key)) {
+//       acc[key] = original[key];
+//     }
+//     return acc;
+//   }, {});
+// };
+
+const pickMatchedFields = (
+  original: any,
+  updated: any,
+  rowId: string
+) => {
+  const filteredOriginal = Object.keys(updated).reduce((acc: any, key) => {
+    if (original?.hasOwnProperty(key)) {
+      acc[key] = original[key];
+    }
+    return acc;
+  }, {});
+
+  return {
+    original: { ...filteredOriginal, rowId },
+    updated: { ...updated, rowId },
+  };
+};
+
   
   return (
     <Box maxW="5xl" mx="auto" borderRadius="2xl">
@@ -229,68 +255,32 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
   hedgeDeals: editData?.hedgeDeals || [],
 }}
 
-          // initialValues={{
-          //   exposureType: "",
-          //   exposureInputDate: "",
-          //   poDate: "",
-          //   poNo: "",
-          //   invoiceNo: "",
-          //   invoiceDate: "",
-          //   exposureModificationDate: "",
-          //   partyName: "",
-          //   bank: "",
-          //   businessUnit: "",
-          //   blDate: "",
-          //   currency: "",
-          //   amount: "",
-          //   budgetRate: "",
-          //   paymentTerms: "",
-          //   remark: "",
-          //   dueDate: "",
-          //   outstandingAmount:"",
-          //   hedgeDeals: [],
-          // }}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          //     onSubmit={(values, actions) => {
-          //   if (isEdit) {
-          //     submitExportForm(
-          //       {
-          //         original: originalData,
-          //         updated: values,
-          //         rowId: editData?.rowId,
-          //       },  
-          //       actions,
-          //       isEdit ? "edit" : "form",
-          //     );
-          //   } else {
-          //     setShowError(true);
-          //     submitExportForm(values, actions, "form");
-          //   }
-          // }}
-          onSubmit={async (values, actions) => {
+     
+   onSubmit={async (values, actions) => {
   if (isEdit) {
+    const { original, updated } = pickMatchedFields(
+      originalData,
+      values,
+      editData?.rowId
+    );
+
     const payload = {
       register: "export",
       data: [
         {
-          original: originalData,
-          updated: values,
-          rowId: editData?.rowId,
+          original,
+          updated,
+          rowId: editData?.rowId, // optional if backend still expects it here
         },
       ],
-    
     };
 
     try {
-      await storeEdited(payload,onClose);
-
+      await storeEdited(payload, onClose);
       actions.resetForm();
       actions.setSubmitting(false);
-
-      // optional
-      // onClose();
-      // refetchTableData();
     } catch (error) {
       actions.setSubmitting(false);
     }
@@ -298,27 +288,47 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
     return;
   }
 
-  // CREATE MODE (existing logic)
   setShowError(true);
   submitExportForm(values, actions, "form");
 }}
 
-//           onSubmit={(values, actions) => {
-//   submitExportForm(
-//     {
-//       original: originalData,
-//       updated: values,
-//       rowId: editData?.rowId,
-//     },
-//     actions,
-//     isEdit ? "edit" : "form"
-//   );
+
+
+//           onSubmit={async (values, actions) => {
+//   if (isEdit) {
+//     const payload = {
+//       register: "export",
+//       data: [
+//         {
+//           original: originalData,
+//           updated: values,
+//           rowId: editData?.rowId,
+//         },
+//       ],
+    
+//     };
+
+//     try {
+//       await storeEdited(payload,onClose);
+
+//       actions.resetForm();
+//       actions.setSubmitting(false);
+
+//       // optional
+//       // onClose();
+//       // refetchTableData();
+//     } catch (error) {
+//       actions.setSubmitting(false);
+//     }
+
+//     return;
+//   }
+
+//   // CREATE MODE (existing logic)
+//   setShowError(true);
+//   submitExportForm(values, actions, "form");
 // }}
 
-          // onSubmit={(values, actions) => {
-          //   setShowError(true);
-          //   submitExportForm(values, actions, "form");
-          // }}
         >
           {({
             values,
@@ -536,46 +546,7 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
                     />
                     </>
                   )}
-{/* <CustomInput
-  label="BL Date"
-  name="blDate"
-  type="date"
-  value={values.blDate}
-  onChange={(e) => {
-    handleChange(e);
-    const newBlDate = e.target.value;
-    const dueDate = calculateDueDate(newBlDate, values.paymentTerms);
-    setFieldValue("dueDate", dueDate);
-  }}
-  error={touched.blDate && errors.blDate}
-  showError={showError}
-  required
-/> */}
-{/* 
-<CustomInput
-  label="BL Date"
-  name="blDate"
-  type="date"
-  value={values.blDate || ""}
-  onChange={(e) => {
-    const blDate = e.target.value;
-    const terms = values.paymentTerms;
-
-    setFieldValue("blDate", blDate);
-
-    if (blDate && terms) {
-      const dueDate = calculateDueDate(blDate, Number(terms));
-      setFieldValue("dueDate", dueDate);
-    } else {
-      setFieldValue("dueDate", "");
-    }
-  }}
-  error={touched.blDate && errors.blDate}
-  showError={showError}
-  required
-/> */}
-
-
+                  
  <DueDateSync />
 
  <CustomInput
@@ -602,60 +573,6 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
   type="date"
   disabled
 />
-
-{/* <CustomInput
-  label="Payment Terms"
-  name="paymentTerms"
-  type="number"
-  value={values.paymentTerms || ""}
-  onChange={(e) => {
-    const terms = e.target.value;
-    const blDate = values.blDate;
-
-    setFieldValue("paymentTerms", terms);
-
-    if (blDate && terms) {
-      const dueDate = calculateDueDate(blDate, Number(terms));
-      setFieldValue("dueDate", dueDate);
-    } else {
-      setFieldValue("dueDate", "");
-    }
-  }}
-  error={touched.paymentTerms && errors.paymentTerms}
-  showError={showError}
-  required
-/> */}
-
-
-{/* <CustomInput
-  label="Payment Terms"
-  name="paymentTerms"
-  type="number"
-  placeholder="Terms"
-  value={values.paymentTerms}
-  onChange={(e) => {
-    handleChange(e);
-
-    const terms = e.target.value;
-    const dueDate = calculateDueDate(values.blDate, terms);
-
-    setFieldValue("dueDate", dueDate);
-  }}
-  error={touched.paymentTerms && errors.paymentTerms}
-  showError={showError}
-  required
-  disabled={selectedExposureType === "shipment"}
-/> */}
-                  {/* <CustomInput
-  label="Due Date"
-  name="dueDate"
-  type="date"
-  value={values.dueDate}
-  error={touched.dueDate && errors.dueDate}
-  showError={showError}
-  required
-  disabled
-/> */}
                   <CustomInput
                     label="Currency"
                     type="select"

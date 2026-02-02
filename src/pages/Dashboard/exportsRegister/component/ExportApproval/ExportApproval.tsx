@@ -1,22 +1,21 @@
 import {
+  Badge,
   Box,
   Button,
   Spinner,
+  Tab,
   Table,
+  TabList,
+  Tabs,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
-  Text,
-  Badge,
   useDisclosure,
   useToast,
   VStack,
-  Tab,
-  TabList,
-  Tabs,
-//   Divider,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { useApprovalApi } from "../../../../../config/component/customHooks/useApprovalApi";
@@ -133,6 +132,9 @@ const [approvalData, setApprovalData] = useState<{
 });
 
 const [activeTab, setActiveTab] = useState<ApprovalStatus>("pending");
+  // const {
+  //   auth: { user  },
+  // } = store;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();

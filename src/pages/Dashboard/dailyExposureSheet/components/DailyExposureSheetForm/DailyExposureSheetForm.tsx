@@ -20,6 +20,7 @@ import ConversionTypeSelector from "./component/ConversionTypeSelector";
 import EEFCExportsSection from "./component/EEFCExportsSection";
 import EEFCImportsSection from "./component/EEFCImportsSection";
 import ExposureAutoPopulateWatcher from "./component/ExposureAutoPopulateWatcher";
+import ExposureSettlementAutoCalculator from "./component/ExposureSettlementAutoCalculator";
 import ExposureSettlementController from "./component/ExposureSettlementController";
 import ForwardContractSection from "./component/ForwardContractSection";
 import PCFCRepaymentSection from "./component/PCFCRepaymentSection";
@@ -65,7 +66,27 @@ const toast = useToast();
         return isSpotEnabled || isForwardEnabled || isEEFCExportsEnabled || isEEFCImportsEnabled || isPCFCEnabled;
       }
     ),
+
+    settlementAmount: Yup.number()
+  .typeError("Settlement Amount is required")
+  .required("Settlement Amount is required")
+  .test(
+    "match-settled-amount",
+    "Settlement Amount must match the calculated Settled Amount",
+    function (value) {
+      const { settledAmount } = this.parent;
+
+      if (value === undefined || value === null || settledAmount === "") {
+        return true; // let required/type errors handle this
+      }
+
+      return Number(value) === Number(settledAmount);
+    }
+  ),
+
 })
+
+
 
   return (
     <Box bg="whiteAlpha.700">
@@ -85,6 +106,7 @@ const toast = useToast();
             bank: "",
             currency: "",
             settledAmount: "",
+            settlementAmount: "",
 
             // === TOGGLES ===
          isSpotEnabled: false,
@@ -269,6 +291,21 @@ const toast = useToast();
   value={values.dueDate}
   disabled
 />
+
+
+<CustomInput
+  label="Settlement Amount"
+  name="settlementAmount"
+  required
+  placeholder="Enter Amount To Settle"
+  value={values.settlementAmount}
+  onChange={handleChange}
+  error={touched.settlementAmount && errors.settlementAmount}
+  showError={showError}
+/>
+
+<ExposureSettlementAutoCalculator />
+
                 </SimpleGrid>
               <ConversionTypeSelector
         values={values}
