@@ -12,6 +12,8 @@ import DailyExposureSheet from "../../pages/Dashboard/dailyExposureSheet/page";
 import MTMTable from "../../pages/Dashboard/mtm/component/MTMTable/MTMTable";
 import EEFCRegister from "../../pages/Dashboard/eefcRegister/EEFCRegister";
 import Rp from "../../pages/Dashboard/rp/Rp";
+import Approvals from "../../pages/Dashboard/Approvals/Approvals";
+import ExportApprovals from "../../pages/Dashboard/exportsRegister/component/ExportApproval/ExportApproval";
 
 const VerifyInvitationPage = lazy(() => import("../component/common/VerifyInvitationPages/VerifyInvitationPage"))
 
@@ -187,6 +189,11 @@ export const DashboardRoutes = [
     privateRoutes: true,
   },
   {
+    element: <ExportApprovals />,
+    path: dashboard.exportApproval,
+    privateRoutes: true,
+  },
+  {
     element: <MTMTable />,
     path: dashboard.mtm,
     privateRoutes: true,
@@ -229,6 +236,11 @@ export const DashboardRoutes = [
   {
     element : <AdminIndex />,
     path : dashboard.superAdminTab,
+    privateRoutes : true
+  },
+  {
+    element : <Approvals />,
+    path : dashboard.approvals,
     privateRoutes : true
   },
   {

@@ -25,8 +25,9 @@ import {
   exportRegisterexposureTypeOptions,
 } from "./utils/constant";
 import { normalizeDate } from "./utils/function";
+import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 
-const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
+const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) => {
   const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [_, setSubmitAttempted] = useState(false);
@@ -35,6 +36,10 @@ const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
   const [selectedExposureType, setSelectedExposureType] = useState<string>("");
   const toast = useToast();
   const isEdit = Boolean(editData);
+
+  const { storeEdited, editLoading  } = useStoreEdited();
+
+  
 
   const validationSchema = Yup.object({
     invoiceNo: Yup.string().when("exposureType", {
@@ -247,22 +252,57 @@ const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
           // }}
           validationSchema={validationSchema}
           enableReinitialize={true}
-              onSubmit={(values, actions) => {
-            if (isEdit) {
-              submitExportForm(
-                {
-                  original: originalData,
-                  updated: values,
-                  rowId: editData?.rowId,
-                },
-                actions,
-                isEdit ? "edit" : "form",
-              );
-            } else {
-              setShowError(true);
-              submitExportForm(values, actions, "form");
-            }
-          }}
+          //     onSubmit={(values, actions) => {
+          //   if (isEdit) {
+          //     submitExportForm(
+          //       {
+          //         original: originalData,
+          //         updated: values,
+          //         rowId: editData?.rowId,
+          //       },  
+          //       actions,
+          //       isEdit ? "edit" : "form",
+          //     );
+          //   } else {
+          //     setShowError(true);
+          //     submitExportForm(values, actions, "form");
+          //   }
+          // }}
+          onSubmit={async (values, actions) => {
+  if (isEdit) {
+    const payload = {
+      register: "export",
+      data: [
+        {
+          original: originalData,
+          updated: values,
+          rowId: editData?.rowId,
+        },
+      ],
+    
+    };
+
+    try {
+      await storeEdited(payload,onClose);
+
+      actions.resetForm();
+      actions.setSubmitting(false);
+
+      // optional
+      // onClose();
+      // refetchTableData();
+    } catch (error) {
+      actions.setSubmitting(false);
+    }
+
+    return;
+  }
+
+  // CREATE MODE (existing logic)
+  setShowError(true);
+  submitExportForm(values, actions, "form");
+}}
+
 //           onSubmit={(values, actions) => {
 //   submitExportForm(
 //     {
@@ -684,7 +724,7 @@ const ExposureForm = ({ submitExportForm,editData ,originalData}: any) => {
                     transition={"transform 0.3s ease-in-out"}
                     onClick={() => handleFormSubmit(handleSubmit, errors)}
                     size="lg"
-                    isLoading={isSubmitting}
+                    isLoading={isSubmitting || editLoading}
                   >
                     Submit
                   </Button>

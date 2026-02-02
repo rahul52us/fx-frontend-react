@@ -32,7 +32,9 @@ export const dashboard = {
   verifyInvitation : `/${dashboardName}/:invitationType/verify-invitation/:token`,
   superAdminTab: `/${dashboardName}/admin`,
   adminTab:`/${dashboardName}/users`,
-
+  approvals:`/${dashboardName}/approvals`,
+  
+  exportApproval: `/${dashboardName}/export-register/approvals`,
   // Profile
 
   links : {

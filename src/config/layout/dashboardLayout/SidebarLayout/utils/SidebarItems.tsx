@@ -47,6 +47,13 @@ const sidebarDatas: SidebarItem[] = [
         url: dashboard.exportRegister,
         role: ["user", "manager", "admin", "superadmin"],
       },
+      {
+        id: 201,
+        name: "Export Approval",
+        icon: <CalendarIcon />,
+        url: dashboard.exportApproval,
+        role: ["user", "manager", "admin", "superadmin"],
+      },
     ],
   },
 
@@ -285,6 +292,13 @@ const sidebarDatas: SidebarItem[] = [
         name: "Index / Overview",
         icon: <CalendarIcon />,
         url: dashboard.adminTab,
+        role: ["admin", "superadmin"],
+      },
+      {
+        id: 1201,
+        name: "Approvals",
+        icon: <CalendarIcon />,
+        url: dashboard.approvals,
         role: ["admin", "superadmin"],
       },
     ],

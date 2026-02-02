@@ -249,9 +249,10 @@ const [formKey, setFormKey] = useState(0);
           <DrawerBody>
           <ExposureForm
     submitExportForm={submitExportForm}
-   key={formKey}          
+   key={formKey}
     editData={editRow}
     originalData={originalRow}
+    onClose={onClose}
 />
           </DrawerBody>
         </DrawerContent>
