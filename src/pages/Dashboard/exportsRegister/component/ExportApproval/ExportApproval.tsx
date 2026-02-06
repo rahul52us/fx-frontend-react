@@ -152,7 +152,7 @@ const [activeTab, setActiveTab] = useState<ApprovalStatus>("pending");
 
 const loadData = async () => {
   const res = await getApprovals({
-    register: "export",
+    // register: "export",
     userId: "379e8658-7450-4ff6-a24d-580bb38393ad",
   });
 

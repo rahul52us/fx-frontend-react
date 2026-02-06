@@ -21,11 +21,14 @@ import { currencyOptions } from "../../exportsRegister/component/utils/constant"
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
 import { normalizeDate } from "../../exportsRegister/component/utils/function";
+import { pickMatchedFields } from "../../utils/function";
+import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 
 const ImportRegistrationForm = ({
   submitImportForm,
   editData,
   originalData,
+  onClose,
 }: any) => {
   const [showError, setShowError] = useState(false);
   const [poData, setPoData] = useState<any[]>([]);
@@ -34,6 +37,8 @@ const ImportRegistrationForm = ({
   const url = process.env.REACT_APP_FX_BASE_URL;
   const [selectedExposureType, setSelectedExposureType] = useState<string>("");
   const isEdit = Boolean(editData);
+
+   const { storeEdited, editLoading  } = useStoreEdited();
   const fetchPoDetails = async () => {
     setLoading(true);
     try {
@@ -145,7 +150,6 @@ const ImportRegistrationForm = ({
             exposureType: editData?.exposureType || "",
             poNo: editData?.poNo || "",
             poDate: normalizeDate(editData?.poDate),
-
             invoiceDate: normalizeDate(editData?.invoiceDate),
             blDate: normalizeDate(editData?.blDate),
             dueDate: normalizeDate(editData?.dueDate),
@@ -162,18 +166,35 @@ const ImportRegistrationForm = ({
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={(values, actions) => {
+          onSubmit={async(values, actions) => {
             if (isEdit) {
-              submitImportForm(
-                {
-                  original: originalData,
-                  updated: values,
-                  rowId: editData?.rowId,
-                },
-                actions,
-                isEdit ? "edit" : "form",
-              );
-            } else {
+               const { original, updated } = pickMatchedFields(
+                 originalData,
+                 values,
+                 editData?.rowId
+               );
+           
+               const payload = {
+                 register: "import",
+                 data: [
+                   {
+                     original,
+                     updated,
+                     rowId: editData?.rowId, // optional if backend still expects it here
+                   },
+                 ],
+               };
+           
+               try {
+                 await storeEdited(payload, onClose);
+                 actions.resetForm();
+                 actions.setSubmitting(false);
+               } catch (error) {
+                 actions.setSubmitting(false);
+               }
+           
+               return;
+             } {
               setShowError(true);
               submitImportForm(values, actions, "form");
             }
@@ -513,7 +534,7 @@ const ImportRegistrationForm = ({
                       transition={"transform 0.3s ease-in-out"}
                       onClick={() => handleFormSubmit(handleSubmit, errors)}
                       size="lg"
-                      isLoading={isSubmitting}
+                      isLoading={isSubmitting || editLoading}
                     >
                       Submit
                     </Button>

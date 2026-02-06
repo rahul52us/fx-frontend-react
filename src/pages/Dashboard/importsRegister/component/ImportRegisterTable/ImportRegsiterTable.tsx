@@ -260,7 +260,8 @@ const ImportRegisterTableColumns = [
           <DrawerBody>
             <ImportRegistrationForm
               submitImportForm={submitImportForm}
-                key={formKey}          
+                key={formKey}   
+                onClose={onClose}       
     // submitExportForm={submitExportForm}
     editData={editRow}
     originalData={originalRow}

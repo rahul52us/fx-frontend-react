@@ -26,6 +26,7 @@ import {
   exportRegisterexposureTypeOptions,
 } from "./utils/constant";
 import { normalizeDate } from "./utils/function";
+import { pickMatchedFields } from "../../utils/function";
 
 const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) => {
   const [showError, setShowError] = useState(false);
@@ -202,33 +203,6 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
     }
     handleSubmit();
   };
-
-//   const pickMatchedFields = (original: any, updated: any) => {
-//   return Object.keys(updated).reduce((acc: any, key) => {
-//     if (original?.hasOwnProperty(key)) {
-//       acc[key] = original[key];
-//     }
-//     return acc;
-//   }, {});
-// };
-
-const pickMatchedFields = (
-  original: any,
-  updated: any,
-  rowId: string
-) => {
-  const filteredOriginal = Object.keys(updated).reduce((acc: any, key) => {
-    if (original?.hasOwnProperty(key)) {
-      acc[key] = original[key];
-    }
-    return acc;
-  }, {});
-
-  return {
-    original: { ...filteredOriginal, rowId },
-    updated: { ...updated, rowId },
-  };
-};
 
   
   return (

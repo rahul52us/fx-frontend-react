@@ -24,6 +24,7 @@ import Userstore from "./userStore/userStore";
 import BookLiberary from "./BookLiberary/bookLiberary";
 import OrderStore from "./orderStore/orderStore";
 import WebTemplateStore from "./webTemplateStore/webTemplateStore";
+import ApprovalStore from "./approvalStore/approvalStore";
 
 configure({ enforceActions: "never" });
 
@@ -53,6 +54,8 @@ const store = {
   DepartmentStore: new DepartmentStore(),
   requestStore: new RequestStore(),
   AttendencePunch: new AttendencePunchStore(),
+
+  ApprovalStore: new ApprovalStore(),
 
   //
   WebTemplateStore: new WebTemplateStore()

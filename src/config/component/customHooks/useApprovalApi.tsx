@@ -11,7 +11,7 @@ export const useApprovalApi = () => {
  
 
   const getApprovals = async (payload: {
-    register: string;
+    // register: string;
     userId: string;
   }) => {
     try {

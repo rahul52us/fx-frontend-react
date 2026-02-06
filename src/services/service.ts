@@ -19,7 +19,7 @@ const api = axios.create({
    FETCH APPROVALS
 ========================= */
 export const fetchApprovals = async (payload: {
-  register: string;
+  // register: string;
   userId: string;
 }) => {
   const res = await api.post("/api/getedited/", payload);
