@@ -16,26 +16,35 @@ import ExposureForm from "../ExportsRegisterForm";
 import { dummyExportRegisterData } from "../utils/constant";
 import { exportToExcel, importFromExcel } from "../utils/function";
 import HedgeDealsDrawer from "./HedgeDealsDrawer";
+import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 
 const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-const [editRow, setEditRow] = useState<any | null>(null);
-const [originalRow, setOriginalRow] = useState<any | null>(null);
-const [formKey, setFormKey] = useState(0);
+  const [editRow, setEditRow] = useState<any | null>(null);
+  const [originalRow, setOriginalRow] = useState<any | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const { deleteItem } = useDeleteItem();
 
+  // Delete Confirmation State
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
+  const [deleteRowData, setDeleteRowData] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const url = process.env.REACT_APP_FX_BASE_URL;
 
   function handleEdit(row: any) {
-  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
-  setEditRow(row);
-  onOpen();
-}
-
+    setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+    setEditRow(row);
+    onOpen();
+  }
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -104,78 +113,101 @@ const [formKey, setFormKey] = useState(0);
   };
 
   const handleDrawerClose = () => {
-  setEditRow(null);
-  setOriginalRow(null);
-  setFormKey((prev) => prev + 1); // 🔥 force remount
-  onClose();
-};
-
+    setEditRow(null);
+    setOriginalRow(null);
+    setFormKey((prev) => prev + 1); // 🔥 force remount
+    onClose();
+  };
 
   useEffect(() => {
     fetchExportRegisterData();
   }, []);
-   const ExportRegisterTableColumns = [
-  { headerName: "Created On", key: "createdAt" },
-  { headerName: "Exposure Type", key: "exposureType" },
 
-  { headerName: "PO No", key: "poNo" },
-  { headerName: "PO Date", key: "poDate" },
+  /* ---------------- Delete Handlers ---------------- */
 
-  { headerName: "Party Name", key: "partyName" },
-  { headerName: "Bank", key: "bank" },
-  { headerName: "Business Unit", key: "businessUnit" },
+  const handleDeleteClick = (row: any) => {
+    setDeleteRowData(row);
+    onDeleteOpen();
+  };
 
-  { headerName: "Invoice No", key: "invoiceNo" },
-  { headerName: "Invoice Date", key: "invoiceDate" },
-  { headerName: "BL Date", key: "blDate" },
+  const onConfirmDelete = async () => {
+    if (!deleteRowData) return;
+    setDeleteLoading(true);
 
-  { headerName: "Payment Terms", key: "paymentTerms" },
-  { headerName: "Due Date", key: "dueDate" },
+    await deleteItem({
+      url: `${url}/delup/deleterow/`,
+      rowId: deleteRowData.rowId,
+      formType: "exportRegister",
+      refetch: fetchExportRegisterData,
+    });
 
-  { headerName: "Currency", key: "currency" },
-  { headerName: "Amount", key: "amount" },
-  { headerName: "INR Amount", key: "inrAmount" },
+    setDeleteLoading(false);
+    onDeleteClose();
+    setDeleteRowData(null);
+  };
 
-  { headerName: "Outstanding Amount", key: "outstandingAmount" },
-  { headerName: "Outstanding INR", key: "outstandingAmountInINR" },
+  const ExportRegisterTableColumns = [
+    { headerName: "Created On", key: "createdAt" },
+    { headerName: "Exposure Type", key: "exposureType" },
 
-  { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
-  { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
-  { headerName: "BMK Rate", key: "bmkRate" },
-  { headerName: "RM Policy Rate", key: "rmPolicyRate" },
+    { headerName: "PO No", key: "poNo" },
+    { headerName: "PO Date", key: "poDate" },
 
-  { headerName: "Invoice Raised", key: "invoiceRaised" },
-  { headerName: "Advance Payment", key: "advancePayment" },
-  { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
+    { headerName: "Party Name", key: "partyName" },
+    { headerName: "Bank", key: "bank" },
+    { headerName: "Business Unit", key: "businessUnit" },
 
-  { headerName: "Amount Settled", key: "amountSettled" },
-  { headerName: "Settlement Rate", key: "settlementRate" },
-  { headerName: "Settlement Rate 1", key: "settlementRate1" },
+    { headerName: "Invoice No", key: "invoiceNo" },
+    { headerName: "Invoice Date", key: "invoiceDate" },
+    { headerName: "BL Date", key: "blDate" },
 
-  { headerName: "P/L in INR", key: "PlInINR" },
+    { headerName: "Payment Terms", key: "paymentTerms" },
+    { headerName: "Due Date", key: "dueDate" },
 
-  { headerName: "Advance Allotment", key: "advaceAllotment" },
-  { headerName: "Advance Rate", key: "advanceRate" },
-  { headerName: "Invoice Settlement", key: "invoiceSettlement" },
+    { headerName: "Currency", key: "currency" },
+    { headerName: "Amount", key: "amount" },
+    { headerName: "INR Amount", key: "inrAmount" },
 
-  { headerName: "Remark", key: "remark" },
- {
-  headerName: "Hedge Deals",
-  key: "hedgeDeals",
-  type: "component",
-  metaData: {
-    component: (row:any) => <HedgeDealsDrawer {...row} />,
-  },
-},
-  {
-    headerName: "Actions",
-    key: "table-actions",
-    type: "table-actions",
-    props: {
-      row: { minW: 180, textAlign: "center" },
+    { headerName: "Outstanding Amount", key: "outstandingAmount" },
+    { headerName: "Outstanding INR", key: "outstandingAmountInINR" },
+
+    { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
+    { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
+    { headerName: "BMK Rate", key: "bmkRate" },
+    { headerName: "RM Policy Rate", key: "rmPolicyRate" },
+
+    { headerName: "Invoice Raised", key: "invoiceRaised" },
+    { headerName: "Advance Payment", key: "advancePayment" },
+    { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
+
+    { headerName: "Amount Settled", key: "amountSettled" },
+    { headerName: "Settlement Rate", key: "settlementRate" },
+    { headerName: "Settlement Rate 1", key: "settlementRate1" },
+
+    { headerName: "P/L in INR", key: "PlInINR" },
+
+    { headerName: "Advance Allotment", key: "advaceAllotment" },
+    { headerName: "Advance Rate", key: "advanceRate" },
+    { headerName: "Invoice Settlement", key: "invoiceSettlement" },
+
+    { headerName: "Remark", key: "remark" },
+    {
+      headerName: "Hedge Deals",
+      key: "hedgeDeals",
+      type: "component",
+      metaData: {
+        component: (row: any) => <HedgeDealsDrawer {...row} />,
+      },
     },
-  },
-];
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+      },
+    },
+  ];
 
   return (
     <>
@@ -218,7 +250,7 @@ const [formKey, setFormKey] = useState(0);
               showAddButton: true,
               function: onOpen,
             },
-            editKey:{
+            editKey: {
               showEditButton: true,
               function: (row: any) => {
                 handleEdit(row);
@@ -228,35 +260,43 @@ const [formKey, setFormKey] = useState(0);
 
             deleteKey: {
               showDeleteButton: true,
-              function: (row: any) =>
-                deleteItem({
-                  url: `${url}/delup/deleterow/`,
-                  rowId: row.rowId,
-                  formType: "exportRegister",
-                  refetch: fetchExportRegisterData,
-                }),
+              function: handleDeleteClick,
             },
           },
         }}
       />
 
       {/* ---------- Drawer ---------- */}
-      <Drawer  isOpen={isOpen} placement="right" onClose={handleDrawerClose} size="xl">
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={handleDrawerClose}
+        size="xl"
+      >
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>Add Export Entry</DrawerHeader>
           <DrawerBody>
-          <ExposureForm
-    submitExportForm={submitExportForm}
-   key={formKey}
-    editData={editRow}
-    originalData={originalRow}
-    onClose={onClose}
-/>
+            <ExposureForm
+              submitExportForm={submitExportForm}
+              key={formKey}
+              editData={editRow}
+              originalData={originalRow}
+              onClose={onClose}
+            />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={onConfirmDelete}
+        title="Delete Entry"
+        description="Are you sure? You can't undo this action afterwards."
+        isLoading={deleteLoading}
+      />
     </>
   );
 };

@@ -9,7 +9,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import { exposureSettlementReport } from "../../../exportsRegister/component/utils/constant";
@@ -18,11 +18,22 @@ import {
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
 import ExposureSettlementForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
+import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 
 const DailyExposureTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Delete Confirmation State
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose
+  } = useDisclosure();
+  const [deleteRowData, setDeleteRowData] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
@@ -118,6 +129,29 @@ const DailyExposureTable = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* ---------------- Delete Handlers ---------------- */
+
+  const handleDeleteClick = (row: any) => {
+    setDeleteRowData(row);
+    onDeleteOpen();
+  };
+
+  const onConfirmDelete = async () => {
+    if (!deleteRowData) return;
+    setDeleteLoading(true);
+
+    await deleteItem({
+      url: `${url}/delup/deleterow/`,
+      rowId: deleteRowData.rowId,
+      formType: "exposureSettlementReport",
+      refetch: fetchExportRegisterData,
+    });
+
+    setDeleteLoading(false);
+    onDeleteClose();
+    setDeleteRowData(null);
+  };
+
 //   const DailyExposureColumns = [
 //   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
 //   { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
@@ -198,8 +232,6 @@ const DailyExposureColumns = [
   },
 ];
 
-
-
   return (
     <>
       <CustomTable
@@ -242,13 +274,7 @@ const DailyExposureColumns = [
             editKey: { showEditButton: false },
             deleteKey: {
               showDeleteButton: true,
-              function: (row: any) =>
-                deleteItem({
-                  url: `${url}/delup/deleterow/`,
-                  rowId: row.rowId,
-                  formType: "exposureSettlementReport",
-                  refetch: fetchExportRegisterData,
-                }),
+              function: handleDeleteClick,
             },
           },
         }}
@@ -267,6 +293,16 @@ const DailyExposureColumns = [
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+      {/* Delete Confirmation Alert */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={onConfirmDelete}
+        title="Delete Entry"
+        description="Are you sure? You can't undo this action afterwards."
+        isLoading={deleteLoading}
+      />
     </>
   );
 };

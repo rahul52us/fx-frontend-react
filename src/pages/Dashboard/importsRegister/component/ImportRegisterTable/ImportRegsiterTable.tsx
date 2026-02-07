@@ -7,12 +7,13 @@ import {
   DrawerHeader,
   DrawerOverlay,
   useDisclosure,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
@@ -26,19 +27,28 @@ const ImportRegisterTable = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editRow, setEditRow] = useState<any | null>(null);
-const [originalRow, setOriginalRow] = useState<any | null>(null);
-const [formKey, setFormKey] = useState(0);
+  const [originalRow, setOriginalRow] = useState<any | null>(null);
+  const [formKey, setFormKey] = useState(0);
   const toast = useToast();
-  const url = process.env.REACT_APP_FX_BASE_URL
+  const url = process.env.REACT_APP_FX_BASE_URL;
   // const url = "https://7b0fa03efa8d.ngrok-free.app"
   const { deleteItem } = useDeleteItem();
 
-   const handleDrawerClose = () => {
-  setEditRow(null);
-  setOriginalRow(null);
-  setFormKey((prev) => prev + 1); // 🔥 force remount
-  onClose();
-};
+  // Delete Confirmation State
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
+  const [deleteRowData, setDeleteRowData] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleDrawerClose = () => {
+    setEditRow(null);
+    setOriginalRow(null);
+    setFormKey((prev) => prev + 1); // 🔥 force remount
+    onClose();
+  };
 
   const submitImportForm = async (values: any, actions: any, type: string) => {
     // console.log('values',values)
@@ -50,7 +60,7 @@ const [formKey, setFormKey] = useState(0);
       };
       const response = await axios.post(
         // "http://srv864630.hstgr.cloud:8000/importregister/form/",
-         `${url}/importregister/form/`,
+        `${url}/importregister/form/`,
 
         payload
       );
@@ -99,7 +109,7 @@ const [formKey, setFormKey] = useState(0);
     setLoading(true);
     try {
       const response = await axios.post(
-          `${url}/importregister/view/`,
+        `${url}/importregister/view/`,
         { userToken: "abcdxyz" }
       );
       const result = response.data?.data?.data || [];
@@ -119,51 +129,58 @@ const [formKey, setFormKey] = useState(0);
     fetchImportRegisterData();
   }, []);
 
-  
-const ImportRegisterTableColumns = [
-  { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
-  { headerName: "Created On", key: "createdAt" },
-  { headerName: "Exposure Type", key: "exposureType", type:"formattedString"  },
-  { headerName: "Exposure Date", key: "exposureInputDate" },
-  { headerName: "Exposure Modification Date", key: "exposureModificationDate" },
-  { headerName: "PO Date", key: "poDate" },
-  { headerName: "PO No", key: "poNo" },
-  { headerName: "Invoice No", key: "invoiceNo" },
-  { headerName: "Invoice Date", key: "invoiceDate" },
-  { headerName: "Party Name", key: "partyName" },
-  { headerName: "Bank", key: "bank" },
-  { headerName: "Business Unit", key: "businessUnit" },
-  { headerName: "BL Date", key: "blDate" },
-  { headerName: "Payment Terms", key: "paymentTerms" },
-  { headerName: "Due Date", key: "dueDate" },
-  { headerName: "Currency", key: "currency" },
-  { headerName: "Amount", key: "amount" },
-  { headerName: "Budget Rate", key: "budgetRate" },
-  { headerName: "Hedge Deal Ref No", key: "hedgeDealRefNo" },
-  { headerName: "Hedged Amount", key: "hedgedAmount" },
-  { headerName: "Hedged Rate", key: "hedgedRate" },
-  { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
-  { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
-  { headerName: "BMK Rate", key: "bmkRate" },
-  { headerName: "RM Policy Rate", key: "rmPolicyRate" },
-  { headerName: "Outstanding Amount", key: "outstandingAmount" },
-  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
-  { headerName: "Advance Payment", key: "advancePayment" },
-  { headerName: "LC/BC Raised", key: "lc_bc_raised" },
-  { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
-  { headerName: "Amount Settled", key: "amountSettled" },
-  { headerName: "Settlement Rate", key: "settlementRate" },
-  { headerName: "P/L in INR", key: "PlInINR" },
-  { headerName: "Value in INR", key: "valueInInr" },
-  {
-    headerName: "Hedge Deals",
-    key: "hedgeDeals",
-    type: "component",
-    metaData: {
-      component: (row:any) => <HedgeDealsCell {...row} />,
+  const ImportRegisterTableColumns = [
+    {
+      headerName: "S.No.",
+      key: "sno",
+      props: { row: { textAlign: "center" } },
     },
-  },
-  {
+    { headerName: "Created On", key: "createdAt" },
+    {
+      headerName: "Exposure Type",
+      key: "exposureType",
+      type: "formattedString",
+    },
+    { headerName: "Exposure Date", key: "exposureInputDate" },
+    { headerName: "Exposure Modification Date", key: "exposureModificationDate" },
+    { headerName: "PO Date", key: "poDate" },
+    { headerName: "PO No", key: "poNo" },
+    { headerName: "Invoice No", key: "invoiceNo" },
+    { headerName: "Invoice Date", key: "invoiceDate" },
+    { headerName: "Party Name", key: "partyName" },
+    { headerName: "Bank", key: "bank" },
+    { headerName: "Business Unit", key: "businessUnit" },
+    { headerName: "BL Date", key: "blDate" },
+    { headerName: "Payment Terms", key: "paymentTerms" },
+    { headerName: "Due Date", key: "dueDate" },
+    { headerName: "Currency", key: "currency" },
+    { headerName: "Amount", key: "amount" },
+    { headerName: "Budget Rate", key: "budgetRate" },
+    { headerName: "Hedge Deal Ref No", key: "hedgeDealRefNo" },
+    { headerName: "Hedged Amount", key: "hedgedAmount" },
+    { headerName: "Hedged Rate", key: "hedgedRate" },
+    { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
+    { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
+    { headerName: "BMK Rate", key: "bmkRate" },
+    { headerName: "RM Policy Rate", key: "rmPolicyRate" },
+    { headerName: "Outstanding Amount", key: "outstandingAmount" },
+    { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+    { headerName: "Advance Payment", key: "advancePayment" },
+    { headerName: "LC/BC Raised", key: "lc_bc_raised" },
+    { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
+    { headerName: "Amount Settled", key: "amountSettled" },
+    { headerName: "Settlement Rate", key: "settlementRate" },
+    { headerName: "P/L in INR", key: "PlInINR" },
+    { headerName: "Value in INR", key: "valueInInr" },
+    {
+      headerName: "Hedge Deals",
+      key: "hedgeDeals",
+      type: "component",
+      metaData: {
+        component: (row: any) => <HedgeDealsCell {...row} />,
+      },
+    },
+    {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -172,13 +189,13 @@ const ImportRegisterTableColumns = [
         column: { textAlign: "center" },
       },
     },
-];
+  ];
 
   function handleEdit(row: any) {
-  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
-  setEditRow(row);
-  onOpen();
-}
+    setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+    setEditRow(row);
+    onOpen();
+  }
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -191,6 +208,29 @@ const ImportRegisterTableColumns = [
     } catch (err) {
       console.error("Excel import failed", err);
     }
+  };
+
+  /* ---------------- Delete Handlers ---------------- */
+
+  const handleDeleteClick = (row: any) => {
+    setDeleteRowData(row);
+    onDeleteOpen();
+  };
+
+  const onConfirmDelete = async () => {
+    if (!deleteRowData) return;
+    setDeleteLoading(true);
+
+    await deleteItem({
+      url: `${url}/delup/deleterow/`,
+      rowId: deleteRowData.rowId,
+      formType: "importRegister", // Ensure correct formType
+      refetch: fetchImportRegisterData,
+    });
+
+    setDeleteLoading(false);
+    onDeleteClose();
+    setDeleteRowData(null);
   };
 
   return (
@@ -231,28 +271,27 @@ const ImportRegisterTableColumns = [
               showAddButton: true,
               function: onOpen,
             },
-           editKey:{
+            editKey: {
               showEditButton: true,
               function: (row: any) => {
                 handleEdit(row);
               },
             },
-          deleteKey: {
+            deleteKey: {
               showDeleteButton: true,
-              function: (row: any) =>
-                deleteItem({
-                  url: `${url}/delup/deleterow/`,
-                  rowId: row.rowId,
-                  formType: "importRegister",
-                  refetch: fetchImportRegisterData,
-                }),
+              function: handleDeleteClick,
             },
           },
         }}
         loading={loading}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={handleDrawerClose} size="xl">
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={handleDrawerClose}
+        size="xl"
+      >
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
@@ -260,16 +299,25 @@ const ImportRegisterTableColumns = [
           <DrawerBody>
             <ImportRegistrationForm
               submitImportForm={submitImportForm}
-                key={formKey}   
-                onClose={onClose}       
-    // submitExportForm={submitExportForm}
-    editData={editRow}
-    originalData={originalRow}
-/>
+              key={formKey}
+              onClose={onClose}
+              // submitExportForm={submitExportForm}
+              editData={editRow}
+              originalData={originalRow}
+            />
             {/* /> */}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={onConfirmDelete}
+        title="Delete Entry"
+        description="Are you sure? You can't undo this action afterwards."
+        isLoading={deleteLoading}
+      />
     </>
   );
 };

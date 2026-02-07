@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, startTransition } from 'react';
+import { useEffect, useRef, startTransition, Suspense } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Box,
@@ -165,7 +165,15 @@ const DashboardLayout = observer(() => {
             fullScreenMode={fullScreenMode}
             sizeStatus={sizeStatus}
           >
-            <Outlet />
+            <Suspense
+              fallback={
+                <PageLoader loading>
+                  <Spinner />
+                </PageLoader>
+              }
+            >
+              <Outlet />
+            </Suspense>
           </ContentContainer>
         </Container>
       </MainContainer>

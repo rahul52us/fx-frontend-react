@@ -12,6 +12,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import { dummyForwardRegisterData } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
@@ -23,13 +24,23 @@ import ExposureRefsCell from "./ExposureRefsCell";
 const ForwardRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-    const [editRow, setEditRow] = useState<any | null>(null);
-const [originalRow, setOriginalRow] = useState<any | null>(null);
-const [formKey, setFormKey] = useState(0);
+  const [editRow, setEditRow] = useState<any | null>(null);
+  const [originalRow, setOriginalRow] = useState<any | null>(null);
+  const [formKey, setFormKey] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
-  const url = process.env.REACT_APP_FX_BASE_URL
-  const {deleteItem} = useDeleteItem()
+  const url = process.env.REACT_APP_FX_BASE_URL;
+  const { deleteItem } = useDeleteItem();
+
+  // Delete Confirmation State
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
+  const [deleteRowData, setDeleteRowData] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
       // let payload = type === "excel" ? values : [values];
@@ -39,7 +50,7 @@ const [formKey, setFormKey] = useState(0);
       };
       const response = await axios.post(
         // "http://srv864630.hstgr.cloud:8000/forwardregister/form/",
-         `${url}/forwardregister/form/`,
+        `${url}/forwardregister/form/`,
         payload
       );
 
@@ -101,7 +112,7 @@ const [formKey, setFormKey] = useState(0);
     try {
       const response = await axios.post(
         // "http://srv864630.hstgr.cloud:8000/forwardregister/view/",
-          `${url}/forwardregister/view/`,
+        `${url}/forwardregister/view/`,
         { userToken: "abcxyz" }
       );
       const result = response.data?.data?.data || [];
@@ -118,116 +129,97 @@ const [formKey, setFormKey] = useState(0);
   };
 
   function handleEdit(row: any) {
-  setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
-  setEditRow(row);
-  onOpen();
-}
+    setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+    setEditRow(row);
+    onOpen();
+  }
 
   const handleDrawerClose = () => {
-  setEditRow(null);
-  setOriginalRow(null);
-  setFormKey((prev) => prev + 1); // 🔥 force remount
-  onClose();
-};
+    setEditRow(null);
+    setOriginalRow(null);
+    setFormKey((prev) => prev + 1); // 🔥 force remount
+    onClose();
+  };
 
   useEffect(() => {
     fetchExportRegisterData();
   }, []);
 
-//   const ForwardRegisterColumns = [
-//   { headerName: "Created On", key: "createdAt" },
-//   { headerName: "Booking Date", key: "bookingDate" },
-//   { headerName: "Exposure Type", key: "exposureType" },
-//   { headerName: "Forward Input Date", key: "forwardInputDate" },
-//   { headerName: "Forward Modification Date", key: "forwardModificationDate" },
-//   { headerName: "Bank", key: "bank" },
-//   { headerName: "Business Unit", key: "bussinessUnit" },
-//   { headerName: "Exposure Ref Number", key: "exposureRefNumber" },
-//   { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
-//   { headerName: "Currency", key: "currency" },
-//   { headerName: "Hedge Amount", key: "hedgeAmount" },
-//   { headerName: "Spot Booked", key: "spotBooked" },
-//   { headerName: "Forward Points", key: "forwardPoints" },
-//   { headerName: "Bank Margin", key: "bankMargin" },
-//   { headerName: "Hedge Rate", key: "hedgeRate" },
-//   { headerName: "Delivery Date From", key: "dueDateFrom" },
-//   { headerName: "Delivery Date To", key: "dueDateTo" },
-//   { headerName: "Outstanding Amount", key: "outstandingAmount" },
-//   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
-//   { headerName: "Status", key: "status" },
-//   { headerName: "Settled Amount", key: "settledAmount" },
-//   { headerName: "Settlement Rate", key: "settlementdRate" },
-//   { headerName: "Cancelled Amount", key: "cancelledAmount" },
-//   { headerName: "Cancellation Rate", key: "cancellationRate" },
-//   { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
-//   { headerName: "Allocated Amount", key: "allocatedAmount" },
-//   { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
-//     {
-//       headerName: "Actions",
-//       key: "table-actions",
-//       type: "table-actions",
-//       props: {
-//         // isSticky: true,
-//         row: { minW: 180, textAlign: "center" },
-//         column: { textAlign: "center" },
-//       },
-//     },
-// ];
+  /* ---------------- Delete Handlers ---------------- */
 
+  const handleDeleteClick = (row: any) => {
+    setDeleteRowData(row);
+    onDeleteOpen();
+  };
 
- const ForwardRegisterColumns = [
-  { headerName: "Created On", key: "createdAt" },
-  { headerName: "Booking Date", key: "bookingDate" },
-  { headerName: "Exposure Type", key: "exposureType" },
-  { headerName: "Forward Input Date", key: "forwardInputDate" },
-  { headerName: "Forward Modification Date", key: "forwardModificationDate" },
+  const onConfirmDelete = async () => {
+    if (!deleteRowData) return;
+    setDeleteLoading(true);
 
-  { headerName: "Bank", key: "bank" },
-  { headerName: "Business Unit", key: "bussinessUnit" },
+    await deleteItem({
+      url: `${url}/delup/deleterow/`,
+      rowId: deleteRowData.rowId,
+      formType: "forwardRegister",
+      refetch: fetchExportRegisterData,
+    });
 
-  {
-    headerName: "Exposure Ref(s)",
-    key: "exposureRefs",
-    type: "component",
-    metaData: {
-      component: (row:any) => <ExposureRefsCell {...row} />,
+    setDeleteLoading(false);
+    onDeleteClose();
+    setDeleteRowData(null);
+  };
+
+  const ForwardRegisterColumns = [
+    { headerName: "Created On", key: "createdAt" },
+    { headerName: "Booking Date", key: "bookingDate" },
+    { headerName: "Exposure Type", key: "exposureType" },
+    { headerName: "Forward Input Date", key: "forwardInputDate" },
+    { headerName: "Forward Modification Date", key: "forwardModificationDate" },
+
+    { headerName: "Bank", key: "bank" },
+    { headerName: "Business Unit", key: "bussinessUnit" },
+
+    {
+      headerName: "Exposure Ref(s)",
+      key: "exposureRefs",
+      type: "component",
+      metaData: {
+        component: (row: any) => <ExposureRefsCell {...row} />,
+      },
     },
-  },
 
-  { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
-  { headerName: "Currency", key: "currency" },
-  { headerName: "Hedge Amount", key: "hedgeAmount" },
-  { headerName: "Spot Booked", key: "spotBooked" },
-  { headerName: "Forward Points", key: "forwardPoints" },
-  { headerName: "Bank Margin", key: "bankMargin" },
-  { headerName: "Hedge Rate", key: "hedgeRate" },
-  { headerName: "Delivery Date From", key: "dueDateFrom" },
-  { headerName: "Delivery Date To", key: "dueDateTo" },
+    { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
+    { headerName: "Currency", key: "currency" },
+    { headerName: "Hedge Amount", key: "hedgeAmount" },
+    { headerName: "Spot Booked", key: "spotBooked" },
+    { headerName: "Forward Points", key: "forwardPoints" },
+    { headerName: "Bank Margin", key: "bankMargin" },
+    { headerName: "Hedge Rate", key: "hedgeRate" },
+    { headerName: "Delivery Date From", key: "dueDateFrom" },
+    { headerName: "Delivery Date To", key: "dueDateTo" },
 
-  { headerName: "Outstanding Amount", key: "outstandingAmount" },
-  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
-  { headerName: "Status", key: "status" },
+    { headerName: "Outstanding Amount", key: "outstandingAmount" },
+    { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+    { headerName: "Status", key: "status" },
 
-  { headerName: "Settled Amount", key: "settledAmount" },
-  { headerName: "Settlement Rate", key: "settlementdRate" },
-  { headerName: "Cancelled Amount", key: "cancelledAmount" },
-  { headerName: "Cancellation Rate", key: "cancellationRate" },
-  { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
+    { headerName: "Settled Amount", key: "settledAmount" },
+    { headerName: "Settlement Rate", key: "settlementdRate" },
+    { headerName: "Cancelled Amount", key: "cancelledAmount" },
+    { headerName: "Cancellation Rate", key: "cancellationRate" },
+    { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
 
-  { headerName: "Allocated Amount", key: "allocatedAmount" },
-  { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
+    { headerName: "Allocated Amount", key: "allocatedAmount" },
+    { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
 
-  {
-    headerName: "Actions",
-    key: "table-actions",
-    type: "table-actions",
-    props: {
-      row: { minW: 180, textAlign: "center" },
-      column: { textAlign: "center" },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
-  },
-];
-
+  ];
 
   return (
     <>
@@ -268,42 +260,50 @@ const [formKey, setFormKey] = useState(0);
               showAddButton: true,
               function: onOpen,
             },
-                editKey:{
+            editKey: {
               showEditButton: true,
               function: (row: any) => {
                 handleEdit(row);
               },
             },
-             deleteKey: {
+            deleteKey: {
               showDeleteButton: true,
-              function: (row: any) =>
-                deleteItem({
-                  url: `${url}/delup/deleterow/`,
-                  rowId: row.rowId,
-                  formType: "forwardRegister",
-                  refetch: fetchExportRegisterData,
-                }),
+              function: handleDeleteClick,
             },
           },
         }}
         loading={loading}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={handleDrawerClose} size="xl">
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={handleDrawerClose}
+        size="xl"
+      >
         <DrawerOverlay />
         <DrawerContent>
           <DrawerHeader>Forward Register</DrawerHeader>
           <DrawerCloseButton />
           <DrawerBody>
-            <ForwardRegisterForm submitForm={submitExportForm} 
-                 
-            key={formKey}          
-    editData={editRow}
-    originalData={originalRow}
+            <ForwardRegisterForm
+              submitForm={submitExportForm}
+              key={formKey}
+              editData={editRow}
+              originalData={originalRow}
             />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={onConfirmDelete}
+        title="Delete Entry"
+        description="Are you sure? You can't undo this action afterwards."
+        isLoading={deleteLoading}
+      />
     </>
   );
 };
