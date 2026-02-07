@@ -9,6 +9,8 @@ class ApprovalStore {
     pendingCount: 0,
     approvedCount: 0,
     rejectedCount: 0,
+    totalPages: 1,
+    currentPage: 1,
   };
 
   loading = false;
@@ -24,10 +26,10 @@ class ApprovalStore {
     });
   }
 
-  getEditedData = async (userId: string) => {
+  getEditedData = async ({ userId, status, page }: any) => {
     this.loading = true;
     try {
-      const { data } = await axios.post("/api/getedited/", { userId });
+      const { data } = await axios.post("/api/getedited/", { userId, status, page });
       if (data.status === "success") {
         runInAction(() => {
           this.approvalData = data.data;

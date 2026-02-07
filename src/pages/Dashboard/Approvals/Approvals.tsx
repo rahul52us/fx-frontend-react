@@ -45,7 +45,7 @@ const DataComparison = ({ original, updated, depth = 0 }:any) => {
 
         const oldVal = original?.[key];
         const newVal = updated?.[key];
-        
+
         // Check if value is an Array (e.g., hedgeDeals)
         if (Array.isArray(newVal) || Array.isArray(oldVal)) {
           const arr = newVal || oldVal;
@@ -58,10 +58,10 @@ const DataComparison = ({ original, updated, depth = 0 }:any) => {
                 <Box key={index} mb={3} pl={3} borderLeft="2px solid" borderColor="blue.200">
                   <Badge mb={1} colorScheme="blue">Item {index + 1}</Badge>
                   {/* Recursive call for array items */}
-                  <DataComparison 
-                    original={oldVal?.[index] || {}} 
-                    updated={item} 
-                    depth={depth + 1} 
+                  <DataComparison
+                    original={oldVal?.[index] || {}}
+                    updated={item}
+                    depth={depth + 1}
                   />
                 </Box>
               ))}
@@ -98,11 +98,11 @@ const DataComparison = ({ original, updated, depth = 0 }:any) => {
                 {key.replace(/([A-Z])/g, ' $1').trim()}
               </Text>
             </Box>
-            
+
             <Box>
-              <Text 
-                fontSize="sm" 
-                color={isModified ? "red.400" : "gray.600"} 
+              <Text
+                fontSize="sm"
+                color={isModified ? "red.400" : "gray.600"}
                 textDecoration={isModified ? "line-through" : "none"}
               >
                 {oldVal ?? <Text as="span" color="gray.300">N/A</Text>}
@@ -123,19 +123,33 @@ const DataComparison = ({ original, updated, depth = 0 }:any) => {
 
 const Approvals = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();  
+  const toast = useToast();
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const approvalStore = store.ApprovalStore;
   const {auth:{user}}=store;
   const currentUserId =  user.userId;
-
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState("pending");
+  const [totalPages, setTotalPages] = useState(1);
+  const [data, setData] = useState([]);
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page, status]);
 
   const fetchData = async () => {
-    await approvalStore.getEditedData(currentUserId);
+    try {
+      const response: any = await approvalStore.getEditedData({ userId: currentUserId, status, page });
+      console.log(response);
+      if (response?.status === "success") {
+        setData(response.data?.data || []);
+        if (response?.totalPages) {
+          setTotalPages(response.totalPages);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   const handleRowClick = (item: any) => {
@@ -180,65 +194,172 @@ const Approvals = () => {
   };
 
   // Reusable Table Component
-  const DataTable = ({ data }: { data: any[] }) => {
-    if (!data || data.length === 0) return <Box p={4} textAlign="center" color="gray.500">No data available</Box>;
-
+  const DataTable = ({ data, isLoading }: { data: any[], isLoading: boolean }) => {
     return (
-      <Table variant="simple" size="sm">
-        <Thead bg="gray.50">
-          <Tr>
-            <Th>Register</Th>
-            <Th>Party Name</Th>
-            <Th>Amount</Th>
-            <Th>Exposure</Th>
-            <Th>Action</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {data.map((item, idx) => {
-            const display = item.data.updated || item.data.original;
-            return (
-              <Tr key={idx} _hover={{ bg: "gray.50", cursor: "pointer" }} onClick={() => handleRowClick(item)}>
-                <Td textTransform={'capitalize'}>{item?.register}</Td>
-                <Td fontWeight="medium">{display.partyName}</Td>
-                <Td>{Number(display.amount).toLocaleString()} {display.currency}</Td>
-                <Td><Tag size="sm">{display.exposureType}</Tag></Td>
-                <Td><Button size="xs" colorScheme="teal" variant="outline">View</Button></Td>
+      <Box overflowX="auto" borderRadius="lg" border="1px solid" borderColor="gray.100">
+        <Table variant="simple" size="md">
+          <Thead bg="gray.50">
+            <Tr>
+              <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider">Register</Th>
+              <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider">Party Name</Th>
+              <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider" isNumeric>Amount</Th>
+              <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider">Exposure</Th>
+              <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider" textAlign="center">Action</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {isLoading ? (
+              <Tr>
+                <Td colSpan={5} textAlign="center" py={12}>
+                  <Box display="flex" flexDirection="column" alignItems="center">
+                    <Spinner size="lg" color="teal.500" thickness="3px" mb={3} />
+                    <Text color="gray.500" fontSize="sm" fontWeight="medium">Loading approval requests...</Text>
+                  </Box>
+                </Td>
               </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+            ) : data.length === 0 ? (
+              <Tr>
+                <Td colSpan={5} textAlign="center" py={12} color="gray.500">
+                  <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
+                     <Text fontSize="lg" fontWeight="bold" color="gray.300">No Data Found</Text>
+                     <Text fontSize="sm">There are no verification requests in this category.</Text>
+                  </Box>
+                </Td>
+              </Tr>
+            ) : (
+              data.map((item, idx) => {
+                const display = item.data.updated || item.data.original;
+                return (
+                  <Tr
+                    key={idx}
+                    _hover={{ bg: "blue.50", cursor: "pointer", transition: "all 0.2s" }}
+                    onClick={() => handleRowClick(item)}
+                    transition="all 0.2s"
+                  >
+                    <Td fontWeight="medium" color="gray.700" textTransform={'capitalize'}>
+                        <Badge colorScheme="purple" variant="subtle" px={2} py={0.5} borderRadius="md">
+                            {item?.register?.replace(/([A-Z])/g, ' $1').trim()}
+                        </Badge>
+                    </Td>
+                    <Td fontWeight="semibold" color="gray.700">{display.partyName || "N/A"}</Td>
+                    <Td fontWeight="bold" color="gray.800" isNumeric>
+                        {Number(display.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        <Text as="span" fontSize="xs" color="gray.500" ml={1}>{display.currency}</Text>
+                    </Td>
+                    <Td>
+                        <Tag size="sm" colorScheme={display.exposureType === 'Hedge' ? 'green' : 'blue'} variant="subtle">
+                            {display.exposureType || "Unknown"}
+                        </Tag>
+                    </Td>
+                    <Td textAlign="center">
+                        <Button size="xs" colorScheme="teal" variant="ghost" rightIcon={<Box as="span">➝</Box>}>
+                            View Details
+                        </Button>
+                    </Td>
+                  </Tr>
+                );
+              })
+            )}
+          </Tbody>
+        </Table>
+      </Box>
     );
+  };
+
+  const handleTabChange = (index: number) => {
+    setTabIndex(index);
+    setPage(1);
+    const statuses = ["pending", "approved", "rejected"];
+    setStatus(statuses[index]);
   };
 
   return (
     <Box p={6} bg="white" borderRadius="lg" shadow="sm">
       <Text fontSize="2xl" fontWeight="bold" mb={4}>Data Approvals</Text>
-      
-      {approvalStore.loading ? (
-        <Box display="flex" justifyContent="center" py={10}><Spinner /></Box>
-      ) : (
-        <Tabs onChange={(index) => setTabIndex(index)} colorScheme="teal">
-          <TabList>
-            <Tab>Pending <Badge ml={2} colorScheme="orange" borderRadius="full">{approvalStore.approvalData.pendingCount}</Badge></Tab>
-            <Tab>Approved <Badge ml={2} colorScheme="green" borderRadius="full">{approvalStore.approvalData.approvedCount}</Badge></Tab>
-            <Tab>Rejected <Badge ml={2} colorScheme="red" borderRadius="full">{approvalStore.approvalData.rejectedCount}</Badge></Tab>
-          </TabList>
 
-          <TabPanels>
-            <TabPanel p={0} pt={4}>
-              <DataTable data={approvalStore.approvalData.pending} />
-            </TabPanel>
-            <TabPanel p={0} pt={4}>
-              <DataTable data={approvalStore.approvalData.approved} />
-            </TabPanel>
-            <TabPanel p={0} pt={4}>
-              <DataTable data={approvalStore.approvalData.rejected} />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      )}
+      <Tabs index={tabIndex} onChange={handleTabChange} variant="unstyled" colorScheme="teal">
+        <Box bg="gray.100" p={1} borderRadius="lg" mb={6} width="fit-content">
+          <TabList>
+            <Tab
+              _selected={{ color: "orange.600", bg: "white", shadow: "sm" }}
+              fontWeight="bold"
+              px={6}
+              py={2}
+              borderRadius="md"
+              color="gray.500"
+              transition="all 0.2s"
+            >
+              Pending
+              <Badge ml={2} colorScheme="orange" variant="solid" borderRadius="full" fontSize="0.7em">
+                {approvalStore.approvalData.pendingCount}
+              </Badge>
+            </Tab>
+            <Tab
+              _selected={{ color: "green.600", bg: "white", shadow: "sm" }}
+              fontWeight="bold"
+              px={6}
+              py={2}
+              borderRadius="md"
+              color="gray.500"
+              transition="all 0.2s"
+            >
+              Approved
+              <Badge ml={2} colorScheme="green" variant="solid" borderRadius="full" fontSize="0.7em">
+                {approvalStore.approvalData.approvedCount}
+              </Badge>
+            </Tab>
+            <Tab
+              _selected={{ color: "red.600", bg: "white", shadow: "sm" }}
+              fontWeight="bold"
+              px={6}
+              py={2}
+              borderRadius="md"
+              color="gray.500"
+              transition="all 0.2s"
+            >
+              Rejected
+              <Badge ml={2} colorScheme="red" variant="solid" borderRadius="full" fontSize="0.7em">
+                {approvalStore.approvalData.rejectedCount}
+              </Badge>
+            </Tab>
+          </TabList>
+        </Box>
+
+        <TabPanels>
+          <TabPanel p={0} pt={4}>
+            <DataTable data={data} isLoading={approvalStore.loading} />
+          </TabPanel>
+          <TabPanel p={0} pt={4}>
+            <DataTable data={data} isLoading={approvalStore.loading} />
+          </TabPanel>
+          <TabPanel p={0} pt={4}>
+            <DataTable data={data} isLoading={approvalStore.loading} />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      {/* PAGINATION */}
+      <Box display="flex" justifyContent="flex-end" alignItems="center" mt={4} gap={2}>
+        <Button
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          isDisabled={page === 1 || approvalStore.loading}
+          size="sm"
+          variant="outline"
+        >
+          Previous
+        </Button>
+        <Text fontSize="sm" fontWeight="medium">
+          Page {page} of {totalPages}
+        </Text>
+        <Button
+          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+          isDisabled={page === totalPages || totalPages === 0 || approvalStore.loading}
+          size="sm"
+          variant="outline"
+        >
+          Next
+        </Button>
+      </Box>
 
       {/* COMPARISON DRAWER */}
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
@@ -246,7 +367,7 @@ const Approvals = () => {
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px">
-            Comparison Details 
+            Comparison Details
             <Badge ml={2} colorScheme={tabIndex === 0 ? "orange" : tabIndex === 1 ? "green" : "red"}>
                 {tabIndex === 0 ? "PENDING" : tabIndex === 1 ? "APPROVED" : "REJECTED"}
             </Badge>
@@ -260,10 +381,10 @@ const Approvals = () => {
                     <Text fontWeight="bold" color="gray.600">Original Value</Text>
                     <Text fontWeight="bold" color="gray.600">New Value</Text>
                  </Grid>
-                 
-                 <DataComparison 
-                    original={selectedItem.data.original} 
-                    updated={selectedItem.data.updated} 
+
+                 <DataComparison
+                    original={selectedItem.data.original}
+                    updated={selectedItem.data.updated}
                  />
               </Box>
             )}
@@ -273,20 +394,20 @@ const Approvals = () => {
             <Button variant="outline" mr={3} onClick={onClose}>
               Close
             </Button>
-            
+
             {/* Show Action Buttons ONLY if inside Pending Tab (Index 0) */}
             {tabIndex === 0 && (
               <>
-                <Button 
-                    colorScheme="red" 
-                    mr={3} 
+                <Button
+                    colorScheme="red"
+                    mr={3}
                     onClick={() => handleAction("rejected")}
                     isLoading={approvalStore.actionLoading}
                 >
                   Reject
                 </Button>
-                <Button 
-                    colorScheme="green" 
+                <Button
+                    colorScheme="green"
                     onClick={() => handleAction("approved")}
                     isLoading={approvalStore.actionLoading}
                 >
