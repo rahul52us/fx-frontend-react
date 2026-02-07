@@ -23,7 +23,6 @@ class AuthStore {
   role: any = "user";
   webLoader: boolean = false;
   currentCompanyDetails: any = {};
-
   constructor() {
     this.initiatAppOptions();
     makeObservable(this, {
@@ -330,6 +329,15 @@ class AuthStore {
 
   closeNotication = () => {
     this.notification = null;
+  };
+
+  getDashboardCountsss = async () => {
+    try {
+      const { data } = await axios.post("/api/dashboardcountsss/", {});
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    }
   };
 
   checkPermission = (key: string, value: string) => {

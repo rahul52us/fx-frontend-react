@@ -15,7 +15,7 @@ import CustomTable from "../../../../../config/component/CustomTable/CustomTable
 import ExposureForm from "../ExportsRegisterForm";
 import { dummyExportRegisterData } from "../utils/constant";
 import { exportToExcel, importFromExcel } from "../utils/function";
-import HedgeDealsCell from "./HedgeDealsPopover";
+import HedgeDealsDrawer from "./HedgeDealsDrawer";
 
 const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -164,7 +164,7 @@ const [formKey, setFormKey] = useState(0);
   key: "hedgeDeals",
   type: "component",
   metaData: {
-    component: (row:any) => <HedgeDealsCell {...row} />,
+    component: (row:any) => <HedgeDealsDrawer {...row} />,
   },
 },
   {
