@@ -37,7 +37,7 @@ const ForwardCancellationTable = () => {
         `${url}/forwardCancellationpcfc/form/`,
         payload
       );
-      console.log('response-------',response)
+      console.log('response-------', response)
 
       if (response.status === 200 && response.data.status === "success") {
         toast({
@@ -92,20 +92,27 @@ const ForwardCancellationTable = () => {
     }
   };
 
-  const fetchExportRegisterData = async () => {
+  /* ---------------- Fetch Data ---------------- */
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 10;
+
+  const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        // "http://srv864630.hstgr.cloud:8000/forwardCancellationpcfc/view/",
         `${url}/forwardCancellationpcfc/view/`,
-        { userToken: "abcxyz" }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
       );
       const result = response.data?.data?.data || [];
+      const total = response.data?.data?.total_pages || 1;
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
-        sno: idx + 1,
+        sno: (currentPage - 1) * rowsPerPage + idx + 1,
       }));
       setExportData(withSerial);
+      setTotalPages(total);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -113,85 +120,55 @@ const ForwardCancellationTable = () => {
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchExportRegisterData(newPage);
+  };
+
   useEffect(() => {
-    fetchExportRegisterData();
+    fetchExportRegisterData(page);
   }, []);
 
+  const DealDataColumns = [
+    { headerName: "Deal Type", key: "dealType" },
+    { headerName: "Exposure Type", key: "exposureType" },
+    { headerName: "Transaction Date", key: "transactionDate" },
+    { headerName: "Created Date", key: "createdAt" },
 
-  
-//  const DealDataColumns = [
-//   { headerName: "Deal Type", key: "dealType" },
-//   { headerName: "Exposure Type", key: "exposureType" },
-//   { headerName: "Transaction Date", key: "transactionDate" },
-//   { headerName: "Transaction Input Date", key: "transactionInputDate" },
-//   { headerName: "Transaction Modification Date", key: "transactionModificationDate" },
-//   { headerName: "Forward Deal ID", key: "forwardDealId" },
-//   { headerName: "Bank", key: "bank" },
-//   { headerName: "PCFC Ref Number", key: "pcfcRefNumber" },
-//   { headerName: "Currency", key: "currency" },
-//   { headerName: "Amount", key: "amount" },
-//   { headerName: "Booked Rate", key: "bookedRate" },
-//   { headerName: "Spot Booked", key: "spotBooked" },
-//   { headerName: "Forward Premium", key: "forwardPremium" },
-//   { headerName: "Cash To Spot", key: "cashTomSpot" },
-//   { headerName: "Bank Margin", key: "bankMargin" },
-//   { headerName: "Net Settlement Rate", key: "netSettlementRate" },
-//   { headerName: "INR Amount", key: "inrAmount" },
-//   { headerName: "Maturity", key: "maturity" },
-//   { headerName: "P/L on Cancellation", key: "profitAndLossOnCancellation" },
-//   { headerName: "Wash Rate", key: "washRate" },
-//   {
-//       headerName: "Actions",
-//       key: "table-actions",
-//       type: "table-actions",
-//       props: {
-//         row: { minW: 180, textAlign: "center" },
-//         column: { textAlign: "center" },
-//       },
-//   },
-// ];
+    { headerName: "Forward Deal ID", key: "forwardDealId" },
+    { headerName: "PO Number", key: "poNumber" },
 
+    { headerName: "Bank", key: "bank" },
+    { headerName: "Business Unit", key: "businessUnit" },
+    { headerName: "Currency", key: "currency" },
 
-const DealDataColumns = [
-  { headerName: "Deal Type", key: "dealType" },
-  { headerName: "Exposure Type", key: "exposureType" },
-  { headerName: "Transaction Date", key: "transactionDate" },
-  { headerName: "Created Date", key: "createdAt" },
+    { headerName: "Outstanding Amount", key: "outstandingAmount" },
+    { headerName: "Cancellation Amount", key: "cancellationAmount" },
 
-  { headerName: "Forward Deal ID", key: "forwardDealId" },
-  { headerName: "PO Number", key: "poNumber" },
+    { headerName: "Booked Rate", key: "bookedRate" },
+    { headerName: "Spot Booked", key: "spotBooked" },
+    { headerName: "Forward Premium", key: "fwdPremium" },
+    { headerName: "Cash Tom Spot", key: "cashTomSpot" },
+    { headerName: "Bank Margin", key: "bankMargin" },
 
-  { headerName: "Bank", key: "bank" },
-  { headerName: "Business Unit", key: "businessUnit" },
-  { headerName: "Currency", key: "currency" },
+    { headerName: "Delivery Date From", key: "deliveryDateFrom" },
+    { headerName: "Delivery Date To", key: "deliveryDateTo" },
 
-  { headerName: "Outstanding Amount", key: "outstandingAmount" },
-  { headerName: "Cancellation Amount", key: "cancellationAmount" },
+    { headerName: "Net Cancellation Rate", key: "netCancellationRate" },
+    { headerName: "P/L in FCY", key: "plInFCY" },
+    { headerName: "P/L in INR", key: "plInINR" },
+    { headerName: "Wash Rate", key: "washRate" },
 
-  { headerName: "Booked Rate", key: "bookedRate" },
-  { headerName: "Spot Booked", key: "spotBooked" },
-  { headerName: "Forward Premium", key: "fwdPremium" },
-  { headerName: "Cash Tom Spot", key: "cashTomSpot" },
-  { headerName: "Bank Margin", key: "bankMargin" },
-
-  { headerName: "Delivery Date From", key: "deliveryDateFrom" },
-  { headerName: "Delivery Date To", key: "deliveryDateTo" },
-
-  { headerName: "Net Cancellation Rate", key: "netCancellationRate" },
-  { headerName: "P/L in FCY", key: "plInFCY" },
-  { headerName: "P/L in INR", key: "plInINR" },
-  { headerName: "Wash Rate", key: "washRate" },
-
-  {
-    headerName: "Actions",
-    key: "table-actions",
-    type: "table-actions",
-    props: {
-      row: { minW: 180, textAlign: "center" },
-      column: { textAlign: "center" },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
-  },
-];
+  ];
 
   return (
     <>
@@ -204,7 +181,7 @@ const DealDataColumns = [
           resetData: {
             show: false,
             text: "Reset Data",
-            function: fetchExportRegisterData,
+            function: () => fetchExportRegisterData(1),
           },
           exportExcel: {
             show: true,
@@ -222,10 +199,10 @@ const DealDataColumns = [
             function: (e: any) => handleFileUpload(e),
           },
           pagination: {
-            show: false,
-            onClick: () => {},
-            currentPage: 1,
-            totalPages: 1,
+            show: true,
+            onClick: handlePageChange,
+            currentPage: page,
+            totalPages: totalPages,
           },
           actionBtn: {
             addKey: {
@@ -233,7 +210,7 @@ const DealDataColumns = [
               function: onOpen,
             },
             editKey: { showEditButton: false },
-              deleteKey: {
+            deleteKey: {
               showDeleteButton: true,
               function: (row: any) =>
                 deleteItem({
@@ -251,7 +228,7 @@ const DealDataColumns = [
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
         <DrawerOverlay />
         <DrawerContent>
-             <DrawerHeader>Add Forward Cancellation Entry</DrawerHeader>
+          <DrawerHeader>Add Forward Cancellation Entry</DrawerHeader>
           <DrawerCloseButton />
           <DrawerBody>
             <ForwardCancellationForm submitForm={submitExportForm} />

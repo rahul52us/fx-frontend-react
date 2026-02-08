@@ -47,7 +47,7 @@ const DailyExposureTable = () => {
       };
       const response = await axios.post(
         // "http://srv864630.hstgr.cloud:8000/exposuresettlementreport/form/",
-         `${url}/exposuresettlementreport/form/`,
+        `${url}/exposuresettlementreport/form/`,
         payload
       );
 
@@ -104,19 +104,27 @@ const DailyExposureTable = () => {
     }
   };
 
-  const fetchExportRegisterData = async () => {
+  /* ---------------- Fetch Data ---------------- */
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 10;
+
+  const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
-         `${url}/exposuresettlementreport/view/`,
-       { userToken: "abcxyz" }
+        `${url}/exposuresettlementreport/view/`,
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
       );
       const result = response.data?.data?.data || [];
+      const total = response.data?.data?.total_pages || 1;
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
-        sno: idx + 1,
+        sno: (currentPage - 1) * rowsPerPage + idx + 1,
       }));
       setExportData(withSerial);
+      setTotalPages(total);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -124,8 +132,13 @@ const DailyExposureTable = () => {
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchExportRegisterData(newPage);
+  };
+
   useEffect(() => {
-    fetchExportRegisterData();
+    fetchExportRegisterData(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -144,7 +157,7 @@ const DailyExposureTable = () => {
       url: `${url}/delup/deleterow/`,
       rowId: deleteRowData.rowId,
       formType: "exposureSettlementReport",
-      refetch: fetchExportRegisterData,
+      refetch: () => fetchExportRegisterData(page),
     });
 
     setDeleteLoading(false);
@@ -152,85 +165,85 @@ const DailyExposureTable = () => {
     setDeleteRowData(null);
   };
 
-//   const DailyExposureColumns = [
-//   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
-//   { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
-//   { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
-//   { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
-//   { headerName: "PO Number", key: "poNumber", label: "PO Number" },
-//   { headerName: "Invoice BC Number", key: "invoiceBcNumber", label: "Invoice BC No" },
-//   { headerName: "Party Name", key: "partyName", label: "Party Name" },
-//   { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
-//   { headerName: "Mode of Conversion", key: "modeOfConversion", label: "Mode of Conversion" },
-//   { headerName: "Conversion Reference Number", key: "conversionReferenceNumber", label: "Conv Ref No" },
-//   { headerName: "Bank", key: "bank", label: "Bank" },
-//   { headerName: "Currency", key: "currency", label: "Currency" },
-//   { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
-//   { headerName: "Booked Rate", key: "bookedRate", label: "Booked Rate" },
-//   { headerName: "Forward Premium Reversed", key: "forwardPremiumReveresed", label: "Fwd Premium Reversed" },
-//   { headerName: "Spot Booked", key: "spotBooked", label: "Spot Booked" },
-//   { headerName: "Cash to Spot", key: "cashTomSpot", label: "Cash to Spot" },
-//   { headerName: "Bank Margin", key: "bankMargin", label: "Bank Margin" },
-//   { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
-//   { headerName: "Document Due Date", key: "documentDueDate", label: "Doc Due Date" },
-//   { headerName: "Settled Amount in INR", key: "settledAmountInInr", label: "Settled INR" },
-//   { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
-//   { headerName: "Bmk Vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
-//   { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
-//   { headerName: "Market Vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
-//    {
-//       headerName: "Actions",
-//       key: "table-actions",
-//       type: "table-actions",
-//       props: {
-//         row: { minW: 180, textAlign: "center" },
-//         column: { textAlign: "center" },
-//       },
-//     },
-// ];
+  //   const DailyExposureColumns = [
+  //   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
+  //   { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
+  //   { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
+  //   { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
+  //   { headerName: "PO Number", key: "poNumber", label: "PO Number" },
+  //   { headerName: "Invoice BC Number", key: "invoiceBcNumber", label: "Invoice BC No" },
+  //   { headerName: "Party Name", key: "partyName", label: "Party Name" },
+  //   { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
+  //   { headerName: "Mode of Conversion", key: "modeOfConversion", label: "Mode of Conversion" },
+  //   { headerName: "Conversion Reference Number", key: "conversionReferenceNumber", label: "Conv Ref No" },
+  //   { headerName: "Bank", key: "bank", label: "Bank" },
+  //   { headerName: "Currency", key: "currency", label: "Currency" },
+  //   { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
+  //   { headerName: "Booked Rate", key: "bookedRate", label: "Booked Rate" },
+  //   { headerName: "Forward Premium Reversed", key: "forwardPremiumReveresed", label: "Fwd Premium Reversed" },
+  //   { headerName: "Spot Booked", key: "spotBooked", label: "Spot Booked" },
+  //   { headerName: "Cash to Spot", key: "cashTomSpot", label: "Cash to Spot" },
+  //   { headerName: "Bank Margin", key: "bankMargin", label: "Bank Margin" },
+  //   { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
+  //   { headerName: "Document Due Date", key: "documentDueDate", label: "Doc Due Date" },
+  //   { headerName: "Settled Amount in INR", key: "settledAmountInInr", label: "Settled INR" },
+  //   { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
+  //   { headerName: "Bmk Vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
+  //   { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
+  //   { headerName: "Market Vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
+  //    {
+  //       headerName: "Actions",
+  //       key: "table-actions",
+  //       type: "table-actions",
+  //       props: {
+  //         row: { minW: 180, textAlign: "center" },
+  //         column: { textAlign: "center" },
+  //       },
+  //     },
+  // ];
 
-const DailyExposureColumns = [
-  { headerName: "Created At", key: "createdAt", label: "Created At" },
-  { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
-  { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
+  const DailyExposureColumns = [
+    { headerName: "Created At", key: "createdAt", label: "Created At" },
+    { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
+    { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
 
-  { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
-  { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
+    { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
+    { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
 
-  { headerName: "PO Number", key: "poNumber", label: "PO Number" },
-  { headerName: "Invoice / BC Number", key: "invoiceBcNumber", label: "Invoice / BC No" },
+    { headerName: "PO Number", key: "poNumber", label: "PO Number" },
+    { headerName: "Invoice / BC Number", key: "invoiceBcNumber", label: "Invoice / BC No" },
 
-  { headerName: "Party Name", key: "partyName", label: "Party Name" },
-  { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
+    { headerName: "Party Name", key: "partyName", label: "Party Name" },
+    { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
 
-  { headerName: "Bank", key: "bank", label: "Bank" },
-  { headerName: "Currency", key: "currency", label: "Currency" },
+    { headerName: "Bank", key: "bank", label: "Bank" },
+    { headerName: "Currency", key: "currency", label: "Currency" },
 
-  { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
-  { headerName: "Due Date", key: "dueDate", label: "Due Date" },
+    { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
+    { headerName: "Due Date", key: "dueDate", label: "Due Date" },
 
-  { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
+    { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
 
-  { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
-  { headerName: "Settled Amount (INR)", key: "settledAmountInInr", label: "Settled Amount INR" },
+    { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
+    { headerName: "Settled Amount (INR)", key: "settledAmountInInr", label: "Settled Amount INR" },
 
-  { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
-  { headerName: "Bmk vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
+    { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
+    { headerName: "Bmk vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
 
-  { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
-  { headerName: "Market vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
+    { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
+    { headerName: "Market vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
 
 
-  {
-    headerName: "Actions",
-    key: "table-actions",
-    type: "table-actions",
-    props: {
-      row: { minW: 180, textAlign: "center" },
-      column: { textAlign: "center" },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
     },
-  },
-];
+  ];
 
   return (
     <>
@@ -243,7 +256,7 @@ const DailyExposureColumns = [
           resetData: {
             show: true,
             text: "Reset Data",
-            function: fetchExportRegisterData,
+            function: () => fetchExportRegisterData(1),
           },
           exportExcel: {
             show: true,
@@ -261,10 +274,10 @@ const DailyExposureColumns = [
             function: (e: any) => handleFileUpload(e),
           },
           pagination: {
-            show: false,
-            onClick: () => {},
-            currentPage: 1,
-            totalPages: 1,
+            show: true,
+            onClick: handlePageChange,
+            currentPage: page,
+            totalPages: totalPages,
           },
           actionBtn: {
             addKey: {

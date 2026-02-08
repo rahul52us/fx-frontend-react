@@ -95,21 +95,33 @@ const ExportRegisterTable = () => {
 
   /* ---------------- Fetch Data ---------------- */
 
-  const fetchExportRegisterData = async () => {
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 10;
+
+  const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
         `${url}/exportregister/view/`,
-        { userToken: "abcxyz" }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
       );
 
       const result = response.data?.data?.data || [];
+      const total = response.data?.data?.total_pages || 1;
+
       setExportData(result);
+      setTotalPages(total);
     } catch (error) {
       console.error("Fetch error:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchExportRegisterData(newPage);
   };
 
   const handleDrawerClose = () => {
@@ -120,8 +132,8 @@ const ExportRegisterTable = () => {
   };
 
   useEffect(() => {
-    fetchExportRegisterData();
-  }, []);
+    fetchExportRegisterData(page);
+  }, []); // Initial load only, subsequent loads handled by pagination click
 
   /* ---------------- Delete Handlers ---------------- */
 
@@ -138,7 +150,7 @@ const ExportRegisterTable = () => {
       url: `${url}/delup/deleterow/`,
       rowId: deleteRowData.rowId,
       formType: "exportRegister",
-      refetch: fetchExportRegisterData,
+      refetch: () => fetchExportRegisterData(page), // Refetch current page
     });
 
     setDeleteLoading(false);
@@ -221,7 +233,7 @@ const ExportRegisterTable = () => {
 
           resetData: {
             show: true,
-            function: fetchExportRegisterData,
+            function: () => fetchExportRegisterData(1), // Reset to page 1
           },
 
           exportExcel: {
@@ -239,10 +251,10 @@ const ExportRegisterTable = () => {
           },
 
           pagination: {
-            show: false,
-            currentPage: 1,
-            totalPages: 1,
-            onClick: () => {},
+            show: true,
+            currentPage: page,
+            totalPages: totalPages,
+            onClick: handlePageChange,
           },
 
           actionBtn: {

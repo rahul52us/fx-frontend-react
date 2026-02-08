@@ -105,19 +105,25 @@ const ImportRegisterTable = () => {
     }
   };
 
-  const fetchImportRegisterData = async () => {
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 10;
+
+  const fetchImportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
         `${url}/importregister/view/`,
-        { userToken: "abcdxyz" }
+        { userToken: "abcdxyz", page: currentPage, limit: rowsPerPage }
       );
       const result = response.data?.data?.data || [];
+      const total = response.data?.data?.total_pages || 1;
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
-        sno: idx + 1,
+        sno: (currentPage - 1) * rowsPerPage + idx + 1,
       }));
       setImportData(withSerial);
+      setTotalPages(total);
     } catch (error) {
       console.error("Error fetching import register data:", error);
     } finally {
@@ -125,8 +131,13 @@ const ImportRegisterTable = () => {
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchImportRegisterData(newPage);
+  };
+
   useEffect(() => {
-    fetchImportRegisterData();
+    fetchImportRegisterData(page);
   }, []);
 
   const ImportRegisterTableColumns = [
@@ -225,7 +236,7 @@ const ImportRegisterTable = () => {
       url: `${url}/delup/deleterow/`,
       rowId: deleteRowData.rowId,
       formType: "importRegister", // Ensure correct formType
-      refetch: fetchImportRegisterData,
+      refetch: () => fetchImportRegisterData(page),
     });
 
     setDeleteLoading(false);
@@ -244,7 +255,7 @@ const ImportRegisterTable = () => {
           resetData: {
             show: true,
             text: "Reset Data",
-            function: fetchImportRegisterData,
+            function: () => fetchImportRegisterData(1),
           },
           exportExcel: {
             show: true,
@@ -261,10 +272,10 @@ const ImportRegisterTable = () => {
             function: (e: any) => handleFileUpload(e),
           },
           pagination: {
-            show: false,
-            onClick: () => {},
-            currentPage: 1,
-            totalPages: 1,
+            show: true,
+            onClick: handlePageChange,
+            currentPage: page,
+            totalPages: totalPages,
           },
           actionBtn: {
             addKey: {

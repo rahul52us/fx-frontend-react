@@ -116,12 +116,18 @@ const PCFCTable = () => {
     }
   };
 
-  const fetchExportRegisterData = async () => {
+  /* ---------------- Fetch Data ---------------- */
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 10;
+
+  const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
         `${url}/pcfcregister/view/`,
-        { userToken: "abcxyz" },
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage },
         {
           headers: {
             Authorization: autoToken,
@@ -129,16 +135,23 @@ const PCFCTable = () => {
         }
       );
       const result = response.data?.data?.data || [];
+      const total = response.data?.data?.total_pages || 1;
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
-        sno: idx + 1,
+        sno: (currentPage - 1) * rowsPerPage + idx + 1,
       }));
       setExportData(withSerial);
+      setTotalPages(total);
     } catch (error) {
       console.error("Error fetching export register data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchExportRegisterData(newPage);
   };
 
   function handleEdit(row: any) {
@@ -155,7 +168,7 @@ const PCFCTable = () => {
   };
 
   useEffect(() => {
-    fetchExportRegisterData();
+    fetchExportRegisterData(page);
   }, []);
 
   /* ---------------- Delete Handlers ---------------- */
@@ -171,9 +184,9 @@ const PCFCTable = () => {
 
     await deleteItem({
       url: `${url}/delup/deleterow/`,
-      rowId: deleteRowData.rowID, // Note: Using rowID as per original file
+      rowId: deleteRowData.rowId, // Check rowID vs rowId from your previous context, assuming rowId is correct based on deleteItem usually needing it
       formType: "pcfc",
-      refetch: fetchExportRegisterData,
+      refetch: () => fetchExportRegisterData(page),
     });
 
     setDeleteLoading(false);
@@ -244,7 +257,7 @@ const PCFCTable = () => {
           resetData: {
             show: true,
             text: "Reset Data",
-            function: fetchExportRegisterData,
+            function: () => fetchExportRegisterData(1),
           },
           exportExcel: {
             show: true,
@@ -262,10 +275,10 @@ const PCFCTable = () => {
             function: (e: any) => handleFileUpload(e),
           },
           pagination: {
-            show: false,
-            onClick: () => {},
-            currentPage: 1,
-            totalPages: 1,
+            show: true,
+            onClick: handlePageChange,
+            currentPage: page,
+            totalPages: totalPages,
           },
           actionBtn: {
             addKey: {

@@ -92,20 +92,27 @@ const EEFCTable = () => {
     }
   };
 
-  const fetchExportRegisterData = async () => {
+  /* ---------------- Fetch Data ---------------- */
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 10;
+
+  const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
         `${url}/eefcregister/view/`,
-        // "http://srv864630.hstgr.cloud:8000/eefcregister/view/",
-         { userToken: "abcxyz" }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
       );
       const result = response.data?.data?.data || [];
+      const total = response.data?.data?.total_pages || 1;
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
-        sno: idx + 1,
+        sno: (currentPage - 1) * rowsPerPage + idx + 1,
       }));
       setExportData(withSerial);
+      setTotalPages(total);
     } catch (error) {
       console.error("Error fetching export register data:", error);
     } finally {
@@ -113,27 +120,32 @@ const EEFCTable = () => {
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchExportRegisterData(newPage);
+  };
+
   useEffect(() => {
-    fetchExportRegisterData();
+    fetchExportRegisterData(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
- const EEFCColumns = [
-  // {headerName:"Month", key:"month", label:"Month"},
-  { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
-  { headerName: "Created At", key: "createdAt", label: "Created At" },
-  { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
-  { headerName: "Exposure Reference Number", key: "exposureReferenceNumber", label: "Reference Number" },
-  { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
-  { headerName: "Bank", key: "bank", label: "Bank" },
-  { headerName: "Currency", key: "currency", label: "Currency" },
-  { headerName: "Amount", key: "amount", label: "Amount" },
-  { headerName: "Amount in INR", key: "amountInInr", label: "Amount (INR)" },
-  { headerName: "Reference Rate", key: "referenceRate", label: "Reference Rate" },
-  { headerName: "Closing Balance", key: "closingBalance", label: "Closing Balance" },
-  { headerName: "Weighted Average Rate", key: "weightedAverageRate", label: "Weighted Avg Rate" },
-  { headerName: "Closing Balance in INR", key: "closingBalanceInIn", label: "Closing Balance (INR)" }
-];
+  const EEFCColumns = [
+    // {headerName:"Month", key:"month", label:"Month"},
+    { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
+    { headerName: "Created At", key: "createdAt", label: "Created At" },
+    { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
+    { headerName: "Exposure Reference Number", key: "exposureReferenceNumber", label: "Reference Number" },
+    { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
+    { headerName: "Bank", key: "bank", label: "Bank" },
+    { headerName: "Currency", key: "currency", label: "Currency" },
+    { headerName: "Amount", key: "amount", label: "Amount" },
+    { headerName: "Amount in INR", key: "amountInInr", label: "Amount (INR)" },
+    { headerName: "Reference Rate", key: "referenceRate", label: "Reference Rate" },
+    { headerName: "Closing Balance", key: "closingBalance", label: "Closing Balance" },
+    { headerName: "Weighted Average Rate", key: "weightedAverageRate", label: "Weighted Avg Rate" },
+    { headerName: "Closing Balance in INR", key: "closingBalanceInIn", label: "Closing Balance (INR)" }
+  ];
 
   return (
     <>
@@ -146,7 +158,7 @@ const EEFCTable = () => {
           resetData: {
             show: true,
             text: "Reset Data",
-            function: fetchExportRegisterData,
+            function: () => fetchExportRegisterData(1),
           },
           exportExcel: {
             show: false,
@@ -154,7 +166,7 @@ const EEFCTable = () => {
             function: () =>
               exportToExcel({
                 // columns: EEFCColumns,
-                
+
                 data: dummyEefcData,
                 fileName: "EEFC_Register.xlsx",
               }),
@@ -165,10 +177,10 @@ const EEFCTable = () => {
             function: (e: any) => handleFileUpload(e),
           },
           pagination: {
-            show: false,
-            onClick: () => {},
-            currentPage: 1,
-            totalPages: 1,
+            show: true,
+            onClick: handlePageChange,
+            currentPage: page,
+            totalPages: totalPages,
           },
           actionBtn: {
             addKey: {
@@ -176,7 +188,7 @@ const EEFCTable = () => {
               function: onOpen,
             },
             editKey: { showEditButton: false },
-               deleteKey: {
+            deleteKey: {
               showDeleteButton: true,
               function: (row: any) =>
                 deleteItem({

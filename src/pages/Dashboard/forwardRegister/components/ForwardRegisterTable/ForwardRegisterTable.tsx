@@ -107,25 +107,37 @@ const ForwardRegisterTable = () => {
     }
   };
 
-  const fetchExportRegisterData = async () => {
+  /* ---------------- Fetch Data ---------------- */
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 10;
+
+  const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        // "http://srv864630.hstgr.cloud:8000/forwardregister/view/",
         `${url}/forwardregister/view/`,
-        { userToken: "abcxyz" }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
       );
       const result = response.data?.data?.data || [];
+      const total = response.data?.data?.total_pages || 1;
       const withSerial = result.map((item: any, idx: number) => ({
         ...item,
-        sno: idx + 1,
+        sno: (currentPage - 1) * rowsPerPage + idx + 1,
       }));
       setExportData(withSerial);
+      setTotalPages(total);
     } catch (error) {
       console.error("Error fetching export register data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchExportRegisterData(newPage);
   };
 
   function handleEdit(row: any) {
@@ -142,7 +154,7 @@ const ForwardRegisterTable = () => {
   };
 
   useEffect(() => {
-    fetchExportRegisterData();
+    fetchExportRegisterData(page);
   }, []);
 
   /* ---------------- Delete Handlers ---------------- */
@@ -160,7 +172,7 @@ const ForwardRegisterTable = () => {
       url: `${url}/delup/deleterow/`,
       rowId: deleteRowData.rowId,
       formType: "forwardRegister",
-      refetch: fetchExportRegisterData,
+      refetch: () => fetchExportRegisterData(page),
     });
 
     setDeleteLoading(false);
@@ -232,7 +244,7 @@ const ForwardRegisterTable = () => {
           resetData: {
             show: true,
             text: "Reset Data",
-            function: fetchExportRegisterData,
+            function: () => fetchExportRegisterData(1),
           },
           exportExcel: {
             show: true,
@@ -250,10 +262,10 @@ const ForwardRegisterTable = () => {
             function: (e: any) => handleFileUpload(e),
           },
           pagination: {
-            show: false,
-            onClick: () => {},
-            currentPage: 1,
-            totalPages: 1,
+            show: true,
+            onClick: handlePageChange,
+            currentPage: page,
+            totalPages: totalPages,
           },
           actionBtn: {
             addKey: {
