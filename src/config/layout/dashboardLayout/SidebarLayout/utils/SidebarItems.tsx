@@ -27,7 +27,7 @@ const sidebarDatas: SidebarItem[] = [
     name: "Dashboard",
     icon: <IoPieChartSharp />,
     url: "/dashboard",
-    role: ["user", "admin", "manager", "superadmin"],
+    role: ["user", "admin", "manager"],
   },
 
   // ───────────────────────────────────────────────
@@ -38,22 +38,15 @@ const sidebarDatas: SidebarItem[] = [
     name: "Export Register",
     icon: <MdLocalShipping />,
     url: dashboard.exportRegister,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager", "admin"],
     children: [
       {
         id: 201,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.exportRegister,
-        role: ["user", "manager", "admin", "superadmin"],
-      },
-      // {
-      //   id: 201,
-      //   name: "Export Approval",
-      //   icon: <CalendarIcon />,
-      //   url: dashboard.exportApproval,
-      //   role: ["user", "manager", "admin", "superadmin"],
-      // },
+        role: ["user", "manager", "admin"],
+      }
     ],
   },
 
@@ -65,14 +58,14 @@ const sidebarDatas: SidebarItem[] = [
     name: "Import Register",
     icon: <FaShip />,
     url: dashboard.importRegister,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager", "admin"],
     children: [
       {
         id: 301,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.importRegister,
-        role: ["user", "manager", "admin", "superadmin"],
+        role: ["user", "manager", "admin"],
       },
     ],
   },
@@ -85,30 +78,15 @@ const sidebarDatas: SidebarItem[] = [
     name: "Exposure Settlement",
     icon: <FaCalendarAlt />,
     url: dashboard.dailyExposureSheet,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager"],
     children: [
       {
         id: 401,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.dailyExposureSheet,
-        role: ["user", "manager", "admin", "superadmin"],
-      },
-      // {
-      //   id: 402,
-      //   name: "Exposure Input",
-      //   icon: <CalendarIcon />,
-      //   url: dashboard.dailyExposureSheet, // ← update if different route exists
-      //   role: ["user", "manager", "admin", "superadmin"],
-      // },
-      // {
-      //   id: 403,
-      //   name: "Exposure Settlement",
-      //   icon: <CalendarIcon />,
-      //   url: dashboard.dailyExposureSheet,
-      //   role: ["user", "manager", "admin", "superadmin"],
-      // },
-      // You can remove duplicates or update URLs later
+        role: ["user", "manager"],
+      }
     ],
   },
 
@@ -120,14 +98,14 @@ const sidebarDatas: SidebarItem[] = [
     name: "PCFC",
     icon: <IoDocumentText />,
     url: dashboard.pcfc,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager", "admin"],
     children: [
       {
         id: 501,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.pcfc,
-        role: ["user", "manager", "admin", "superadmin"],
+        role: ["user", "manager", "admin"],
       },
       // Add more sub-items when ready (they were commented out)
     ],
@@ -141,43 +119,15 @@ const sidebarDatas: SidebarItem[] = [
     name: "Forward Register",
     icon: <BsFillForwardFill />,
     url: dashboard.forwardRegister,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager", "admin"],
     children: [
       {
         id: 601,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.forwardRegister,
-        role: ["user", "manager", "admin", "superadmin"],
-      },
-      // {
-      //   id: 602,
-      //   name: "Forward Booking",
-      //   icon: <CalendarIcon />,
-      //   url: dashboard.forwardRegister, // ← update if different route
-      //   role: ["user", "manager", "admin", "superadmin"],
-      // },
-      // {
-      //   id: 603,
-      //   name: "Forward Cancellation",
-      //   icon: <CalendarIcon />,
-      //   url: dashboard.forwardRegister,
-      //   role: ["user", "manager", "admin", "superadmin"],
-      // },
-      // {
-      //   id: 604,
-      //   name: "Unitization against exposure",
-      //   icon: <CalendarIcon />,
-      //   url: dashboard.forwardRegister,
-      //   role: ["user", "manager", "admin", "superadmin"],
-      // },
-      // {
-      //   id: 605,
-      //   name: "Unitization against PCFC",
-      //   icon: <CalendarIcon />,
-      //   url: dashboard.forwardRegister,
-      //   role: ["user", "manager", "admin", "superadmin"],
-      // },
+        role: ["user", "manager", "admin"],
+      }
     ],
   },
 
@@ -189,14 +139,14 @@ const sidebarDatas: SidebarItem[] = [
     name: "Forward Cancellation",
     icon: <ImCancelCircle />,
     url: dashboard.forwardCancellation,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager", "admin"],
     children: [
       {
         id: 701,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.forwardCancellation,
-        role: ["user", "manager", "admin", "superadmin"],
+        role: ["user", "manager", "admin"],
       },
     ],
   },
@@ -209,14 +159,14 @@ const sidebarDatas: SidebarItem[] = [
     name: "EEFC Register",
     icon: <CgArrowsExchange />,
     url: dashboard.eefcRegister,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager", "admin"],
     children: [
       {
         id: 801,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.eefcRegister,
-        role: ["user", "manager", "admin", "superadmin"],
+        role: ["user", "manager", "admin"],
       },
     ],
   },
@@ -229,14 +179,14 @@ const sidebarDatas: SidebarItem[] = [
     name: "MTM",
     icon: <GiCheckMark />,
     url: dashboard.mtm,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager", "admin"],
     children: [
       {
         id: 901,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.mtm,
-        role: ["user", "manager", "admin", "superadmin"],
+        role: ["user", "manager", "admin"],
       },
     ],
   },
@@ -249,14 +199,14 @@ const sidebarDatas: SidebarItem[] = [
     name: "RP",
     icon: <GrDocumentPerformance />,
     url: dashboard.rp,
-    role: ["user", "manager", "admin", "superadmin"],
+    role: ["user", "manager"],
     children: [
       {
         id: 1001,
         name: "Index / List",
         icon: <CalendarIcon />,
         url: dashboard.rp,
-        role: ["user", "manager", "admin", "superadmin"],
+        role: ["user"],
       },
     ],
   },
@@ -269,39 +219,21 @@ const sidebarDatas: SidebarItem[] = [
     name: "Super Admin",
     icon: <GrDocumentPerformance />,
     url: dashboard.superAdminTab,
-    role: ["superadmin"],
-    children: [
-      {
-        id: 1101,
-        name: "Index / Overview",
-        icon: <CalendarIcon />,
-        url: dashboard.superAdminTab,
-        role: ["superadmin"],
-      },
-    ],
+    role: ["superadmin"]
   },
   {
-    id: 1200,
-    name: "Admin Panel",
-    icon: <GrDocumentPerformance />,
+    id: 1201,
+    name: "Approvals",
+    icon: <CalendarIcon />,
+    url: dashboard.approvals,
+    role: ["admin"],
+  },
+  {
+    id: 1202,
+    name: "Index / Overview",
+    icon: <CalendarIcon />,
     url: dashboard.adminTab,
-    role: ["admin", "superadmin"],
-    children: [
-      {
-        id: 1201,
-        name: "Index / Overview",
-        icon: <CalendarIcon />,
-        url: dashboard.adminTab,
-        role: ["admin", "superadmin"],
-      },
-      {
-        id: 1201,
-        name: "Approvals",
-        icon: <CalendarIcon />,
-        url: dashboard.approvals,
-        role: ["admin", "superadmin"],
-      },
-    ],
+    role: ["admin"],
   },
 ];
 

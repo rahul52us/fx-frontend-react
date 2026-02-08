@@ -105,7 +105,7 @@ const DashboardLayout = observer(() => {
             navigate(dashboard.superAdminTab, { replace: true });
             break;
           case 'admin':
-            navigate(dashboard.adminTab, { replace: true });
+            navigate(dashboard.home, { replace: true });
             break;
           default:
             navigate(dashboard.home, { replace: true });
