@@ -3,9 +3,8 @@ import { observer } from "mobx-react-lite";
 import store from "../../store/store";
 import DashPageHeader from "../../config/component/common/DashPageHeader/DashPageHeader";
 import { headerHeight } from "../../config/constant/variable";
-import { Box, Flex } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { dashBreadCrumb } from "./utils/breadcrumb.constant";
-import PunchInComponent from "./PunchAttendence/PunchInComponent";
 import AdminDashboard from "./mainDashboard/adminDashboard/AdminDashboard";
 import ManagerDashboard from "./mainDashboard/managerDashboard/ManagerDashboard";
 
@@ -33,9 +32,6 @@ const DashboardIndex = observer(() => {
         <DashPageHeader title="Dashboard" breadcrumb={dashBreadCrumb} />
         <DashboardBanner />
         {renderElements(user.role)}
-        <Flex justifyContent={"end"}>
-          <PunchInComponent />
-        </Flex>
       </Box>
     </>
   );

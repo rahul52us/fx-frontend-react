@@ -18,7 +18,7 @@ const HeaderLayout = observer(() => {
       justifyContent="space-between"
       height={headerHeight}
       padding={headerPadding}
-      boxShadow="2px 2px 4px rgba(0, 0, 0, 0.2)" // Moved styled-components shadow to Chakra UI prop
+      boxShadow="0 4px 12px 0 rgba(0, 0, 0, 0.05)" // Moved styled-components shadow to Chakra UI prop
     >
       <Flex width={isLargerThan1020 ? "85%" : "95%"}>
         <HeaderLogo />

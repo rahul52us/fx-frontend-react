@@ -27,7 +27,7 @@ import {
 } from "react-icons/fa";
 
 const HeaderProfile = observer(() => {
-  const {auth : {currentCompanyDetails}} = store
+  const { auth: { currentCompanyDetails } } = store
   const { pathname } = useLocation();
   const {
     auth: { user, doLogout },
@@ -51,6 +51,9 @@ const HeaderProfile = observer(() => {
         marginLeft={"20px"}
         size="sm"
         variant="ghost"
+        _hover={{ bg: "transparent", transform: "scale(1.05)" }}
+        _active={{ bg: "transparent", transform: "scale(0.95)" }}
+        transition="all 0.2s"
       />
       <Portal>
         <MenuList
@@ -89,7 +92,7 @@ const HeaderProfile = observer(() => {
                 doLogout();
                 navigate(authentication.login);
               }}
-              // colorScheme="red"
+            // colorScheme="red"
             >
               <FaSignOutAlt style={{ marginRight: "8px" }} /> Logout
             </MenuItem>

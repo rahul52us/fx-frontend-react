@@ -199,7 +199,7 @@ const sidebarDatas: SidebarItem[] = [
     name: "RP",
     icon: <GrDocumentPerformance />,
     url: dashboard.rp,
-    role: ["user", "manager"],
+    role: ["user", "admin"],
     children: [
       {
         id: 1001,

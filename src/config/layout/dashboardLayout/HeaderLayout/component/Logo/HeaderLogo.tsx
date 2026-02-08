@@ -1,16 +1,17 @@
-import { Flex, IconButton, Input, useBreakpointValue } from "@chakra-ui/react";
+import { Flex, IconButton, Input, InputGroup, InputLeftElement, useBreakpointValue, useColorModeValue } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
 // import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import store from "../../../../../../store/store";
 import {
   hoverColor,
-  inputBorderColor,
   inputBorderColorFocus,
 } from "../../../../../../globalColors";
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
+import { FaSearch } from "react-icons/fa";
 
 const HeaderLogo = observer(() => {
   const isLargerThanXl = useBreakpointValue({ lg: true });
+  const searchBg = useColorModeValue("white", "gray.700");
 
   const {
     layout: { fullScreenMode, openDashSidebarFun, isCallapse },
@@ -65,21 +66,27 @@ const HeaderLogo = observer(() => {
           />
         </Flex>
       )}
-      <Input
-        type="text"
-        // name="search"
-        value=""
-        placeholder="Search here"
-        w={isLargerThanXl ? "90%" : "95%"}
-        onKeyDown={closeSearchBar}
-        _focus={{ borderColor: "white" }}
-        border={`1px solid ${inputBorderColor}`}
-        // _active={{outline:"none"}}
-        _focusVisible={{
-          outline: "none",
-          borderColor: `${inputBorderColorFocus}`,
-        }}
-      />
+      <InputGroup w={isLargerThanXl ? "90%" : "95%"}>
+        <InputLeftElement pointerEvents="none">
+          <FaSearch color="gray.300" />
+        </InputLeftElement>
+        <Input
+          type="text"
+          // name="search"
+          value=""
+          placeholder="Search..."
+          onKeyDown={closeSearchBar}
+          borderRadius="full"
+          bg={searchBg}
+          border="none"
+          _focus={{
+            borderColor: `${inputBorderColorFocus}`,
+            boxShadow: "0 0 0 1px #3182ce",
+            bg: useColorModeValue("white", "gray.600")
+          }}
+          _placeholder={{ color: 'gray.500' }}
+        />
+      </InputGroup>
     </Flex>
   );
 });
