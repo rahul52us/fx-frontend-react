@@ -82,8 +82,9 @@ const DonutChart = observer(
     };
 
     const chartOptions = options && Object.keys(options).length ? options : defaultOptions;
+    const safeData = data && data.datasets ? data : { labels: [], datasets: [] };
 
-    return <Doughnut options={chartOptions} data={data} />;
+    return <Doughnut options={chartOptions} data={safeData} />;
   }
 );
 

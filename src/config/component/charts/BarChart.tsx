@@ -13,31 +13,7 @@ import { Bar } from "react-chartjs-2";
 import './chart.css'
 import { primaryColor } from "../../../globalColors";
 
-const defaultData = {
-  datasets: [
-    {
-      label: 'Default Dataset 1',
-      data: [10, 20, 30, 40, 50], // Default data values
-      backgroundColor: 'rgba(54, 162, 235, 0.5)', // Default background color
-    },
-    {
-      label: 'Default Dataset 2',
-      data: [20, 30, 40, 50, 60], // Default data values
-      backgroundColor: 'rgba(255, 99, 132, 0.5)', // Different color
-    },
-    {
-      label: 'Default Dataset 3',
-      data: [30, 40, 50, 60, 70], // Default data values
-      backgroundColor: 'rgba(75, 192, 192, 0.5)', // Different color
-    },
-    {
-      label: 'Default Dataset 4',
-      data: [12, 40, 50, 60, 110], // Default data values
-      backgroundColor: 'rgba(75, 172, 195, 0.5)', // Different color
-    },
-  ],
-  labels: ['January', 'February', 'March', 'April', 'May'] // Default labels
-};
+
 
 
 const BarChart = observer(
@@ -84,7 +60,7 @@ const BarChart = observer(
 
     const chartOptions =
       options && Object.keys(options).length ? options : { responsive: true };
-    const chartData = data && Object.keys(data).length > 0 ? data : defaultData;
+    const chartData = data && data.datasets ? data : { labels: [], datasets: [] };
     return <Bar options={chartOptions} data={chartData} />;
   }
 );

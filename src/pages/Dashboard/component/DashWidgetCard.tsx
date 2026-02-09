@@ -18,19 +18,19 @@ import { dashboard } from "../../../config/constant/routes";
 import store from "../../../store/store";
 
 interface DashboardCountData {
-  eefc: { total: number; [key: string]: any };
-  export: { total: number; [key: string]: any };
-  import: { total: number; [key: string]: any };
-  exposure: { total: number; [key: string]: any };
-  forwardCancellation: { total: number; [key: string]: any };
-  forwardRegister: { total: number; [key: string]: any };
-  pcfc: { total: number; [key: string]: any };
+  eefc: { total: number;[key: string]: any };
+  export: { total: number;[key: string]: any };
+  import: { total: number;[key: string]: any };
+  exposure: { total: number;[key: string]: any };
+  forwardCancellation: { total: number;[key: string]: any };
+  forwardRegister: { total: number;[key: string]: any };
+  pcfc: { total: number;[key: string]: any };
 }
 
 const DashWidgetCard = observer(() => {
   const navigate = useNavigate();
   const {
-    auth: { getDashboardCountsss },
+    auth: { getDashboardCountsss, user },
   } = store;
 
   const [data, setData] = useState<DashboardCountData | null>(null);
@@ -41,7 +41,7 @@ const DashWidgetCard = observer(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response: any = await getDashboardCountsss();
+        const response: any = await getDashboardCountsss({ userId: user?.userId });
         if (response?.status === "success") {
           setData(response.data);
         }
@@ -51,9 +51,10 @@ const DashWidgetCard = observer(() => {
         setLoading(false);
       }
     };
-
-    fetchData();
-  }, [getDashboardCountsss]);
+    if (user?.userId) {
+      fetchData();
+    }
+  }, [getDashboardCountsss, user?.userId]);
 
   // Widget Configuration
   const widgetConfig = [
@@ -120,9 +121,7 @@ const DashWidgetCard = observer(() => {
       gap={6}
     >
       {widgetConfig.map((widget) => {
-        const widgetData = data
-          ? data[widget.key as keyof DashboardCountData]
-          : null;
+        const widgetData = data?.[widget.key as keyof DashboardCountData];
 
         return (
           <GridItem key={widget.key}>

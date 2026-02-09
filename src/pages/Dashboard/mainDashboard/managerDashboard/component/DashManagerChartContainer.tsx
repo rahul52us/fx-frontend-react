@@ -8,7 +8,7 @@ import { glassCardStyle } from "../../../../../globalStyles";
 
 const DashChartContainer = observer(() => {
   const {
-    auth: { getDashboardCountsss },
+    auth: { getDashboardCountsss, user },
   } = store;
 
   const [chartData, setChartData] = useState<any>(null);
@@ -18,7 +18,7 @@ const DashChartContainer = observer(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response: any = await getDashboardCountsss();
+        const response: any = await getDashboardCountsss({ userId: user?.userId });
         if (response?.status === "success") {
           const data = response.data;
 
@@ -33,13 +33,13 @@ const DashChartContainer = observer(() => {
           ];
 
           const values = [
-            data.eefc?.total || 0,
-            data.export?.total || 0,
-            data.import?.total || 0,
-            data.exposure?.total || 0,
-            data.forwardRegister?.total || 0,
-            data.forwardCancellation?.total || 0,
-            data.pcfc?.total || 0,
+            data?.eefc?.total || 0,
+            data?.export?.total || 0,
+            data?.import?.total || 0,
+            data?.exposure?.total || 0,
+            data?.forwardRegister?.total || 0,
+            data?.forwardCancellation?.total || 0,
+            data?.pcfc?.total || 0,
           ];
 
           const colors = [
@@ -71,9 +71,10 @@ const DashChartContainer = observer(() => {
         setLoading(false);
       }
     };
-
-    fetchData();
-  }, [getDashboardCountsss]);
+    if (user?.userId) {
+      fetchData();
+    }
+  }, [getDashboardCountsss, user?.userId]);
 
 
   const glassStyle = {
@@ -98,7 +99,7 @@ const DashChartContainer = observer(() => {
         borderWidth={1}
       >
         <BarChart
-          data={chartData}
+          data={chartData || { labels: [], datasets: [] }}
           loading={loading}
           options={{
             responsive: true,
@@ -117,11 +118,11 @@ const DashChartContainer = observer(() => {
         borderWidth={1}
       >
         <DonutChart
-          data={chartData}
+          data={chartData || { labels: [], datasets: [] }}
           loading={loading}
           options={{
             responsive: true,
-             maintainAspectRatio: false,
+            maintainAspectRatio: false,
             plugins: {
               legend: { position: 'right' },
               title: { display: true, text: 'Financial Overview (Distribution)' },

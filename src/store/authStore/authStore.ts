@@ -331,9 +331,9 @@ class AuthStore {
     this.notification = null;
   };
 
-  getDashboardCountsss = async () => {
+  getDashboardCountsss = async (payload: any) => {
     try {
-      const { data } = await axios.post("/api/dashboardcountsss/", {});
+      const { data } = await axios.post("/api/dashboardcountsss/", payload);
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err.message);
