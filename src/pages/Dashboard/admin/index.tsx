@@ -1,125 +1,93 @@
-// src/pages/admin/TestimonialList.tsx (or wherever your file is)
-
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { Box } from "@chakra-ui/react";
+import { Box, useToast } from "@chakra-ui/react";
 import store from "../../../store/store";
 import CustomTable from "../../../config/component/CustomTable/CustomTable";
 import CustomDrawer from "../../../config/component/Drawer/CustomDrawer";
 import AddForm from "./component/AddForm";
-import EditForm from "./component/EditForm"; // Import the separate EditForm
 import AdminViewDetails from "./component/AdminDetailsView";
 
-/* -------------------- Debounce Helper -------------------- */
-function debounce(fn: Function, delay = 500) {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
+const AdminList = observer(() => {
+  const { adminStore } = store;
+  const toast = useToast();
 
-const TestimonialList = observer(() => {
-  const {
-    TestimonialStore: { getTestimonials, testimonials },
-    auth: { openNotification },
-  } = store;
-
-  /* -------------------- State -------------------- */
   const [search, setSearch] = useState("");
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<"add" | "view" | "edit">("add");
   const [selectedRow, setSelectedRow] = useState<any>(null);
-  const [editIndex, setEditIndex] = useState<number | null>(null); // Track original index
 
-  /* -------------------- LocalStorage Data -------------------- */
-  const [localData, setLocalData] = useState<any[]>([]);
-
-  const loadLocalData = () => {
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const stored = JSON.parse(localStorage.getItem("addFormData") || "[]");
+      const response = await adminStore.getAdmins({ search, role: 'admin' });
+      // Use response.data if it exists and is an array, otherwise check response itself
+      // API structure might be { status: "success", data: [...] }
+      const users = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
 
-      // Flatten basicDetails and attach original index for editing
-      setLocalData(
-        stored.map((item: any, index: number) => ({
-          ...item,
-          ...item.basicDetails,
-          _originalIndex: index, // Critical: used to update correct record
-        }))
-      );
+      // Flatten nested basicDetails for the table
+      const formattedData = users.map((user: any) => ({
+        ...user,
+        ...(user.basicDetails || {}), // Spread basicDetails to top level
+      }));
+
+      setData(formattedData);
     } catch (error) {
-      console.error("Failed to load local data:", error);
-      setLocalData([]);
+      console.error("Failed to fetch admins", error);
+      // Optional: toast error
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadLocalData();
-  }, []);
+    fetchData();
+  }, [search]);
 
-  /* -------------------- Initial API Load (kept for testimonials) -------------------- */
-  useEffect(() => {
-    if (!testimonials.hasFetch) {
-      getTestimonials({ page: 1 }).catch(() => {
-        // openNotification({
-        //   title: "Failed to get testimonials",
-        //   message: err.message,
-        //   type: "error",
-        // });
-      });
-    }
-  }, [getTestimonials, openNotification, testimonials.hasFetch]);
-
-  /* -------------------- Drawer Controls -------------------- */
   const openDrawer = (mode: "add" | "view" | "edit", row?: any) => {
     setDrawerMode(mode);
-    setSelectedRow(row || null);
-
-    if (mode === "edit" && row) {
-      setEditIndex(row._originalIndex);
-    } else {
-      setEditIndex(null);
-    }
-
+    setSelectedRow(row);
     setDrawerOpen(true);
   };
 
   const closeDrawer = () => {
     setDrawerOpen(false);
     setSelectedRow(null);
-    setEditIndex(null);
   };
 
-  /* -------------------- Submit Handler (Add or Edit) -------------------- */
   const handleAfterSubmit = () => {
-    loadLocalData(); // Refresh table data
     closeDrawer();
+    fetchData(); // Refresh list after create/update
   };
 
-  /* -------------------- Debounced Search (for testimonials API) -------------------- */
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((value: string) => {
-        getTestimonials({ page: 1, search: value });
-      }, 500),
-    [getTestimonials]
-  );
+  const handleDelete = async (row: any) => {
+    const name = row.userName || row.username || "this admin";
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      try {
+        await adminStore.deleteAdmin(row._id);
+        toast({ title: "Admin deleted successfully", status: "success" });
+        fetchData();
+      } catch (error: any) {
+        toast({ title: "Error deleting admin", description: error.message, status: "error" });
+      }
+    }
+  };
 
-  /* -------------------- Table Columns -------------------- */
   const columns = [
-    { headerName: "Name", key: "userName" },
-    { headerName: "Organisation", key: "organisationName" },
-    { headerName: "Benchmarking", key: "benchmarking" },
+    { headerName: "Name", key: "userName" }, // Matches basicDetails.userName
+    { headerName: "Email", key: "email" },
+    { headerName: "Designation", key: "designation" },
     { headerName: "Actions", type: "table-actions" },
   ];
 
   return (
     <Box p={2}>
       <CustomTable
-        title="Admin Records (Local)"
+        title="Admin Records"
         columns={columns}
-        data={localData}
-        loading={false}
+        data={data}
+        loading={loading}
         serial={{ show: true }}
         actions={{
           actionBtn: {
@@ -131,59 +99,41 @@ const TestimonialList = observer(() => {
               showViewButton: true,
               function: (row: any) => openDrawer("view", row),
             },
-            editKey: {
-              showEditButton: true,
-              function: (row: any) => openDrawer("edit", row),
+            deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) => handleDelete(row),
             },
           },
           search: {
             show: true,
             placeholder: "Search admins...",
             searchValue: search,
-            onSearchChange: (e: any) => {
-              const value = e.target.value;
-              setSearch(value);
-              debouncedSearch(value);
-            },
+            onSearchChange: (e: any) => setSearch(e.target.value),
           },
         }}
       />
 
-      {/* ==================== Custom Drawer ==================== */}
       <CustomDrawer
         open={drawerOpen}
         close={closeDrawer}
         title={
           drawerMode === "add"
             ? "Add Admin"
-            : drawerMode === "edit"
-            ? "Edit Admin"
-            : "View Admin"
+            : drawerMode === "view"
+              ? "Admin Details"
+              : "Edit Admin"
         }
-        width="80vw"
+        width="80vw" // Wider drawer for complex form
       >
-        {/* View Mode */}
-        {drawerMode === "view" && selectedRow && (
-          <Box p={4}>
-            <AdminViewDetails data={selectedRow} />
-          </Box>
-        )}
-
-        {/* Add Mode */}
         {drawerMode === "add" && (
           <Box p={4}>
             <AddForm onSubmit={handleAfterSubmit} onCancel={closeDrawer} />
           </Box>
         )}
 
-        {/* Edit Mode */}
-        {drawerMode === "edit" && editIndex !== null && (
-          <Box>
-            <EditForm
-              recordIndex={editIndex}
-              onUpdate={handleAfterSubmit}
-              onCancel={closeDrawer}
-            />
+        {drawerMode === "view" && selectedRow && (
+          <Box p={4}>
+            <AdminViewDetails data={selectedRow} />
           </Box>
         )}
       </CustomDrawer>
@@ -191,4 +141,4 @@ const TestimonialList = observer(() => {
   );
 });
 
-export default TestimonialList;
+export default AdminList;

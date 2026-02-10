@@ -21,6 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import store from "../../../../store/store";
 
 /* ---------------- Helpers ---------------- */
 const getTenureCount = (type: string) => {
@@ -60,6 +61,7 @@ interface AddFormProps {
 }
 
 const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
+  const { adminStore: { createAdmin }, auth: { user, openNotification } } = store
   /* ================= USER / ORG ================= */
   const [basic, setBasic] = useState({
     userName: "",
@@ -174,7 +176,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (basic.password && basic.password !== basic.confirmPassword) {
       alert("Passwords do not match!");
       return;
@@ -194,7 +196,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         contact: basic.contact,
         email: basic.email,
         designation: basic.designation,
-        // password: basic.password,     // ← only if you really need it (not recommended)
+        password: basic.password,     // ← only if you really need it (not recommended)
       },
       currencies,
       businessUnits,
@@ -203,21 +205,21 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         benchmarking === "budget"
           ? "Budget Rate"
           : benchmarking === "bmk"
-          ? "BMK Rate"
-          : "",
+            ? "BMK Rate"
+            : "",
       policyCriteria: criteriaType
         ? {
-            type: criteriaType === "gross" ? "Gross" : "Net",
-            import: importPercent,
-            export: exportPercent,
-          }
+          type: criteriaType === "gross" ? "Gross" : "Net",
+          import: importPercent,
+          export: exportPercent,
+        }
         : null,
       policyRatioType: ratioType
         ? {
-            type: ratioType === "maximum" ? "Maximum" : "Minimum",
-            import: ratioImport,
-            export: ratioExport,
-          }
+          type: ratioType === "maximum" ? "Maximum" : "Minimum",
+          import: ratioImport,
+          export: ratioExport,
+        }
         : null,
     };
 
@@ -225,7 +227,31 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
     const updated = [...existing, payload];
     localStorage.setItem("addFormData", JSON.stringify(updated));
 
-    onSubmit(payload);
+    try {
+      const response = await createAdmin({ ...payload, userId: user?.userId })
+      if (response?.status === "success") {
+        openNotification({
+          title: "Success",
+          message: response.message,
+          type: "success",
+        });
+        onSubmit(payload);
+      }
+      else {
+        openNotification({
+          title: "Error",
+          message: response.message,
+          type: "error",
+        });
+      }
+    }
+    catch (err: any) {
+      openNotification({
+        title: "Error",
+        message: err.message,
+        type: "error",
+      });
+    }
   };
 
   /* ================= UI ================= */

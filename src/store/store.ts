@@ -25,6 +25,7 @@ import BookLiberary from "./BookLiberary/bookLiberary";
 import OrderStore from "./orderStore/orderStore";
 import WebTemplateStore from "./webTemplateStore/webTemplateStore";
 import ApprovalStore from "./approvalStore/approvalStore";
+import AdminStore from "./adminStore/adminStore";
 
 configure({ enforceActions: "never" });
 
@@ -58,7 +59,8 @@ const store = {
   ApprovalStore: new ApprovalStore(),
 
   //
-  WebTemplateStore: new WebTemplateStore()
+  WebTemplateStore: new WebTemplateStore(),
+  adminStore: new AdminStore(),
 };
 
 export default store;
