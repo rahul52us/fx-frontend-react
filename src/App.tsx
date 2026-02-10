@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { initReactI18next } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import "./App.css";
-import ChatboxPopup from "./config/component/ChatBoxPopUp/ChatBoxPopUp";
 import ErrorBoundary from "./config/component/ErrorBoundary/ErrorBoundary";
 import WebLoader from "./config/component/Loader/WebLoader";
 import Notification from "./config/component/Notification/Notification";
@@ -21,7 +20,7 @@ import LoginModel from "./pages/Authentication/LoginModel/LoginModel";
 import store from "./store/store";
 
 const App = observer(() => {
-  const {auth : {webLoader}} = store
+  const { auth: { webLoader } } = store
   const { pathname } = useLocation();
   i18n.use(initReactI18next).init({
     resources: {
@@ -50,7 +49,6 @@ const App = observer(() => {
         <LoginModel />
         <DashSearchBar />
         <ThemeChangeContainer />
-        <ChatboxPopup />
         <ScrollToTopButton />
       </ErrorBoundary>
     </ChakraProvider>

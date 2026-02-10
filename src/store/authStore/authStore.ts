@@ -100,12 +100,12 @@ class AuthStore {
         console.log(data);
         this.company = "company_id";
         this.user = data.data;
-        this.role = 'user';
+        this.role = this.user?.role;
         this.currentCompanyDetails = this.company;
         sessionStorage.setItem(
           process.env.REACT_APP_AUTHORIZATION_USER_DATA!,
           CryptoJS.AES.encrypt(
-            JSON.stringify({ ...this.user, role: 'user' }),
+            JSON.stringify(this.user),
             process.env.REACT_APP_ENCRYPT_SECRET_KEY!
           ).toString()
         );
@@ -374,22 +374,19 @@ class AuthStore {
     return false;
   };
 
-  canPerformTableAction = (action: 'add' | 'edit' | 'delete', context?: string) => {
-    // If user is admin role, block all table operations except user management
-    if (this.user?.role === 'user') {
-      // Allow admins to manage users only
-      return true
-    }
-    // Superadmin can do everything
-    if (this.user?.role === 'superadmin') {
-      return false;
-    }
-
-    return false
-
-    // For other roles, use existing permission system
-    return this.checkPermission(context || '', action);
-  };
+  // canPerformTableAction = (action: 'add' | 'edit' | 'delete', context?: string) => {
+  //   // If user is admin role, block all table operations except user management
+  //   if (this.user?.role === 'admin') {
+  //     // Allow admins to manage users only
+  //     return context === 'users' || context === 'user';
+  //   }
+  //   // Superadmin can do everything
+  //   if (this.user?.role === 'superadmin') {
+  //     return true;
+  //   }
+  //   // For other roles, use existing permission system
+  //   return this.checkPermission(context || '', action);
+  // };
 
   uploadUserPic = async (sendData: any) => {
     try {
@@ -423,6 +420,23 @@ class AuthStore {
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
     }
+  };
+
+  canPerformTableAction = (action: 'add' | 'edit' | 'delete', context?: string) => {
+    // If user is admin role, block all table operations except user management
+    if (this.user?.role === 'user') {
+      // Allow admins to manage users only
+      return true
+    }
+    // Superadmin can do everything
+    if (this.user?.role === 'superadmin') {
+      return false;
+    }
+
+    return false
+
+    // For other roles, use existing permission system
+    return this.checkPermission(context || '', action);
   };
 
   closeSearchBar = async () => {
