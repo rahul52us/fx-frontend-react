@@ -17,6 +17,7 @@ import {
 } from "../../../exportsRegister/component/utils/function";
 import EEFCForm from "../EEFCForm/EEFCForm";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
+import store from "../../../../../store/store";
 // import PCFCForm from "../PCFCForm/PCFCForm";
 
 const EEFCTable = () => {
@@ -26,6 +27,11 @@ const EEFCTable = () => {
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
+
+  // Permission checks
+  const canAdd = store.auth.canPerformTableAction('add', 'eefc');
+  const canEdit = store.auth.canPerformTableAction('edit', 'eefc');
+  const canDelete = store.auth.canPerformTableAction('delete', 'eefc');
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -184,12 +190,12 @@ const EEFCTable = () => {
           },
           actionBtn: {
             addKey: {
-              showAddButton: false,
+              showAddButton: canAdd,
               function: onOpen,
             },
-            editKey: { showEditButton: false },
+            editKey: { showEditButton: canEdit },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: canDelete,
               function: (row: any) =>
                 deleteItem({
                   url: `${url}/delup/deleterow/`,

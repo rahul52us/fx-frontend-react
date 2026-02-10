@@ -21,6 +21,7 @@ import {
 import { autoToken } from "../../../utils/constant";
 import PCFCForm from "../PCFCForm/PCFCForm";
 import PCFCViewDrawer from "./PCFCViewDrawer";
+import store from "../../../../../store/store";
 
 const PCFCTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -32,6 +33,11 @@ const PCFCTable = () => {
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL;
   const { deleteItem } = useDeleteItem();
+
+  // Permission checks
+  const canAdd = store.auth.canPerformTableAction('add', 'pcfc');
+  const canEdit = store.auth.canPerformTableAction('edit', 'pcfc');
+  const canDelete = store.auth.canPerformTableAction('delete', 'pcfc');
 
   const [viewData, setViewData] = useState<any>(null);
   const {
@@ -282,11 +288,11 @@ const PCFCTable = () => {
           },
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: canAdd,
               function: onOpen,
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: canEdit,
               function: (row: any) => {
                 handleEdit(row);
                 // onOpen();
@@ -302,7 +308,7 @@ const PCFCTable = () => {
 
             // editKey: { showEditButton: true, function: () => {}},
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: canDelete,
               function: handleDeleteClick,
             },
           },

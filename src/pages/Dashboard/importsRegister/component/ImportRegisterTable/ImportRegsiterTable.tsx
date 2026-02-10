@@ -21,6 +21,7 @@ import {
 } from "../../../exportsRegister/component/utils/function";
 import ImportRegistrationForm from "../ImportRegisterForm";
 import HedgeDealsCell from "../../../exportsRegister/component/ExportRegisterTable/HedgeDealsPopover";
+import store from "../../../../../store/store";
 
 const ImportRegisterTable = () => {
   const [importData, setImportData] = useState<any[]>([]);
@@ -33,6 +34,11 @@ const ImportRegisterTable = () => {
   const url = process.env.REACT_APP_FX_BASE_URL;
   // const url = "https://7b0fa03efa8d.ngrok-free.app"
   const { deleteItem } = useDeleteItem();
+
+  // Permission checks
+  const canAdd = store.auth.canPerformTableAction('add', 'import');
+  const canEdit = store.auth.canPerformTableAction('edit', 'import');
+  const canDelete = store.auth.canPerformTableAction('delete', 'import');
 
   // Delete Confirmation State
   const {
@@ -279,17 +285,17 @@ const ImportRegisterTable = () => {
           },
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: canAdd,
               function: onOpen,
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: canEdit,
               function: (row: any) => {
                 handleEdit(row);
               },
             },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: canDelete,
               function: handleDeleteClick,
             },
           },

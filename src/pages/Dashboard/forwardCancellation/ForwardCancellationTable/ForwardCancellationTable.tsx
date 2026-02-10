@@ -18,6 +18,7 @@ import {
 } from "../../exportsRegister/component/utils/function";
 import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellationForm";
 import { useDeleteItem } from "../../../../config/component/customHooks/useDeleteItem";
+import store from "../../../../store/store";
 
 const ForwardCancellationTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -26,6 +27,11 @@ const ForwardCancellationTable = () => {
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
+
+  // Permission checks
+  const canAdd = store.auth.canPerformTableAction('add', 'forwardCancellation');
+  const canEdit = store.auth.canPerformTableAction('edit', 'forwardCancellation');
+  const canDelete = store.auth.canPerformTableAction('delete', 'forwardCancellation');
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -206,12 +212,12 @@ const ForwardCancellationTable = () => {
           },
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: canAdd,
               function: onOpen,
             },
-            editKey: { showEditButton: false },
+            editKey: { showEditButton: canEdit },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: canDelete,
               function: (row: any) =>
                 deleteItem({
                   url: `${url}/delup/deleterow/`,

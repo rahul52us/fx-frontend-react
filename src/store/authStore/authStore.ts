@@ -56,6 +56,7 @@ class AuthStore {
       getCompanyUsers: action,
       getCurrentCompany: action,
       hasComponentAccess: action,
+      canPerformTableAction: action,
       getPolicy: action,
       verifyAppEmail: action,
       handleContactMail: action,
@@ -371,6 +372,20 @@ class AuthStore {
       return true;
     }
     return false;
+  };
+
+  canPerformTableAction = (action: 'add' | 'edit' | 'delete', context?: string) => {
+    // If user is admin role, block all table operations except user management
+    if (this.user?.role === 'admin') {
+      // Allow admins to manage users only
+      return context === 'users' || context === 'user';
+    }
+    // Superadmin can do everything
+    if (this.user?.role === 'superadmin') {
+      return true;
+    }
+    // For other roles, use existing permission system
+    return this.checkPermission(context || '', action);
   };
 
   uploadUserPic = async (sendData: any) => {

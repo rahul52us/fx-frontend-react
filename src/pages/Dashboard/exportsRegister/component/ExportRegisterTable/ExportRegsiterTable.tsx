@@ -17,6 +17,7 @@ import { dummyExportRegisterData } from "../utils/constant";
 import { exportToExcel, importFromExcel } from "../utils/function";
 import HedgeDealsDrawer from "./HedgeDealsDrawer";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
+import store from "../../../../../store/store";
 
 const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -28,6 +29,11 @@ const ExportRegisterTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const { deleteItem } = useDeleteItem();
+
+  // Permission checks
+  const canAdd = store.auth.canPerformTableAction('add', 'export');
+  const canEdit = store.auth.canPerformTableAction('edit', 'export');
+  const canDelete = store.auth.canPerformTableAction('delete', 'export');
 
   // Delete Confirmation State
   const {
@@ -259,11 +265,11 @@ const ExportRegisterTable = () => {
 
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: canAdd,
               function: onOpen,
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: canEdit,
               function: (row: any) => {
                 handleEdit(row);
                 // onOpen();
@@ -271,7 +277,7 @@ const ExportRegisterTable = () => {
             },
 
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: canDelete,
               function: handleDeleteClick,
             },
           },

@@ -2,7 +2,7 @@ import { Flex, IconButton, useMediaQuery } from "@chakra-ui/react";
 import { FaBars } from "react-icons/fa";
 import { observer } from "mobx-react-lite";
 import HeaderProfile from "./HeaderProfile/HeaderProfile";
-import HeaderNotification from "./HeaderNotification/HeaderNotification";
+// import HeaderNotification from "./HeaderNotification/HeaderNotification";
 // import HeaderThemeSwitch from "./HeaderThemeSwitch/HeaderThemeSwitch";
 // import HeaderLanguageSwitch from "./HeaderLanguageSwitch/HeaderLanguageSwitch";
 // import HeaderChatMessage from "./HeaderChatMessage/HeaderChatMessage";
@@ -28,7 +28,7 @@ const HeaderNavbar = observer(() => {
           {/* <HeaderLanguageSwitch /> */}
           {/* <HeaderThemeSwitch /> */}
           {/* <HeaderChatMessage /> */}
-          <HeaderNotification />
+          {/* <HeaderNotification /> */}
           {/* <CartContainer /> */}
           <HeaderProfile />
           {/* </Flex> */}

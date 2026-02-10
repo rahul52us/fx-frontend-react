@@ -19,11 +19,17 @@ import {
 } from "../../../exportsRegister/component/utils/function";
 import ExposureSettlementForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
+import store from "../../../../../store/store";
 
 const DailyExposureTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Permission checks
+  const canAdd = store.auth.canPerformTableAction('add', 'exposure');
+  const canEdit = store.auth.canPerformTableAction('edit', 'exposure');
+  const canDelete = store.auth.canPerformTableAction('delete', 'exposure');
 
   // Delete Confirmation State
   const {
@@ -281,12 +287,12 @@ const DailyExposureTable = () => {
           },
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: canAdd,
               function: onOpen,
             },
-            editKey: { showEditButton: false },
+            editKey: { showEditButton: canEdit },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: canDelete,
               function: handleDeleteClick,
             },
           },

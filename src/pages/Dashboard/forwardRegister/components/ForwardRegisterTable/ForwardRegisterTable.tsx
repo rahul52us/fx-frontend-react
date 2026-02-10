@@ -20,6 +20,7 @@ import {
 } from "../../../exportsRegister/component/utils/function";
 import ForwardRegisterForm from "../ForwardRegisterForm/ForwardRegisterForm";
 import ExposureRefsCell from "./ExposureRefsCell";
+import store from "../../../../../store/store";
 
 const ForwardRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -31,6 +32,11 @@ const ForwardRegisterTable = () => {
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL;
   const { deleteItem } = useDeleteItem();
+
+  // Permission checks
+  const canAdd = store.auth.canPerformTableAction('add', 'forward');
+  const canEdit = store.auth.canPerformTableAction('edit', 'forward');
+  const canDelete = store.auth.canPerformTableAction('delete', 'forward');
 
   // Delete Confirmation State
   const {
@@ -269,17 +275,17 @@ const ForwardRegisterTable = () => {
           },
           actionBtn: {
             addKey: {
-              showAddButton: true,
+              showAddButton: canAdd,
               function: onOpen,
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: canEdit,
               function: (row: any) => {
                 handleEdit(row);
               },
             },
             deleteKey: {
-              showDeleteButton: true,
+              showDeleteButton: canDelete,
               function: handleDeleteClick,
             },
           },
