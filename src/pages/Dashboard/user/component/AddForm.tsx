@@ -11,6 +11,7 @@ import {
   Stack,
   Text,
   IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { CloseIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { observer } from "mobx-react-lite";
@@ -29,6 +30,7 @@ const Section = ({ title, subtitle, children }: any) => (
 
 const AddForm = observer(({ onSubmit, onCancel }: any) => {
   const { auth: { user: admin } } = store;
+  const toast = useToast();
 
   const [basic, setBasic] = useState({
     userName: "",
@@ -44,6 +46,7 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
   const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [businessUnits, setBusinessUnits] = useState([
     { unitCode: "", banks: [] as any[] }
@@ -166,32 +169,81 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
   };
 
   /* ---------------- Submit ---------------- */
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!basic.password || !basic.confirmPassword) {
-      alert("Password and Confirm Password are required");
+      toast({
+        title: "Validation Error",
+        description: "Password and Confirm Password are required",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
       return;
     }
 
     if (basic.password !== basic.confirmPassword) {
-      alert("Passwords do not match");
+      toast({
+        title: "Validation Error",
+        description: "Passwords do not match",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
       return;
     }
 
+    const { confirmPassword, ...basicDetailsWithoutConfirm } = basic;
+
     const payload = {
-      basicDetails: {
-        ...basic,
-        confirmPassword: undefined,
-      },
+      basicDetails: basicDetailsWithoutConfirm,
       businessUnits,
       createdByAdmin: admin?._id,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      role: 'user' // Add role to differentiate from admin
     };
 
-    const existing = JSON.parse(localStorage.getItem("addUserFormData") || "[]");
-    localStorage.setItem("addUserFormData", JSON.stringify([...existing, payload]));
+    setLoading(true);
+    try {
+      let response = await store.User.createUserWithAuth(payload);
+      if (response?.status === "success") {
+        toast({
+          title: "Success",
+          description: "User created successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        onSubmit();
 
-    onCancel();
-    onSubmit(payload);
+      }
+      else {
+        toast({
+          title: "Error",
+          description: response?.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+      // Show success message
+      //       // Only close drawer on success
+    } catch (error: any) {
+      // Extract error message from API response
+      const errorMessage = error?.message || error?.error || "Failed to create user";
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+
+      console.error("Create user error:", error);
+      // Do NOT call onSubmit() or onCancel() here - keep drawer open on error
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* ---------------- UI ---------------- */
@@ -214,8 +266,8 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
                           ? "text"
                           : "password"
                         : showConfirmPassword
-                        ? "text"
-                        : "password"
+                          ? "text"
+                          : "password"
                     }
                     value={(basic as any)[k]}
                     onChange={handleBasicChange}
@@ -231,8 +283,8 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
                           ? <ViewOffIcon />
                           : <ViewIcon />
                         : showConfirmPassword
-                        ? <ViewOffIcon />
-                        : <ViewIcon />
+                          ? <ViewOffIcon />
+                          : <ViewIcon />
                     }
                     onClick={() =>
                       k === "password"
@@ -348,8 +400,8 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
       </Section>
 
       <Flex justify="flex-end" gap={4}>
-        {onCancel && <Button onClick={onCancel}>Cancel</Button>}
-        <Button colorScheme="blue" onClick={handleSubmit}>Create User</Button>
+        {onCancel && <Button onClick={onCancel} isDisabled={loading}>Cancel</Button>}
+        <Button colorScheme="blue" onClick={handleSubmit} isLoading={loading} loadingText="Creating...">Create User</Button>
       </Flex>
 
     </Stack>

@@ -1,107 +1,99 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Box } from "@chakra-ui/react";
+import { Box, useToast } from "@chakra-ui/react";
 import store from "../../../store/store";
 import CustomTable from "../../../config/component/CustomTable/CustomTable";
 import CustomDrawer from "../../../config/component/Drawer/CustomDrawer";
 import AddForm from "./component/AddForm";
-import EditForm from "./component/EditForm";
 import AdminViewDetails from "./component/AdminDetailsView";
 
-/* -------------------- LocalStorage Key -------------------- */
-export const STORAGE_KEY = "addUserFormData";
-
-/* -------------------- Debounce Helper -------------------- */
-function debounce(fn: Function, delay = 500) {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
 
 const UserList = observer(() => {
   const {
-    TestimonialStore: { getTestimonials, testimonials },
-    auth: { openNotification },
+    User, // Changed from userStore to User
   } = store;
+  const toast = useToast(); // Moved toast declaration here
 
   /* -------------------- State -------------------- */
   const [search, setSearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<"add" | "view" | "edit">("add");
   const [selectedRow, setSelectedRow] = useState<any>(null);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [localData, setLocalData] = useState<any[]>([]);
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  /* -------------------- Load from LocalStorage -------------------- */
-  const loadLocalData = () => {
+  /* -------------------- Fetch Users from API -------------------- */
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      const response = await User.getUsersWithAuth({ search, role: 'user' });
+      const users = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
 
-      const normalized = stored.map((item: any, index: number) => ({
-        ...item,
-        ...item.basicDetails,
-        _originalIndex: index,
+      const formattedData = users.map((user: any) => ({
+        ...user,
+        ...(user.basicDetails || {}),
       }));
 
-      setLocalData(normalized);
-    } catch (e) {
-      console.error("LocalStorage read failed", e);
-      setLocalData([]);
+      setData(formattedData);
+    } catch (error: any) {
+      console.error("Failed to fetch users", error);
+      toast({
+        title: "Error fetching users",
+        description: error?.message || "Something went wrong",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadLocalData();
-  }, []);
-
-  /* -------------------- Keep testimonials logic -------------------- */
-  useEffect(() => {
-    if (!testimonials.hasFetch) {
-      getTestimonials({ page: 1 }).catch(() => {
-        // openNotification({
-        //   title: "Failed to get testimonials",
-        //   message: err.message,
-        //   type: "error",
-        // });
-      });
-    }
-  }, [getTestimonials, openNotification, testimonials.hasFetch]);
+    fetchData();
+  }, [search]);
 
   /* -------------------- Drawer Controls -------------------- */
   const openDrawer = (mode: "add" | "view" | "edit", row?: any) => {
     setDrawerMode(mode);
     setSelectedRow(row || null);
-
-    if (mode === "edit" && row) {
-      setEditIndex(row._originalIndex);
-    } else {
-      setEditIndex(null);
-    }
-
     setDrawerOpen(true);
   };
 
   const closeDrawer = () => {
     setDrawerOpen(false);
     setSelectedRow(null);
-    setEditIndex(null);
   };
 
   const handleAfterSubmit = () => {
-    loadLocalData();
+    fetchData();
     closeDrawer();
   };
 
-  /* -------------------- Debounced Search (kept for API) -------------------- */
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((value: string) => {
-        getTestimonials({ page: 1, search: value });
-      }, 500),
-    [getTestimonials]
-  );
+  /* -------------------- Delete User -------------------- */
+  const handleDelete = async (row: any) => {
+    const name = row.userName || row.username || "this user";
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      try {
+        await User.deleteUserWithAuth(row._id); // Changed from userStore.deleteUserWithAuth
+        toast({
+          title: "User deleted successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        fetchData();
+      } catch (error: any) {
+        toast({
+          title: "Error deleting user",
+          description: error.message || "Something went wrong",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    }
+  };
 
   /* -------------------- Table Columns -------------------- */
   const columns = [
@@ -117,8 +109,8 @@ const UserList = observer(() => {
       <CustomTable
         title="Users Records"
         columns={columns}
-        data={localData}
-        loading={false}
+        data={data}
+        loading={loading}
         serial={{ show: true }}
         actions={{
           actionBtn: {
@@ -131,19 +123,19 @@ const UserList = observer(() => {
               function: (row: any) => openDrawer("view", row),
             },
             editKey: {
-              showEditButton: true,
+              showEditButton: false,
               function: (row: any) => openDrawer("edit", row),
+            },
+            deleteKey: {
+              showDeleteButton: true,
+              function: (row: any) => handleDelete(row),
             },
           },
           search: {
             show: true,
             placeholder: "Search users...",
             searchValue: search,
-            onSearchChange: (e: any) => {
-              const value = e.target.value;
-              setSearch(value);
-              debouncedSearch(value);
-            },
+            onSearchChange: (e: any) => setSearch(e.target.value),
           },
         }}
       />
@@ -156,8 +148,8 @@ const UserList = observer(() => {
           drawerMode === "add"
             ? "Add User"
             : drawerMode === "edit"
-            ? "Edit User"
-            : "View User"
+              ? "Edit User"
+              : "View User"
         }
         width="80vw"
       >
@@ -170,16 +162,6 @@ const UserList = observer(() => {
         {drawerMode === "add" && (
           <Box p={4}>
             <AddForm onSubmit={handleAfterSubmit} onCancel={closeDrawer} />
-          </Box>
-        )}
-
-        {drawerMode === "edit" && editIndex !== null && (
-          <Box p={4}>
-            <EditForm
-              recordIndex={editIndex}
-              onUpdate={handleAfterSubmit}
-              onCancel={closeDrawer}
-            />
           </Box>
         )}
       </CustomDrawer>

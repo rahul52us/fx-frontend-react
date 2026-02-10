@@ -8,9 +8,9 @@ class Userstore {
     loading: true,
     hasFetch: false,
   };
-  userRoleCounts : any = {
-    loading : false,
-    data : []
+  userRoleCounts: any = {
+    loading: false,
+    data: []
   }
 
   classes = {
@@ -27,8 +27,8 @@ class Userstore {
   }
 
   managersUsersCount = {
-    data : [],
-    loading : false
+    data: [],
+    loading: false
   }
 
   Users = {
@@ -68,18 +68,18 @@ class Userstore {
       Users: observable,
       designationCount: observable,
       UsersCounts: observable,
-      UsersRoles:observable,
-      managerUsers:observable,
-      managersUsersCount:observable,
-      userRoleCounts:observable,
+      UsersRoles: observable,
+      managerUsers: observable,
+      managersUsersCount: observable,
+      userRoleCounts: observable,
       resetStudentDetails: action,
       setHandleFormDrawer: action,
-      getAllManagerUsers:action,
+      getAllManagerUsers: action,
       createUser: action,
       getStudentById: action,
       getAllUsers: action,
       getUsersDetailsById: action,
-      getUsersCompanyDetailsById:action,
+      getUsersCompanyDetailsById: action,
       updateUserProfile: action,
       getDesignationCount: action,
       getUsersCount: action,
@@ -87,18 +87,22 @@ class Userstore {
       updateFamilyDetails: action,
       updateWorkExperience: action,
       updateDocuments: action,
-      updateCompanyDetails:action,
-      updatePermissions:action,
-      updateQualifications:action,
-      getAllUsersRoles:action,
-      getManagersUsersCount:action,
-      getUsersSubOrdinateDetails:action,
-      getUsersSubOrdinateActionsDetails:action,
-      getManagersOfUsers:action,
-      getUsersRoleCount:action,
-      getCompanyDetailsById:action,
-      updateSalaryStructure:action,
-      getSalaryDetailsStructure:action
+      updateCompanyDetails: action,
+      updatePermissions: action,
+      updateQualifications: action,
+      getAllUsersRoles: action,
+      getManagersUsersCount: action,
+      getUsersSubOrdinateDetails: action,
+      getUsersSubOrdinateActionsDetails: action,
+      getManagersOfUsers: action,
+      getUsersRoleCount: action,
+      getCompanyDetailsById: action,
+      updateSalaryStructure: action,
+      getSalaryDetailsStructure: action,
+      // New auth API methods
+      createUserWithAuth: action,
+      getUsersWithAuth: action,
+      deleteUserWithAuth: action,
     });
   }
 
@@ -127,9 +131,10 @@ class Userstore {
     try {
       this.Users.loading = true;
       const { data } = await axios.post("/User",
-       { company: [store.auth.company]},
-       { params: { ...sendData },
-      });
+        { company: [store.auth.company] },
+        {
+          params: { ...sendData },
+        });
       this.Users.hasFetch = true;
       this.Users.data = data?.data?.data || [];
       this.Users.totalPages = data?.data?.totalPages || 0;
@@ -193,8 +198,8 @@ class Userstore {
     try {
       this.managersUsersCount.loading = true;
       const { data } = await axios.post("/User/managers/Users/count",
-        {company: [store.auth.company]},
-        {params: { ...sendData }},
+        { company: [store.auth.company] },
+        { params: { ...sendData } },
       );
       this.managersUsersCount.data = data?.data || [];
       return data.data;
@@ -221,7 +226,7 @@ class Userstore {
   getUsersCount = async () => {
     try {
       this.UsersCounts.loading = true;
-      const { data } = await axios.post("/User/total/count",{company : [store.auth.company]});
+      const { data } = await axios.post("/User/total/count", { company: [store.auth.company] });
       this.UsersCounts.data = data?.data || 0;
       return data.data;
     } catch (err: any) {
@@ -234,7 +239,7 @@ class Userstore {
   getUsersRoleCount = async () => {
     try {
       this.userRoleCounts.loading = true
-      const { data } = await axios.get("/User/get/roles/count",{params : {company: store.auth.company}});
+      const { data } = await axios.get("/User/get/roles/count", { params: { company: store.auth.company } });
       this.userRoleCounts.data = data.data || []
       return data.data;
     } catch (err: any) {
@@ -265,7 +270,7 @@ class Userstore {
 
   getSalaryDetailsStructure = async (datas: any) => {
     try {
-      const { data } = await axios.post(`/User/salaryStructure`,{user : datas.user});
+      const { data } = await axios.post(`/User/salaryStructure`, { user: datas.user });
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -292,7 +297,7 @@ class Userstore {
 
   createUser = async (sendData: any) => {
     try {
-      const { data } = await axios.post("User/create", {...sendData, company: store.auth.company});
+      const { data } = await axios.post("User/create", { ...sendData, company: store.auth.company });
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response || err);
@@ -350,7 +355,7 @@ class Userstore {
 
   updateUserProfile = async (id: any, sendData: any) => {
     try {
-      const { data } = await axios.put(`User/profile/${id}`, {...sendData,company: store.auth.company});
+      const { data } = await axios.put(`User/profile/${id}`, { ...sendData, company: store.auth.company });
       return data;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -414,6 +419,43 @@ class Userstore {
     this.studentDetails.data = null;
     this.studentDetails.loading = true;
     this.studentDetails.hasFetch = false;
+  };
+
+  /* -------------------- New Auth API Methods -------------------- */
+  createUserWithAuth = async (sendData: any) => {
+    try {
+      this.Users.loading = true;
+      const { data } = await axios.post("/auth/createuser/", sendData);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.Users.loading = false;
+    }
+  };
+
+  getUsersWithAuth = async (payload: any) => {
+    try {
+      this.Users.loading = true;
+      const { data } = await axios.post("/auth/getusers/", payload);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.Users.loading = false;
+    }
+  };
+
+  deleteUserWithAuth = async (id: string) => {
+    try {
+      this.Users.loading = true;
+      const { data } = await axios.post(`/auth/deleteuser/${id}`);
+      return data;
+    } catch (err: any) {
+      return Promise.reject(err?.response?.data || err.message);
+    } finally {
+      this.Users.loading = false;
+    }
   };
 }
 
