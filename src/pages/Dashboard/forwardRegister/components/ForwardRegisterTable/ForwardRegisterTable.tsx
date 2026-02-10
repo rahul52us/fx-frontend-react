@@ -1,16 +1,11 @@
 import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import { dummyForwardRegisterData } from "../../../exportsRegister/component/utils/constant";
@@ -293,26 +288,20 @@ const ForwardRegisterTable = () => {
         loading={loading}
       />
 
-      <Drawer
-        isOpen={isOpen}
-        placement="right"
-        onClose={handleDrawerClose}
+      <CustomDrawer
+        open={isOpen}
+        close={handleDrawerClose}
+        title="Forward Register"
+        width="75vw"
         size="xl"
       >
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>Forward Register</DrawerHeader>
-          <DrawerCloseButton />
-          <DrawerBody>
-            <ForwardRegisterForm
-              submitForm={submitExportForm}
-              key={formKey}
-              editData={editRow}
-              originalData={originalRow}
-            />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        <ForwardRegisterForm
+          submitForm={submitExportForm}
+          key={formKey}
+          editData={editRow}
+          originalData={originalRow}
+        />
+      </CustomDrawer>
 
       <DeleteConfirmationModal
         isOpen={isDeleteOpen}

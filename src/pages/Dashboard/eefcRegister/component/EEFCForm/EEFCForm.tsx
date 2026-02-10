@@ -3,7 +3,6 @@
 import {
   Box,
   Button,
-  Divider,
   Flex,
   Heading,
   SimpleGrid,
@@ -38,9 +37,9 @@ const EEFCForm = ({ submitForm }: any) => {
     ),
   });
   return (
-    <Box bg="whiteAlpha.700" py={4}>
-      <Box maxW="5xl" mx="auto" p={8}>
-        <Heading size="lg" mb={6} textAlign="center">
+    <Box bg="whiteAlpha.700">
+      <Box mx="auto" p={4}>
+        <Heading display="none" size="lg" mb={6} textAlign="center">
           PCFC Register Form
         </Heading>
 
@@ -56,9 +55,7 @@ const EEFCForm = ({ submitForm }: any) => {
           {({ values, handleChange, isSubmitting, errors, touched }: any) => (
             <FormikForm>
               <VStack spacing={6} align="stretch">
-                <Divider mb={4} />
-
-                <SimpleGrid columns={[1, null, 2]} spacing={8}>
+                <SimpleGrid columns={[1, null, 2]} spacing={4}>
                   <CustomInput
                     label="Business Unit"
                     name="bussinessUnit"

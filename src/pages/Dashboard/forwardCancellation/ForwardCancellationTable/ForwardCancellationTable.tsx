@@ -1,15 +1,10 @@
 import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import CustomDrawer from "../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../config/component/CustomTable/CustomTable";
 import { dymmyForwardCancellationData } from "../../exportsRegister/component/utils/constant";
 import {
@@ -231,16 +226,15 @@ const ForwardCancellationTable = () => {
         loading={loading}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>Add Forward Cancellation Entry</DrawerHeader>
-          <DrawerCloseButton />
-          <DrawerBody>
-            <ForwardCancellationForm submitForm={submitExportForm} />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+      <CustomDrawer
+        open={isOpen}
+        close={onClose}
+        title="Add Forward Cancellation Entry"
+        size="xl"
+        width="75vw"
+      >
+        <ForwardCancellationForm submitForm={submitExportForm} />
+      </CustomDrawer>
     </>
   );
 };

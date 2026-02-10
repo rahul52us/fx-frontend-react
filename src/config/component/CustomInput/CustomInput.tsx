@@ -32,7 +32,7 @@ import {
 } from "@chakra-ui/react";
 import { RiCloseFill, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import Select from "react-select";
-import { SingleDatepicker } from "chakra-dayzed-datepicker";
+// import { SingleDatepicker } from "chakra-dayzed-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AdvancedEditor from "../Editor/Editor";
 import PhoneInput from "react-phone-input-2";
@@ -45,24 +45,24 @@ import { format } from "date-fns";
 
 interface CustomInputProps {
   type?:
-    | "editor"
-    | "password"
-    | "number"
-    | "text"
-    | "radio"
-    | "file"
-    | "switch"
-    | "textarea"
-    | "select"
-    | "date"
-    | "time"
-    | "checkbox"
-    | "url"
-    | "phone"
-    | "dateAndTime"
-    | "file-drag"
-    | "tags"
-    | "real-time-user-search";
+  | "editor"
+  | "password"
+  | "number"
+  | "text"
+  | "radio"
+  | "file"
+  | "switch"
+  | "textarea"
+  | "select"
+  | "date"
+  | "time"
+  | "checkbox"
+  | "url"
+  | "phone"
+  | "dateAndTime"
+  | "file-drag"
+  | "tags"
+  | "real-time-user-search";
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -393,9 +393,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
             onChange={onChange}
             placeholder={placeholder}
             isClearable={isClear ? true : undefined}
-            className={`chakra-select ${
-              theme ? theme.components.Select.baseStyle : ""
-            }`}
+            className={`chakra-select ${theme ? theme.components.Select.baseStyle : ""
+              }`}
             isMulti={isMulti}
             isSearchable={isSearchable}
             getOptionLabel={getOptionLabel}
@@ -415,13 +414,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
                     ? isSelected
                       ? "#4299e1"
                       : isFocused
-                      ? "gray.100"
-                      : "white"
+                        ? "gray.100"
+                        : "white"
                     : isSelected
-                    ? "#2b6cb0"
-                    : isFocused
-                    ? "gray.700"
-                    : "#2D3748",
+                      ? "#2b6cb0"
+                      : isFocused
+                        ? "gray.700"
+                        : "#2D3748",
                 color: colorMode === "light" ? "black" : "white",
                 border: "none", // Remove the border to avoid white lines
                 padding: "8px 12px",
@@ -569,67 +568,116 @@ const CustomInput: React.FC<CustomInputProps> = ({
       //       )}
       //     </div>
       //   );
-  case "date":
-  return (
-    <Field name={name}>
-      {({ field, form }: any) => {
-        const selectedDate = field.value ? new Date(field.value) : undefined;
+      // case "date":
+      // return (
+      //   <Field name={name}>
+      //     {({ field, form }: any) => {
+      //       const selectedDate = field.value ? new Date(field.value) : undefined;
+      //       return (
+      //         <div style={{ position: "relative" }}>
+      //           <SingleDatepicker
+      //             name={name}
+      //             date={selectedDate}
+      //             onDateChange={(date: Date | undefined) => {
+      //               const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+      //               form.setFieldValue(name, formattedDate);
+      //             }}
+      //             maxDate={maxDate}
+      //             minDate={minDate}
+      //             disabled={disabled}
+      //             disabledDates={disabledDates}
+      //             usePortal={false}
+      //             configs={{
+      //               dateFormat: "dd-MM-yyyy",
+      //             }}
+      //             propsConfigs={{
+      //               dayOfMonthBtnProps: {
+      //                 defaultBtnProps: {
+      //                   _hover: { background: "blue.500" },
+      //                 },
+      //                 selectedBtnProps: {
+      //                   background: "blue.300",
+      //                 },
+      //                 todayBtnProps: {
+      //                   border: "1px solid #38B2AC",
+      //                 },
+      //               },
+      //               inputProps: {
+      //                 size: "md",
+      //                 fontSize: "14px",
+      //                 placeholder: placeholder || "Select Date",
+      //               },
+      //             }}
+      //           />
+      //           {field.value && isClear && (
+      //             <Button
+      //               colorScheme="red"
+      //               variant="link"
+      //               onClick={() => form.setFieldValue(name, "")}
+      //               style={{
+      //                 position: "absolute",
+      //                 top: "50%",
+      //                 right: "0.2rem",
+      //                 transform: "translateY(-50%)",
+      //               }}
+      //             >
+      //               <Icon as={RiCloseFill} />
+      //             </Button>
+      //           )}
+      //         </div>
+      //       );
+      //     }}
+      //   </Field>
+      // );
+      case "date":
         return (
-          <div style={{ position: "relative" }}>
-            <SingleDatepicker
-              name={name}
-              date={selectedDate}
-              onDateChange={(date: Date | undefined) => {
-                const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
-                form.setFieldValue(name, formattedDate);
-              }}
-              maxDate={maxDate}
-              minDate={minDate}
-              disabled={disabled}
-              disabledDates={disabledDates}
-              usePortal={false}
-              configs={{
-                dateFormat: "dd-MM-yyyy",
-              }}
-              propsConfigs={{
-                dayOfMonthBtnProps: {
-                  defaultBtnProps: {
-                    _hover: { background: "blue.500" },
-                  },
-                  selectedBtnProps: {
-                    background: "blue.300",
-                  },
-                  todayBtnProps: {
-                    border: "1px solid #38B2AC",
-                  },
-                },
-                inputProps: {
-                  size: "md",
-                  fontSize: "14px",
-                  placeholder: placeholder || "Select Date",
-                },
-              }}
-            />
-            {field.value && isClear && (
-              <Button
-                colorScheme="red"
-                variant="link"
-                onClick={() => form.setFieldValue(name, "")}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: "0.2rem",
-                  transform: "translateY(-50%)",
-                }}
-              >
-                <Icon as={RiCloseFill} />
-              </Button>
-            )}
-          </div>
+          <Field name={name}>
+            {({ field, form }: any) => {
+              return (
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="date"
+                    name={name}
+                    value={field.value || ""}
+                    onChange={(e) => {
+                      const value = e.target.value; // already yyyy-MM-dd
+                      form.setFieldValue(name, value);
+                    }}
+                    max={maxDate ? format(maxDate, "yyyy-MM-dd") : undefined}
+                    min={minDate ? format(minDate, "yyyy-MM-dd") : undefined}
+                    disabled={disabled}
+                    placeholder={placeholder || "Select Date"}
+                    style={{
+                      width: "100%",
+                      height: "40px",
+                      padding: "0 12px",
+                      fontSize: "14px",
+                      border: "1px solid #CBD5E0",
+                      borderRadius: "6px",
+                    }}
+                  />
+
+                  {field.value && isClear && (
+                    <Button
+                      colorScheme="red"
+                      variant="link"
+                      onClick={() => form.setFieldValue(name, "")}
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        right: "0.2rem",
+                        transform: "translateY(-50%)",
+                      }}
+                    >
+                      <Icon as={RiCloseFill} />
+                    </Button>
+                  )}
+                </div>
+              );
+            }}
+          </Field>
         );
-      }}
-    </Field>
-  );
+
       case "editor":
         return (
           <AdvancedEditor
@@ -835,13 +883,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
                     ? isSelected
                       ? "#4299e1"
                       : isFocused
-                      ? "gray.100"
-                      : "white"
+                        ? "gray.100"
+                        : "white"
                     : isSelected
-                    ? "#2b6cb0"
-                    : isFocused
-                    ? "gray.700"
-                    : "#2D3748",
+                      ? "#2b6cb0"
+                      : isFocused
+                        ? "gray.700"
+                        : "#2D3748",
                 color: colorMode === "light" ? "black" : "white",
                 padding: "8px 12px",
                 ":hover": {
@@ -919,7 +967,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   return (
     <FormControl id={name} isInvalid={!!error && showError}>
       <FormLabel color={labelcolor} fontSize={"small"} mt={2}>
-        {label} {required && <span style={{ color: "red" }}>*</span>} 
+        {label} {required && <span style={{ color: "red" }}>*</span>}
       </FormLabel>
       {renderInputComponent()}
       {showError && error && <FormErrorMessage>{error}</FormErrorMessage>}

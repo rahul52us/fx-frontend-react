@@ -92,10 +92,10 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
         )}
         <Divider />
         <DrawerBody
-          style={{ overflowY: "auto", padding:"0px" }}
+          style={{ overflowY: "auto", padding: "0px" }}
         >
           <DrawerLoader loading={loading}>
-            <div style={{ width:"100%" }}>{children}</div>
+            <div style={{ width: "100%" }}>{children}</div>
           </DrawerLoader>
         </DrawerBody>
       </DrawerContent>

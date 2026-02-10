@@ -1,17 +1,12 @@
 "use client";
 import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
@@ -303,29 +298,21 @@ const ImportRegisterTable = () => {
         loading={loading}
       />
 
-      <Drawer
-        isOpen={isOpen}
-        placement="right"
-        onClose={handleDrawerClose}
+      <CustomDrawer
+        open={isOpen}
+        close={handleDrawerClose}
+        title="Add Import Entry"
+        width="75vw"
         size="xl"
       >
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>Add Import Entry</DrawerHeader>
-          <DrawerBody>
-            <ImportRegistrationForm
-              submitImportForm={submitImportForm}
-              key={formKey}
-              onClose={onClose}
-              // submitExportForm={submitExportForm}
-              editData={editRow}
-              originalData={originalRow}
-            />
-            {/* /> */}
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        <ImportRegistrationForm
+          submitImportForm={submitImportForm}
+          key={formKey}
+          onClose={onClose}
+          editData={editRow}
+          originalData={originalRow}
+        />
+      </CustomDrawer>
 
       <DeleteConfirmationModal
         isOpen={isDeleteOpen}

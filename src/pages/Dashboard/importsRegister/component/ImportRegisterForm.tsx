@@ -38,7 +38,7 @@ const ImportRegistrationForm = ({
   const [selectedExposureType, setSelectedExposureType] = useState<string>("");
   const isEdit = Boolean(editData);
 
-   const { storeEdited, editLoading  } = useStoreEdited();
+  const { storeEdited, editLoading } = useStoreEdited();
   const fetchPoDetails = async () => {
     setLoading(true);
     try {
@@ -123,7 +123,7 @@ const ImportRegistrationForm = ({
   }, []);
 
   return (
-    <Box maxW="5xl" mx="auto" borderRadius="2xl">
+    <Box mx="auto" borderRadius="2xl">
       {loading && <Loader />}
       {!loading && (
         <Formik
@@ -166,35 +166,35 @@ const ImportRegistrationForm = ({
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={async(values, actions) => {
+          onSubmit={async (values, actions) => {
             if (isEdit) {
-               const { original, updated } = pickMatchedFields(
-                 originalData,
-                 values,
-                 editData?.rowId
-               );
-           
-               const payload = {
-                 register: "import",
-                 data: [
-                   {
-                     original,
-                     updated,
-                     rowId: editData?.rowId, // optional if backend still expects it here
-                   },
-                 ],
-               };
-           
-               try {
-                 await storeEdited(payload, onClose);
-                 actions.resetForm();
-                 actions.setSubmitting(false);
-               } catch (error) {
-                 actions.setSubmitting(false);
-               }
-           
-               return;
-             } {
+              const { original, updated } = pickMatchedFields(
+                originalData,
+                values,
+                editData?.rowId
+              );
+
+              const payload = {
+                register: "import",
+                data: [
+                  {
+                    original,
+                    updated,
+                    rowId: editData?.rowId, // optional if backend still expects it here
+                  },
+                ],
+              };
+
+              try {
+                await storeEdited(payload, onClose);
+                actions.resetForm();
+                actions.setSubmitting(false);
+              } catch (error) {
+                actions.setSubmitting(false);
+              }
+
+              return;
+            } {
               setShowError(true);
               submitImportForm(values, actions, "form");
             }
@@ -226,7 +226,7 @@ const ImportRegistrationForm = ({
 
             return (
               <FormikForm>
-                <VStack spacing={6} align="stretch">
+                <VStack m={4} spacing={6} align="stretch">
                   <SimpleGrid columns={[1, null, 2]} spacing={8}>
                     {/* Exposure Type */}
                     <CustomInput

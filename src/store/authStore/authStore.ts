@@ -100,12 +100,12 @@ class AuthStore {
         console.log(data);
         this.company = "company_id";
         this.user = data.data;
-        this.role = this.user?.role;
+        this.role = 'user';
         this.currentCompanyDetails = this.company;
         sessionStorage.setItem(
           process.env.REACT_APP_AUTHORIZATION_USER_DATA!,
           CryptoJS.AES.encrypt(
-            JSON.stringify(this.user),
+            JSON.stringify({ ...this.user, role: 'user' }),
             process.env.REACT_APP_ENCRYPT_SECRET_KEY!
           ).toString()
         );
@@ -376,14 +376,17 @@ class AuthStore {
 
   canPerformTableAction = (action: 'add' | 'edit' | 'delete', context?: string) => {
     // If user is admin role, block all table operations except user management
-    if (this.user?.role === 'admin') {
+    if (this.user?.role === 'user') {
       // Allow admins to manage users only
-      return context === 'users' || context === 'user';
+      return true
     }
     // Superadmin can do everything
     if (this.user?.role === 'superadmin') {
-      return true;
+      return false;
     }
+
+    return false
+
     // For other roles, use existing permission system
     return this.checkPermission(context || '', action);
   };

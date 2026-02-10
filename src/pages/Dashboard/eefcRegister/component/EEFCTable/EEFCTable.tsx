@@ -1,14 +1,10 @@
 import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerOverlay,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import { dummyEefcData } from "../../../exportsRegister/component/utils/constant";
 import {
@@ -209,15 +205,15 @@ const EEFCTable = () => {
         loading={loading}
       />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerBody>
-            <EEFCForm submitForm={submitExportForm} />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+      <CustomDrawer
+        open={isOpen}
+        close={onClose}
+        title="EEFC Register Form"
+        size="xl"
+        width="75vw"
+      >
+        <EEFCForm submitForm={submitExportForm} />
+      </CustomDrawer>
     </>
   );
 };

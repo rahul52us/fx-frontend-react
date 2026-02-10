@@ -1,16 +1,11 @@
 import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import { exposureSettlementReport } from "../../../exportsRegister/component/utils/constant";
 import {
@@ -301,17 +296,15 @@ const DailyExposureTable = () => {
       />
 
       {/* Drawer for adding export entry */}
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>Exposure Settlement Register</DrawerHeader>
-          <DrawerCloseButton />
-          {/* <DrawerHeader></DrawerHeader> */}
-          <DrawerBody>
-            <ExposureSettlementForm submitForm={submitExportForm} />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+      <CustomDrawer
+        open={isOpen}
+        close={onClose}
+        title="Exposure Settlement Register"
+        size="xl"
+        width="75%"
+      >
+        <ExposureSettlementForm submitForm={submitExportForm} />
+      </CustomDrawer>
 
       {/* Delete Confirmation Alert */}
       <DeleteConfirmationModal

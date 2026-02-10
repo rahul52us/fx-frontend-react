@@ -403,7 +403,6 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
         {onCancel && <Button onClick={onCancel} isDisabled={loading}>Cancel</Button>}
         <Button colorScheme="blue" onClick={handleSubmit} isLoading={loading} loadingText="Creating...">Create User</Button>
       </Flex>
-
     </Stack>
   );
 });

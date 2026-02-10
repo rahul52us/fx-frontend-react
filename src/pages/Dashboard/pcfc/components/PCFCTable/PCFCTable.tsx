@@ -1,16 +1,11 @@
 import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import { dummyPcfcData } from "../../../exportsRegister/component/utils/constant";
@@ -316,26 +311,20 @@ const PCFCTable = () => {
         loading={loading}
       />
 
-      <Drawer
-        isOpen={isOpen}
-        placement="right"
-        onClose={handleDrawerClose}
+      <CustomDrawer
+        open={isOpen}
+        close={handleDrawerClose}
+        title="PCFC Register Form"
         size="xl"
+        width="75vw"
       >
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>PCFC Register Form</DrawerHeader>
-          <DrawerCloseButton />
-          <DrawerBody>
-            <PCFCForm
-              submitForm={submitExportForm}
-              key={formKey}
-              editData={editRow}
-              originalData={originalRow}
-            />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        <PCFCForm
+          submitForm={submitExportForm}
+          key={formKey}
+          editData={editRow}
+          originalData={originalRow}
+        />
+      </CustomDrawer>
       <PCFCViewDrawer
         isOpen={isViewOpen}
         onClose={onViewClose}

@@ -25,33 +25,33 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
     cashTomSpot: Yup.number().required("Cash/Tom Spot is required"),
   });
 
-const fetchHedgeDealData = async () => {
-  try {
-    const response = await axios.post(
-      `${url}/forwardCancellationpcfc/dealid/`
-    );
+  const fetchHedgeDealData = async () => {
+    try {
+      const response = await axios.post(
+        `${url}/forwardCancellationpcfc/dealid/`
+      );
 
-    if (response?.data?.status === "success") {
-      const mappedData = response.data.data.map((item: any) => ({
-        forwardDealId: item.forwardDealId,
-        exposureType: item.exposureType,
-        bank: item.bank,
-        currency: item.currency,
-        businessUnit: item.businessUnit,
-        outstandingAmount: item.outstandingAmount,
-        bookedRate: item.bookedRate,
-        deliveryDateFrom: item.deliveryDateFrom,
-        deliveryDateTo: item.deliveryDateTo,
-        bankMargin: item.bankMargine, // 🔥 mapping fix
-        
-      }));
+      if (response?.data?.status === "success") {
+        const mappedData = response.data.data.map((item: any) => ({
+          forwardDealId: item.forwardDealId,
+          exposureType: item.exposureType,
+          bank: item.bank,
+          currency: item.currency,
+          businessUnit: item.businessUnit,
+          outstandingAmount: item.outstandingAmount,
+          bookedRate: item.bookedRate,
+          deliveryDateFrom: item.deliveryDateFrom,
+          deliveryDateTo: item.deliveryDateTo,
+          bankMargin: item.bankMargine, // 🔥 mapping fix
 
-      setForwardDeals(mappedData);
+        }));
+
+        setForwardDeals(mappedData);
+      }
+    } catch (error) {
+      console.error("Error fetching hedge deal data:", error);
     }
-  } catch (error) {
-    console.error("Error fetching hedge deal data:", error);
-  }
-};
+  };
 
 
   const initialValues = {
@@ -74,16 +74,16 @@ const fetchHedgeDealData = async () => {
     plInFCY: "",
     washRate: "",
     plInINR: "",
-    businessUnit:""
+    businessUnit: ""
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchHedgeDealData();
-  },[])
+  }, [])
 
   return (
-    <Box bg="whiteAlpha.700" py={4}> cx
-      <Box maxW="5xl" mx="auto" px={2}>
+    <Box bg="whiteAlpha.700">
+      <Box p={5} mx="auto" px={2}>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -119,43 +119,43 @@ const fetchHedgeDealData = async () => {
                   />
 
                   {/* Forward Deal ID Dropdown */}
-              <CustomInput
-  label="Forward Deal ID"
-  name="forwardDealId"
-  type="select"
-  disabled={!forwardDeals.length}
-placeholder={
-  forwardDeals.length ? "Select Forward Deal ID" : "Loading deals..."
-}
-  options={forwardDeals.map((deal) => ({
-    label: deal.forwardDealId,
-    value: deal.forwardDealId,
-  }))}
-  value={
-    forwardDeals.find(
-      (d) => d.forwardDealId === values.forwardDealId
-    )
-      ? {
-          label: values.forwardDealId,
-          value: values.forwardDealId,
-        }
-      : null
-  }
-  onChange={(option: any) => {
-    const selected = forwardDeals.find(
-      (deal) => deal.forwardDealId === option.value
-    );
+                  <CustomInput
+                    label="Forward Deal ID"
+                    name="forwardDealId"
+                    type="select"
+                    disabled={!forwardDeals.length}
+                    placeholder={
+                      forwardDeals.length ? "Select Forward Deal ID" : "Loading deals..."
+                    }
+                    options={forwardDeals.map((deal) => ({
+                      label: deal.forwardDealId,
+                      value: deal.forwardDealId,
+                    }))}
+                    value={
+                      forwardDeals.find(
+                        (d) => d.forwardDealId === values.forwardDealId
+                      )
+                        ? {
+                          label: values.forwardDealId,
+                          value: values.forwardDealId,
+                        }
+                        : null
+                    }
+                    onChange={(option: any) => {
+                      const selected = forwardDeals.find(
+                        (deal) => deal.forwardDealId === option.value
+                      );
 
-    if (selected) {
-      Object.entries(selected).forEach(([key, value]) => {
-        setFieldValue(key, value);
-      });
-    }
+                      if (selected) {
+                        Object.entries(selected).forEach(([key, value]) => {
+                          setFieldValue(key, value);
+                        });
+                      }
 
-    setFieldValue("forwardDealId", option.value);
-  }}
-  error={touched.forwardDealId && errors.forwardDealId}
-/>
+                      setFieldValue("forwardDealId", option.value);
+                    }}
+                    error={touched.forwardDealId && errors.forwardDealId}
+                  />
 
 
                   {/* Automated Fields */}

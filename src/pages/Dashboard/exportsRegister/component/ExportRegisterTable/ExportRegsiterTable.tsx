@@ -1,16 +1,11 @@
 import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import ExposureForm from "../ExportsRegisterForm";
 import { dummyExportRegisterData } from "../utils/constant";
@@ -285,27 +280,21 @@ const ExportRegisterTable = () => {
       />
 
       {/* ---------- Drawer ---------- */}
-      <Drawer
-        isOpen={isOpen}
-        placement="right"
-        onClose={handleDrawerClose}
+      <CustomDrawer
+        open={isOpen}
+        close={handleDrawerClose}
+        title="Add Export Entry"
+        width="75vw"
         size="xl"
       >
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>Add Export Entry</DrawerHeader>
-          <DrawerBody>
-            <ExposureForm
-              submitExportForm={submitExportForm}
-              key={formKey}
-              editData={editRow}
-              originalData={originalRow}
-              onClose={onClose}
-            />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        <ExposureForm
+          submitExportForm={submitExportForm}
+          key={formKey}
+          editData={editRow}
+          originalData={originalRow}
+          onClose={onClose}
+        />
+      </CustomDrawer>
 
       <DeleteConfirmationModal
         isOpen={isDeleteOpen}

@@ -28,7 +28,7 @@ import {
 import { normalizeDate } from "./utils/function";
 import { pickMatchedFields } from "../../utils/function";
 
-const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) => {
+const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any) => {
   const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [_, setSubmitAttempted] = useState(false);
@@ -38,7 +38,7 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
   const toast = useToast();
   const isEdit = Boolean(editData);
 
-  const { storeEdited, editLoading  } = useStoreEdited();
+  const { storeEdited, editLoading } = useStoreEdited();
 
   const validationSchema = Yup.object({
     invoiceNo: Yup.string().when("exposureType", {
@@ -52,7 +52,7 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
     businessUnit: Yup.string().required("Business Unit is required"),
     paymentTerms: Yup.number().required("Payment terms is required"),
     currency: Yup.mixed().required("Currency is required"),
-      exposureType: Yup.mixed().required("Exposure Type is required"),
+    exposureType: Yup.mixed().required("Exposure Type is required"),
 
     amount: Yup.number()
       .required("Amount is required")
@@ -89,18 +89,18 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
         const dateValue = Array.isArray(poDate) ? poDate[0] : poDate;
         return dateValue
           ? schema.min(
-              new Date(dateValue),
-              "Invoice Date must be after PO Date"
-            )
+            new Date(dateValue),
+            "Invoice Date must be after PO Date"
+          )
           : schema;
       })
       .when("dueDate", (dueDate: any, schema: any) => {
         const dateValue = Array.isArray(dueDate) ? dueDate[0] : dueDate;
         return dateValue
           ? schema.max(
-              new Date(dateValue),
-              "Invoice Date cannot be after Due Date"
-            )
+            new Date(dateValue),
+            "Invoice Date cannot be after Due Date"
+          )
           : schema;
       }),
     blDate: Yup.string()
@@ -185,7 +185,7 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
 
   useEffect(() => {
     fetchPoDetails();
-  },[]);
+  }, []);
 
   const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
@@ -204,104 +204,104 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
     handleSubmit();
   };
 
-  
+
   return (
-    <Box maxW="5xl" mx="auto" borderRadius="2xl">
+    <Box mx="auto" m={5} borderRadius="2xl">
       {loading && <Loader />}
       {!loading && (
         <Formik
-        initialValues={{
-  exposureType: editData?.exposureType || "",
-  poNo: editData?.poNo || "",
-  poDate: normalizeDate(editData?.poDate),
-  invoiceDate: normalizeDate(editData?.invoiceDate),
-  blDate: normalizeDate(editData?.blDate),
-  dueDate: normalizeDate(editData?.dueDate),
-  partyName: editData?.partyName || "",
-  bank: editData?.bank || "",
-  businessUnit: editData?.businessUnit || "",
-  invoiceNo: editData?.invoiceNo || "",
-  paymentTerms: editData?.paymentTerms || "",
-  currency: editData?.currency || "",
-  amount: editData?.amount || "",
-  budgetRate: editData?.budgetRate || "",
-  remark: editData?.remark || "",
-  hedgeDeals: editData?.hedgeDeals || [],
-}}
+          initialValues={{
+            exposureType: editData?.exposureType || "",
+            poNo: editData?.poNo || "",
+            poDate: normalizeDate(editData?.poDate),
+            invoiceDate: normalizeDate(editData?.invoiceDate),
+            blDate: normalizeDate(editData?.blDate),
+            dueDate: normalizeDate(editData?.dueDate),
+            partyName: editData?.partyName || "",
+            bank: editData?.bank || "",
+            businessUnit: editData?.businessUnit || "",
+            invoiceNo: editData?.invoiceNo || "",
+            paymentTerms: editData?.paymentTerms || "",
+            currency: editData?.currency || "",
+            amount: editData?.amount || "",
+            budgetRate: editData?.budgetRate || "",
+            remark: editData?.remark || "",
+            hedgeDeals: editData?.hedgeDeals || [],
+          }}
 
           validationSchema={validationSchema}
           enableReinitialize={true}
-     
-   onSubmit={async (values, actions) => {
-  if (isEdit) {
-    const { original, updated } = pickMatchedFields(
-      originalData,
-      values,
-      editData?.rowId
-    );
 
-    const payload = {
-      register: "export",
-      data: [
-        {
-          original,
-          updated,
-          rowId: editData?.rowId, // optional if backend still expects it here
-        },
-      ],
-    };
+          onSubmit={async (values, actions) => {
+            if (isEdit) {
+              const { original, updated } = pickMatchedFields(
+                originalData,
+                values,
+                editData?.rowId
+              );
 
-    try {
-      await storeEdited(payload, onClose);
-      actions.resetForm();
-      actions.setSubmitting(false);
-    } catch (error) {
-      actions.setSubmitting(false);
-    }
+              const payload = {
+                register: "export",
+                data: [
+                  {
+                    original,
+                    updated,
+                    rowId: editData?.rowId, // optional if backend still expects it here
+                  },
+                ],
+              };
 
-    return;
-  }
+              try {
+                await storeEdited(payload, onClose);
+                actions.resetForm();
+                actions.setSubmitting(false);
+              } catch (error) {
+                actions.setSubmitting(false);
+              }
 
-  setShowError(true);
-  submitExportForm(values, actions, "form");
-}}
+              return;
+            }
+
+            setShowError(true);
+            submitExportForm(values, actions, "form");
+          }}
 
 
 
-//           onSubmit={async (values, actions) => {
-//   if (isEdit) {
-//     const payload = {
-//       register: "export",
-//       data: [
-//         {
-//           original: originalData,
-//           updated: values,
-//           rowId: editData?.rowId,
-//         },
-//       ],
-    
-//     };
+        //           onSubmit={async (values, actions) => {
+        //   if (isEdit) {
+        //     const payload = {
+        //       register: "export",
+        //       data: [
+        //         {
+        //           original: originalData,
+        //           updated: values,
+        //           rowId: editData?.rowId,
+        //         },
+        //       ],
 
-//     try {
-//       await storeEdited(payload,onClose);
+        //     };
 
-//       actions.resetForm();
-//       actions.setSubmitting(false);
+        //     try {
+        //       await storeEdited(payload,onClose);
 
-//       // optional
-//       // onClose();
-//       // refetchTableData();
-//     } catch (error) {
-//       actions.setSubmitting(false);
-//     }
+        //       actions.resetForm();
+        //       actions.setSubmitting(false);
 
-//     return;
-//   }
+        //       // optional
+        //       // onClose();
+        //       // refetchTableData();
+        //     } catch (error) {
+        //       actions.setSubmitting(false);
+        //     }
 
-//   // CREATE MODE (existing logic)
-//   setShowError(true);
-//   submitExportForm(values, actions, "form");
-// }}
+        //     return;
+        //   }
+
+        //   // CREATE MODE (existing logic)
+        //   setShowError(true);
+        //   submitExportForm(values, actions, "form");
+        // }}
 
         >
           {({
@@ -373,52 +373,52 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
                   ) : (
 
                     <CustomInput
-  label="PO No"
-  placeholder="Select PO No"
-  name="poNo"
-  type="select"
-  options={poData.map((item: any) => ({
-    label: item.poNo,
-    value: item.poNo
-  }))}
-  value={
-    poData.find((option: any) => option.value === values.poNo) || null
-  }
-  onChange={(selectedOption) => {
-    const selectedPo = poData.find(
-      (item: any) => item.poNo === selectedOption.value
-    );
+                      label="PO No"
+                      placeholder="Select PO No"
+                      name="poNo"
+                      type="select"
+                      options={poData.map((item: any) => ({
+                        label: item.poNo,
+                        value: item.poNo
+                      }))}
+                      value={
+                        poData.find((option: any) => option.value === values.poNo) || null
+                      }
+                      onChange={(selectedOption) => {
+                        const selectedPo = poData.find(
+                          (item: any) => item.poNo === selectedOption.value
+                        );
 
-    setFieldValue("poNo", selectedOption.value);
+                        setFieldValue("poNo", selectedOption.value);
 
-    if (selectedPo) {
-      // convert date
-      const formatDate = (d: string) => {
-        if (!d) return "";
-        if (d.includes(".")) {
-          const [day, month, year] = d.split(".");
-          return `${year}-${month}-${day}`;
-        }
-        return d;
-      };
+                        if (selectedPo) {
+                          // convert date
+                          const formatDate = (d: string) => {
+                            if (!d) return "";
+                            if (d.includes(".")) {
+                              const [day, month, year] = d.split(".");
+                              return `${year}-${month}-${day}`;
+                            }
+                            return d;
+                          };
 
-      setFieldValue("poDate", formatDate(selectedPo.poDate));
-      setFieldValue("partyName", selectedPo.partyName);
-      setFieldValue("bank", selectedPo.bank);
-      setFieldValue("businessUnit", selectedPo.businessUnit);
-      setFieldValue("paymentTerms", selectedPo.paymentTerms);
-      setFieldValue("currency", selectedPo.currency);
-      setFieldValue("budgetRate", selectedPo.budgetRate);
-      setFieldValue(
-        "outstandingAmount",
-        selectedPo.outStandingAmount || 0
-      );
-    }
-  }}
-  required={true}
-  error={touched.poNo && errors.poNo}
-  showError={showError}
-/>
+                          setFieldValue("poDate", formatDate(selectedPo.poDate));
+                          setFieldValue("partyName", selectedPo.partyName);
+                          setFieldValue("bank", selectedPo.bank);
+                          setFieldValue("businessUnit", selectedPo.businessUnit);
+                          setFieldValue("paymentTerms", selectedPo.paymentTerms);
+                          setFieldValue("currency", selectedPo.currency);
+                          setFieldValue("budgetRate", selectedPo.budgetRate);
+                          setFieldValue(
+                            "outstandingAmount",
+                            selectedPo.outStandingAmount || 0
+                          );
+                        }
+                      }}
+                      required={true}
+                      error={touched.poNo && errors.poNo}
+                      showError={showError}
+                    />
                   )}
                   <CustomInput
                     label="PO Date"
@@ -491,62 +491,62 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
                   />
                   {selectedExposureType === "shipment" && (
                     <>
-                    <CustomInput
-                    label="Invoice No"
-                    name="invoiceNo"
-                    placeholder="Enter Invoice No"
-                    value={values.invoiceNo}
-                    onChange={handleChange}
-                    error={touched.invoiceNo && errors.invoiceNo}
-                    showError={showError}
-                    required={
-                      values.exposureType &&
-                      values.exposureType !== "confirmed_order"
-                    }
-                    />
-                  <CustomInput
-                    label="Invoice Date"
-                    name="invoiceDate"
-                    type="date"
-                    placeholder="Invoice Date"
-                    value={values.invoiceDate}
-                    onChange={handleChange}
-                    error={touched.invoiceDate && errors.invoiceDate}
-                    showError={showError}
-                    required={
-                      values.exposureType &&
-                      values.exposureType !== "confirmed_order"
-                    }
-                    />
+                      <CustomInput
+                        label="Invoice No"
+                        name="invoiceNo"
+                        placeholder="Enter Invoice No"
+                        value={values.invoiceNo}
+                        onChange={handleChange}
+                        error={touched.invoiceNo && errors.invoiceNo}
+                        showError={showError}
+                        required={
+                          values.exposureType &&
+                          values.exposureType !== "confirmed_order"
+                        }
+                      />
+                      <CustomInput
+                        label="Invoice Date"
+                        name="invoiceDate"
+                        type="date"
+                        placeholder="Invoice Date"
+                        value={values.invoiceDate}
+                        onChange={handleChange}
+                        error={touched.invoiceDate && errors.invoiceDate}
+                        showError={showError}
+                        required={
+                          values.exposureType &&
+                          values.exposureType !== "confirmed_order"
+                        }
+                      />
                     </>
                   )}
-                  
- <DueDateSync />
 
- <CustomInput
-  label="BL Date"
-  name="blDate"
-  type="date"
-/>
+                  <DueDateSync />
 
-<CustomInput
-  label="Payment Terms"
-  name="paymentTerms"
-  type="number"
-  value={values.paymentTerms ?? ""}
-  onChange={(e) =>
-    setFieldValue("paymentTerms", e.target.value)
-  }
-  disabled={selectedExposureType === "shipment"}
-  showError={showError}
-/>
+                  <CustomInput
+                    label="BL Date"
+                    name="blDate"
+                    type="date"
+                  />
 
-<CustomInput
-  label="Due Date"
-  name="dueDate"
-  type="date"
-  disabled
-/>
+                  <CustomInput
+                    label="Payment Terms"
+                    name="paymentTerms"
+                    type="number"
+                    value={values.paymentTerms ?? ""}
+                    onChange={(e) =>
+                      setFieldValue("paymentTerms", e.target.value)
+                    }
+                    disabled={selectedExposureType === "shipment"}
+                    showError={showError}
+                  />
+
+                  <CustomInput
+                    label="Due Date"
+                    name="dueDate"
+                    type="date"
+                    disabled
+                  />
                   <CustomInput
                     label="Currency"
                     type="select"
@@ -592,15 +592,15 @@ const ExposureForm = ({ submitExportForm,editData ,originalData,onClose}: any) =
                   />
 
                 </SimpleGrid>
-                  <MultiHedgeDealExport
-                    url={url}
-                    showError={showError}
-                  />
+                <MultiHedgeDealExport
+                  url={url}
+                  showError={showError}
+                />
                 <CustomInput
                   label="Remark"
                   name="remark"
                   type="textarea"
-                  placeholder="Enter Remarks" 
+                  placeholder="Enter Remarks"
                   value={values.remark}
                   onChange={handleChange}
                   error={touched.remark && errors.remark}
