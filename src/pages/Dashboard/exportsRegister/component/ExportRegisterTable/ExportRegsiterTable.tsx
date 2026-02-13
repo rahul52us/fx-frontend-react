@@ -99,13 +99,14 @@ const ExportRegisterTable = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
+  const {auth:{user}}=store;
 
   const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
         `${url}/exportregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage,userId:user.userId }
       );
 
       const result = response.data?.data?.data || [];

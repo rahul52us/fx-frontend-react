@@ -20,6 +20,7 @@ const ForwardContractSection = ({
   businessUnit,
   bank,
   exposureType,
+  documentDueDate
 }: any) => {
   const { values, setFieldValue, touched, errors }: any =
     useFormikContext();
@@ -52,6 +53,7 @@ const ForwardContractSection = ({
           bank,
           businessUnit,
           exposureType,
+          documentDueDate
         }
       );
 

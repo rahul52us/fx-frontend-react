@@ -7,11 +7,13 @@ import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 interface MultiHedgeDealExportProps {
   url: any;
   showError: boolean;
+  exposureType?: string;
 }
 
 export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
   url,
   showError,
+  exposureType
 }) => {
   const { values, setFieldValue, touched, errors }: any = useFormikContext();
   const [hedgeDealsMaster, setHedgeDealsMaster] = useState<any[]>([]);
@@ -22,7 +24,9 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     if (hedgeDealsMaster.length > 0) return;
     try {
       setLoading(true);
-      const res = await axios.post(`${url}/forwardregister/hedgedealid/`);
+      const res = await axios.post(`${url}/forwardregister/hedgedealid/`,{
+        exposureType: exposureType
+      });
       if (res?.data?.status === "success") {
         setHedgeDealsMaster(res.data.data);
       }

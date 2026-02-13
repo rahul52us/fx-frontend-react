@@ -582,7 +582,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                   <CustomInput
                     label="Budget Rate"
                     name="budgetRate"
-                    type="text"
+                    type="number"
                     value={values.budgetRate}
                     onChange={handleChange}
                     error={touched.budgetRate && errors.budgetRate}
@@ -595,6 +595,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                 <MultiHedgeDealExport
                   url={url}
                   showError={showError}
+                  exposureType={'export'}
                 />
                 <CustomInput
                   label="Remark"

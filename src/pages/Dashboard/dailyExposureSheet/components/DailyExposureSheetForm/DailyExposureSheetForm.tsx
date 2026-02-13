@@ -348,6 +348,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
                     bank={values.bank}
                     businessUnit={values.businessUnit}
                     exposureType={values.exposureType}
+                    documentDueDate={values.dueDate}
                   />
                 )}
                 {/* ===================== SUMMARY SECTION ===================== */}

@@ -537,7 +537,7 @@ const ImportRegistrationForm = ({
                                         showError={showError}
                                         /> */}
                   </SimpleGrid>
-                  <MultiHedgeDealExport url={url} showError={showError} />
+                  <MultiHedgeDealExport url={url} showError={showError} exposureType={'import'} />
 
                   {/* Remark */}
                   <CustomInput
