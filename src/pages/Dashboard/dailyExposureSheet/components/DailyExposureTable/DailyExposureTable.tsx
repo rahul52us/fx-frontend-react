@@ -14,7 +14,8 @@ import {
 } from "../../../exportsRegister/component/utils/function";
 import ExposureSettlementForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
-import store from "../../../../../store/store";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
+import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 
 const DailyExposureTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -22,9 +23,7 @@ const DailyExposureTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Permission checks
-  const canAdd = store.auth.canPerformTableAction('add', 'exposure');
-  const canEdit = store.auth.canPerformTableAction('edit', 'exposure');
-  const canDelete = store.auth.canPerformTableAction('delete', 'exposure');
+  const { canAdd, canEdit, canDelete, canView } = usePermission('dailyExposure');
 
   // Delete Confirmation State
   const {
@@ -139,6 +138,7 @@ const DailyExposureTable = () => {
   };
 
   useEffect(() => {
+    if (!canView) return;
     fetchExportRegisterData(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -247,75 +247,76 @@ const DailyExposureTable = () => {
   ];
 
   return (
-    <>
-      <CustomTable
-        title="Exposure Settlement Register"
-        data={exportData}
-        columns={DailyExposureColumns}
-        actions={{
-          search: { show: false },
-          resetData: {
-            show: true,
-            text: "Reset Data",
-            function: () => fetchExportRegisterData(1),
-          },
-          exportExcel: {
-            show: true,
-            text: "Export Excel",
-            function: () =>
-              exportToExcel({
-                // columns: DailyExposureColumns,
-                data: exposureSettlementReport,
-                fileName: "Exposure_Settlement_Report.xlsx",
-              }),
-          },
-          uploadFile: {
-            show: true,
-            text: "Upload Excel",
-            function: (e: any) => handleFileUpload(e),
-          },
-          pagination: {
-            show: true,
-            onClick: handlePageChange,
-            currentPage: page,
-            totalPages: totalPages,
-          },
-          actionBtn: {
-            addKey: {
-              showAddButton: canAdd,
-              function: onOpen,
+    canView ? (
+      <>
+        <CustomTable
+          title="Exposure Settlement Register"
+          data={exportData}
+          columns={DailyExposureColumns}
+          actions={{
+            search: { show: false },
+            resetData: {
+              show: true,
+              text: "Reset Data",
+              function: () => fetchExportRegisterData(1),
             },
-            editKey: { showEditButton: canEdit },
-            deleteKey: {
-              showDeleteButton: canDelete,
-              function: handleDeleteClick,
+            exportExcel: {
+              show: true,
+              text: "Export Excel",
+              function: () =>
+                exportToExcel({
+                  // columns: DailyExposureColumns,
+                  data: exposureSettlementReport,
+                  fileName: "Exposure_Settlement_Report.xlsx",
+                }),
             },
-          },
-        }}
-        loading={loading}
-      />
+            uploadFile: {
+              show: true,
+              text: "Upload Excel",
+              function: (e: any) => handleFileUpload(e),
+            },
+            pagination: {
+              show: true,
+              onClick: handlePageChange,
+              currentPage: page,
+              totalPages: totalPages,
+            },
+            actionBtn: {
+              addKey: {
+                showAddButton: canAdd,
+                function: onOpen,
+              },
+              editKey: { showEditButton: canEdit },
+              deleteKey: {
+                showDeleteButton: canDelete,
+                function: handleDeleteClick,
+              },
+            },
+          }}
+          loading={loading}
+        />
 
-      {/* Drawer for adding export entry */}
-      <CustomDrawer
-        open={isOpen}
-        close={onClose}
-        title="Exposure Settlement Register"
-        size="xl"
-        width="75%"
-      >
-        <ExposureSettlementForm submitForm={submitExportForm} />
-      </CustomDrawer>
+        {/* Drawer for adding export entry */}
+        <CustomDrawer
+          open={isOpen}
+          close={onClose}
+          title="Exposure Settlement Register"
+          size="xl"
+          width="75%"
+        >
+          <ExposureSettlementForm submitForm={submitExportForm} />
+        </CustomDrawer>
 
-      {/* Delete Confirmation Alert */}
-      <DeleteConfirmationModal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        onConfirm={onConfirmDelete}
-        title="Delete Entry"
-        description="Are you sure? You can't undo this action afterwards."
-        isLoading={deleteLoading}
-      />
-    </>
+        {/* Delete Confirmation Alert */}
+        <DeleteConfirmationModal
+          isOpen={isDeleteOpen}
+          onClose={onDeleteClose}
+          onConfirm={onConfirmDelete}
+          title="Delete Entry"
+          description="Are you sure? You can't undo this action afterwards."
+          isLoading={deleteLoading}
+        />
+      </>) : <RestrictedAccess />
   );
 };
 

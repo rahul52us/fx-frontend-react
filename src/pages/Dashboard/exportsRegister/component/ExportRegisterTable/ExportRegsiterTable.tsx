@@ -13,6 +13,8 @@ import { exportToExcel, importFromExcel } from "../utils/function";
 import HedgeDealsDrawer from "./HedgeDealsDrawer";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import store from "../../../../../store/store";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
+import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 
 const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -26,9 +28,7 @@ const ExportRegisterTable = () => {
   const { deleteItem } = useDeleteItem();
 
   // Permission checks
-  const canAdd = store.auth.canPerformTableAction('add', 'export');
-  const canEdit = store.auth.canPerformTableAction('edit', 'export');
-  const canDelete = store.auth.canPerformTableAction('delete', 'export');
+  const { canAdd, canEdit, canDelete, canView } = usePermission('exportRegister');
 
   // Delete Confirmation State
   const {
@@ -99,14 +99,14 @@ const ExportRegisterTable = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
-  const {auth:{user}}=store;
+  const { auth: { user } } = store;
 
   const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
       const response = await axios.post(
         `${url}/exportregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage,userId:user.userId }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: user.userId }
       );
 
       const result = response.data?.data?.data || [];
@@ -134,6 +134,7 @@ const ExportRegisterTable = () => {
   };
 
   useEffect(() => {
+    if (!canView) return;
     fetchExportRegisterData(page);
   }, []); // Initial load only, subsequent loads handled by pagination click
 
@@ -224,88 +225,89 @@ const ExportRegisterTable = () => {
   ];
 
   return (
-    <>
-      <CustomTable
-        title="Export Register"
-        data={exportData}
-        columns={ExportRegisterTableColumns}
-        loading={loading}
-        actions={{
-          search: { show: false },
+    canView ? (
+      <>
+        <CustomTable
+          title="Export Register"
+          data={exportData}
+          columns={ExportRegisterTableColumns}
+          loading={loading}
+          actions={{
+            search: { show: false },
 
-          resetData: {
-            show: true,
-            function: () => fetchExportRegisterData(1), // Reset to page 1
-          },
-
-          exportExcel: {
-            show: true,
-            function: () =>
-              exportToExcel({
-                data: dummyExportRegisterData,
-                fileName: "exportregister.xlsx",
-              }),
-          },
-
-          uploadFile: {
-            show: true,
-            function: handleFileUpload,
-          },
-
-          pagination: {
-            show: true,
-            currentPage: page,
-            totalPages: totalPages,
-            onClick: handlePageChange,
-          },
-
-          actionBtn: {
-            addKey: {
-              showAddButton: canAdd,
-              function: onOpen,
+            resetData: {
+              show: true,
+              function: () => fetchExportRegisterData(1), // Reset to page 1
             },
-            editKey: {
-              showEditButton: canEdit,
-              function: (row: any) => {
-                handleEdit(row);
-                // onOpen();
+
+            exportExcel: {
+              show: true,
+              function: () =>
+                exportToExcel({
+                  data: dummyExportRegisterData,
+                  fileName: "exportregister.xlsx",
+                }),
+            },
+
+            uploadFile: {
+              show: true,
+              function: handleFileUpload,
+            },
+
+            pagination: {
+              show: true,
+              currentPage: page,
+              totalPages: totalPages,
+              onClick: handlePageChange,
+            },
+
+            actionBtn: {
+              addKey: {
+                showAddButton: canAdd,
+                function: onOpen,
+              },
+              editKey: {
+                showEditButton: canEdit,
+                function: (row: any) => {
+                  handleEdit(row);
+                  // onOpen();
+                },
+              },
+
+              deleteKey: {
+                showDeleteButton: canDelete,
+                function: handleDeleteClick,
               },
             },
-
-            deleteKey: {
-              showDeleteButton: canDelete,
-              function: handleDeleteClick,
-            },
-          },
-        }}
-      />
-
-      {/* ---------- Drawer ---------- */}
-      <CustomDrawer
-        open={isOpen}
-        close={handleDrawerClose}
-        title="Add Export Entry"
-        width="75vw"
-        size="xl"
-      >
-        <ExposureForm
-          submitExportForm={submitExportForm}
-          key={formKey}
-          editData={editRow}
-          originalData={originalRow}
-          onClose={onClose}
+          }}
         />
-      </CustomDrawer>
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        onConfirm={onConfirmDelete}
-        title="Delete Entry"
-        description="Are you sure? You can't undo this action afterwards."
-        isLoading={deleteLoading}
-      />
-    </>
+        {/* ---------- Drawer ---------- */}
+        <CustomDrawer
+          open={isOpen}
+          close={handleDrawerClose}
+          title="Add Export Entry"
+          width="75vw"
+          size="xl"
+        >
+          <ExposureForm
+            submitExportForm={submitExportForm}
+            key={formKey}
+            editData={editRow}
+            originalData={originalRow}
+            onClose={onClose}
+          />
+        </CustomDrawer>
+
+        <DeleteConfirmationModal
+          isOpen={isDeleteOpen}
+          onClose={onDeleteClose}
+          onConfirm={onConfirmDelete}
+          title="Delete Entry"
+          description="Are you sure? You can't undo this action afterwards."
+          isLoading={deleteLoading}
+        />
+      </>) : <RestrictedAccess />
   );
 };
 

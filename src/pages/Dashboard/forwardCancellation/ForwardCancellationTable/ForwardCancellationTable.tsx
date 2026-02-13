@@ -13,7 +13,8 @@ import {
 } from "../../exportsRegister/component/utils/function";
 import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellationForm";
 import { useDeleteItem } from "../../../../config/component/customHooks/useDeleteItem";
-import store from "../../../../store/store";
+import { usePermission } from "../../../../config/component/customHooks/usePermission";
+import RestrictedAccess from "../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 
 const ForwardCancellationTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -24,9 +25,8 @@ const ForwardCancellationTable = () => {
   const { deleteItem } = useDeleteItem();
 
   // Permission checks
-  const canAdd = store.auth.canPerformTableAction('add', 'forwardCancellation');
-  const canEdit = store.auth.canPerformTableAction('edit', 'forwardCancellation');
-  const canDelete = store.auth.canPerformTableAction('delete', 'forwardCancellation');
+  // Permission checks
+  const { canAdd, canEdit, canDelete, canView } = usePermission('forwardCancellation');
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -127,6 +127,7 @@ const ForwardCancellationTable = () => {
   };
 
   useEffect(() => {
+    if (!canView) return;
     fetchExportRegisterData(page);
   }, []);
 
@@ -172,70 +173,71 @@ const ForwardCancellationTable = () => {
   ];
 
   return (
-    <>
-      <CustomTable
-        title="Forward Cancellation"
-        data={exportData}
-        columns={DealDataColumns}
-        actions={{
-          search: { show: false },
-          resetData: {
-            show: false,
-            text: "Reset Data",
-            function: () => fetchExportRegisterData(1),
-          },
-          exportExcel: {
-            show: true,
-            text: "Export Excel",
-            function: () =>
-              exportToExcel({
-                // columns: DealDataColumns,
-                data: dymmyForwardCancellationData,
-                fileName: "Forward_Cancellation.xlsx",
-              }),
-          },
-          uploadFile: {
-            show: true,
-            text: "Upload Excel",
-            function: (e: any) => handleFileUpload(e),
-          },
-          pagination: {
-            show: true,
-            onClick: handlePageChange,
-            currentPage: page,
-            totalPages: totalPages,
-          },
-          actionBtn: {
-            addKey: {
-              showAddButton: canAdd,
-              function: onOpen,
+    canView ? (
+      <>
+        <CustomTable
+          title="Forward Cancellation"
+          data={exportData}
+          columns={DealDataColumns}
+          actions={{
+            search: { show: false },
+            resetData: {
+              show: false,
+              text: "Reset Data",
+              function: () => fetchExportRegisterData(1),
             },
-            editKey: { showEditButton: canEdit },
-            deleteKey: {
-              showDeleteButton: canDelete,
-              function: (row: any) =>
-                deleteItem({
-                  url: `${url}/delup/deleterow/`,
-                  rowId: row.rowId,
-                  formType: "forwardCancellationPcfc",
-                  refetch: fetchExportRegisterData,
+            exportExcel: {
+              show: true,
+              text: "Export Excel",
+              function: () =>
+                exportToExcel({
+                  // columns: DealDataColumns,
+                  data: dymmyForwardCancellationData,
+                  fileName: "Forward_Cancellation.xlsx",
                 }),
             },
-          },
-        }}
-        loading={loading}
-      />
+            uploadFile: {
+              show: true,
+              text: "Upload Excel",
+              function: (e: any) => handleFileUpload(e),
+            },
+            pagination: {
+              show: true,
+              onClick: handlePageChange,
+              currentPage: page,
+              totalPages: totalPages,
+            },
+            actionBtn: {
+              addKey: {
+                showAddButton: canAdd,
+                function: onOpen,
+              },
+              editKey: { showEditButton: canEdit },
+              deleteKey: {
+                showDeleteButton: canDelete,
+                function: (row: any) =>
+                  deleteItem({
+                    url: `${url}/delup/deleterow/`,
+                    rowId: row.rowId,
+                    formType: "forwardCancellationPcfc",
+                    refetch: fetchExportRegisterData,
+                  }),
+              },
+            },
+          }}
+          loading={loading}
+        />
 
-      <CustomDrawer
-        open={isOpen}
-        close={onClose}
-        title="Add Forward Cancellation Entry"
-        size="xl"
-        width="75vw"
-      >
-        <ForwardCancellationForm submitForm={submitExportForm} />
-      </CustomDrawer>
-    </>
+        <CustomDrawer
+          open={isOpen}
+          close={onClose}
+          title="Add Forward Cancellation Entry"
+          size="xl"
+          width="75vw"
+        >
+          <ForwardCancellationForm submitForm={submitExportForm} />
+        </CustomDrawer>
+      </>) : <RestrictedAccess />
   );
 };
 

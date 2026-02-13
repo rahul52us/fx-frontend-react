@@ -15,7 +15,8 @@ import {
 } from "../../../exportsRegister/component/utils/function";
 import ForwardRegisterForm from "../ForwardRegisterForm/ForwardRegisterForm";
 import ExposureRefsCell from "./ExposureRefsCell";
-import store from "../../../../../store/store";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
+import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 
 const ForwardRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -29,9 +30,7 @@ const ForwardRegisterTable = () => {
   const { deleteItem } = useDeleteItem();
 
   // Permission checks
-  const canAdd = store.auth.canPerformTableAction('add', 'forward');
-  const canEdit = store.auth.canPerformTableAction('edit', 'forward');
-  const canDelete = store.auth.canPerformTableAction('delete', 'forward');
+  const { canAdd, canEdit, canDelete, canView } = usePermission('forwardRegister');
 
   // Delete Confirmation State
   const {
@@ -155,6 +154,7 @@ const ForwardRegisterTable = () => {
   };
 
   useEffect(() => {
+    if (!canView) return;
     fetchExportRegisterData(page);
   }, []);
 
@@ -235,83 +235,84 @@ const ForwardRegisterTable = () => {
   ];
 
   return (
-    <>
-      <CustomTable
-        title="Forward Register"
-        data={exportData}
-        columns={ForwardRegisterColumns}
-        actions={{
-          search: { show: false },
-          resetData: {
-            show: true,
-            text: "Reset Data",
-            function: () => fetchExportRegisterData(1),
-          },
-          exportExcel: {
-            show: true,
-            text: "Export Excel",
-            function: () =>
-              exportToExcel({
-                // columns: ForwardRegisterColumns,
-                data: dummyForwardRegisterData,
-                fileName: "Forward_Register.xlsx",
-              }),
-          },
-          uploadFile: {
-            show: true,
-            text: "Upload Excel",
-            function: (e: any) => handleFileUpload(e),
-          },
-          pagination: {
-            show: true,
-            onClick: handlePageChange,
-            currentPage: page,
-            totalPages: totalPages,
-          },
-          actionBtn: {
-            addKey: {
-              showAddButton: canAdd,
-              function: onOpen,
+    canView ? (
+      <>
+        <CustomTable
+          title="Forward Register"
+          data={exportData}
+          columns={ForwardRegisterColumns}
+          actions={{
+            search: { show: false },
+            resetData: {
+              show: true,
+              text: "Reset Data",
+              function: () => fetchExportRegisterData(1),
             },
-            editKey: {
-              showEditButton: canEdit,
-              function: (row: any) => {
-                handleEdit(row);
+            exportExcel: {
+              show: true,
+              text: "Export Excel",
+              function: () =>
+                exportToExcel({
+                  // columns: ForwardRegisterColumns,
+                  data: dummyForwardRegisterData,
+                  fileName: "Forward_Register.xlsx",
+                }),
+            },
+            uploadFile: {
+              show: true,
+              text: "Upload Excel",
+              function: (e: any) => handleFileUpload(e),
+            },
+            pagination: {
+              show: true,
+              onClick: handlePageChange,
+              currentPage: page,
+              totalPages: totalPages,
+            },
+            actionBtn: {
+              addKey: {
+                showAddButton: canAdd,
+                function: onOpen,
+              },
+              editKey: {
+                showEditButton: canEdit,
+                function: (row: any) => {
+                  handleEdit(row);
+                },
+              },
+              deleteKey: {
+                showDeleteButton: canDelete,
+                function: handleDeleteClick,
               },
             },
-            deleteKey: {
-              showDeleteButton: canDelete,
-              function: handleDeleteClick,
-            },
-          },
-        }}
-        loading={loading}
-      />
-
-      <CustomDrawer
-        open={isOpen}
-        close={handleDrawerClose}
-        title="Forward Register"
-        width="75vw"
-        size="xl"
-      >
-        <ForwardRegisterForm
-          submitForm={submitExportForm}
-          key={formKey}
-          editData={editRow}
-          originalData={originalRow}
+          }}
+          loading={loading}
         />
-      </CustomDrawer>
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        onConfirm={onConfirmDelete}
-        title="Delete Entry"
-        description="Are you sure? You can't undo this action afterwards."
-        isLoading={deleteLoading}
-      />
-    </>
+        <CustomDrawer
+          open={isOpen}
+          close={handleDrawerClose}
+          title="Forward Register"
+          width="75vw"
+          size="xl"
+        >
+          <ForwardRegisterForm
+            submitForm={submitExportForm}
+            key={formKey}
+            editData={editRow}
+            originalData={originalRow}
+          />
+        </CustomDrawer>
+
+        <DeleteConfirmationModal
+          isOpen={isDeleteOpen}
+          onClose={onDeleteClose}
+          onConfirm={onConfirmDelete}
+          title="Delete Entry"
+          description="Are you sure? You can't undo this action afterwards."
+          isLoading={deleteLoading}
+        />
+      </>) : <RestrictedAccess />
   );
 };
 

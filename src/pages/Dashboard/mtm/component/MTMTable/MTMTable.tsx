@@ -1,8 +1,13 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
+import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 
 const MTMTable = () => {
+  // Permission checks
+  const { canView } = usePermission('mtm');
+
   const BookingRegisterTableColumns = [
     { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
     { headerName: "Booking Date", key: "bookingDate" },
@@ -16,6 +21,15 @@ const MTMTable = () => {
     { headerName: "Delivery Date To", key: "deliveryDateTo" },
     { headerName: "Current Fwd. Rate", key: "currentFwdRate" },
     { headerName: "MTM in INR", key: "mtmInr" },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
   ];
 
   const [page, setPage] = useState(1);
@@ -57,27 +71,29 @@ const MTMTable = () => {
   }, [])
 
   return (
-    <>
-      <CustomTable
-        title="MTM"
-        data={data}
-        columns={BookingRegisterTableColumns}
-        actions={{
-          search: { show: false },
-          pagination: {
-            show: true,
-            onClick: handlePageChange,
-            currentPage: page,
-            totalPages: totalPages,
-          },
-          actionBtn: {
-            editKey: { showEditButton: false },
-            deleteKey: { showDeleteButton: false },
-          },
-        }}
-        loading={false}
-      />
-    </>
+    canView ? (
+      <>
+        <CustomTable
+          title="MTM"
+          data={data}
+          columns={BookingRegisterTableColumns}
+          actions={{
+            search: { show: false },
+            pagination: {
+              show: true,
+              onClick: handlePageChange,
+              currentPage: page,
+              totalPages: totalPages,
+            },
+            actionBtn: {
+              editKey: { showEditButton: false },
+              deleteKey: { showDeleteButton: false },
+            },
+          }}
+          loading={false}
+        />
+      </>
+    ) : <RestrictedAccess />
   );
 };
 

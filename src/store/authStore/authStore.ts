@@ -382,7 +382,7 @@ class AuthStore {
       this.user?.role === "admin" ||
       this.user?.permissions?.adminAccess?.add
     ) {
-      return true;
+      return value === "view" ? true : false;
     } else {
       var status = false;
       Object.entries(this.user?.permissions || {}).forEach((item: any) => {

@@ -16,7 +16,8 @@ import {
 import { autoToken } from "../../../utils/constant";
 import PCFCForm from "../PCFCForm/PCFCForm";
 import PCFCViewDrawer from "./PCFCViewDrawer";
-import store from "../../../../../store/store";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
+import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 
 const PCFCTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -30,9 +31,8 @@ const PCFCTable = () => {
   const { deleteItem } = useDeleteItem();
 
   // Permission checks
-  const canAdd = store.auth.canPerformTableAction('add', 'pcfc');
-  const canEdit = store.auth.canPerformTableAction('edit', 'pcfc');
-  const canDelete = store.auth.canPerformTableAction('delete', 'pcfc');
+  // Permission checks
+  const { canAdd, canEdit, canDelete, canView } = usePermission('pcfc');
 
   const [viewData, setViewData] = useState<any>(null);
   const {
@@ -169,6 +169,7 @@ const PCFCTable = () => {
   };
 
   useEffect(() => {
+    if (!canView) return;
     fetchExportRegisterData(page);
   }, []);
 
@@ -248,98 +249,99 @@ const PCFCTable = () => {
   ];
 
   return (
-    <>
-      <CustomTable
-        title="PCFC Register"
-        data={exportData}
-        columns={PCFCColumns}
-        actions={{
-          search: { show: false },
-          resetData: {
-            show: true,
-            text: "Reset Data",
-            function: () => fetchExportRegisterData(1),
-          },
-          exportExcel: {
-            show: true,
-            text: "Export Excel",
-            function: () =>
-              exportToExcel({
-                // columns: PCFCColumns,
-                data: dummyPcfcData,
-                fileName: "Pcfc_Register.xlsx",
-              }),
-          },
-          uploadFile: {
-            show: true,
-            text: "Upload Excel",
-            function: (e: any) => handleFileUpload(e),
-          },
-          pagination: {
-            show: true,
-            onClick: handlePageChange,
-            currentPage: page,
-            totalPages: totalPages,
-          },
-          actionBtn: {
-            addKey: {
-              showAddButton: canAdd,
-              function: onOpen,
+    canView ? (
+      <>
+        <CustomTable
+          title="PCFC Register"
+          data={exportData}
+          columns={PCFCColumns}
+          actions={{
+            search: { show: false },
+            resetData: {
+              show: true,
+              text: "Reset Data",
+              function: () => fetchExportRegisterData(1),
             },
-            editKey: {
-              showEditButton: canEdit,
-              function: (row: any) => {
-                handleEdit(row);
-                // onOpen();
+            exportExcel: {
+              show: true,
+              text: "Export Excel",
+              function: () =>
+                exportToExcel({
+                  // columns: PCFCColumns,
+                  data: dummyPcfcData,
+                  fileName: "Pcfc_Register.xlsx",
+                }),
+            },
+            uploadFile: {
+              show: true,
+              text: "Upload Excel",
+              function: (e: any) => handleFileUpload(e),
+            },
+            pagination: {
+              show: true,
+              onClick: handlePageChange,
+              currentPage: page,
+              totalPages: totalPages,
+            },
+            actionBtn: {
+              addKey: {
+                showAddButton: canAdd,
+                function: onOpen,
+              },
+              editKey: {
+                showEditButton: canEdit,
+                function: (row: any) => {
+                  handleEdit(row);
+                  // onOpen();
+                },
+              },
+              viewKey: {
+                showViewButton: true,
+                function: (row: any) => {
+                  setViewData(row);
+                  onViewOpen();
+                },
+              },
+
+              // editKey: { showEditButton: true, function: () => {}},
+              deleteKey: {
+                showDeleteButton: canDelete,
+                function: handleDeleteClick,
               },
             },
-            viewKey: {
-              showViewButton: true,
-              function: (row: any) => {
-                setViewData(row);
-                onViewOpen();
-              },
-            },
-
-            // editKey: { showEditButton: true, function: () => {}},
-            deleteKey: {
-              showDeleteButton: canDelete,
-              function: handleDeleteClick,
-            },
-          },
-        }}
-        loading={loading}
-      />
-
-      <CustomDrawer
-        open={isOpen}
-        close={handleDrawerClose}
-        title="PCFC Register Form"
-        size="xl"
-        width="75vw"
-      >
-        <PCFCForm
-          submitForm={submitExportForm}
-          key={formKey}
-          editData={editRow}
-          originalData={originalRow}
+          }}
+          loading={loading}
         />
-      </CustomDrawer>
-      <PCFCViewDrawer
-        isOpen={isViewOpen}
-        onClose={onViewClose}
-        data={viewData}
-      />
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        onConfirm={onConfirmDelete}
-        title="Delete Entry"
-        description="Are you sure? You can't undo this action afterwards."
-        isLoading={deleteLoading}
-      />
-    </>
+        <CustomDrawer
+          open={isOpen}
+          close={handleDrawerClose}
+          title="PCFC Register Form"
+          size="xl"
+          width="75vw"
+        >
+          <PCFCForm
+            submitForm={submitExportForm}
+            key={formKey}
+            editData={editRow}
+            originalData={originalRow}
+          />
+        </CustomDrawer>
+        <PCFCViewDrawer
+          isOpen={isViewOpen}
+          onClose={onViewClose}
+          data={viewData}
+        />
+
+        <DeleteConfirmationModal
+          isOpen={isDeleteOpen}
+          onClose={onDeleteClose}
+          onConfirm={onConfirmDelete}
+          title="Delete Entry"
+          description="Are you sure? You can't undo this action afterwards."
+          isLoading={deleteLoading}
+        />
+      </>) : <RestrictedAccess />
   );
 };
 
