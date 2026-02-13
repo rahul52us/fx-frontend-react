@@ -15,6 +15,7 @@ import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellat
 import { useDeleteItem } from "../../../../config/component/customHooks/useDeleteItem";
 import { usePermission } from "../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../config/component/common/RestrictedAccess/RestrictedAccess";
+import store from "../../../../store/store";
 
 const ForwardCancellationTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -24,7 +25,6 @@ const ForwardCancellationTable = () => {
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
 
-  // Permission checks
   // Permission checks
   const { canAdd, canEdit, canDelete, canView } = usePermission('forwardCancellation');
 
@@ -102,9 +102,10 @@ const ForwardCancellationTable = () => {
   const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
+      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/forwardCancellationpcfc/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
       const result = response.data?.data?.data || [];
       const total = response.data?.data?.total_pages || 1;
@@ -129,7 +130,7 @@ const ForwardCancellationTable = () => {
   useEffect(() => {
     if (!canView) return;
     fetchExportRegisterData(page);
-  }, []);
+  }, [store.auth.viewAsUserId]);
 
   const DealDataColumns = [
     { headerName: "Deal Type", key: "dealType" },

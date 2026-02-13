@@ -4,6 +4,8 @@ import CustomTable from "../../../../../config/component/CustomTable/CustomTable
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 
+import store from "../../../../../store/store";
+
 const MTMTable = () => {
   // Permission checks
   const { canView } = usePermission('mtm');
@@ -40,9 +42,10 @@ const MTMTable = () => {
   const fetchExportRegisterData = async (currentPage = 1) => {
     // setLoading(true);
     try {
+      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         "http://srv864630.hstgr.cloud:8000/mtm/view/",
-        { condition: "", page: currentPage, limit: rowsPerPage }
+        { condition: "", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
 
       console.log(response)
@@ -68,7 +71,7 @@ const MTMTable = () => {
 
   useEffect(() => {
     fetchExportRegisterData(page);
-  }, [])
+  }, [store.auth.viewAsUserId])
 
   return (
     canView ? (

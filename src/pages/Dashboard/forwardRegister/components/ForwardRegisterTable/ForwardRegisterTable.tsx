@@ -17,6 +17,7 @@ import ForwardRegisterForm from "../ForwardRegisterForm/ForwardRegisterForm";
 import ExposureRefsCell from "./ExposureRefsCell";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
+import store from "../../../../../store/store";
 
 const ForwardRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -116,9 +117,10 @@ const ForwardRegisterTable = () => {
   const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
+      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/forwardregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
       const result = response.data?.data?.data || [];
       const total = response.data?.data?.total_pages || 1;
@@ -156,7 +158,7 @@ const ForwardRegisterTable = () => {
   useEffect(() => {
     if (!canView) return;
     fetchExportRegisterData(page);
-  }, []);
+  }, [store.auth.viewAsUserId]);
 
   /* ---------------- Delete Handlers ---------------- */
 

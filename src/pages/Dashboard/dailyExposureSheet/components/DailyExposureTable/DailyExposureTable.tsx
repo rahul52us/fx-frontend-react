@@ -16,6 +16,7 @@ import ExposureSettlementForm from "../DailyExposureSheetForm/DailyExposureSheet
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
+import store from "../../../../../store/store";
 
 const DailyExposureTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -113,9 +114,10 @@ const DailyExposureTable = () => {
   const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
+      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/exposuresettlementreport/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
       const result = response.data?.data?.data || [];
       const total = response.data?.data?.total_pages || 1;
@@ -141,7 +143,7 @@ const DailyExposureTable = () => {
     if (!canView) return;
     fetchExportRegisterData(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [store.auth.viewAsUserId]);
 
   /* ---------------- Delete Handlers ---------------- */
 

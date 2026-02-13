@@ -113,12 +113,20 @@ const ImportRegisterTable = () => {
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
 
+  useEffect(() => {
+    if (!canView) {
+      return;
+    }
+    fetchImportRegisterData(page);
+  }, [store.auth.viewAsUserId]);
+
   const fetchImportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
+      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/importregister/view/`,
-        { userToken: "abcdxyz", page: currentPage, limit: rowsPerPage }
+        { userToken: "abcdxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
       const result = response.data?.data?.data || [];
       const total = response.data?.data?.total_pages || 1;

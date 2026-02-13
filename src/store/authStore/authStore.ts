@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, toJS } from "mobx";
 import CryptoJS from "crypto-js";
 import { backendBaseUrl } from "../../config/constant/urls";
 import { registerPermissions } from "../../pages/Dashboard/Users/component/UserDetails/utils/constant";
@@ -21,6 +21,7 @@ class AuthStore {
   notification: Notification | null = null;
   isRememberCredential = true;
   companyUsers = [];
+  viewAsUserId: string | null = null;
   role: any = "user";
   webLoader: boolean = false;
   currentCompanyDetails: any = {};
@@ -63,6 +64,7 @@ class AuthStore {
       openSearch: observable,
       loginModel: observable,
       company: observable,
+      viewAsUserId: observable,
       role: observable,
       webLoader: observable,
       currentCompanyDetails: observable,
@@ -76,6 +78,7 @@ class AuthStore {
       openNotification: action,
       closeNotication: action,
       checkPermission: action,
+      setViewAsUserId: action,
       updateUserProfile: action,
       uploadUserPic: action,
       sendNotification: action,
@@ -131,12 +134,13 @@ class AuthStore {
     axios
       .post("/auth/me/")
       .then(({ data }: AxiosResponse<{ data: any }>) => {
-        console.log(data);
+        console.log(toJS(data));
         this.company = "company_id";
         this.user = data.data;
         this.role = this.user?.role;
         this.user.permissions = this.user.permissions || registerPermissions || {};
         this.currentCompanyDetails = this.company;
+        this.viewAsUserId = this.user?.userId;
         sessionStorage.setItem(
           process.env.REACT_APP_AUTHORIZATION_USER_DATA!,
           CryptoJS.AES.encrypt(
@@ -451,6 +455,11 @@ class AuthStore {
       this.companyUsers = data.data?.map((item: any) => ({
         user: { ...item },
       }));
+
+      if (!this.viewAsUserId && this.companyUsers.length > 0) {
+        this.viewAsUserId = (this.companyUsers[0] as any).user?._id;
+      }
+
       return this.companyUsers;
     } catch (err: any) {
       return Promise.reject(err?.response?.data || err);
@@ -494,6 +503,10 @@ class AuthStore {
   // Function to get business units data
   getBusinessUnits = () => {
     return this.businessUnits;
+  };
+
+  setViewAsUserId = (id: string) => {
+    this.viewAsUserId = id;
   };
 }
 

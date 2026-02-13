@@ -99,14 +99,14 @@ const ExportRegisterTable = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
-  const { auth: { user } } = store;
 
   const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
+      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/exportregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: user.userId }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
 
       const result = response.data?.data?.data || [];
@@ -136,7 +136,7 @@ const ExportRegisterTable = () => {
   useEffect(() => {
     if (!canView) return;
     fetchExportRegisterData(page);
-  }, []); // Initial load only, subsequent loads handled by pagination click
+  }, [store.auth.viewAsUserId]); // Initial load only, subsequent loads handled by pagination click
 
   /* ---------------- Delete Handlers ---------------- */
 

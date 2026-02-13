@@ -18,6 +18,7 @@ import PCFCForm from "../PCFCForm/PCFCForm";
 import PCFCViewDrawer from "./PCFCViewDrawer";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
+import store from "../../../../../store/store";
 
 const PCFCTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -30,7 +31,6 @@ const PCFCTable = () => {
   const url = process.env.REACT_APP_FX_BASE_URL;
   const { deleteItem } = useDeleteItem();
 
-  // Permission checks
   // Permission checks
   const { canAdd, canEdit, canDelete, canView } = usePermission('pcfc');
 
@@ -126,9 +126,10 @@ const PCFCTable = () => {
   const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
+      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/pcfcregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage },
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId },
         {
           headers: {
             Authorization: autoToken,
@@ -171,7 +172,7 @@ const PCFCTable = () => {
   useEffect(() => {
     if (!canView) return;
     fetchExportRegisterData(page);
-  }, []);
+  }, [store.auth.viewAsUserId]);
 
   /* ---------------- Delete Handlers ---------------- */
 

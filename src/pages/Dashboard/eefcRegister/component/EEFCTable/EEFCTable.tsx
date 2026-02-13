@@ -14,6 +14,8 @@ import {
 import EEFCForm from "../EEFCForm/EEFCForm";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import store from "../../../../../store/store";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
+import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 // import PCFCForm from "../PCFCForm/PCFCForm";
 
 const EEFCTable = () => {
@@ -25,9 +27,7 @@ const EEFCTable = () => {
   const { deleteItem } = useDeleteItem();
 
   // Permission checks
-  const canAdd = store.auth.canPerformTableAction('add', 'eefc');
-  const canEdit = store.auth.canPerformTableAction('edit', 'eefc');
-  const canDelete = store.auth.canPerformTableAction('delete', 'eefc');
+  const { canAdd, canEdit, canDelete, canView } = usePermission('eefc');
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -103,9 +103,10 @@ const EEFCTable = () => {
   const fetchExportRegisterData = async (currentPage = 1) => {
     setLoading(true);
     try {
+      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/eefcregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage }
+        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
       const result = response.data?.data?.data || [];
       const total = response.data?.data?.total_pages || 1;
@@ -128,9 +129,10 @@ const EEFCTable = () => {
   };
 
   useEffect(() => {
+    if (!canView) return;
     fetchExportRegisterData(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [store.auth.viewAsUserId]);
 
   const EEFCColumns = [
     // {headerName:"Month", key:"month", label:"Month"},
@@ -150,71 +152,73 @@ const EEFCTable = () => {
   ];
 
   return (
-    <>
-      <CustomTable
-        title="EEFC Register"
-        data={exportData}
-        columns={EEFCColumns}
-        actions={{
-          search: { show: false },
-          resetData: {
-            show: true,
-            text: "Reset Data",
-            function: () => fetchExportRegisterData(1),
-          },
-          exportExcel: {
-            show: false,
-            text: "Export Excel",
-            function: () =>
-              exportToExcel({
-                // columns: EEFCColumns,
-
-                data: dummyEefcData,
-                fileName: "EEFC_Register.xlsx",
-              }),
-          },
-          uploadFile: {
-            show: false,
-            text: "Upload Excel",
-            function: (e: any) => handleFileUpload(e),
-          },
-          pagination: {
-            show: true,
-            onClick: handlePageChange,
-            currentPage: page,
-            totalPages: totalPages,
-          },
-          actionBtn: {
-            addKey: {
-              showAddButton: canAdd,
-              function: onOpen,
+    canView ? (
+      <>
+        <CustomTable
+          title="EEFC Register"
+          data={exportData}
+          columns={EEFCColumns}
+          actions={{
+            search: { show: false },
+            resetData: {
+              show: true,
+              text: "Reset Data",
+              function: () => fetchExportRegisterData(1),
             },
-            editKey: { showEditButton: canEdit },
-            deleteKey: {
-              showDeleteButton: canDelete,
-              function: (row: any) =>
-                deleteItem({
-                  url: `${url}/delup/deleterow/`,
-                  rowId: row.rowId,
-                  formType: "eefcRegister",
-                  refetch: fetchExportRegisterData,
+            exportExcel: {
+              show: false,
+              text: "Export Excel",
+              function: () =>
+                exportToExcel({
+                  // columns: EEFCColumns,
+
+                  data: dummyEefcData,
+                  fileName: "EEFC_Register.xlsx",
                 }),
             },
-          },
-        }}
-        loading={loading}
-      />
+            uploadFile: {
+              show: false,
+              text: "Upload Excel",
+              function: (e: any) => handleFileUpload(e),
+            },
+            pagination: {
+              show: true,
+              onClick: handlePageChange,
+              currentPage: page,
+              totalPages: totalPages,
+            },
+            actionBtn: {
+              addKey: {
+                showAddButton: canAdd,
+                function: onOpen,
+              },
+              editKey: { showEditButton: canEdit },
+              deleteKey: {
+                showDeleteButton: canDelete,
+                function: (row: any) =>
+                  deleteItem({
+                    url: `${url}/delup/deleterow/`,
+                    rowId: row.rowId,
+                    formType: "eefcRegister",
+                    refetch: fetchExportRegisterData,
+                  }),
+              },
+            },
+          }}
+          loading={loading}
+        />
 
-      <CustomDrawer
-        open={isOpen}
-        close={onClose}
-        title="EEFC Register Form"
-        size="xl"
-        width="75vw"
-      >
-        <EEFCForm submitForm={submitExportForm} />
-      </CustomDrawer>
-    </>
+        <CustomDrawer
+          open={isOpen}
+          close={onClose}
+          title="EEFC Register Form"
+          size="xl"
+          width="75vw"
+        >
+          <EEFCForm submitForm={submitExportForm} />
+        </CustomDrawer>
+      </>
+    ) : <RestrictedAccess />
   );
 };
 
