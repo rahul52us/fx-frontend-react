@@ -493,6 +493,7 @@ const ImportRegistrationForm = ({
                       name="budgetRate"
                       value={values.budgetRate}
                       onChange={handleChange}
+                      type="number"
                       error={touched.budgetRate && errors.budgetRate}
                       showError={showError}
                       required={true}

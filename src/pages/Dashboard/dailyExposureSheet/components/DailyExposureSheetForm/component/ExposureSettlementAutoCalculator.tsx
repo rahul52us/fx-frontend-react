@@ -64,6 +64,7 @@ const ExposureSettlementAutoCalculator = () => {
         : "";
 
     if (values.settledAmount !== settledAmount) {
+      // alert("rahl")
       setFieldValue("settledAmount", settledAmount);
     }
 

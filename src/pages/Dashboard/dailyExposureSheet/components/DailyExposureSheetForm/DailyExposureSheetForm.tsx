@@ -5,7 +5,7 @@ import {
   Flex,
   SimpleGrid,
   useToast,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
 import { useState } from "react";
@@ -15,7 +15,10 @@ import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../../globalStyles";
-import { exposureTypeOptions, settlementTypeOptions } from "../../../exportsRegister/component/utils/constant";
+import {
+  exposureTypeOptions,
+  settlementTypeOptions,
+} from "../../../exportsRegister/component/utils/constant";
 import ConversionTypeSelector from "./component/ConversionTypeSelector";
 import EEFCExportsSection from "./component/EEFCExportsSection";
 import EEFCImportsSection from "./component/EEFCImportsSection";
@@ -32,61 +35,70 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
   const [poOptions, setPoOptions] = useState<any[]>([]);
   const [invoiceOptions, setInvoiceOptions] = useState<any[]>([]);
   const [isPoDisabled, setIsPoDisabled] = useState(false);
-const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
-const toast = useToast();
+  const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
+  const toast = useToast();
 
   const validationSchema = Yup.object({
-  settlementDate: Yup.string().required("Settlement Date is required"),
-  settlementType: Yup.string().nullable(),
-  exposureType: Yup.string().nullable(),
+    settlementDate: Yup.string().required("Settlement Date is required"),
+    settlementType: Yup.string().nullable(),
+    exposureType: Yup.string().nullable(),
 
-  settledAmount: Yup.number()
-    .typeError("Settled Amount is required")
-    .required("Settled Amount is required"),
+    settledAmount: Yup.number()
+      .typeError("Settled Amount is required")
+      .required("Settled Amount is required"),
 
-  partyName: Yup.string().required("Party Name is required"),
-  bank: Yup.string().required("Bank is required"),
-  businessUnit: Yup.string().required("Business Unit is required"),
-  currency: Yup.string().required("Currency is required"),
-  dueDate: Yup.string().required("Due Date is required"),
-  outstandingAmount: Yup.string().required("Outstanding Amount is required"),
+    partyName: Yup.string().required("Party Name is required"),
+    bank: Yup.string().required("Bank is required"),
+    businessUnit: Yup.string().required("Business Unit is required"),
+    currency: Yup.string().required("Currency is required"),
+    dueDate: Yup.string().required("Due Date is required"),
+    outstandingAmount: Yup.string().required("Outstanding Amount is required"),
 
-  // 👇 THESE ARE REQUIRED FOR FORM-LEVEL TEST
-  isSpotEnabled: Yup.boolean().required(),
-  isEEFCExportsEnabled: Yup.boolean().required(),
-  isEEFCImportsEnabled: Yup.boolean().required(),
-  isPCFCEnabled: Yup.boolean().required(),
-  isForwardEnabled: Yup.boolean().required(),
+    // 👇 THESE ARE REQUIRED FOR FORM-LEVEL TEST
+    isSpotEnabled: Yup.boolean().required(),
+    isEEFCExportsEnabled: Yup.boolean().required(),
+    isEEFCImportsEnabled: Yup.boolean().required(),
+    isPCFCEnabled: Yup.boolean().required(),
+    isForwardEnabled: Yup.boolean().required(),
 
     modeValidation: Yup.mixed().test(
       "spot-or-forward-required",
       "Please enable at least one mode",
       function () {
-        const { isSpotEnabled, isForwardEnabled, isEEFCExportsEnabled, isEEFCImportsEnabled, isPCFCEnabled } = this.parent;
-        return isSpotEnabled || isForwardEnabled || isEEFCExportsEnabled || isEEFCImportsEnabled || isPCFCEnabled;
-      }
+        const {
+          isSpotEnabled,
+          isForwardEnabled,
+          isEEFCExportsEnabled,
+          isEEFCImportsEnabled,
+          isPCFCEnabled,
+        } = this.parent;
+        return (
+          isSpotEnabled ||
+          isForwardEnabled ||
+          isEEFCExportsEnabled ||
+          isEEFCImportsEnabled ||
+          isPCFCEnabled
+        );
+      },
     ),
 
     settlementAmount: Yup.number()
-  .typeError("Settlement Amount is required")
-  .required("Settlement Amount is required")
-  .test(
-    "match-settled-amount",
-    "Settlement Amount must match the calculated Settled Amount",
-    function (value) {
-      const { settledAmount } = this.parent;
+      .typeError("Settlement Amount is required")
+      .required("Settlement Amount is required")
+      .test(
+        "match-settled-amount",
+        "Settlement Amount must match the calculated Settled Amount",
+        function (value) {
+          const { settledAmount } = this.parent;
 
-      if (value === undefined || value === null || settledAmount === "") {
-        return true; // let required/type errors handle this
-      }
+          if (value === undefined || value === null || settledAmount === "") {
+            return true; // let required/type errors handle this
+          }
 
-      return Number(value) === Number(settledAmount);
-    }
-  ),
-
-})
-
-
+          return Number(value) === Number(settledAmount);
+        },
+      ),
+  });
 
   return (
     <Box bg="whiteAlpha.700">
@@ -109,11 +121,11 @@ const toast = useToast();
             settlementAmount: "",
 
             // === TOGGLES ===
-         isSpotEnabled: false,
-  isEEFCExportsEnabled: false,
-  isEEFCImportsEnabled: false,
-  isPCFCEnabled: false,
-  isForwardEnabled: false,
+            isSpotEnabled: false,
+            isEEFCExportsEnabled: false,
+            isEEFCImportsEnabled: false,
+            isPCFCEnabled: false,
+            isForwardEnabled: false,
 
             // === LISTS (MULTIPLE ROWS) ===
             spotList: [],
@@ -127,30 +139,30 @@ const toast = useToast();
             settledAmountInINR: "",
           }}
           validationSchema={validationSchema}
-  validateOnBlur={true}
-  validateOnChange={false}
-  onSubmit={(values, actions) => {
-    submitForm(values, actions, "form");
-  }}
+          validateOnBlur={true}
+          validateOnChange={false}
+          onSubmit={(values, actions) => {
+            submitForm(values, actions, "form");
+          }}
         >
           {({
-  values,
-  handleChange,
-  setFieldValue,
-  errors,
-  touched,
-  isSubmitting,
-  validateForm,
-  submitForm,
-}) => (
+            values,
+            handleChange,
+            setFieldValue,
+            errors,
+            touched,
+            isSubmitting,
+            validateForm,
+            submitForm,
+          }) => (
             <FormikForm>
               <ExposureAutoPopulateWatcher />
-      <ExposureSettlementController
-  setPoOptions={setPoOptions}
-  setInvoiceOptions={setInvoiceOptions}
-  setIsPoDisabled={setIsPoDisabled}
-  setIsInvoiceDisabled={setIsInvoiceDisabled}
-/>
+              <ExposureSettlementController
+                setPoOptions={setPoOptions}
+                setInvoiceOptions={setInvoiceOptions}
+                setIsPoDisabled={setIsPoDisabled}
+                setIsInvoiceDisabled={setIsInvoiceDisabled}
+              />
               <VStack spacing={6} align="stretch">
                 <SimpleGrid columns={[1, 2]} spacing={6}>
                   <CustomInput
@@ -163,154 +175,156 @@ const toast = useToast();
                     error={touched.settlementDate && errors.settlementDate}
                     showError={showError}
                   />
-<CustomInput
-  label="Settlement Type"
-  name="settlementType"
-  type="select"
-  required
-  options={settlementTypeOptions}
-  value={settlementTypeOptions.find(
-    (opt) => opt.value === values.settlementType
-  )}
-  onChange={(option) => {
-    handleChange({
-      target: { name: "settlementType", value: option.value },
-    });
-  }}
-  error={touched.settlementType && errors.settlementType}
-  showError={showError}
-/>
+                  <CustomInput
+                    label="Settlement Type"
+                    name="settlementType"
+                    type="select"
+                    required
+                    options={settlementTypeOptions}
+                    value={settlementTypeOptions.find(
+                      (opt) => opt.value === values.settlementType,
+                    )}
+                    onChange={(option) => {
+                      handleChange({
+                        target: { name: "settlementType", value: option.value },
+                      });
+                    }}
+                    error={touched.settlementType && errors.settlementType}
+                    showError={showError}
+                  />
 
-<CustomInput
-  label="Exposure Type"
-  name="exposureType"
-  type="select"
-  required
-  options={exposureTypeOptions}
-  value={exposureTypeOptions.find(
-    (opt) => opt.value === values.exposureType
-  )}
-  onChange={(option) => {
-    handleChange({
-      target: { name: "exposureType", value: option.value },
-    });
-    setFieldValue("poNumber", "");
-    setFieldValue("invoiceBcNumber", "");
-    setFieldValue('outstandingAmount', '');
-    setFieldValue("dueDate", "");
-     setFieldValue("isEEFCExportsEnabled", false);
-     setFieldValue("isEEFCImportsEnabled", false);
-  }}
-  error={touched.exposureType && errors.exposureType}
-  showError={showError}
-/>
+                  <CustomInput
+                    label="Exposure Type"
+                    name="exposureType"
+                    type="select"
+                    required
+                    options={exposureTypeOptions}
+                    value={exposureTypeOptions.find(
+                      (opt) => opt.value === values.exposureType,
+                    )}
+                    onChange={(option) => {
+                      handleChange({
+                        target: { name: "exposureType", value: option.value },
+                      });
+                      setFieldValue("poNumber", "");
+                      setFieldValue("invoiceBcNumber", "");
+                      setFieldValue("outstandingAmount", "");
+                      setFieldValue("dueDate", "");
+                      setFieldValue("isEEFCExportsEnabled", false);
+                      setFieldValue("isEEFCImportsEnabled", false);
+                    }}
+                    error={touched.exposureType && errors.exposureType}
+                    showError={showError}
+                  />
 
-{values.settlementType === "advance" && (
-<CustomInput
-  label="PO Number"
-  name="poNumber"
-  disabled={isPoDisabled}
-  type="select"
-  required
-  options={poOptions}
-  value={poOptions.find((opt) => opt.value === values.poNumber)}
-  onChange={(option) =>
-    handleChange({
-      target: { name: "poNumber", value: option.value },
-    })
-  }
-  error={touched.poNumber && errors.poNumber}
-  showError={showError}
-/>
-)}
-<CustomInput
-  label="Invoice BC Number"
-  name="invoiceBcNumber"
-  disabled={isInvoiceDisabled}
-  type="select"
-  required
-  options={invoiceOptions}
-  value={invoiceOptions.find(
-    (opt) => opt.value === values.invoiceBcNumber
-  )}
-  onChange={(option) =>
-    handleChange({
-      target: { name: "invoiceBcNumber", value: option.value },
-    })
-  }
-  error={touched.invoiceBcNumber && errors.invoiceBcNumber}
-  showError={showError}
-/>
-                <CustomInput
-  label="Party Name"
-  required
-  name="partyName"
-  value={values.partyName}
-  disabled
-  // error={touched.partyName && errors.partyName}
-  showError={showError}
-/>
-<CustomInput
-  label="Business Unit"
-  required
-  name="businessUnit"
-  value={values.businessUnit}
-  showError={showError}
-  
-  disabled
-/>
-<CustomInput
-  required
-  label="Bank"
-  name="bank"
-  showError={showError}
-  value={values.bank}
-  disabled
-/>
-<CustomInput
-  label="Currency"
-  required
-  name="currency"
-  showError={showError}
-  value={values.currency}
-  disabled
-/>
-<CustomInput
-  label="Outstanding Amount"
-  name="outstandingAmount"
-  value={values.outstandingAmount}
-  showError={showError}
-  required
-  disabled
-/>
-<CustomInput
-  label="Document Due Date"
-  name="dueDate"
-  showError={showError}
-  // required
-  value={values.dueDate}
-  disabled
-/>
+                  {values.settlementType === "advance" && (
+                    <CustomInput
+                      label="PO Number"
+                      name="poNumber"
+                      disabled={isPoDisabled}
+                      type="select"
+                      required
+                      options={poOptions}
+                      value={poOptions.find(
+                        (opt) => opt.value === values.poNumber,
+                      )}
+                      onChange={(option) =>
+                        handleChange({
+                          target: { name: "poNumber", value: option.value },
+                        })
+                      }
+                      error={touched.poNumber && errors.poNumber}
+                      showError={showError}
+                    />
+                  )}
+                  <CustomInput
+                    label="Invoice BC Number"
+                    name="invoiceBcNumber"
+                    disabled={isInvoiceDisabled}
+                    type="select"
+                    required
+                    options={invoiceOptions}
+                    value={invoiceOptions.find(
+                      (opt) => opt.value === values.invoiceBcNumber,
+                    )}
+                    onChange={(option) =>
+                      handleChange({
+                        target: {
+                          name: "invoiceBcNumber",
+                          value: option.value,
+                        },
+                      })
+                    }
+                    error={touched.invoiceBcNumber && errors.invoiceBcNumber}
+                    showError={showError}
+                  />
+                  <CustomInput
+                    label="Party Name"
+                    required
+                    name="partyName"
+                    value={values.partyName}
+                    disabled
+                    // error={touched.partyName && errors.partyName}
+                    showError={showError}
+                  />
+                  <CustomInput
+                    label="Business Unit"
+                    required
+                    name="businessUnit"
+                    value={values.businessUnit}
+                    showError={showError}
+                    disabled
+                  />
+                  <CustomInput
+                    required
+                    label="Bank"
+                    name="bank"
+                    showError={showError}
+                    value={values.bank}
+                    disabled
+                  />
+                  <CustomInput
+                    label="Currency"
+                    required
+                    name="currency"
+                    showError={showError}
+                    value={values.currency}
+                    disabled
+                  />
+                  <CustomInput
+                    label="Outstanding Amount"
+                    name="outstandingAmount"
+                    value={values.outstandingAmount}
+                    showError={showError}
+                    required
+                    disabled
+                  />
+                  <CustomInput
+                    label="Document Due Date"
+                    name="dueDate"
+                    showError={showError}
+                    // required
+                    value={values.dueDate}
+                    disabled
+                  />
 
+                  <CustomInput
+                    label="Settlement Amount"
+                    name="settlementAmount"
+                    required
+                    placeholder="Enter Amount To Settle"
+                    value={values.settlementAmount}
+                    onChange={handleChange}
+                    error={touched.settlementAmount && errors.settlementAmount}
+                    showError={showError}
+                  />
 
-<CustomInput
-  label="Settlement Amount"
-  name="settlementAmount"
-  required
-  placeholder="Enter Amount To Settle"
-  value={values.settlementAmount}
-  onChange={handleChange}
-  error={touched.settlementAmount && errors.settlementAmount}
-  showError={showError}
-/>
-
-<ExposureSettlementAutoCalculator />
-
+                  <ExposureSettlementAutoCalculator />
                 </SimpleGrid>
-              <ConversionTypeSelector
-        values={values}
-        setFieldValue={setFieldValue}
-      />
+                <ConversionTypeSelector
+                  values={values}
+                  setFieldValue={setFieldValue}
+                />
                 <SpotForwardCalculation />
                 {/* ===================== CONDITIONAL SECTIONS ===================== */}
                 {values.isSpotEnabled && (
@@ -325,22 +339,26 @@ const toast = useToast();
                   <EEFCImportsSection showError={showError} />
                 )}
 
-           {values.isPCFCEnabled && (
-  <PCFCRepaymentSection showError={showError} />
-)}
-             {values.isForwardEnabled && (
-  <ForwardContractSection showError={showError} bank={values.bank} businessUnit={values.businessUnit} exposureType={values.exposureType} />
-)}
+                {values.isPCFCEnabled && (
+                  <PCFCRepaymentSection showError={showError} />
+                )}
+                {values.isForwardEnabled && (
+                  <ForwardContractSection
+                    showError={showError}
+                    bank={values.bank}
+                    businessUnit={values.businessUnit}
+                    exposureType={values.exposureType}
+                  />
+                )}
                 {/* ===================== SUMMARY SECTION ===================== */}
                 <Box p={4} bg="gray.100" borderRadius="lg">
                   <SimpleGrid columns={[1, 2, 3]} spacing={6}>
-              
-                      <CustomInput
-                        label="Settled Amount"
-                        name="settledAmount"
-                        value={values.settledAmount}
-                        onChange={handleChange}
-                      />
+                    <CustomInput
+                      label="Settled Amount"
+                      name="settledAmount"
+                      value={values.settledAmount}
+                      onChange={handleChange}
+                    />
                     <CustomInput
                       label="Settlement Rate"
                       name="settlementRate"
@@ -358,33 +376,33 @@ const toast = useToast();
                 {/* ===================== ACTION BUTTON ===================== */}
                 <Flex justify={"end"}>
                   <Button
-  rounded="full"
-  {...primaryButtonStyle}
-  _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
-  isLoading={isSubmitting}
-  type="button"
-  size="lg"
-onClick={async () => {
-  setShowError(true);
-  const errors = await validateForm();
-  if (Object.keys(errors).length > 0) {
-    // 🔹 get first error message
-    const firstError = Object.values(errors)[0];
-    toast({
-      title: "Validation Error",
-      description: String(firstError),
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-      position: "top-right",
-    });
-    return;
-  }
-  submitForm();
-}}
->
-  Submit
-</Button>
+                    rounded="full"
+                    {...primaryButtonStyle}
+                    _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
+                    isLoading={isSubmitting}
+                    type="button"
+                    size="lg"
+                    onClick={async () => {
+                      setShowError(true);
+                      const errors = await validateForm();
+                      if (Object.keys(errors).length > 0) {
+                        // 🔹 get first error message
+                        const firstError = Object.values(errors)[0];
+                        toast({
+                          title: "Validation Error",
+                          description: String(firstError),
+                          status: "error",
+                          duration: 3000,
+                          isClosable: true,
+                          position: "top-right",
+                        });
+                        return;
+                      }
+                      submitForm();
+                    }}
+                  >
+                    Submit
+                  </Button>
                 </Flex>
               </VStack>
             </FormikForm>

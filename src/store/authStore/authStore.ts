@@ -23,6 +23,36 @@ class AuthStore {
   role: any = "user";
   webLoader: boolean = false;
   currentCompanyDetails: any = {};
+  businessUnits: any[] = [
+    {
+      unitCode: "unit bank 1",
+      banks: [
+        {
+          bankName: "bank 1",
+          currency: "GAME",
+          margin: "20",
+          location: "india",
+        },
+        {
+          bankName: "bank 2",
+          currency: "SECOND",
+          margin: "50",
+          location: "agra",
+        },
+      ],
+    },
+    {
+      unitCode: "NOS",
+      banks: [
+        {
+          bankName: "second bank 1",
+          currency: "GAME",
+          margin: "50",
+          location: "location",
+        },
+      ],
+    },
+  ];
   constructor() {
     this.initiatAppOptions();
     makeObservable(this, {
@@ -35,6 +65,7 @@ class AuthStore {
       role: observable,
       webLoader: observable,
       currentCompanyDetails: observable,
+      businessUnits: observable,
       openLoginModel: action,
       login: action,
       register: action,
@@ -60,6 +91,8 @@ class AuthStore {
       getPolicy: action,
       verifyAppEmail: action,
       handleContactMail: action,
+      setBusinessUnits: action,
+      getBusinessUnits: action,
     });
   }
 
@@ -450,6 +483,17 @@ class AuthStore {
   openLoginModel = async () => {
     this.loginModel = !this.loginModel ? true : false;
   };
+
+  // Function to set business units data
+  setBusinessUnits = (data: any[]) => {
+    this.businessUnits = data;
+  };
+
+  // Function to get business units data
+  getBusinessUnits = () => {
+    return this.businessUnits;
+  };
 }
+
 
 export default AuthStore;

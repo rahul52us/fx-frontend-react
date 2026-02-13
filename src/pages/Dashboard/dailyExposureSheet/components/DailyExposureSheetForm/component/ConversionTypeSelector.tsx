@@ -39,7 +39,7 @@ const ConversionTypeSelector = ({
         {/* ===================== EEFC EXPORTS ===================== */}
         {values.exposureType === "export" && (
           <FormControl display="flex" alignItems="center">
-            <FormLabel mb="0">EEFC – Exports</FormLabel>
+            <FormLabel mb="0">EEFC</FormLabel>
             <Switch
               isChecked={values.isEEFCExportsEnabled}
               onChange={(e) => {
@@ -55,7 +55,7 @@ const ConversionTypeSelector = ({
         {/* ===================== EEFC IMPORTS ===================== */}
         {values.exposureType === "import" && (
           <FormControl display="flex" alignItems="center">
-            <FormLabel mb="0">EEFC – Imports</FormLabel>
+            <FormLabel mb="0">EEFC</FormLabel>
             <Switch
               isChecked={values.isEEFCImportsEnabled}
               onChange={(e) => {
