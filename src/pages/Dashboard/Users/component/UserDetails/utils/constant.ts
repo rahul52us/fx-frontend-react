@@ -25,7 +25,7 @@ export const registerPermissions: any = {
   eefcRegister: { view: true, add: true, edit: true, delete: true },
   exportRegister: { view: true, add: true, edit: true, delete: true },
   forwardCancellation: { view: true, add: true, edit: true, delete: true },
-  importRegister: { view: true, add: true, edit: true, delete: true },
+  importRegister: { view: false, add: true, edit: true, delete: true },
   pcfc: { view: true, add: true, edit: true, delete: true },
   mtm: { view: true, add: true, edit: true, delete: true },
   rp: { view: true, add: true, edit: true, delete: true },

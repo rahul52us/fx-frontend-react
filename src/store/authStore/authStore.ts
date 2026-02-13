@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { action, makeObservable, observable } from "mobx";
 import CryptoJS from "crypto-js";
 import { backendBaseUrl } from "../../config/constant/urls";
+import { registerPermissions } from "../../pages/Dashboard/Users/component/UserDetails/utils/constant";
 
 interface Notification {
   title?: any;
@@ -134,6 +135,7 @@ class AuthStore {
         this.company = "company_id";
         this.user = data.data;
         this.role = this.user?.role;
+        this.user.permissions = this.user.permissions || registerPermissions || {};
         this.currentCompanyDetails = this.company;
         sessionStorage.setItem(
           process.env.REACT_APP_AUTHORIZATION_USER_DATA!,

@@ -1,5 +1,10 @@
 "use client";
 import {
+  Box,
+  Button,
+  Flex,
+  Icon,
+  Text,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
@@ -17,6 +22,8 @@ import {
 import ImportRegistrationForm from "../ImportRegisterForm";
 import HedgeDealsCell from "../../../exportsRegister/component/ExportRegisterTable/HedgeDealsPopover";
 import store from "../../../../../store/store";
+import { toJS } from "mobx";
+import { LockIcon } from "@chakra-ui/icons";
 
 const ImportRegisterTable = () => {
   const [importData, setImportData] = useState<any[]>([]);
@@ -30,11 +37,12 @@ const ImportRegisterTable = () => {
   // const url = "https://7b0fa03efa8d.ngrok-free.app"
   const { deleteItem } = useDeleteItem();
 
+  console.log("User Permissions:", toJS(store.auth.user?.permissions));
   // Permission checks
-  const canAdd = store.auth.canPerformTableAction('add', 'import');
-  const canEdit = store.auth.canPerformTableAction('edit', 'import');
-  const canDelete = store.auth.canPerformTableAction('delete', 'import');
-
+  const canAdd = store.auth.checkPermission('importRegister', 'add');
+  const canEdit = store.auth.checkPermission('importRegister', 'edit');
+  const canDelete = store.auth.checkPermission('importRegister', 'delete');
+  const canView = store.auth.checkPermission('importRegister', 'view');
   // Delete Confirmation State
   const {
     isOpen: isDeleteOpen,
@@ -246,7 +254,8 @@ const ImportRegisterTable = () => {
   };
 
   return (
-    <>
+    canView ? (
+      <>
       <CustomTable
         title="Import Register"
         data={importData}
@@ -322,7 +331,42 @@ const ImportRegisterTable = () => {
         description="Are you sure? You can't undo this action afterwards."
         isLoading={deleteLoading}
       />
-    </>
+    </>)
+    : <Flex
+  minH="70vh"
+  align="center"
+  justify="center"
+>
+  <Box
+    p={8}
+    textAlign="center"
+    w="100%"
+  >
+    <Flex direction="column" align="center" gap={3}>
+      <Icon as={LockIcon} boxSize={10} color="gray.400" />
+
+      <Text fontSize="lg" fontWeight="semibold">
+        Restricted Access
+      </Text>
+
+      <Text fontSize="sm" color="gray.600">
+        This section isn’t available for your account yet.
+        If you believe this is a mistake, please contact support.
+      </Text>
+
+      <Button
+        mt={3}
+        size="sm"
+        colorScheme="blue"
+        onClick={() => window.history.back()}
+      >
+        Go Back
+      </Button>
+    </Flex>
+  </Box>
+</Flex>
+
+
   );
 };
 
