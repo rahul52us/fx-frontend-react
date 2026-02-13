@@ -4,18 +4,31 @@
 import { transformPermissionsForForm } from "./function";
 
 export const defaultPermissions: any = {
-  adminAccess:{add : false},
+  adminAccess: { add: false },
   dashboard: { view: true },
   user: { add: false, edit: false, delete: false, view: false },
-  personalProfile : { edit: false, delete: false, view: true },
+  personalProfile: { edit: false, delete: false, view: true },
   trip: { add: false, edit: false, view: true, delete: false },
   course: { add: false, edit: false, view: false, delete: false },
   videos: { add: false, edit: false, view: false, delete: false },
   project: { add: false, edit: false, view: true, delete: false },
   task: { add: false, edit: false, view: true, delete: false },
   managers: { view: false },
-  books : {view : true, add : false, edit : false, delete : false },
-  bookCategory : {view : true, add : false, edit : false, delete : false }
+  books: { view: true, add: false, edit: false, delete: false },
+  bookCategory: { view: true, add: false, edit: false, delete: false }
+};
+
+export const registerPermissions: any = {
+  dashboard: { view: true },
+  dailyExposure: { view: true, add: true, edit: true, delete: true },
+  forwardRegister: { view: true, add: true, edit: true, delete: true },
+  eefcRegister: { view: true, add: true, edit: true, delete: true },
+  exportRegister: { view: true, add: true, edit: true, delete: true },
+  forwardCancellation: { view: true, add: true, edit: true, delete: true },
+  importRegister: { view: true, add: true, edit: true, delete: true },
+  pcfc: { view: true, add: true, edit: true, delete: true },
+  mtm: { view: true, add: true, edit: true, delete: true },
+  rp: { view: true, add: true, edit: true, delete: true },
 };
 
 export const employDropdownData: any = [
@@ -69,7 +82,7 @@ export const getUserInitialValues = (type: string, data: any) => {
         ? data?.language.map((item: any) => ({ label: item, value: item }))
         : [],
       username: data?.username || "",
-      pic:  data ? data.pic?.url ? {file : data.pic } : {file : []} : {file : []},
+      pic: data ? data.pic?.url ? { file: data.pic } : { file: [] } : { file: [] },
       dob: data.dob ? new Date(data?.dob) : new Date(),
       personalEmail: data?.personalEmail || "",
       nickName: data?.nickName || "",
@@ -91,14 +104,14 @@ export const getUserInitialValues = (type: string, data: any) => {
       addressInfo: data?.addressInfo?.length
         ? data?.addressInfo
         : [
-            {
-              address: "",
-              country: "",
-              state: "",
-              city: "",
-              pinCode: "",
-            },
-          ],
+          {
+            address: "",
+            country: "",
+            state: "",
+            city: "",
+            pinCode: "",
+          },
+        ],
     };
     if (data) {
       delete dt.password;
@@ -115,7 +128,7 @@ export const getUserInitialValues = (type: string, data: any) => {
     }
     return {
       bankDetails: {
-        cancelledCheque:  data ? data.bankDetails[0].cancelledCheque?.url ? {file : data.bankDetails[0].cancelledCheque } : {file : []} : {file : []},
+        cancelledCheque: data ? data.bankDetails[0].cancelledCheque?.url ? { file: data.bankDetails[0].cancelledCheque } : { file: [] } : { file: [] },
         nameAsPerBank: bankDetail?.nameAsPerBank || "",
         name: bankDetail?.name || "",
         accountNo: bankDetail?.accountNo || "",
@@ -169,26 +182,34 @@ export const getUserInitialValues = (type: string, data: any) => {
     };
   }
   else if (type === "documents") {
-    return {documents : {documents : data?.documents?.length ? data?.documents[0]?.documents ? data?.documents[0]?.documents?.map((it: any) => ({
-      ...it,
-      file: Object.entries(it.file || {}).length ? [it.file] : undefined,
-    })) : [] : [],deleteAttachments : []}}
+    return {
+      documents: {
+        documents: data?.documents?.length ? data?.documents[0]?.documents ? data?.documents[0]?.documents?.map((it: any) => ({
+          ...it,
+          file: Object.entries(it.file || {}).length ? [it.file] : undefined,
+        })) : [] : [], deleteAttachments: []
+      }
+    }
 
   }
   else if (type === "qualifications") {
-    return {qualifications : {qualifications : data?.qualifications?.length ? data?.qualifications[0]?.qualifications ? data?.qualifications[0]?.qualifications?.map((it: any) => ({
-      ...it,
-      file: Object.entries(it.file || {}).length ? [it.file] : undefined,
-    })) : [] : [],deleteAttachments : []}}
+    return {
+      qualifications: {
+        qualifications: data?.qualifications?.length ? data?.qualifications[0]?.qualifications ? data?.qualifications[0]?.qualifications?.map((it: any) => ({
+          ...it,
+          file: Object.entries(it.file || {}).length ? [it.file] : undefined,
+        })) : [] : [], deleteAttachments: []
+      }
+    }
   }
-   else if (type === "company-details") {
+  else if (type === "company-details") {
     let details: any = {};
     if (data) {
       details = data?.companyDetail?.length
         ? data.companyDetail[0].details?.length
           ? data.companyDetail[0].details[
-              data.companyDetail[0].details?.length - 1
-            ]
+          data.companyDetail[0].details?.length - 1
+          ]
           : {}
         : {};
     }

@@ -8,6 +8,7 @@ import {
   Badge,
   Flex,
 } from "@chakra-ui/react";
+import { formatCamelCaseLabel } from "../../../../config/constant/function";
 
 /* ---------- Section Wrapper ---------- */
 const Section = ({ title, children }: any) => (
@@ -113,6 +114,37 @@ export default function AdminViewDetails({ data }: { data: any }) {
           ))}
         </Stack>
       </Section>
+
+      {/* ================= PERMISSIONS ================= */}
+      {data?.permissions && (
+        <Section title="Permissions">
+          <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={4}>
+            {Object.keys(data.permissions).map((moduleKey) => (
+              <Box
+                key={moduleKey}
+                p={4}
+                bg="gray.50"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="gray.200"
+              >
+                <Text fontWeight="bold" mb={3} textTransform="capitalize" color="blue.600">
+                  {formatCamelCaseLabel(moduleKey)}
+                </Text>
+                <Flex wrap="wrap" gap={2}>
+                  {Object.keys(data.permissions[moduleKey]).map((permKey) => (
+                    data.permissions[moduleKey][permKey] && (
+                      <Badge key={permKey} colorScheme="green" variant="solid" px={2} py={1} borderRadius="md">
+                        {formatCamelCaseLabel(permKey)}
+                      </Badge>
+                    )
+                  ))}
+                </Flex>
+              </Box>
+            ))}
+          </Grid>
+        </Section>
+      )}
     </Stack>
   );
 }

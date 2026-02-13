@@ -12,8 +12,12 @@ import {
   Text,
   IconButton,
   useToast,
+  Checkbox,
 } from "@chakra-ui/react";
 import { CloseIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { registerPermissions } from "../../Users/component/UserDetails/utils/constant";
+import { transformPermissionsForDB } from "../../Users/component/UserDetails/utils/function";
+import { formatCamelCaseLabel } from "../../../../config/constant/function";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import store from "../../../../store/store";
@@ -51,6 +55,18 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
   const [businessUnits, setBusinessUnits] = useState([
     { unitCode: "", banks: [] as any[] }
   ]);
+
+  const [permissions, setPermissions] = useState(registerPermissions);
+
+  const handlePermissionChange = (moduleKey: string, permissionKey: string) => {
+    setPermissions((prev: any) => ({
+      ...prev,
+      [moduleKey]: {
+        ...prev[moduleKey],
+        [permissionKey]: !prev[moduleKey][permissionKey]
+      }
+    }));
+  };
 
   const adminUnits = Array.isArray(admin?.businessUnits) ? admin.businessUnits : [];
 
@@ -195,11 +211,12 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
     const { confirmPassword, ...basicDetailsWithoutConfirm } = basic;
 
     const payload = {
-      basicDetails: basicDetailsWithoutConfirm,
+      basicDetails: { ...basicDetailsWithoutConfirm, permissions: transformPermissionsForDB(permissions) },
       businessUnits,
       createdByAdmin: admin?._id,
       createdAt: new Date().toISOString(),
-      role: 'user' // Add role to differentiate from admin
+      role: 'user', // Add role to differentiate from admin
+
     };
 
     setLoading(true);
@@ -399,11 +416,35 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
         </Stack>
       </Section>
 
+      <Section title="Permissions">
+        <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={4}>
+          {Object.keys(permissions).map((moduleKey) => (
+            <Box key={moduleKey} p={4} borderWidth="1px" borderRadius="lg" bg="gray.50">
+              <Text fontWeight="bold" mb={3} textTransform="capitalize">
+                {formatCamelCaseLabel(moduleKey)}
+              </Text>
+              <Stack spacing={2}>
+                {Object.keys(permissions[moduleKey]).map((permKey) => (
+                  <Checkbox
+                    key={permKey}
+                    isChecked={permissions[moduleKey][permKey]}
+                    onChange={() => handlePermissionChange(moduleKey, permKey)}
+                    colorScheme="blue"
+                  >
+                    {formatCamelCaseLabel(permKey)}
+                  </Checkbox>
+                ))}
+              </Stack>
+            </Box>
+          ))}
+        </Grid>
+      </Section>
+
       <Flex justify="flex-end" gap={4}>
         {onCancel && <Button onClick={onCancel} isDisabled={loading}>Cancel</Button>}
         <Button colorScheme="blue" onClick={handleSubmit} isLoading={loading} loadingText="Creating...">Create User</Button>
       </Flex>
-    </Stack>
+    </Stack >
   );
 });
 
