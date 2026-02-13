@@ -20,7 +20,7 @@ import { MultiHedgeDealExport } from "../../exportsRegister/component/MultiHedge
 import { currencyOptions } from "../../exportsRegister/component/utils/constant";
 import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
-import { normalizeDate } from "../../exportsRegister/component/utils/function";
+import { normalizeDate, calculateDueDate } from "../../exportsRegister/component/utils/function";
 import { pickMatchedFields } from "../../utils/function";
 import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 
@@ -290,6 +290,14 @@ const ImportRegistrationForm = ({
                             );
                             setFieldValue("currency", selectedPo.currency);
                             setFieldValue("budgetRate", selectedPo.budgetRate);
+
+                            if (values.blDate) {
+                              const newDueDate = calculateDueDate(
+                                values.blDate,
+                                selectedPo.paymentTerms
+                              );
+                              setFieldValue("dueDate", newDueDate);
+                            }
                           }
                         }}
                         required={true}
@@ -414,7 +422,17 @@ const ImportRegistrationForm = ({
                       name="blDate"
                       type="date"
                       value={values.blDate}
-                      onChange={handleChange}
+                      onChange={(e: any) => {
+                        handleChange(e);
+                        const newBlDate = e.target.value;
+                        if (values.paymentTerms) {
+                          const newDueDate = calculateDueDate(
+                            newBlDate,
+                            values.paymentTerms
+                          );
+                          setFieldValue("dueDate", newDueDate);
+                        }
+                      }}
                       error={touched.blDate && errors.blDate}
                       showError={showError}
                       required={true}
@@ -426,7 +444,17 @@ const ImportRegistrationForm = ({
                       name="paymentTerms"
                       placeholder="Terms"
                       value={values.paymentTerms}
-                      onChange={handleChange}
+                      onChange={(e: any) => {
+                        handleChange(e);
+                        const newTerms = e.target.value;
+                        if (values.blDate) {
+                          const newDueDate = calculateDueDate(
+                            values.blDate,
+                            newTerms
+                          );
+                          setFieldValue("dueDate", newDueDate);
+                        }
+                      }}
                       error={touched.paymentTerms && errors.paymentTerms}
                       showError={showError}
                       required={true}
