@@ -8,7 +8,7 @@ import { glassCardStyle } from "../../../../../globalStyles";
 
 const DashChartContainer = observer(() => {
   const {
-    auth: { getDashboardCountsss, user },
+    auth: { getDashboardCountsss, viewAsUserId },
   } = store;
 
   const [chartData, setChartData] = useState<any>(null);
@@ -18,7 +18,7 @@ const DashChartContainer = observer(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response: any = await getDashboardCountsss({ userId: user?.userId });
+        const response: any = await getDashboardCountsss({ userId: viewAsUserId });
         if (response?.status === "success") {
           const data = response.data;
 
@@ -71,10 +71,10 @@ const DashChartContainer = observer(() => {
         setLoading(false);
       }
     };
-    if (user?.userId) {
+    if (viewAsUserId) {
       fetchData();
     }
-  }, [getDashboardCountsss, user?.userId]);
+  }, [getDashboardCountsss, viewAsUserId]);
 
 
   const glassStyle = {

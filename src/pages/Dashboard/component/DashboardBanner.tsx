@@ -5,12 +5,12 @@ import {
   // Image,
   Text,
   useBreakpointValue,
-  useColorModeValue,
   // keyframes,
 } from "@chakra-ui/react";
 // import IconArrowImg from "../../../config/assets/icon_images/icon-arrow-img.svg";
 import { observer } from "mobx-react-lite";
 import store from "../../../store/store";
+import AdminUserSelect from "../mainDashboard/adminDashboard/components/AdminUserSelect";
 
 // const getRandomRotation = (index: number) => {
 //   const rotations = [45, 240, 270];
@@ -40,51 +40,72 @@ const DashboardBanner = observer(() => {
     base: "md",
   });
 
-  const isLargerThanXl = useBreakpointValue({ lg: true });
+
+
 
   return (
     <Box
-     
-      p={isLargerThanXl ? 6 : 4}
-      mt={isLargerThanXl ? 1.2 : 1.5}
-      borderRadius={8}
-      mb={isLargerThanXl ? 5 : 3}
-      // boxShadow="lg" // Added shadow for depth
-      transition="background 0.3s ease"
+      p={{ base: 6, md: 8 }}
+      mt={4}
+      mb={6}
+      borderRadius="2xl"
+      bgGradient="linear(to-r, blue.600, purple.600)"
+      boxShadow="xl"
+      position="relative"
+      overflow="hidden"
+      color="white"
     >
-      <Flex alignItems="center" justifyContent="space-between">
+      {/* Decorative Circles */}
+      <Box
+        position="absolute"
+        top="-50%"
+        left="-10%"
+        w="400px"
+        h="400px"
+        bg="whiteAlpha.100"
+        borderRadius="full"
+      />
+      <Box
+        position="absolute"
+        bottom="-30%"
+        right="-5%"
+        w="300px"
+        h="300px"
+        bg="whiteAlpha.100"
+        borderRadius="full"
+      />
+
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        alignItems={{ base: "flex-start", md: "center" }}
+        justifyContent="space-between"
+        gap={6}
+        position="relative"
+        zIndex={1}
+      >
         <Flex direction="column">
           <Heading
             fontSize={fontSize}
-            color={useColorModeValue("gray.800", "white")}
+            fontWeight="800"
+            letterSpacing="tight"
+            color="white"
+            textShadow="0 2px 10px rgba(0,0,0,0.2)"
           >
-            Welcome, {user.name} 👋
+            Welcome back, {user?.name?.split(" ")[0]} 👋
           </Heading>
-          <Text mt={2} color={useColorModeValue("gray.600", "gray.300")}>
-            Here’s your daily overview—let’s make it a great one!
+          <Text
+            mt={2}
+            fontSize={{ base: "md", md: "lg" }}
+            color="whiteAlpha.800"
+            fontWeight="500"
+          >
+            Here’s your financial overview for today. Let's make it count.
           </Text>
         </Flex>
-        {/* {isLargerThanXl && (
-          <Flex ml={5}>
-            {[0, 1, 2].map((index) => (
-              <Image
-                key={index}
-                src={IconArrowImg}
-                alt=""
-                w={70}
-                h={70}
-                ml={index === 0 ? 0 : 5}
-                transform={getRandomRotation(index)}
-                display="block"
-                _hover={{
-                  animation: `${bounce} 0.5s ease-in-out`, // Bounce effect on hover
-                  transform: "scale(1.1)",
-                }}
-                transition="transform 0.2s"
-              />
-            ))}
-          </Flex>
-        )} */}
+
+        <Box w={{ base: "100%", md: "auto" }}>
+          <AdminUserSelect />
+        </Box>
       </Flex>
     </Box>
   );

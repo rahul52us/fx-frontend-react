@@ -30,7 +30,7 @@ interface DashboardCountData {
 const DashWidgetCard = observer(() => {
   const navigate = useNavigate();
   const {
-    auth: { getDashboardCountsss, user },
+    auth: { getDashboardCountsss, user, viewAsUserId },
   } = store;
 
   const [data, setData] = useState<DashboardCountData | null>(null);
@@ -41,7 +41,7 @@ const DashWidgetCard = observer(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response: any = await getDashboardCountsss({ userId: user?.userId });
+        const response: any = await getDashboardCountsss({ userId: viewAsUserId });
         if (response?.status === "success") {
           setData(response.data);
         }
@@ -51,10 +51,10 @@ const DashWidgetCard = observer(() => {
         setLoading(false);
       }
     };
-    if (user?.userId) {
+    if (viewAsUserId) {
       fetchData();
     }
-  }, [getDashboardCountsss, user?.userId]);
+  }, [getDashboardCountsss, user?.userId, viewAsUserId]);
 
   // Widget Configuration
   const widgetConfig = [
