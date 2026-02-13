@@ -91,7 +91,7 @@ const DashboardBanner = observer(() => {
             color="white"
             textShadow="0 2px 10px rgba(0,0,0,0.2)"
           >
-            Welcome back, {user?.name?.split(" ")[0]} 👋
+            Welcome back, {user?.basicDetails?.name?.split(" ")[0] || user?.basicDetails?.email?.split("@")[0]} 👋
           </Heading>
           <Text
             mt={2}
