@@ -17,18 +17,20 @@ import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
-import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 import DueDateSync from "./DueDateSync";
 import { MultiHedgeDealExport } from "./MultiHedgeDealExport";
 import {
-  currencyOptions,
   dummyExporPOtData,
   exportRegisterexposureTypeOptions,
 } from "./utils/constant";
 import { normalizeDate } from "./utils/function";
 import { pickMatchedFields } from "../../utils/function";
+import store from "../../../../store/store";
+import { toJS } from "mobx";
+import { extractFieldValue } from "../../../../config/constant/function";
 
 const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any) => {
+  const {auth : {bussinessUnitsData, currenciesData, banksData}} = store
   const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [_, setSubmitAttempted] = useState(false);
@@ -47,9 +49,9 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
       otherwise: (schema) => schema.notRequired(),
     }),
     partyName: Yup.string().required("Party Name is required"),
-    bank: Yup.string().required("Bank is required"),
+    bank: Yup.mixed().required("Bank is required"),
     poNo: Yup.string().required("PO No is required"),
-    businessUnit: Yup.string().required("Business Unit is required"),
+    businessUnit: Yup.mixed().required("Business Unit is required"),
     paymentTerms: Yup.number().required("Payment terms is required"),
     currency: Yup.mixed().required("Currency is required"),
     exposureType: Yup.mixed().required("Exposure Type is required"),
@@ -138,6 +140,10 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
           : schema;
       }),
   });
+
+  console.log("Bussiness Units are ", toJS(bussinessUnitsData));
+  console.log("Currencies are ", toJS(currenciesData));
+  console.log("Banks are ", toJS(banksData));
 
   const fetchPoDetails = async () => {
     setLoading(true);
@@ -233,6 +239,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
           enableReinitialize={true}
 
           onSubmit={async (values, actions) => {
+            values = extractFieldValue(values)
             if (isEdit) {
               const { original, updated } = pickMatchedFields(
                 originalData,
@@ -261,48 +268,9 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
 
               return;
             }
-
             setShowError(true);
             submitExportForm(values, actions, "form");
           }}
-
-
-
-        //           onSubmit={async (values, actions) => {
-        //   if (isEdit) {
-        //     const payload = {
-        //       register: "export",
-        //       data: [
-        //         {
-        //           original: originalData,
-        //           updated: values,
-        //           rowId: editData?.rowId,
-        //         },
-        //       ],
-
-        //     };
-
-        //     try {
-        //       await storeEdited(payload,onClose);
-
-        //       actions.resetForm();
-        //       actions.setSubmitting(false);
-
-        //       // optional
-        //       // onClose();
-        //       // refetchTableData();
-        //     } catch (error) {
-        //       actions.setSubmitting(false);
-        //     }
-
-        //     return;
-        //   }
-
-        //   // CREATE MODE (existing logic)
-        //   setShowError(true);
-        //   submitExportForm(values, actions, "form");
-        // }}
-
         >
           {({
             values,
@@ -443,6 +411,23 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                     required={true}
                     disabled={selectedExposureType === "shipment"}
                   />
+                  <CustomInput
+                    label="Business Units"
+                    name="businessUnit"
+                    placeholder="Units"
+                    type="select"
+                    options={bussinessUnitsData}
+                    value={values.businessUnit}
+                    onChange={(option) =>
+                      handleChange({
+                        target: { name: "businessUnit", value: option },
+                      })
+                    }
+                    error={touched.businessUnit && errors.businessUnit}
+                    showError={showError}
+                    required={true}
+                    disabled={selectedExposureType === "shipment"}
+                  />
                   {selectedExposureType === "shipment" ? (
                     <CustomInput
                       label="Bank"
@@ -463,13 +448,11 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                       type="select"
                       name="bank"
                       placeholder="Enter Bank Name"
-                      options={banks}
-                      value={banks.find(
-                        (option) => option.value === values.bank
-                      )}
+                      options={banksData}
+                      value={values.bank}
                       onChange={(option) =>
                         handleChange({
-                          target: { name: "bank", value: option.value },
+                          target: { name: "bank", value: option },
                         })
                       }
                       error={touched.bank && errors.bank}
@@ -478,17 +461,6 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                       required={true}
                     />
                   )}
-                  <CustomInput
-                    label="Business Units"
-                    name="businessUnit"
-                    placeholder="Units"
-                    value={values.businessUnit}
-                    onChange={handleChange}
-                    error={touched.businessUnit && errors.businessUnit}
-                    showError={showError}
-                    required={true}
-                    disabled={selectedExposureType === "shipment"}
-                  />
                   {selectedExposureType === "shipment" && (
                     <>
                       <CustomInput
@@ -520,9 +492,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                       />
                     </>
                   )}
-
                   <DueDateSync />
-
                   <CustomInput
                     label="BL Date"
                     name="blDate"
@@ -551,15 +521,13 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                     label="Currency"
                     type="select"
                     name="currency"
-                    options={currencyOptions}
-                    value={currencyOptions.find(
-                      (option) => option.value === values.currency
-                    )}
+                    options={currenciesData}
+                    value={values.currency}
                     onChange={(selectedOption) =>
                       handleChange({
                         target: {
                           name: "currency",
-                          value: selectedOption.value,
+                          value: selectedOption,
                         },
                       })
                     }

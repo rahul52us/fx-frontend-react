@@ -169,3 +169,26 @@ export const getUniqueUsers = (participants: any[]): UserI[] => {
   // Convert Map back to an array
   return Array.from(userMap.values());
 };
+
+export const extractFieldValue = (data: any): any => {
+  if (Array.isArray(data)) {
+    return data.map((item) => extractFieldValue(item));
+  }
+
+  if (data !== null && typeof data === "object") {
+    // If object has label & value → return value
+    if ("label" in data && "value" in data && Object.keys(data).length === 2) {
+      return data.value;
+    }
+
+    // Otherwise recursively process object
+    const newObj: any = {};
+    Object.keys(data).forEach((key) => {
+      newObj[key] = extractFieldValue(data[key]);
+    });
+
+    return newObj;
+  }
+
+  return data;
+};

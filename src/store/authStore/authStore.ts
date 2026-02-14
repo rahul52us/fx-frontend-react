@@ -25,6 +25,9 @@ class AuthStore {
   role: any = "user";
   webLoader: boolean = false;
   currentCompanyDetails: any = {};
+  bussinessUnitsData: any[] = [];
+  banksData: any[] = [];
+  currenciesData: any[] = [];
   businessUnits: any[] = [
     {
       unitCode: "unit bank 1",
@@ -65,6 +68,8 @@ class AuthStore {
       loginModel: observable,
       company: observable,
       viewAsUserId: observable,
+      bussinessUnitsData: observable,
+      banksData: observable,
       role: observable,
       webLoader: observable,
       currentCompanyDetails: observable,
@@ -141,6 +146,7 @@ class AuthStore {
         this.user.permissions = this.user.permissions || registerPermissions || {};
         this.currentCompanyDetails = this.company;
         this.viewAsUserId = this.user?.userId;
+        this.setBanksDetailsData(this.user?.businessUnits || []);
         sessionStorage.setItem(
           process.env.REACT_APP_AUTHORIZATION_USER_DATA!,
           CryptoJS.AES.encrypt(
@@ -158,6 +164,34 @@ class AuthStore {
         this.webLoader = false;
       });
   };
+
+  setBanksDetailsData = (data: any) => {
+  const businessUnits = Array.from(
+    new Set<string>(data.map((u: any) => u.unitCode))
+  ).map((unit) => ({ label: unit, value: unit }));
+
+  const banks = Array.from(
+    new Set<string>(
+      data.flatMap((u: any) =>
+        u.banks.map((b: any) => b.bankName)
+      )
+    )
+  ).map((bank) => ({ label: bank, value: bank }));
+
+  const currencies = Array.from(
+    new Set<string>(
+      data.flatMap((u: any) =>
+        u.banks.map((b: any) => b.currency)
+      )
+    )
+  ).map((currency) => ({ label: currency, value: currency }));
+
+  this.bussinessUnitsData = businessUnits;
+  this.currenciesData = currencies;
+  this.banksData = banks;
+};
+
+
 
   clearLocalStorage = () => {
     localStorage.removeItem(
