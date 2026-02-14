@@ -23,6 +23,7 @@ import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
 import { normalizeDate, calculateDueDate } from "../../exportsRegister/component/utils/function";
 import { pickMatchedFields } from "../../utils/function";
 import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
+import store from "../../../../store/store";
 
 const ImportRegistrationForm = ({
   submitImportForm,
@@ -30,6 +31,7 @@ const ImportRegistrationForm = ({
   originalData,
   onClose,
 }: any) => {
+  const { auth: { banksData, bussinessUnitsData, currenciesData } } = store
   const [showError, setShowError] = useState(false);
   const [poData, setPoData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,11 +156,11 @@ const ImportRegistrationForm = ({
             blDate: normalizeDate(editData?.blDate),
             dueDate: normalizeDate(editData?.dueDate),
             partyName: editData?.partyName || "",
-            bank: editData?.bank || "",
-            businessUnit: editData?.businessUnit || "",
+            bank: banksData.find((bank: any) => bank.value === editData?.bank) || {},
+            businessUnit: bussinessUnitsData.find((dt: any) => dt.value === editData?.businessUnit) || {},
             invoiceNo: editData?.invoiceNo || "",
             paymentTerms: editData?.paymentTerms || "",
-            currency: editData?.currency || "",
+            currency: currenciesData.find((dt: any) => dt.value === editData?.currency) || {},
             amount: editData?.amount || "",
             budgetRate: editData?.budgetRate || "",
             remark: editData?.remark || "",
@@ -209,6 +211,9 @@ const ImportRegistrationForm = ({
             touched,
             handleSubmit,
           }: any) => {
+
+            console.log('thee values are are', values)
+
             // Helper function to check if field should be readonly
             const isFieldReadOnly = (fieldName: string) => {
               if (values.exposureType !== "lc_bc_shifting") return false;

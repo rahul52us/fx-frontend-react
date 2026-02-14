@@ -30,7 +30,7 @@ import { toJS } from "mobx";
 import { extractFieldValue } from "../../../../config/constant/function";
 
 const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any) => {
-  const {auth : {bussinessUnitsData, currenciesData, banksData}} = store
+  const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
   const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [_, setSubmitAttempted] = useState(false);
@@ -210,7 +210,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
     handleSubmit();
   };
 
-
+  console.log('the edit data is', editData)
   return (
     <Box mx="auto" m={5} borderRadius="2xl">
       {loading && <Loader />}
@@ -224,11 +224,11 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
             blDate: normalizeDate(editData?.blDate),
             dueDate: normalizeDate(editData?.dueDate),
             partyName: editData?.partyName || "",
-            bank: editData?.bank || "",
-            businessUnit: editData?.businessUnit || "",
+            bank: banksData.find((bank: any) => bank.value === editData?.bank) || {},
+            businessUnit: bussinessUnitsData.find((dt: any) => dt.value === editData?.businessUnit) || {},
             invoiceNo: editData?.invoiceNo || "",
             paymentTerms: editData?.paymentTerms || "",
-            currency: editData?.currency || "",
+            currency: currenciesData.find((dt: any) => dt.value === editData?.currency) || {},
             amount: editData?.amount || "",
             budgetRate: editData?.budgetRate || "",
             remark: editData?.remark || "",
@@ -280,318 +280,321 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
             errors,
             touched,
             handleSubmit,
-          }: any) => (
-            <FormikForm>
-              <VStack spacing={6} align="stretch">
-                <SimpleGrid columns={[1, null, 2]} spacing={8}>
-                  <CustomInput
-                    label="Exposure Type"
-                    name="exposureType"
-                    type="select"
-                    options={exportRegisterexposureTypeOptions}
-                    value={exportRegisterexposureTypeOptions.find(
-                      (option) => option.value === values.exposureType
-                    )}
-                    onChange={(selectedOption) => {
-                      handleChange({
-                        target: {
-                          name: "exposureType",
-                          value: selectedOption.value,
-                        },
-                      });
-
-                      if (selectedOption.value === "confirmed_order") {
-                        setFieldValue("poNo", "");
-                        setFieldValue("poDate", "");
-                        setFieldValue("partyName", "");
-                        setFieldValue("bank", "");
-                        setFieldValue("businessUnit", "");
-                        setFieldValue("paymentTerms", "");
-                        setFieldValue("currency", "");
-                        setFieldValue("budgetRate", "");
-                      } else {
-                        setFieldValue("poNo", "");
-                        setFieldValue("poDate", "");
-                        setFieldValue("partyName", "");
-                        setFieldValue("bank", "");
-                        setFieldValue("businessUnit", "");
-                        setFieldValue("paymentTerms", "");
-                        setFieldValue("currency", "");
-                        setFieldValue("budgetRate", "");
-                      }
-                      setSelectedExposureType(selectedOption.value);
-                    }}
-                    showError={showError}
-                    error={touched.exposureType && errors.exposureType}
-                    required={true}
-                  />
-
-                  {values.exposureType === "confirmed_order" ? (
+          }: any) => {
+            console.log('the values are', values)
+            return (
+              <FormikForm>
+                <VStack spacing={6} align="stretch">
+                  <SimpleGrid columns={[1, null, 2]} spacing={8}>
                     <CustomInput
-                      label="PO No"
-                      placeholder="Enter PO No"
-                      name="poNo"
-                      type="text"
-                      value={values.poNo}
-                      onChange={handleChange}
-                      error={touched.poNo && errors.poNo}
-                      showError={showError}
-                      required={true}
-                    />
-                  ) : (
-
-                    <CustomInput
-                      label="PO No"
-                      placeholder="Select PO No"
-                      name="poNo"
+                      label="Exposure Type"
+                      name="exposureType"
                       type="select"
-                      options={poData.map((item: any) => ({
-                        label: item.poNo,
-                        value: item.poNo
-                      }))}
-                      value={
-                        poData.find((option: any) => option.value === values.poNo) || null
-                      }
+                      options={exportRegisterexposureTypeOptions}
+                      value={exportRegisterexposureTypeOptions.find(
+                        (option) => option.value === values.exposureType
+                      )}
                       onChange={(selectedOption) => {
-                        const selectedPo = poData.find(
-                          (item: any) => item.poNo === selectedOption.value
-                        );
+                        handleChange({
+                          target: {
+                            name: "exposureType",
+                            value: selectedOption.value,
+                          },
+                        });
 
-                        setFieldValue("poNo", selectedOption.value);
-
-                        if (selectedPo) {
-                          // convert date
-                          const formatDate = (d: string) => {
-                            if (!d) return "";
-                            if (d.includes(".")) {
-                              const [day, month, year] = d.split(".");
-                              return `${year}-${month}-${day}`;
-                            }
-                            return d;
-                          };
-
-                          setFieldValue("poDate", formatDate(selectedPo.poDate));
-                          setFieldValue("partyName", selectedPo.partyName);
-                          setFieldValue("bank", selectedPo.bank);
-                          setFieldValue("businessUnit", selectedPo.businessUnit);
-                          setFieldValue("paymentTerms", selectedPo.paymentTerms);
-                          setFieldValue("currency", selectedPo.currency);
-                          setFieldValue("budgetRate", selectedPo.budgetRate);
-                          setFieldValue(
-                            "outstandingAmount",
-                            selectedPo.outStandingAmount || 0
-                          );
+                        if (selectedOption.value === "confirmed_order") {
+                          setFieldValue("poNo", "");
+                          setFieldValue("poDate", "");
+                          setFieldValue("partyName", "");
+                          setFieldValue("bank", "");
+                          setFieldValue("businessUnit", "");
+                          setFieldValue("paymentTerms", "");
+                          setFieldValue("currency", "");
+                          setFieldValue("budgetRate", "");
+                        } else {
+                          setFieldValue("poNo", "");
+                          setFieldValue("poDate", "");
+                          setFieldValue("partyName", "");
+                          setFieldValue("bank", "");
+                          setFieldValue("businessUnit", "");
+                          setFieldValue("paymentTerms", "");
+                          setFieldValue("currency", "");
+                          setFieldValue("budgetRate", "");
                         }
+                        setSelectedExposureType(selectedOption.value);
                       }}
-                      required={true}
-                      error={touched.poNo && errors.poNo}
                       showError={showError}
+                      error={touched.exposureType && errors.exposureType}
+                      required={true}
                     />
-                  )}
-                  <CustomInput
-                    label="PO Date"
-                    name="poDate"
-                    type={selectedExposureType === "shipment" ? "text" : "date"}
-                    placeholder="PO Date"
-                    value={values.poDate}
-                    onChange={handleChange}
-                    error={touched.poDate && errors.poDate}
-                    showError={showError}
-                    required={true}
-                    disabled={selectedExposureType === "shipment"}
-                  />
-                  <CustomInput
-                    label="Party Name"
-                    name="partyName"
-                    placeholder="Enter Party Name"
-                    value={values.partyName}
-                    onChange={handleChange}
-                    error={touched.partyName && errors.partyName}
-                    showError={showError}
-                    required={true}
-                    disabled={selectedExposureType === "shipment"}
-                  />
-                  <CustomInput
-                    label="Business Units"
-                    name="businessUnit"
-                    placeholder="Units"
-                    type="select"
-                    options={bussinessUnitsData}
-                    value={values.businessUnit}
-                    onChange={(option) =>
-                      handleChange({
-                        target: { name: "businessUnit", value: option },
-                      })
-                    }
-                    error={touched.businessUnit && errors.businessUnit}
-                    showError={showError}
-                    required={true}
-                    disabled={selectedExposureType === "shipment"}
-                  />
-                  {selectedExposureType === "shipment" ? (
+
+                    {values.exposureType === "confirmed_order" ? (
+                      <CustomInput
+                        label="PO No"
+                        placeholder="Enter PO No"
+                        name="poNo"
+                        type="text"
+                        value={values.poNo}
+                        onChange={handleChange}
+                        error={touched.poNo && errors.poNo}
+                        showError={showError}
+                        required={true}
+                      />
+                    ) : (
+
+                      <CustomInput
+                        label="PO No"
+                        placeholder="Select PO No"
+                        name="poNo"
+                        type="select"
+                        options={poData.map((item: any) => ({
+                          label: item.poNo,
+                          value: item.poNo
+                        }))}
+                        value={
+                          poData.find((option: any) => option.value === values.poNo) || null
+                        }
+                        onChange={(selectedOption) => {
+                          const selectedPo = poData.find(
+                            (item: any) => item.poNo === selectedOption.value
+                          );
+
+                          setFieldValue("poNo", selectedOption.value);
+
+                          if (selectedPo) {
+                            // convert date
+                            const formatDate = (d: string) => {
+                              if (!d) return "";
+                              if (d.includes(".")) {
+                                const [day, month, year] = d.split(".");
+                                return `${year}-${month}-${day}`;
+                              }
+                              return d;
+                            };
+
+                            setFieldValue("poDate", formatDate(selectedPo.poDate));
+                            setFieldValue("partyName", selectedPo.partyName);
+                            setFieldValue("bank", selectedPo.bank);
+                            setFieldValue("businessUnit", selectedPo.businessUnit);
+                            setFieldValue("paymentTerms", selectedPo.paymentTerms);
+                            setFieldValue("currency", selectedPo.currency);
+                            setFieldValue("budgetRate", selectedPo.budgetRate);
+                            setFieldValue(
+                              "outstandingAmount",
+                              selectedPo.outStandingAmount || 0
+                            );
+                          }
+                        }}
+                        required={true}
+                        error={touched.poNo && errors.poNo}
+                        showError={showError}
+                      />
+                    )}
                     <CustomInput
-                      label="Bank"
-                      // type="select"
-                      name="bank"
-                      placeholder="Enter Bank Name"
-                      // options={banks}
-                      value={values.bank}
+                      label="PO Date"
+                      name="poDate"
+                      type={selectedExposureType === "shipment" ? "text" : "date"}
+                      placeholder="PO Date"
+                      value={values.poDate}
                       onChange={handleChange}
-                      error={touched.bank && errors.bank}
-                      disabled={selectedExposureType === "shipment"}
+                      error={touched.poDate && errors.poDate}
                       showError={showError}
                       required={true}
+                      disabled={selectedExposureType === "shipment"}
                     />
-                  ) : (
                     <CustomInput
-                      label="Bank"
+                      label="Party Name"
+                      name="partyName"
+                      placeholder="Enter Party Name"
+                      value={values.partyName}
+                      onChange={handleChange}
+                      error={touched.partyName && errors.partyName}
+                      showError={showError}
+                      required={true}
+                      disabled={selectedExposureType === "shipment"}
+                    />
+                    <CustomInput
+                      label="Business Units"
+                      name="businessUnit"
+                      placeholder="Units"
                       type="select"
-                      name="bank"
-                      placeholder="Enter Bank Name"
-                      options={banksData}
-                      value={values.bank}
+                      options={bussinessUnitsData}
+                      value={values.businessUnit}
                       onChange={(option) =>
                         handleChange({
-                          target: { name: "bank", value: option },
+                          target: { name: "businessUnit", value: option },
                         })
                       }
-                      error={touched.bank && errors.bank}
+                      error={touched.businessUnit && errors.businessUnit}
+                      showError={showError}
+                      required={true}
                       disabled={selectedExposureType === "shipment"}
+                    />
+                    {selectedExposureType === "shipment" ? (
+                      <CustomInput
+                        label="Bank"
+                        // type="select"
+                        name="bank"
+                        placeholder="Enter Bank Name"
+                        // options={banks}
+                        value={values.bank}
+                        onChange={handleChange}
+                        error={touched.bank && errors.bank}
+                        disabled={selectedExposureType === "shipment"}
+                        showError={showError}
+                        required={true}
+                      />
+                    ) : (
+                      <CustomInput
+                        label="Bank"
+                        type="select"
+                        name="bank"
+                        placeholder="Enter Bank Name"
+                        options={banksData}
+                        value={values.bank}
+                        onChange={(option) =>
+                          handleChange({
+                            target: { name: "bank", value: option },
+                          })
+                        }
+                        error={touched.bank && errors.bank}
+                        disabled={selectedExposureType === "shipment"}
+                        showError={showError}
+                        required={true}
+                      />
+                    )}
+                    {selectedExposureType === "shipment" && (
+                      <>
+                        <CustomInput
+                          label="Invoice No"
+                          name="invoiceNo"
+                          placeholder="Enter Invoice No"
+                          value={values.invoiceNo}
+                          onChange={handleChange}
+                          error={touched.invoiceNo && errors.invoiceNo}
+                          showError={showError}
+                          required={
+                            values.exposureType &&
+                            values.exposureType !== "confirmed_order"
+                          }
+                        />
+                        <CustomInput
+                          label="Invoice Date"
+                          name="invoiceDate"
+                          type="date"
+                          placeholder="Invoice Date"
+                          value={values.invoiceDate}
+                          onChange={handleChange}
+                          error={touched.invoiceDate && errors.invoiceDate}
+                          showError={showError}
+                          required={
+                            values.exposureType &&
+                            values.exposureType !== "confirmed_order"
+                          }
+                        />
+                      </>
+                    )}
+                    <DueDateSync />
+                    <CustomInput
+                      label="BL Date"
+                      name="blDate"
+                      type="date"
+                    />
+
+                    <CustomInput
+                      label="Payment Terms"
+                      name="paymentTerms"
+                      type="number"
+                      value={values.paymentTerms ?? ""}
+                      onChange={(e) =>
+                        setFieldValue("paymentTerms", e.target.value)
+                      }
+                      disabled={selectedExposureType === "shipment"}
+                      showError={showError}
+                    />
+
+                    <CustomInput
+                      label="Due Date"
+                      name="dueDate"
+                      type="date"
+                      disabled
+                    />
+                    <CustomInput
+                      label="Currency"
+                      type="select"
+                      name="currency"
+                      options={currenciesData}
+                      value={values.currency}
+                      onChange={(selectedOption) =>
+                        handleChange({
+                          target: {
+                            name: "currency",
+                            value: selectedOption,
+                          },
+                        })
+                      }
+                      error={touched.currency && errors.currency}
+                      showError={showError}
+                      required={true}
+                      disabled={selectedExposureType === "shipment"}
+                    />
+                    <CustomInput
+                      label="Amount"
+                      name="amount"
+                      placeholder="Enter Amount"
+                      type="number"
+                      value={values.amount}
+                      onChange={handleChange}
+                      error={touched.amount && errors.amount}
                       showError={showError}
                       required={true}
                     />
-                  )}
-                  {selectedExposureType === "shipment" && (
-                    <>
-                      <CustomInput
-                        label="Invoice No"
-                        name="invoiceNo"
-                        placeholder="Enter Invoice No"
-                        value={values.invoiceNo}
-                        onChange={handleChange}
-                        error={touched.invoiceNo && errors.invoiceNo}
-                        showError={showError}
-                        required={
-                          values.exposureType &&
-                          values.exposureType !== "confirmed_order"
-                        }
-                      />
-                      <CustomInput
-                        label="Invoice Date"
-                        name="invoiceDate"
-                        type="date"
-                        placeholder="Invoice Date"
-                        value={values.invoiceDate}
-                        onChange={handleChange}
-                        error={touched.invoiceDate && errors.invoiceDate}
-                        showError={showError}
-                        required={
-                          values.exposureType &&
-                          values.exposureType !== "confirmed_order"
-                        }
-                      />
-                    </>
-                  )}
-                  <DueDateSync />
-                  <CustomInput
-                    label="BL Date"
-                    name="blDate"
-                    type="date"
-                  />
+                    <CustomInput
+                      label="Budget Rate"
+                      name="budgetRate"
+                      type="number"
+                      value={values.budgetRate}
+                      onChange={handleChange}
+                      error={touched.budgetRate && errors.budgetRate}
+                      showError={showError}
+                      disabled={selectedExposureType === "shipment"}
+                      required={true}
+                    />
 
-                  <CustomInput
-                    label="Payment Terms"
-                    name="paymentTerms"
-                    type="number"
-                    value={values.paymentTerms ?? ""}
-                    onChange={(e) =>
-                      setFieldValue("paymentTerms", e.target.value)
-                    }
-                    disabled={selectedExposureType === "shipment"}
+                  </SimpleGrid>
+                  <MultiHedgeDealExport
+                    url={url}
                     showError={showError}
-                  />
-
-                  <CustomInput
-                    label="Due Date"
-                    name="dueDate"
-                    type="date"
-                    disabled
+                    exposureType={'export'}
                   />
                   <CustomInput
-                    label="Currency"
-                    type="select"
-                    name="currency"
-                    options={currenciesData}
-                    value={values.currency}
-                    onChange={(selectedOption) =>
-                      handleChange({
-                        target: {
-                          name: "currency",
-                          value: selectedOption,
-                        },
-                      })
-                    }
-                    error={touched.currency && errors.currency}
-                    showError={showError}
-                    required={true}
-                    disabled={selectedExposureType === "shipment"}
-                  />
-                  <CustomInput
-                    label="Amount"
-                    name="amount"
-                    placeholder="Enter Amount"
-                    type="number"
-                    value={values.amount}
+                    label="Remark"
+                    name="remark"
+                    type="textarea"
+                    placeholder="Enter Remarks"
+                    value={values.remark}
                     onChange={handleChange}
-                    error={touched.amount && errors.amount}
+                    error={touched.remark && errors.remark}
                     showError={showError}
-                    required={true}
                   />
-                  <CustomInput
-                    label="Budget Rate"
-                    name="budgetRate"
-                    type="number"
-                    value={values.budgetRate}
-                    onChange={handleChange}
-                    error={touched.budgetRate && errors.budgetRate}
-                    showError={showError}
-                    disabled={selectedExposureType === "shipment"}
-                    required={true}
-                  />
-
-                </SimpleGrid>
-                <MultiHedgeDealExport
-                  url={url}
-                  showError={showError}
-                  exposureType={'export'}
-                />
-                <CustomInput
-                  label="Remark"
-                  name="remark"
-                  type="textarea"
-                  placeholder="Enter Remarks"
-                  value={values.remark}
-                  onChange={handleChange}
-                  error={touched.remark && errors.remark}
-                  showError={showError}
-                />
-                <Flex justify={"end"}>
-                  <Button
-                    rounded={"full"}
-                    fontWeight={500}
-                    {...primaryButtonStyle}
-                    _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
-                    transition={"transform 0.3s ease-in-out"}
-                    onClick={() => handleFormSubmit(handleSubmit, errors)}
-                    size="lg"
-                    isLoading={isSubmitting || editLoading}
-                  >
-                    Submit
-                  </Button>
-                </Flex>
-              </VStack>
-            </FormikForm>
-          )}
+                  <Flex justify={"end"}>
+                    <Button
+                      rounded={"full"}
+                      fontWeight={500}
+                      {...primaryButtonStyle}
+                      _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
+                      transition={"transform 0.3s ease-in-out"}
+                      onClick={() => handleFormSubmit(handleSubmit, errors)}
+                      size="lg"
+                      isLoading={isSubmitting || editLoading}
+                    >
+                      Submit
+                    </Button>
+                  </Flex>
+                </VStack>
+              </FormikForm>
+            )
+          }}
         </Formik>
       )}
     </Box>
