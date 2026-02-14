@@ -12,19 +12,21 @@ import { Formik, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import {
-  currencyOptions,
   exposureTypeOptions,
 } from "../../../exportsRegister/component/utils/constant";
+import store from "../../../../../store/store";
+import { extractFieldValue } from "../../../../../config/constant/function";
 
 const EEFCForm = ({ submitForm }: any) => {
+  const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
   const validationSchema = Yup.object().shape({
     settlementDate: Yup.string().required("Settlement Date is required"),
     exposureType: Yup.mixed().required("Exposure Type is required"),
     exposureReferenceNumber: Yup.string().required(
       "Reference Number is required"
     ),
-    bussinessUnit: Yup.string().required("Business Unit is required"),
-    bank: Yup.string().required("Bank is required"),
+    bussinessUnit: Yup.mixed().required("Business Unit is required"),
+    bank: Yup.mixed().required("Bank is required"),
     currency: Yup.mixed().required("Currency is required"),
     amount: Yup.string().required("Amount is required"),
     referenceRate: Yup.string().required("Reference Rate is required"),
@@ -48,19 +50,22 @@ const EEFCForm = ({ submitForm }: any) => {
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={(values, actions) => {
+            values = extractFieldValue(values)
             submitForm(values, actions, "form");
             actions.setSubmitting(false);
           }}
         >
-          {({ values, handleChange, isSubmitting, errors, touched }: any) => (
+          {({ values, handleChange, isSubmitting, errors, touched, setFieldValue }: any) => (
             <FormikForm>
               <VStack spacing={6} align="stretch">
                 <SimpleGrid columns={[1, null, 2]} spacing={4}>
                   <CustomInput
                     label="Business Unit"
                     name="bussinessUnit"
+                    type="select"
+                    options={bussinessUnitsData}
                     value={values.bussinessUnit}
-                    onChange={handleChange}
+                    onChange={(e: any) => setFieldValue('bussinessUnit', e)}
                     error={touched.bussinessUnit && errors.bussinessUnit}
                   />
                   <CustomInput
@@ -102,9 +107,10 @@ const EEFCForm = ({ submitForm }: any) => {
                   <CustomInput
                     label="Bank"
                     name="bank"
-                    placeholder="Enter Bank Name"
+                    type="select"
+                    options={banksData}
                     value={values.bank}
-                    onChange={handleChange}
+                    onChange={(e: any) => setFieldValue('bank', e)}
                     error={touched.bank && errors.bank}
                   />
                   <CustomInput
@@ -119,15 +125,13 @@ const EEFCForm = ({ submitForm }: any) => {
                     label="Currency"
                     name="currency"
                     type="select"
-                    options={currencyOptions}
-                    value={currencyOptions.find(
-                      (option) => option.value === values.currency
-                    )}
+                    options={currenciesData}
+                    value={values.currency}
                     onChange={(selectedOption) =>
                       handleChange({
                         target: {
                           name: "currency",
-                          value: selectedOption.value,
+                          value: selectedOption,
                         },
                       })
                     }
