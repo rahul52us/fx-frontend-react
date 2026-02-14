@@ -27,7 +27,7 @@ const EEFCTable = () => {
   const { deleteItem } = useDeleteItem();
 
   // Permission checks
-  const { canAdd, canEdit, canDelete, canView } = usePermission('eefc');
+  const { canAdd, canEdit, canDelete, canView } = usePermission('eefcRegister');
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {

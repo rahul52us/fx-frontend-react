@@ -17,13 +17,12 @@ import {
   primaryButtonStyle,
 } from "../../../../globalStyles";
 import { MultiHedgeDealExport } from "../../exportsRegister/component/MultiHedgeDealExport";
-import { currencyOptions } from "../../exportsRegister/component/utils/constant";
-import { banks } from "../../pcfc/components/PCFCForm/dummyData";
 import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
 import { normalizeDate, calculateDueDate } from "../../exportsRegister/component/utils/function";
 import { pickMatchedFields } from "../../utils/function";
 import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import store from "../../../../store/store";
+import { extractFieldValue } from "../../../../config/constant/function";
 import DueDateSync from "../../exportsRegister/component/DueDateSync";
 
 const ImportRegistrationForm = ({
@@ -75,8 +74,8 @@ const ImportRegistrationForm = ({
     poDate: Yup.string().required("PO Date is required"),
     poNo: Yup.string().required("PO No is required"),
     partyName: Yup.string().required("Party Name is required"),
-    bank: Yup.string().required("Bank is required"),
-    businessUnit: Yup.string().required("Business Unit is required"),
+    bank: Yup.mixed().required("Bank is required"),
+    businessUnit: Yup.mixed().required("Business Unit is required"),
     blDate: Yup.string().required("BL Date is required"),
     paymentTerms: Yup.string().required("Payment Terms is required"),
     dueDate: Yup.string().required("Due Date is required"),
@@ -170,6 +169,7 @@ const ImportRegistrationForm = ({
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={async (values, actions) => {
+            values = extractFieldValue(values)
             if (isEdit) {
               const { original, updated } = pickMatchedFields(
                 originalData,
@@ -352,15 +352,31 @@ const ImportRegistrationForm = ({
                       required={true}
                       disabled={isFieldReadOnly("partyName")}
                     />
-
+                    <CustomInput
+                      label="Business Unit"
+                      name="businessUnit"
+                      type="select"
+                      placeholder="Unit"
+                      options={bussinessUnitsData}
+                      value={values.businessUnit}
+                      onChange={(e: any) => setFieldValue("businessUnit", e)}
+                      error={touched.businessUnit && errors.businessUnit}
+                      showError={showError}
+                      required={true}
+                      disabled={isFieldReadOnly("businessUnit")}
+                    />
                     {/* Bank */}
                     {isFieldReadOnly("bank") ? (
                       <CustomInput
                         label="Bank"
                         name="bank"
+                        type="select"
                         placeholder="Bank"
+                        options={banksData}
                         value={values.bank}
-                        onChange={handleChange}
+                        onChange={(selectedOption: any) =>
+                          setFieldValue("bank", selectedOption)
+                        }
                         error={touched.bank && errors.bank}
                         showError={showError}
                         required={true}
@@ -372,12 +388,10 @@ const ImportRegistrationForm = ({
                         type="select"
                         name="bank"
                         placeholder="Select Bank"
-                        options={banks}
-                        value={banks.find(
-                          (option) => option.value === values.bank,
-                        )}
+                        options={banksData}
+                        value={values.bank}
                         onChange={(selectedOption: any) =>
-                          setFieldValue("bank", selectedOption.value)
+                          setFieldValue("bank", selectedOption)
                         }
                         error={touched.bank && errors.bank}
                         showError={showError}
@@ -386,17 +400,7 @@ const ImportRegistrationForm = ({
                     )}
 
                     {/* Business Unit */}
-                    <CustomInput
-                      label="Business Unit"
-                      name="businessUnit"
-                      placeholder="Unit"
-                      value={values.businessUnit}
-                      onChange={handleChange}
-                      error={touched.businessUnit && errors.businessUnit}
-                      showError={showError}
-                      required={true}
-                      disabled={isFieldReadOnly("businessUnit")}
-                    />
+
 
                     {/* Invoice No - Optional */}
                     <CustomInput
@@ -422,33 +426,33 @@ const ImportRegistrationForm = ({
                       required={selectedExposureType !== "da_dp"}
                     />
 
-                                 <DueDateSync />
-                                        <CustomInput
-                                          label="BL Date"
-                                          name="blDate"
-                                          type="date"
-                                        />
-                    
-                                        <CustomInput
-                                          label="Payment Terms"
-                                          name="paymentTerms"
-                                          type="number"
-                                          value={values.paymentTerms ?? ""}
-                                          onChange={(e) =>
-                                            setFieldValue("paymentTerms", e.target.value)
-                                          }
-                                          disabled={selectedExposureType === "shipment"}
-                                          showError={showError}
-                                        />
-                    
-                                        <CustomInput
-                                          label="Due Date"
-                                          name="dueDate"
-                                          type="date"
-                                          disabled
-                                        />
+                    <DueDateSync />
+                    <CustomInput
+                      label="BL Date"
+                      name="blDate"
+                      type="date"
+                    />
 
-                  
+                    <CustomInput
+                      label="Payment Terms"
+                      name="paymentTerms"
+                      type="number"
+                      value={values.paymentTerms ?? ""}
+                      onChange={(e) =>
+                        setFieldValue("paymentTerms", e.target.value)
+                      }
+                      disabled={selectedExposureType === "shipment"}
+                      showError={showError}
+                    />
+
+                    <CustomInput
+                      label="Due Date"
+                      name="dueDate"
+                      type="date"
+                      disabled
+                    />
+
+
                     {/* <CustomInput
                       label="BL Date"
                       name="blDate"
@@ -507,7 +511,8 @@ const ImportRegistrationForm = ({
                         label="Currency"
                         name="currency"
                         value={values.currency}
-                        onChange={handleChange}
+                        options={currenciesData}
+                        onChange={(e: any) => setFieldValue("currency", e)}
                         error={touched.currency && errors.currency}
                         showError={showError}
                         required={true}
@@ -518,12 +523,10 @@ const ImportRegistrationForm = ({
                         label="Currency"
                         type="select"
                         name="currency"
-                        options={currencyOptions}
-                        value={currencyOptions.find(
-                          (option) => option.value === values.currency,
-                        )}
+                        options={currenciesData}
+                        value={values.currency}
                         onChange={(selectedOption) =>
-                          setFieldValue("currency", selectedOption.value)
+                          setFieldValue("currency", selectedOption)
                         }
                         error={touched.currency && errors.currency}
                         showError={showError}

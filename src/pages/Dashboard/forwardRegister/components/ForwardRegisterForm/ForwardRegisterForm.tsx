@@ -12,18 +12,19 @@ import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import { primaryButtonHoverStyle, primaryButtonStyle } from "../../../../../globalStyles";
-import { currencyOptions, exportRegisterexposureTypeOptions } from "../../../exportsRegister/component/utils/constant";
+import { exportRegisterexposureTypeOptions } from "../../../exportsRegister/component/utils/constant";
 import { importExposureTypeOptions, mainExposureTypeOptions } from "../../../importsRegister/component/utils/constant";
-import { banks } from "../../../pcfc/components/PCFCForm/dummyData";
 import { calculateHedgeRate, getForwardRegisterInitialValues } from "./constant";
 import ExposureRefSelector from "./ExposureRefSelector";
+import store from "../../../../../store/store";
+import { extractFieldValue } from "../../../../../config/constant/function";
 
-const ForwardRegisterForm = ({ submitForm , editData, originalData}: any) => {
+const ForwardRegisterForm = ({ submitForm, editData, originalData }: any) => {
   const toast = useToast();
   const [showError, setShowError] = useState(false);
   const [exposureRefOptions, setExposureRefOptions] = useState<any[]>([]);
   const isEdit = Boolean(editData);
-
+  const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
   const [selectedMainExposureType, setSelectedMainExposureType] = useState('');
   const url = process.env.REACT_APP_FX_BASE_URL;
   const validationSchema = Yup.object({
@@ -34,12 +35,12 @@ const ForwardRegisterForm = ({ submitForm , editData, originalData}: any) => {
       then: (schema) => schema.required("Sub Exposure Type is required"),
       otherwise: (schema) => schema.notRequired(),
     }),
-    bank: Yup.string().required("Bank is required"),
-    bussinessUnit: Yup.string().required("Business Unit is required"),
+    bank: Yup.mixed().required("Bank is required"),
+    bussinessUnit: Yup.mixed().required("Business Unit is required"),
     hedgeDealReferenceNumber: Yup.string().required(
       "Hedge Deal Reference Number is required"
     ),
-    currency: Yup.string().required("Currency is required"),
+    currency: Yup.mixed().required("Currency is required"),
     hedgeAmount: Yup.number().required("Hedge Amount is required"),
     spotBooked: Yup.string().required("Spot Booked is required"),
     forwardPoints: Yup.string().required("Forward Points is required"),
@@ -76,7 +77,7 @@ const ForwardRegisterForm = ({ submitForm , editData, originalData}: any) => {
   const handleMainExposureTypeChange = (option: any, setFieldValue: any, currentValues: any) => {
     const mainType = option.value;
     setSelectedMainExposureType(mainType);
-    setFieldValue("exposureType", mainType); 
+    setFieldValue("exposureType", mainType);
     setFieldValue("subExposureType", "");
     const calculatedRate = calculateHedgeRate({
       ...currentValues,
@@ -87,14 +88,14 @@ const ForwardRegisterForm = ({ submitForm , editData, originalData}: any) => {
 
   const handleSubExposureTypeChange = (option: any, setFieldValue: any) => {
     setFieldValue("subExposureType", option.value);
-    
+
     // Fetch exposure ref numbers based on selected main type and sub type
     if (selectedMainExposureType && option.value) {
       fetchExpoRefNos(selectedMainExposureType, option.value);
     }
   };
 
-  
+
 
   const getSubExposureTypeOptions = () => {
     if (selectedMainExposureType === 'import') {
@@ -106,7 +107,7 @@ const ForwardRegisterForm = ({ submitForm , editData, originalData}: any) => {
   };
 
 
-    const handleFormSubmit = (handleSubmit: any, errors: any) => {
+  const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
 
     // Check if there are errors
@@ -126,38 +127,39 @@ const ForwardRegisterForm = ({ submitForm , editData, originalData}: any) => {
   };
 
   const getExposureDataByRef = (refNumber: string) => {
-  return exposureRefOptions.find(
-    (item) => item.value === refNumber
-  );
-};
-
-useEffect(() => {
-  if (isEdit && editData?.exposureType) {
-    setSelectedMainExposureType(editData.exposureType);
-  }
-}, [isEdit, editData]);
-
-useEffect(() => {
-  if (
-    isEdit &&
-    editData?.exposureType &&
-    editData?.subExposureType
-  ) {
-    fetchExpoRefNos(
-      editData.exposureType,
-      editData.subExposureType
+    return exposureRefOptions.find(
+      (item) => item.value === refNumber
     );
-  }
-}, [isEdit, editData]);
+  };
+
+  useEffect(() => {
+    if (isEdit && editData?.exposureType) {
+      setSelectedMainExposureType(editData.exposureType);
+    }
+  }, [isEdit, editData]);
+
+  useEffect(() => {
+    if (
+      isEdit &&
+      editData?.exposureType &&
+      editData?.subExposureType
+    ) {
+      fetchExpoRefNos(
+        editData.exposureType,
+        editData.subExposureType
+      );
+    }
+  }, [isEdit, editData]);
 
   return (
     <Box py={4}>
       <Box px={2}>
-        <Formik     
-        initialValues={getForwardRegisterInitialValues(editData)}
+        <Formik
+          initialValues={getForwardRegisterInitialValues(editData)}
           validationSchema={validationSchema}
           enableReinitialize={true}
-            onSubmit={(values, actions) => {
+          onSubmit={(values, actions) => {
+            values = extractFieldValue(values)
             if (isEdit) {
               submitForm(
                 {
@@ -231,31 +233,35 @@ useEffect(() => {
                   />
 
                   <CustomInput
+                    label="Business Unit"
+                    name="bussinessUnit"
+                    type="select"
+                    placeholder="Enter Business Unit"
+                    value={values.bussinessUnit}
+                    options={bussinessUnitsData}
+                    onChange={(e: any) => setFieldValue('bussinessUnit', e)}
+                    showError={showError}
+                    error={touched.bussinessUnit && errors.bussinessUnit}
+                    required={true}
+                  />
+
+                  <CustomInput
                     label="Bank"
                     type="select"
                     name="bank"
                     placeholder="Enter Bank Name"
-                    options={banks}
-                    value={banks.find((option) => option.value === values.bank)}
+                    options={banksData}
+                    value={values.bank}
                     onChange={(option) =>
                       handleChange({
-                        target: { name: "bank", value: option.value },
+                        target: { name: "bank", value: option },
                       })
                     }
                     showError={showError}
                     error={touched.bank && errors.bank}
                   />
 
-                  <CustomInput
-                    label="Business Unit"
-                    name="bussinessUnit"
-                    placeholder="Enter Business Unit"
-                    value={values.bussinessUnit}
-                    onChange={handleChange}
-                    showError={showError}
-                    error={touched.bussinessUnit && errors.bussinessUnit}
-                    required={true}
-                  />
+
 
                   <CustomInput
                     label="Hedge Deal Reference Number"
@@ -275,15 +281,13 @@ useEffect(() => {
                     label="Currency"
                     type="select"
                     name="currency"
-                    options={currencyOptions}
-                    value={currencyOptions.find(
-                      (option) => option.value === values.currency
-                    )}
+                    options={currenciesData}
+                    value={values.currency}
                     onChange={(selectedOption) =>
                       handleChange({
                         target: {
                           name: "currency",
-                          value: selectedOption.value,
+                          value: selectedOption
                         },
                       })
                     }
@@ -392,7 +396,7 @@ useEffect(() => {
                     showError={showError}
                   />
                 </SimpleGrid>
-{/* {(values.exposureType === "import" || values.exposureType === "export") &&
+                {/* {(values.exposureType === "import" || values.exposureType === "export") &&
  exposureRefOptions.length > 0 && (
   <ExposureRefSelector
     values={values}
@@ -402,15 +406,15 @@ useEffect(() => {
   />
 )} */}
 
-{(values.exposureType === "import" || values.exposureType === "export") &&
- exposureRefOptions?.length > 0 && (
-  <ExposureRefSelector
-    values={values}
-    setFieldValue={setFieldValue}
-    exposureRefOptions={exposureRefOptions}
-    fetchExposureData={getExposureDataByRef}
-  />
-)}
+                {(values.exposureType === "import" || values.exposureType === "export") &&
+                  exposureRefOptions?.length > 0 && (
+                    <ExposureRefSelector
+                      values={values}
+                      setFieldValue={setFieldValue}
+                      exposureRefOptions={exposureRefOptions}
+                      fetchExposureData={getExposureDataByRef}
+                    />
+                  )}
 
 
                 <Flex justify={"end"}>
@@ -423,7 +427,7 @@ useEffect(() => {
                       border: "1px solid",
                     }}
                     transition={"transform 0.3s ease-in-out"}
-                     onClick={() => handleFormSubmit(handleSubmit, errors)}
+                    onClick={() => handleFormSubmit(handleSubmit, errors)}
                     size="lg"
                     isLoading={isSubmitting}
                   >
