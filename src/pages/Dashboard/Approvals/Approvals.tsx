@@ -31,7 +31,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import store from "../../../store/store";
 
-const DataComparison = ({ original, updated, depth = 0 }:any) => {
+const DataComparison = ({ original, updated, depth = 0 }: any) => {
   // Combine keys from both objects to ensure we catch all fields
   const allKeys = Array.from(
     new Set([...Object.keys(original || {}), ...Object.keys(updated || {})])
@@ -71,12 +71,12 @@ const DataComparison = ({ original, updated, depth = 0 }:any) => {
 
         // Check if value is a Nested Object (but not null/array)
         if (typeof newVal === "object" && newVal !== null && !Array.isArray(newVal)) {
-           return (
-             <Box key={key} ml={depth * 4}>
-                <Text fontWeight="bold" mt={2}>{key}</Text>
-                <DataComparison original={oldVal} updated={newVal} depth={depth + 1} />
-             </Box>
-           )
+          return (
+            <Box key={key} ml={depth * 4}>
+              <Text fontWeight="bold" mt={2}>{key}</Text>
+              <DataComparison original={oldVal} updated={newVal} depth={depth + 1} />
+            </Box>
+          )
         }
 
         // Standard Primitive Value Comparison
@@ -110,7 +110,7 @@ const DataComparison = ({ original, updated, depth = 0 }:any) => {
             </Box>
 
             <Box>
-               <Text fontSize="sm" fontWeight={isModified ? "bold" : "normal"} color={isModified ? "green.600" : "gray.800"}>
+              <Text fontSize="sm" fontWeight={isModified ? "bold" : "normal"} color={isModified ? "green.600" : "gray.800"}>
                 {newVal ?? <Text as="span" color="gray.300">N/A</Text>}
               </Text>
             </Box>
@@ -127,20 +127,20 @@ const Approvals = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const approvalStore = store.ApprovalStore;
-  const {auth:{user}}=store;
-  const currentUserId =  user.userId;
+  const { auth: { viewAsUserId } } = store;
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("pending");
   const [totalPages, setTotalPages] = useState(1);
   const [data, setData] = useState([]);
   useEffect(() => {
-    fetchData();
-  }, [page, status]);
+    if (viewAsUserId) {
+      fetchData();
+    }
+  }, [page, status, viewAsUserId]);
 
   const fetchData = async () => {
     try {
-      const response: any = await approvalStore.getEditedData({ userId: currentUserId, status, page });
-      console.log(response);
+      const response: any = await approvalStore.getEditedData({ userId: viewAsUserId, status, page });
       if (response?.status === "success") {
         setData(response.data?.data || []);
         if (response?.totalPages) {
@@ -161,7 +161,7 @@ const Approvals = () => {
     if (!selectedItem) return;
     // Constructing payload exactly as per CURL requirement
     const payload = {
-      userId: currentUserId,
+      userId: viewAsUserId,
       action: actionType,
       data: {
         register: selectedItem.register || "export", // Default to export if missing
@@ -221,8 +221,8 @@ const Approvals = () => {
               <Tr>
                 <Td colSpan={5} textAlign="center" py={12} color="gray.500">
                   <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-                     <Text fontSize="lg" fontWeight="bold" color="gray.300">No Data Found</Text>
-                     <Text fontSize="sm">There are no verification requests in this category.</Text>
+                    <Text fontSize="lg" fontWeight="bold" color="gray.300">No Data Found</Text>
+                    <Text fontSize="sm">There are no verification requests in this category.</Text>
                   </Box>
                 </Td>
               </Tr>
@@ -237,24 +237,24 @@ const Approvals = () => {
                     transition="all 0.2s"
                   >
                     <Td fontWeight="medium" color="gray.700" textTransform={'capitalize'}>
-                        <Badge colorScheme="purple" variant="subtle" px={2} py={0.5} borderRadius="md">
-                            {item?.register?.replace(/([A-Z])/g, ' $1').trim()}
-                        </Badge>
+                      <Badge colorScheme="purple" variant="subtle" px={2} py={0.5} borderRadius="md">
+                        {item?.register?.replace(/([A-Z])/g, ' $1').trim()}
+                      </Badge>
                     </Td>
                     <Td fontWeight="semibold" color="gray.700">{display.partyName || "N/A"}</Td>
                     <Td fontWeight="bold" color="gray.800" isNumeric>
-                        {Number(display.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        <Text as="span" fontSize="xs" color="gray.500" ml={1}>{display.currency}</Text>
+                      {Number(display.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      <Text as="span" fontSize="xs" color="gray.500" ml={1}>{display.currency}</Text>
                     </Td>
                     <Td>
-                        <Tag size="sm" colorScheme={display.exposureType === 'Hedge' ? 'green' : 'blue'} variant="subtle">
-                            {display.exposureType || "Unknown"}
-                        </Tag>
+                      <Tag size="sm" colorScheme={display.exposureType === 'Hedge' ? 'green' : 'blue'} variant="subtle">
+                        {display.exposureType || "Unknown"}
+                      </Tag>
                     </Td>
                     <Td textAlign="center">
-                        <Button size="xs" colorScheme="teal" variant="ghost" rightIcon={<Box as="span">➝</Box>}>
-                            View Details
-                        </Button>
+                      <Button size="xs" colorScheme="teal" variant="ghost" rightIcon={<Box as="span">➝</Box>}>
+                        View Details
+                      </Button>
                     </Td>
                   </Tr>
                 );
@@ -369,23 +369,23 @@ const Approvals = () => {
           <DrawerHeader borderBottomWidth="1px">
             Comparison Details
             <Badge ml={2} colorScheme={tabIndex === 0 ? "orange" : tabIndex === 1 ? "green" : "red"}>
-                {tabIndex === 0 ? "PENDING" : tabIndex === 1 ? "APPROVED" : "REJECTED"}
+              {tabIndex === 0 ? "PENDING" : tabIndex === 1 ? "APPROVED" : "REJECTED"}
             </Badge>
           </DrawerHeader>
 
           <DrawerBody bg="gray.50" p={6}>
             {selectedItem && (
               <Box bg="white" p={4} borderRadius="md" shadow="sm">
-                 <Grid templateColumns="1.5fr 1fr 1fr" gap={4} mb={2} pb={2} borderBottom="2px solid" borderColor="gray.200">
-                    <Text fontWeight="bold" color="gray.600">Field</Text>
-                    <Text fontWeight="bold" color="gray.600">Original Value</Text>
-                    <Text fontWeight="bold" color="gray.600">New Value</Text>
-                 </Grid>
+                <Grid templateColumns="1.5fr 1fr 1fr" gap={4} mb={2} pb={2} borderBottom="2px solid" borderColor="gray.200">
+                  <Text fontWeight="bold" color="gray.600">Field</Text>
+                  <Text fontWeight="bold" color="gray.600">Original Value</Text>
+                  <Text fontWeight="bold" color="gray.600">New Value</Text>
+                </Grid>
 
-                 <DataComparison
-                    original={selectedItem.data.original}
-                    updated={selectedItem.data.updated}
-                 />
+                <DataComparison
+                  original={selectedItem.data.original}
+                  updated={selectedItem.data.updated}
+                />
               </Box>
             )}
           </DrawerBody>
@@ -399,17 +399,17 @@ const Approvals = () => {
             {tabIndex === 0 && (
               <>
                 <Button
-                    colorScheme="red"
-                    mr={3}
-                    onClick={() => handleAction("rejected")}
-                    isLoading={approvalStore.actionLoading}
+                  colorScheme="red"
+                  mr={3}
+                  onClick={() => handleAction("rejected")}
+                  isLoading={approvalStore.actionLoading}
                 >
                   Reject
                 </Button>
                 <Button
-                    colorScheme="green"
-                    onClick={() => handleAction("approved")}
-                    isLoading={approvalStore.actionLoading}
+                  colorScheme="green"
+                  onClick={() => handleAction("approved")}
+                  isLoading={approvalStore.actionLoading}
                 >
                   Approve
                 </Button>

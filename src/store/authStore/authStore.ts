@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { action, makeObservable, observable, toJS } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 import CryptoJS from "crypto-js";
 import { backendBaseUrl } from "../../config/constant/urls";
 import { registerPermissions } from "../../pages/Dashboard/Users/component/UserDetails/utils/constant";
@@ -139,13 +139,14 @@ class AuthStore {
     axios
       .post("/auth/me/")
       .then(({ data }: AxiosResponse<{ data: any }>) => {
-        console.log(toJS(data));
         this.company = "company_id";
         this.user = data.data;
         this.role = this.user?.role;
         this.user.permissions = this.user.permissions || registerPermissions || {};
         this.currentCompanyDetails = this.company;
-        this.viewAsUserId = this.user?.userId;
+        if (this.user.role === "user") {
+          this.viewAsUserId = this.user?.userId;
+        }
         this.setBanksDetailsData(this.user?.businessUnits || []);
         sessionStorage.setItem(
           process.env.REACT_APP_AUTHORIZATION_USER_DATA!,
