@@ -24,6 +24,7 @@ import { normalizeDate, calculateDueDate } from "../../exportsRegister/component
 import { pickMatchedFields } from "../../utils/function";
 import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import store from "../../../../store/store";
+import DueDateSync from "../../exportsRegister/component/DueDateSync";
 
 const ImportRegistrationForm = ({
   submitImportForm,
@@ -421,8 +422,34 @@ const ImportRegistrationForm = ({
                       required={selectedExposureType !== "da_dp"}
                     />
 
-                    {/* BL Date */}
-                    <CustomInput
+                                 <DueDateSync />
+                                        <CustomInput
+                                          label="BL Date"
+                                          name="blDate"
+                                          type="date"
+                                        />
+                    
+                                        <CustomInput
+                                          label="Payment Terms"
+                                          name="paymentTerms"
+                                          type="number"
+                                          value={values.paymentTerms ?? ""}
+                                          onChange={(e) =>
+                                            setFieldValue("paymentTerms", e.target.value)
+                                          }
+                                          disabled={selectedExposureType === "shipment"}
+                                          showError={showError}
+                                        />
+                    
+                                        <CustomInput
+                                          label="Due Date"
+                                          name="dueDate"
+                                          type="date"
+                                          disabled
+                                        />
+
+                  
+                    {/* <CustomInput
                       label="BL Date"
                       name="blDate"
                       type="date"
@@ -442,8 +469,6 @@ const ImportRegistrationForm = ({
                       showError={showError}
                       required={true}
                     />
-
-                    {/* Payment Terms */}
                     <CustomInput
                       label="Payment Terms"
                       name="paymentTerms"
@@ -465,8 +490,6 @@ const ImportRegistrationForm = ({
                       required={true}
                       disabled={isFieldReadOnly("paymentTerms")}
                     />
-
-                    {/* Due Date */}
                     <CustomInput
                       label="Due Date"
                       name="dueDate"
@@ -476,7 +499,7 @@ const ImportRegistrationForm = ({
                       error={touched.dueDate && errors.dueDate}
                       showError={showError}
                       required={true}
-                    />
+                    /> */}
 
                     {/* Currency */}
                     {isFieldReadOnly("currency") ? (

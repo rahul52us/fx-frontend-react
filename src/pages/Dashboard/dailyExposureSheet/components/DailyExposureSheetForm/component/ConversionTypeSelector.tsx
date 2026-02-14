@@ -69,7 +69,8 @@ const ConversionTypeSelector = ({
         )}
 
         {/* ===================== PCFC ===================== */}
-        <FormControl display="flex" alignItems="center">
+        {values.exposureType !== "import" && (
+          <FormControl display="flex" alignItems="center">
           <FormLabel mb="0">PCFC Repayment</FormLabel>
           <Switch
             isChecked={values.isPCFCEnabled}
@@ -81,6 +82,7 @@ const ConversionTypeSelector = ({
             colorScheme="orange"
           />
         </FormControl>
+        )}
 
         {/* ===================== FORWARD ===================== */}
         <FormControl display="flex" alignItems="center">
