@@ -166,30 +166,30 @@ class AuthStore {
   };
 
   setBanksDetailsData = (data: any) => {
-  const businessUnits = Array.from(
-    new Set<string>(data.map((u: any) => u.unitCode))
-  ).map((unit) => ({ label: unit, value: unit }));
+    const businessUnits = Array.from(
+      new Set<string>(data.map((u: any) => u.unitCode))
+    ).map((unit) => ({ label: unit, value: unit }));
 
-  const banks = Array.from(
-    new Set<string>(
-      data.flatMap((u: any) =>
-        u.banks.map((b: any) => b.bankName)
+    const banks = Array.from(
+      new Set<string>(
+        data.flatMap((u: any) =>
+          u.banks.map((b: any) => b.bankName)
+        )
       )
-    )
-  ).map((bank) => ({ label: bank, value: bank }));
+    ).map((bank) => ({ label: bank, value: bank }));
 
-  const currencies = Array.from(
-    new Set<string>(
-      data.flatMap((u: any) =>
-        u.banks.map((b: any) => b.currency)
+    const currencies = Array.from(
+      new Set<string>(
+        data.flatMap((u: any) =>
+          u.banks.map((b: any) => b.currency)
+        )
       )
-    )
-  ).map((currency) => ({ label: currency, value: currency }));
+    ).map((currency) => ({ label: currency, value: currency }));
 
-  this.bussinessUnitsData = businessUnits;
-  this.currenciesData = currencies;
-  this.banksData = banks;
-};
+    this.bussinessUnitsData = businessUnits;
+    this.currenciesData = currencies;
+    this.banksData = banks;
+  };
 
 
 
