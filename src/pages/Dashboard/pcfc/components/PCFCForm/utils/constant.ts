@@ -1,3 +1,4 @@
+import store from "../../../../../../store/store";
 import { normalizeDate } from "../../../../exportsRegister/component/utils/function"
 
 export const pcfcInitialValues = {
@@ -28,17 +29,18 @@ export const pcfcInitialValues = {
   totalInterestRate: 0,
 }
 
-export const getPcfcInitialValues = (editData:any) => ({
+export const getPcfcInitialValues = (editData: any) => ({
   drawdownDate: normalizeDate(editData?.drawdownDate) || "",
-  dueDate:normalizeDate(editData?.dueDate) || "",
+  dueDate: normalizeDate(editData?.dueDate) || "",
   pcfcInputDate:
     normalizeDate(editData?.pcfcInputDate) ||
-   "",
+    "",
 
-  bank: editData?.bank || "",
   tradeReferenceNumber: editData?.tradeReferenceNumber || "",
-  currency: editData?.currency || "",
-  businessUnit: editData?.businessUnit || "",
+
+  bank: store.auth.banksData.find((bank: any) => bank.value === editData?.bank) || {},
+  businessUnit: store.auth.bussinessUnitsData.find((dt: any) => dt.value === editData?.businessUnit) || {},
+  currency: store.auth.currenciesData.find((dt: any) => dt.value === editData?.currency) || {},
 
   // 👇 separate values
   enteredDrawdownAmount: editData?.enteredDrawdownAmount || "",
