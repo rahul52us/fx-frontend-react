@@ -403,7 +403,7 @@ useEffect(() => {
 )} */}
 
 {(values.exposureType === "import" || values.exposureType === "export") &&
- values.exposureRefs?.length > 0 && (
+ exposureRefOptions?.length > 0 && (
   <ExposureRefSelector
     values={values}
     setFieldValue={setFieldValue}
