@@ -29,6 +29,7 @@ import { normalizeDate } from "./utils/function";
 // import { toJS } from "mobx";
 import { extractFieldValue } from "../../../../config/constant/function";
 import ForecastExposureFields from "./ForecastExposureFields";
+import { toJS } from "mobx";
 
 const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any) => {
   const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
@@ -41,106 +42,9 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
   const toast = useToast();
   const isEdit = Boolean(editData);
 
+  console.log('bussinessUnitsData',toJS(bussinessUnitsData))
+
   const { storeEdited, editLoading } = useStoreEdited();
-
-  // const validationSchema = Yup.object({
-  //   invoiceNo: Yup.string().when("exposureType", {
-  //     is: (val: string) => val !== "confirmed_order",
-  //     then: (schema) => schema.required("Invoice No is required"),
-  //     otherwise: (schema) => schema.notRequired(),
-  //   }),
-  //   partyName: Yup.string().required("Party Name is required"),
-  //   bank: Yup.mixed().required("Bank is required"),
-  //   poNo: Yup.string().required("PO No is required"),
-  //   businessUnit: Yup.mixed().required("Business Unit is required"),
-  //   paymentTerms: Yup.number().required("Payment terms is required"),
-  //   currency: Yup.mixed().required("Currency is required"),
-  //   exposureType: Yup.mixed().required("Exposure Type is required"),
-
-  //   amount: Yup.number()
-  //     .required("Amount is required")
-  //     .when(["exposureType", "outStandingAmount"], {
-  //       is: (exposureType: string, outStandingAmount: any) =>
-  //         exposureType === "shipment" && !!outStandingAmount,
-  //       then: (schema) =>
-  //         schema.test("max-outStandingAmount", function (value) {
-  //           const { outStandingAmount } = this.parent;
-  //           if (value && outStandingAmount && value > outStandingAmount) {
-  //             return this.createError({
-  //               message: `Amount must be less than or equal to Outstanding Amount (${outStandingAmount})`,
-  //             });
-  //           }
-  //           return true;
-  //         }),
-  //       otherwise: (schema) => schema,
-  //     }),
-
-  //   budgetRate: Yup.string().required("Budget Rate is required"),
-
-  //   //date valitations----------------------
-  //   poDate: Yup.string().required("PO Date is required"),
-  //   invoiceDate: Yup.date()
-  //     .transform((value, originalValue) => {
-  //       return originalValue ? new Date(originalValue) : value;
-  //     })
-  //     .when("exposureType", {
-  //       is: (val: string) => val !== "confirmed_order",
-  //       then: (schema) => schema.required("Invoice Date is required"),
-  //       otherwise: (schema) => schema.notRequired(),
-  //     })
-  //     .when("poDate", (poDate: any, schema: any) => {
-  //       const dateValue = Array.isArray(poDate) ? poDate[0] : poDate;
-  //       return dateValue
-  //         ? schema.min(
-  //           new Date(dateValue),
-  //           "Invoice Date must be after PO Date"
-  //         )
-  //         : schema;
-  //     })
-  //     .when("dueDate", (dueDate: any, schema: any) => {
-  //       const dateValue = Array.isArray(dueDate) ? dueDate[0] : dueDate;
-  //       return dateValue
-  //         ? schema.max(
-  //           new Date(dateValue),
-  //           "Invoice Date cannot be after Due Date"
-  //         )
-  //         : schema;
-  //     }),
-  //   blDate: Yup.string()
-  //     .required("BL Date is required")
-  //     .test(
-  //       "bl-date-range",
-  //       "BL Date must be between PO Date and Due Date",
-  //       function (value) {
-  //         const { poDate, dueDate } = this.parent;
-
-  //         if (!value || !poDate || !dueDate) return true;
-
-  //         const blDate = new Date(value);
-  //         const poDateObj = new Date(poDate);
-  //         const dueDateObj = new Date(dueDate);
-
-  //         return blDate >= poDateObj && blDate <= dueDateObj;
-  //       }
-  //     ),
-  //   dueDate: Yup.date()
-  //     .transform((value, originalValue) => {
-  //       return originalValue ? new Date(originalValue) : value;
-  //     })
-  //     .required("Due Date is required")
-  //     .when("blDate", (blDate: any, schema: any) => {
-  //       const dateValue = Array.isArray(blDate) ? blDate[0] : blDate;
-  //       return dateValue
-  //         ? schema.min(new Date(dateValue), "Due Date must be after BL Date")
-  //         : schema;
-  //     })
-  //     .when("poDate", (poDate: any, schema: any) => {
-  //       const dateValue = Array.isArray(poDate) ? poDate[0] : poDate;
-  //       return dateValue
-  //         ? schema.min(new Date(dateValue), "Due Date must be after PO Date")
-  //         : schema;
-  //     }),
-  // });
 
 
   const validationSchema = Yup.object({
@@ -349,7 +253,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
     handleSubmit();
   };
 
-  console.log('the edit data is', editData)
+  // console.log('the edit data is', editData)
   return (
     <Box mx="auto" m={5} borderRadius="2xl">
       {loading && <Loader />}
@@ -420,7 +324,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
             touched,
             handleSubmit,
           }: any) => {
-            console.log('the values are', values)
+            // console.log('the values are', values)
             return (
               <FormikForm>
                 <VStack spacing={6} align="stretch">
@@ -566,23 +470,39 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                       required={true}
                       disabled={selectedExposureType === "shipment"}
                     />
-                    <CustomInput
-                      label="Business Units"
-                      name="businessUnit"
-                      placeholder="Units"
-                      type="select"
-                      options={bussinessUnitsData}
-                      value={values.businessUnit}
-                      onChange={(option) =>
-                        handleChange({
-                          target: { name: "businessUnit", value: option },
-                        })
-                      }
-                      error={touched.businessUnit && errors.businessUnit}
-                      showError={showError}
-                      required={true}
-                      disabled={selectedExposureType === "shipment"}
-                    />
+
+                     {selectedExposureType === "shipment" ? (
+                       <CustomInput
+                       label="Business Unit"
+                       name="businessUnit"
+                       placeholder="Enter Bank Name"
+                       value={values.businessUnit}
+                       onChange={handleChange}
+                       error={touched.businessUnit && errors.businessUnit}
+                       disabled={selectedExposureType === "shipment"}
+                       showError={showError}
+                       required={true}
+                       />
+                      ) : (
+                        
+                        <CustomInput
+                          label="Business Units"
+                          name="businessUnit"
+                          placeholder="Units"
+                          type="select"
+                          options={bussinessUnitsData}
+                          value={values.businessUnit}
+                          onChange={(option) =>
+                            handleChange({
+                              target: { name: "businessUnit", value: option },
+                            })
+                          }
+                          error={touched.businessUnit && errors.businessUnit}
+                          showError={showError}
+                          required={true}
+                          disabled={selectedExposureType === "shipment"}
+                          />
+                    )}
                     {selectedExposureType === "shipment" ? (
                       <CustomInput
                         label="Bank"

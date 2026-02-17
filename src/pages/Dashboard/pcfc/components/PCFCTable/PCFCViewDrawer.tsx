@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 
 // Reusable component for individual data fields
-const DataField = ({ label, value }: { label: string; value: any }) => (
+export const DataField = ({ label, value }: { label: string; value: any }) => (
   <Box>
     <Text fontSize="xs" color="gray.500" fontWeight="bold" textTransform="uppercase" mb={1}>
       {label}
