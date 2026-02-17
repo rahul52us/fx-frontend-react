@@ -29,7 +29,6 @@ import { normalizeDate } from "./utils/function";
 // import { toJS } from "mobx";
 import { extractFieldValue } from "../../../../config/constant/function";
 import ForecastExposureFields from "./ForecastExposureFields";
-import { toJS } from "mobx";
 
 const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any) => {
   const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
@@ -41,11 +40,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
   const [selectedExposureType, setSelectedExposureType] = useState<string>("");
   const toast = useToast();
   const isEdit = Boolean(editData);
-
-  console.log('bussinessUnitsData',toJS(bussinessUnitsData))
-
   const { storeEdited, editLoading } = useStoreEdited();
-
 
   const validationSchema = Yup.object({
 

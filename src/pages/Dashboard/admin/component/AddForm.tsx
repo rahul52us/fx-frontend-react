@@ -114,6 +114,9 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
   const [ratioImport, setRatioImport] = useState("");
   const [ratioExport, setRatioExport] = useState("");
 
+  const [submitted, setSubmitted] = useState(false);
+
+
   const passwordsMatch = basic.password === basic.confirmPassword;
 
   /* ================= HANDLERS ================= */
@@ -177,6 +180,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
   };
 
   const handleSubmit = async () => {
+    setSubmitted(true);
     if (basic.password && basic.password !== basic.confirmPassword) {
       alert("Passwords do not match!");
       return;
@@ -338,7 +342,15 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
           </FormControl>
 
           {/* Password match feedback */}
-          {basic.password && (
+         {submitted && !passwordsMatch && basic.password && basic.confirmPassword && (
+  <Alert status="error" fontSize="sm" variant="left-accent">
+    <AlertIcon />
+    Passwords do not match
+  </Alert>
+)}
+
+
+          {/* {basic.password && (
             <Grid templateColumns="1fr" gap={2}>
               {passwordsMatch ? (
                 <Alert status="success" fontSize="sm" variant="left-accent">
@@ -352,7 +364,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
                 </Alert>
               )}
             </Grid>
-          )}
+          )} */}
         </Grid>
       </Section>
 
