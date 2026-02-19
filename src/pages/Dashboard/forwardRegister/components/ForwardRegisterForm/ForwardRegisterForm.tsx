@@ -18,8 +18,10 @@ import { calculateHedgeRate, getForwardRegisterInitialValues } from "./constant"
 import ExposureRefSelector from "./ExposureRefSelector";
 import store from "../../../../../store/store";
 import { extractFieldValue } from "../../../../../config/constant/function";
+import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
+import { pickMatchedFields } from "../../../utils/function";
 
-const ForwardRegisterForm = ({ submitForm, editData, originalData }: any) => {
+const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const toast = useToast();
   const [showError, setShowError] = useState(false);
   const [exposureRefOptions, setExposureRefOptions] = useState<any[]>([]);
@@ -27,6 +29,7 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData }: any) => {
   const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
   const [selectedMainExposureType, setSelectedMainExposureType] = useState('');
   const url = process.env.REACT_APP_FX_BASE_URL;
+  const { storeEdited, editLoading } = useStoreEdited();
   const validationSchema = Yup.object({
     bookingDate: Yup.string().required("Booking Date is required"),
     exposureType: Yup.string().required("Exposure Type is required"),
@@ -158,23 +161,56 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData }: any) => {
           initialValues={getForwardRegisterInitialValues(editData)}
           validationSchema={validationSchema}
           enableReinitialize={true}
-          onSubmit={(values, actions) => {
-            values = extractFieldValue(values)
-            if (isEdit) {
-              submitForm(
-                {
-                  original: originalData,
-                  updated: values,
-                  rowId: editData?.rowId,
-                },
-                actions,
-                isEdit ? "edit" : "form",
-              );
-            } else {
-              setShowError(true);
-              submitForm(values, actions, "form");
-            }
-          }}
+             onSubmit={async (values, actions) => {
+                      values = extractFieldValue(values)
+                      if (isEdit) {
+                        const { original, updated } = pickMatchedFields(
+                          originalData,
+                          values,
+                          editData?.rowId
+                        );
+          
+                        const payload = {
+                          register: "forwardRegister",
+                          data: [
+                            {
+                              original,
+                              updated,
+                              rowId: editData?.rowId, // optional if backend still expects it here
+                            },
+                          ],
+                        };
+          
+                        try {
+                          await storeEdited(payload, onClose);
+                          actions.resetForm();
+                          actions.setSubmitting(false);
+                        } catch (error) {
+                          actions.setSubmitting(false);
+                        }
+          
+                        return;
+                      }
+                      setShowError(true);
+                      submitForm(values, actions, "form");
+                    }}
+          // onSubmit={(values, actions) => {
+          //   values = extractFieldValue(values)
+          //   if (isEdit) {
+          //     submitForm(
+          //       {
+          //         original: originalData,
+          //         updated: values,
+          //         rowId: editData?.rowId,
+          //       },
+          //       actions,
+          //       isEdit ? "edit" : "form",
+          //     );
+          //   } else {
+          //     setShowError(true);
+          //     submitForm(values, actions, "form");
+          //   }
+          // }}
         >
           {({
             values,
@@ -429,9 +465,9 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData }: any) => {
                     transition={"transform 0.3s ease-in-out"}
                     onClick={() => handleFormSubmit(handleSubmit, errors)}
                     size="lg"
-                    isLoading={isSubmitting}
+                    isLoading={isSubmitting || editLoading}
                   >
-                    Submit
+                  {isEdit ? "Update" : "Submit"}
                   </Button>
                 </Flex>
               </VStack>

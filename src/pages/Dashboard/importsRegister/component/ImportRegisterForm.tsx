@@ -10,20 +10,20 @@ import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
+import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import Loader from "../../../../config/component/Loader/Loader";
+import { extractFieldValue } from "../../../../config/constant/function";
 import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
-import { MultiHedgeDealExport } from "../../exportsRegister/component/MultiHedgeDealExport";
-import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
-import { normalizeDate, calculateDueDate } from "../../exportsRegister/component/utils/function";
-import { pickMatchedFields } from "../../utils/function";
-import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import store from "../../../../store/store";
-import { extractFieldValue } from "../../../../config/constant/function";
 import DueDateSync from "../../exportsRegister/component/DueDateSync";
+import { MultiHedgeDealExport } from "../../exportsRegister/component/MultiHedgeDealExport";
+import { calculateDueDate, normalizeDate } from "../../exportsRegister/component/utils/function";
+import { pickMatchedFields } from "../../utils/function";
+import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
 
 const ImportRegistrationForm = ({
   submitImportForm,
@@ -56,7 +56,6 @@ const ImportRegistrationForm = ({
         ...item,
       }));
       setLoading(false);
-      // console.log("--------", response.status);
       if (response.status === "success" || response.status === 200) {
         setPoData(exportRegOptions);
       } else {
@@ -129,25 +128,6 @@ const ImportRegistrationForm = ({
       {loading && <Loader />}
       {!loading && (
         <Formik
-          // initialValues={{
-          //   exposureType: "",
-          //   poNo: "",
-          //   poDate: "",
-          //   partyName: "",
-          //   bank: "",
-          //   businessUnit: "",
-          //   invoiceNo: "",
-          //   invoiceDate: "",
-          //   blDate: "",
-          //   paymentTerms: "",
-          //   dueDate: "",
-          //   currency: "",
-          //   amount: "",
-          //   budgetRate: "",
-          //   hedgeDeals: [],
-          //   remark: "",
-          // }}
-
           initialValues={{
             exposureType: editData?.exposureType || "",
             poNo: editData?.poNo || "",
@@ -451,60 +431,6 @@ const ImportRegistrationForm = ({
                       type="date"
                       disabled
                     />
-
-
-                    {/* <CustomInput
-                      label="BL Date"
-                      name="blDate"
-                      type="date"
-                      value={values.blDate}
-                      onChange={(e: any) => {
-                        handleChange(e);
-                        const newBlDate = e.target.value;
-                        if (values.paymentTerms) {
-                          const newDueDate = calculateDueDate(
-                            newBlDate,
-                            values.paymentTerms
-                          );
-                          setFieldValue("dueDate", newDueDate);
-                        }
-                      }}
-                      error={touched.blDate && errors.blDate}
-                      showError={showError}
-                      required={true}
-                    />
-                    <CustomInput
-                      label="Payment Terms"
-                      name="paymentTerms"
-                      placeholder="Terms"
-                      value={values.paymentTerms}
-                      onChange={(e: any) => {
-                        handleChange(e);
-                        const newTerms = e.target.value;
-                        if (values.blDate) {
-                          const newDueDate = calculateDueDate(
-                            values.blDate,
-                            newTerms
-                          );
-                          setFieldValue("dueDate", newDueDate);
-                        }
-                      }}
-                      error={touched.paymentTerms && errors.paymentTerms}
-                      showError={showError}
-                      required={true}
-                      disabled={isFieldReadOnly("paymentTerms")}
-                    />
-                    <CustomInput
-                      label="Due Date"
-                      name="dueDate"
-                      type="date"
-                      value={values.dueDate}
-                      onChange={handleChange}
-                      error={touched.dueDate && errors.dueDate}
-                      showError={showError}
-                      required={true}
-                    /> */}
-
                     {/* Currency */}
                     {isFieldReadOnly("currency") ? (
                       <CustomInput
@@ -558,15 +484,6 @@ const ImportRegistrationForm = ({
                       required={true}
                       disabled={isFieldReadOnly("budgetRate")}
                     />
-
-                    {/* <HedgeDealSelector
-                                        url={url}
-                                        values={values}
-                                        setFieldValue={setFieldValue}
-                                        touched={touched}
-                                        errors={errors}
-                                        showError={showError}
-                                        /> */}
                   </SimpleGrid>
                   <MultiHedgeDealExport url={url} showError={showError} exposureType={'import'} />
 
@@ -596,7 +513,7 @@ const ImportRegistrationForm = ({
                       size="lg"
                       isLoading={isSubmitting || editLoading}
                     >
-                      Submit
+                        {isEdit ? "Update" : "Submit"}
                     </Button>
                   </Flex>
                 </VStack>

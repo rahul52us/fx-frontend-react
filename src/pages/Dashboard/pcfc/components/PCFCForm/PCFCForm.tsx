@@ -13,11 +13,14 @@ import ModeOfConversion from "./ModeOfConversion";
 import { getPcfcInitialValues } from "./utils/constant";
 import store from "../../../../../store/store";
 import { extractFieldValue } from "../../../../../config/constant/function";
+import { pickMatchedFields } from "../../../utils/function";
+import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 
 const PCFCForm = ({ submitForm, editData,
-  originalData, }: any) => {
+  originalData,onClose }: any) => {
   const [showError, setShowError] = useState(false); // Initially false, true on submit
   const isEdit = Boolean(editData);
+  const {storeEdited, editLoading} = useStoreEdited();
   const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
   const validationSchema = Yup.object().shape({
     drawdownDate: Yup.string().required("Drawdown Date is required"),
@@ -111,6 +114,7 @@ const PCFCForm = ({ submitForm, editData,
     handleSubmit();
   };
 
+
   return (
     <Box bg="whiteAlpha.700" py={4}>
       <Box px={2}>
@@ -119,23 +123,56 @@ const PCFCForm = ({ submitForm, editData,
           //  initialValues={pcfcInitialValues}
           validationSchema={validationSchema}
           enableReinitialize// Prevent resets on typing
-          onSubmit={(values, actions) => {
-            values = extractFieldValue(values)
-            if (isEdit) {
-              submitForm(
-                {
-                  original: originalData,
-                  updated: values,
-                  rowId: editData?.rowId,
-                },
-                actions,
-                isEdit ? "edit" : "form",
-              );
-            } else {
-              setShowError(true);
-              submitForm(values, actions, "form");
-            }
-          }}
+            onSubmit={async (values, actions) => {
+                                values = extractFieldValue(values)
+                                if (isEdit) {
+                                  const { original, updated } = pickMatchedFields(
+                                    originalData,
+                                    values,
+                                    editData?.rowID
+                                  );
+                    
+                                  const payload = {
+                                    register: "pcfc",
+                                    data: [
+                                      {
+                                        original,
+                                        updated,
+                                        rowId: editData?.rowID, // optional if backend still expects it here
+                                      },
+                                    ],
+                                  };
+                    
+                                  try {
+                                    await storeEdited(payload, onClose);
+                                    actions.resetForm();
+                                    actions.setSubmitting(false);
+                                  } catch (error) {
+                                    actions.setSubmitting(false);
+                                  }
+                    
+                                  return;
+                                }
+                                setShowError(true);
+                                submitForm(values, actions, "form");
+                              }}
+          // onSubmit={(values, actions) => {
+          //   values = extractFieldValue(values)
+          //   if (isEdit) {
+          //     submitForm(
+          //       {
+          //         original: originalData,
+          //         updated: values,
+          //         rowId: editData?.rowId,
+          //       },
+          //       actions,
+          //       isEdit ? "edit" : "form",
+          //     );
+          //   } else {
+          //     setShowError(true);
+          //     submitForm(values, actions, "form");
+          //   }
+          // }}
         // onSubmit={(values, actions) => {
         //   setShowError(true);
         //   console.log("Submitting PCFC Form:", values);
@@ -303,10 +340,10 @@ const PCFCForm = ({ submitForm, editData,
                     _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
                     transition="transform 0.3s ease-in-out"
                     size="lg"
-                    isLoading={isSubmitting}
+                    isLoading={isSubmitting || editLoading}
                     onClick={() => handleFormSubmit(handleSubmit, errors)}
                   >
-                    Submit
+                    {isEdit ? "Update" : "Submit"}
                   </Button>
                 </Flex>
               </VStack>

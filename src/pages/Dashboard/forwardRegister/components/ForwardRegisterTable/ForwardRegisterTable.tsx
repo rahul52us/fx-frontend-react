@@ -302,6 +302,7 @@ const ForwardRegisterTable = () => {
             submitForm={submitExportForm}
             key={formKey}
             editData={editRow}
+            onClose={handleDrawerClose}
             originalData={originalRow}
           />
         </CustomDrawer>

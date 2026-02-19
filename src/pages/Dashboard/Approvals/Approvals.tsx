@@ -201,7 +201,7 @@ const Approvals = () => {
           <Thead bg="gray.50">
             <Tr>
               <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider">Register</Th>
-              <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider">Party Name</Th>
+              <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider">Bank</Th>
               <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider" isNumeric>Amount</Th>
               <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider">Exposure</Th>
               <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider" textAlign="center">Action</Th>
@@ -228,7 +228,7 @@ const Approvals = () => {
               </Tr>
             ) : (
               data.map((item, idx) => {
-                const display = item.data.updated || item.data.original;
+                const display = item.data.updated || item?.data?.original;
                 return (
                   <Tr
                     key={idx}
@@ -241,10 +241,10 @@ const Approvals = () => {
                         {item?.register?.replace(/([A-Z])/g, ' $1').trim()}
                       </Badge>
                     </Td>
-                    <Td fontWeight="semibold" color="gray.700">{display.partyName || "N/A"}</Td>
+                    <Td fontWeight="semibold" color="gray.700">{display.bank || "N/A"}</Td>
                     <Td fontWeight="bold" color="gray.800" isNumeric>
-                      {Number(display.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      <Text as="span" fontSize="xs" color="gray.500" ml={1}>{display.currency}</Text>
+                      {Number(display?.amount || display?.hedgeAmount || display?.drawdownAmount).toLocaleString(undefined, { minimumFractionDigits: 2 }) || display?.hedgeAmount}
+                      <Text as="span" fontSize="xs" color="gray.500" ml={1}>{display?.currency}</Text>
                     </Td>
                     <Td>
                       <Tag size="sm" colorScheme={display.exposureType === 'Hedge' ? 'green' : 'blue'} variant="subtle">
@@ -291,7 +291,7 @@ const Approvals = () => {
             >
               Pending
               <Badge ml={2} colorScheme="orange" variant="solid" borderRadius="full" fontSize="0.7em">
-                {approvalStore.approvalData.pendingCount}
+                {approvalStore?.approvalData?.pendingCount}
               </Badge>
             </Tab>
             <Tab
@@ -305,7 +305,7 @@ const Approvals = () => {
             >
               Approved
               <Badge ml={2} colorScheme="green" variant="solid" borderRadius="full" fontSize="0.7em">
-                {approvalStore.approvalData.approvedCount}
+                {approvalStore?.approvalData?.approvedCount}
               </Badge>
             </Tab>
             <Tab
@@ -319,7 +319,7 @@ const Approvals = () => {
             >
               Rejected
               <Badge ml={2} colorScheme="red" variant="solid" borderRadius="full" fontSize="0.7em">
-                {approvalStore.approvalData.rejectedCount}
+                {approvalStore?.approvalData?.rejectedCount}
               </Badge>
             </Tab>
           </TabList>
@@ -383,8 +383,8 @@ const Approvals = () => {
                 </Grid>
 
                 <DataComparison
-                  original={selectedItem.data.original}
-                  updated={selectedItem.data.updated}
+                  original={selectedItem.data?.original}
+                  updated={selectedItem.data?.updated}
                 />
               </Box>
             )}

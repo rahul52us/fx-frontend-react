@@ -322,9 +322,10 @@ const PCFCTable = () => {
           width="75vw"
         >
           <PCFCForm
-            submitForm={submitExportForm}
+           submitForm={submitExportForm}
             key={formKey}
             editData={editRow}
+            onClose={handleDrawerClose}
             originalData={originalRow}
           />
         </CustomDrawer>

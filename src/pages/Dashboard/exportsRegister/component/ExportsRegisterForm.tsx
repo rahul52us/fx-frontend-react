@@ -658,7 +658,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                       size="lg"
                       isLoading={isSubmitting || editLoading}
                     >
-                      Submit
+                    {isEdit ? "Update" : "Submit"}
                     </Button>
                   </Flex>
                 </VStack>
