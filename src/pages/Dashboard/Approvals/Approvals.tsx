@@ -243,7 +243,7 @@ const Approvals = () => {
                     </Td>
                     <Td fontWeight="semibold" color="gray.700">{display.bank || "N/A"}</Td>
                     <Td fontWeight="bold" color="gray.800" isNumeric>
-                      {Number(display?.amount || display?.hedgeAmount || display?.drawdownAmount).toLocaleString(undefined, { minimumFractionDigits: 2 }) || display?.hedgeAmount}
+                      {Number(display?.amount || display?.hedgeAmount || display?.drawdownAmount || display?.outstandingAmount).toLocaleString(undefined, { minimumFractionDigits: 2 }) || display?.hedgeAmount}
                       <Text as="span" fontSize="xs" color="gray.500" ml={1}>{display?.currency}</Text>
                     </Td>
                     <Td>

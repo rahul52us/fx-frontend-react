@@ -22,6 +22,9 @@ const ForwardCancellationTable = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+   const [editRow, setEditRow] = useState<any | null>(null);
+  const [originalRow, setOriginalRow] = useState<any | null>(null);
+  const [formKey, setFormKey] = useState(0);
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
 
@@ -173,6 +176,19 @@ const ForwardCancellationTable = () => {
     },
   ];
 
+  function handleEdit(row: any) {
+    setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+    setEditRow(row);
+    onOpen();
+  }
+
+   const handleDrawerClose = () => {
+    setEditRow(null);
+    setOriginalRow(null);
+    setFormKey((prev) => prev + 1); // 🔥 force remount
+    onClose();
+  };
+
   return (
     canView ? (
       <>
@@ -183,7 +199,7 @@ const ForwardCancellationTable = () => {
           actions={{
             search: { show: false },
             resetData: {
-              show: false,
+              show: true,
               text: "Reset Data",
               function: () => fetchExportRegisterData(1),
             },
@@ -213,7 +229,13 @@ const ForwardCancellationTable = () => {
                 showAddButton: canAdd,
                 function: onOpen,
               },
-              editKey: { showEditButton: canEdit },
+               editKey: {
+                showEditButton: canEdit,
+                function: (row: any) => {
+                  handleEdit(row);
+                  // onOpen();
+                },
+              },
               deleteKey: {
                 showDeleteButton: canDelete,
                 function: (row: any) =>
@@ -236,7 +258,16 @@ const ForwardCancellationTable = () => {
           size="xl"
           width="75vw"
         >
-          <ForwardCancellationForm submitForm={submitExportForm} />
+          
+          <ForwardCancellationForm 
+          // submitForm={submitExportForm}
+            submitForm={submitExportForm}
+            key={formKey}
+            editData={editRow}
+            onClose={handleDrawerClose}
+            originalData={originalRow}
+          />
+          {/* <ForwardCancellationForm submitForm={submitExportForm} /> */}
         </CustomDrawer>
       </>) : <RestrictedAccess />
   );

@@ -10,10 +10,16 @@ import {
   primaryButtonStyle,
 } from "../../../../globalStyles";
 import AutoCalculation from "./AutoCalculate";
+import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
+import { pickMatchedFields } from "../../utils/function";
+import { extractFieldValue } from "../../../../config/constant/function";
+import { getForwardCancellationInitialValues } from "./utils/constant";
 
-const ForwardCancellationForm = ({ submitForm }: any) => {
+const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: any) => {
   const [forwardDeals, setForwardDeals] = useState<any[]>([]);
   const url = process.env.REACT_APP_FX_BASE_URL;
+    const {storeEdited, editLoading} = useStoreEdited();
+  const isEdit = Boolean(editData);
 
   // ---------------- Validation Schema ----------------
   const validationSchema = Yup.object().shape({
@@ -43,7 +49,6 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
           deliveryDateFrom: item.deliveryDateFrom,
           deliveryDateTo: item.deliveryDateTo,
           bankMargin: item.bankMargine, // 🔥 mapping fix
-
         }));
 
         setForwardDeals(mappedData);
@@ -54,45 +59,80 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
   };
 
 
-  const initialValues = {
-    dealType: "Cancellation",
-    transactionDate: "",
-    forwardDealId: "",
-    exposureType: "",
-    bank: "",
-    currency: "",
-    outstandingAmount: "",
-    bookedRate: "",
-    deliveryDateFrom: "",
-    deliveryDateTo: "",
-    bankMargin: "",
-    cancellationAmount: "",
-    spotBooked: "",
-    fwdPremium: "",
-    cashTomSpot: "",
-    netCancellationRate: "",
-    plInFCY: "",
-    washRate: "",
-    plInINR: "",
-    businessUnit: ""
-  };
+  // const initialValues = {
+  //   dealType: "Cancellation",
+  //   transactionDate: "",
+  //   forwardDealId: "",
+  //   exposureType: "",
+  //   bank: "",
+  //   currency: "",
+  //   outstandingAmount: "",
+  //   bookedRate: "",
+  //   deliveryDateFrom: "",
+  //   deliveryDateTo: "",
+  //   bankMargin: "",
+  //   cancellationAmount: "",
+  //   spotBooked: "",
+  //   fwdPremium: "",
+  //   cashTomSpot: "",
+  //   netCancellationRate: "",
+  //   plInFCY: "",
+  //   washRate: "",
+  //   plInINR: "",
+  //   businessUnit: ""
+  // };
 
   useEffect(() => {
     fetchHedgeDealData();
   }, [])
 
+  console.log('editData',editData)
+
   return (
     <Box bg="whiteAlpha.700">
       <Box p={5} mx="auto" px={2}>
         <Formik
-          initialValues={initialValues}
+          initialValues={getForwardCancellationInitialValues(editData)}
           validationSchema={validationSchema}
           enableReinitialize
-          onSubmit={(values, actions) => {
-            // console.log("Submitted Values:", values);
-            submitForm(values, actions, "form");
-            actions.setSubmitting(false);
-          }}
+                      onSubmit={async (values, actions) => {
+                                          values = extractFieldValue(values)
+                                          if (isEdit) {
+                                            const { original, updated } = pickMatchedFields(
+                                              originalData,
+                                              values,
+                                              editData?.rowId
+                                            );
+                              
+                                            const payload = {
+                                              register: "forwardCancellation",
+                                              data: [
+                                                {
+                                                  original,
+                                                  updated,
+                                                  rowId: editData?.rowId, // optional if backend still expects it here
+                                                },
+                                              ],
+                                            };
+                              
+                                            try {
+                                              await storeEdited(payload, onClose);
+                                              actions.resetForm();
+                                              actions.setSubmitting(false);
+                                            } catch (error) {
+                                              actions.setSubmitting(false);
+                                            }
+                              
+                                            return;
+                                          }
+                                          // setShowError(true);
+                                          submitForm(values, actions, "form");
+                                        }}
+          // onSubmit={(values, actions) => {
+          //   // console.log("Submitted Values:", values);
+          //   submitForm(values, actions, "form");
+          //   actions.setSubmitting(false);
+          // }}
         >
           {({
             values,
@@ -160,7 +200,7 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
 
                   {/* Automated Fields */}
                   <CustomInput label="Exposure Type" name="exposureType" value={values.exposureType} disabled />
-                  <CustomInput label="Bank" name="bank" value={values.bank} disabled />
+                  <CustomInput label="Bank" name="bank" value={values.bank || values.bank.value} disabled />
                   <CustomInput label="Currency" name="currency" value={values.currency} disabled />
                   <CustomInput label="Business Unit" name="businessUnit" value={values.businessUnit} disabled />
                   <CustomInput label="Outstanding Amount" name="outstandingAmount" value={values.outstandingAmount} disabled />
@@ -254,9 +294,9 @@ const ForwardCancellationForm = ({ submitForm }: any) => {
                     _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
                     type="submit"
                     size="lg"
-                    isLoading={isSubmitting}
+                    isLoading={isSubmitting || editLoading}
                   >
-                    Submit
+                    {isEdit ? "Update" : "Submit"}
                   </Button>
                 </Flex>
               </VStack>
