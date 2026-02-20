@@ -197,7 +197,7 @@ const Approvals = () => {
   const DataTable = ({ data, isLoading }: { data: any[], isLoading: boolean }) => {
     return (
       <Box overflowX="auto" borderRadius="lg" border="1px solid" borderColor="gray.100">
-        <Table variant="simple" size="md">
+        <Table variant="striped" size="md">
           <Thead bg="gray.50">
             <Tr>
               <Th py={4} color="gray.500" textTransform="uppercase" fontSize="xs" letterSpacing="wider">Register</Th>

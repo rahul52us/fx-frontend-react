@@ -31,14 +31,27 @@ const EEFCExportsSection = ({ showError }: any) => {
   };
 
   // When any field changes
+  // const handleChange = (index: number, field: string, value: any) => {
+  //   let updatedRow = { ...values.eefcExportsList[index], [field]: value };
+
+  //   // recalc net settlement rate
+  //   updatedRow.netConversionRate = calculateNetSettlementRate(updatedRow);
+
+  //   setFieldValue(`eefcExportsList.${index}`, updatedRow);
+  // };
+
   const handleChange = (index: number, field: string, value: any) => {
-    let updatedRow = { ...values.eefcExportsList[index], [field]: value };
+  // 1. Create the updated row with the new value
+  let updatedRow = { ...values.eefcExportsList[index], [field]: value };
 
-    // recalc net settlement rate
-    updatedRow.netSettlementRate = calculateNetSettlementRate(updatedRow);
+  // 2. Only auto-calculate IF the field changed isn't the rate itself
+  // If we ARE changing the rate, we skip the calculation and keep the user's input
+  if (field !== "netConversionRate") {
+    updatedRow.netConversionRate = calculateNetSettlementRate(updatedRow);
+  }
 
-    setFieldValue(`eefcExportsList.${index}`, updatedRow);
-  };
+  setFieldValue(`eefcExportsList.${index}`, updatedRow);
+};
 
   return (
     <Box
@@ -106,12 +119,32 @@ const EEFCExportsSection = ({ showError }: any) => {
                       }
                       showError={showError}
                     />
-                        <CustomInput
+
+                    <CustomInput
+  label="Net Conversion Rate"
+  placeholder="0.0000"
+  name={`eefcExportsList.${index}.netConversionRate`}
+  type="number" 
+  value={row.netConversionRate}
+  // Add this onChange handler:
+  onChange={(e: any) =>
+    handleChange(
+      index,
+      "netConversionRate",
+      e.target.value
+    )
+  }
+  error={rowTouched.netConversionRate && rowErrors.netConversionRate}
+  showError={showError}
+/>
+                        {/* <CustomInput
                        label="Net Conversion Rate"
+
+                       type="number"
                        placeholder="Net Conversion Rate"
                        name={`eefcExportsList.${index}.netConversionRate`}
                        value={row.netConversionRate}
-                     />
+                     /> */}
                   </SimpleGrid>
 
                   {values.eefcExportsList.length > 1 && (
