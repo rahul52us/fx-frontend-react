@@ -293,7 +293,6 @@ const PCFCTable = () => {
                 showEditButton: canEdit,
                 function: (row: any) => {
                   handleEdit(row);
-                  // onOpen();
                 },
               },
               viewKey: {

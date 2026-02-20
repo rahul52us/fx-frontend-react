@@ -29,14 +29,21 @@ import ForwardContractSection from "./component/ForwardContractSection";
 import PCFCRepaymentSection from "./component/PCFCRepaymentSection";
 import SpotConversionSection from "./component/SpotConversionSection";
 import SpotForwardCalculation from "./utils/SpotForwardCalculation";
+import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
+import { pickMatchedFields } from "../../../utils/function";
+import { extractFieldValue } from "../../../../../config/constant/function";
+import { getExposureSettlementInitialValues } from "./utils/constent";
 
-const ExposureSettlementForm = ({ submitForm }: any) => {
+const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const [showError, setShowError] = useState(false);
   const [poOptions, setPoOptions] = useState<any[]>([]);
   const [invoiceOptions, setInvoiceOptions] = useState<any[]>([]);
   const [isPoDisabled, setIsPoDisabled] = useState(false);
   const [isInvoiceDisabled, setIsInvoiceDisabled] = useState(false);
   const toast = useToast();
+
+    const isEdit = Boolean(editData);
+    const {storeEdited, editLoading} = useStoreEdited();
 
   const validationSchema = Yup.object({
     settlementDate: Yup.string().required("Settlement Date is required"),
@@ -100,50 +107,88 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
       ),
   });
 
+
   return (
     <Box bg="whiteAlpha.700">
       <Box p={2} borderRadius="2xl">
         <Formik
-          initialValues={{
-            settlementDate: "",
-            settlementInputDate: new Date().toISOString().split("T")[0],
-            settlementType: "",
-            outstandingAmount: "",
-            dueDate: "",
-            exposureType: "",
-            poNumber: "",
-            invoiceBcNumber: "",
-            partyName: "",
-            businessUnit: "",
-            bank: "",
-            currency: "",
-            settledAmount: "",
-            settlementAmount: "",
+        enableReinitialize
+          // initialValues={{
+          //   settlementDate: "",
+          //   settlementInputDate: new Date().toISOString().split("T")[0],
+          //   settlementType: "",
+          //   outstandingAmount: "",
+          //   dueDate: "",
+          //   exposureType: "",
+          //   poNumber: "",
+          //   invoiceBcNumber: "",
+          //   partyName: "",
+          //   businessUnit: "",
+          //   bank: "",
+          //   currency: "",
+          //   settledAmount: "",
+          //   settlementAmount: "",
 
-            // === TOGGLES ===
-            isSpotEnabled: false,
-            isEEFCExportsEnabled: false,
-            isEEFCImportsEnabled: false,
-            isPCFCEnabled: false,
-            isForwardEnabled: false,
+          //   // === TOGGLES ===
+          //   isSpotEnabled: false,
+          //   isEEFCExportsEnabled: false,
+          //   isEEFCImportsEnabled: false,
+          //   isPCFCEnabled: false,
+          //   isForwardEnabled: false,
 
-            // === LISTS (MULTIPLE ROWS) ===
-            spotList: [],
-            eefcExportsList: [],
-            eefcImportsList: [],
-            pcfcList: [],
-            forwardList: [],
+          //   // === LISTS (MULTIPLE ROWS) ===
+          //   spotList: [],
+          //   eefcExportsList: [],
+          //   eefcImportsList: [],
+          //   pcfcList: [],
+          //   forwardList: [],
 
-            // Summary fields
-            settlementRate: "",
-            settledAmountInINR: "",
-          }}
+          //   // Summary fields
+          //   settlementRate: "",
+          //   settledAmountInINR: "",
+          // }}
           validationSchema={validationSchema}
           validateOnBlur={true}
           validateOnChange={false}
-          onSubmit={(values, actions) => {
-            submitForm(values, actions, "form");
-          }}
+        initialValues={getExposureSettlementInitialValues(editData)}
+
+          
+                      onSubmit={async (values, actions) => {
+                                          values = extractFieldValue(values)
+                                          if (isEdit) {
+                                            const { original, updated } = pickMatchedFields(
+                                              originalData,
+                                              values,
+                                              editData?.rowId
+                                            );
+                              
+                                            const payload = {
+                                              register: "exposure",
+                                              data: [
+                                                {
+                                                  original,
+                                                  updated,
+                                                  rowId: editData?.rowId, // optional if backend still expects it here
+                                                },
+                                              ],
+                                            };
+                              
+                                            try {
+                                              await storeEdited(payload, onClose);
+                                              actions.resetForm();
+                                              actions.setSubmitting(false);
+                                            } catch (error) {
+                                              actions.setSubmitting(false);
+                                            }
+                              
+                                            return;
+                                          }
+                                          setShowError(true);
+                                          submitForm(values, actions, "form");
+              }}
+          // onSubmit={(values, actions) => {
+          //   submitForm(values, actions, "form");
+          // }}
         >
           {({
             values,
@@ -157,12 +202,20 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
           }) => (
             <FormikForm>
               <ExposureAutoPopulateWatcher />
-              <ExposureSettlementController
+              {/* <ExposureSettlementController
                 setPoOptions={setPoOptions}
                 setInvoiceOptions={setInvoiceOptions}
                 setIsPoDisabled={setIsPoDisabled}
                 setIsInvoiceDisabled={setIsInvoiceDisabled}
-              />
+              /> */}
+
+              <ExposureSettlementController
+  setPoOptions={setPoOptions}
+  setInvoiceOptions={setInvoiceOptions}
+  setIsPoDisabled={setIsPoDisabled}
+  setIsInvoiceDisabled={setIsInvoiceDisabled}
+  isEdit={isEdit}
+/>
               <VStack spacing={6} align="stretch">
                 <SimpleGrid columns={[1, 2]} spacing={6}>
                   <CustomInput
@@ -216,6 +269,11 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
                     error={touched.exposureType && errors.exposureType}
                     showError={showError}
                   />
+                  <>
+                  {
+                    console.log('------',values.poNumber)
+                  }
+                  </>
 
                   {values.settlementType === "advance" && (
                     <CustomInput
@@ -228,6 +286,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
                       value={poOptions.find(
                         (opt) => opt.value === values.poNumber,
                       )}
+       
                       onChange={(option) =>
                         handleChange({
                           target: { name: "poNumber", value: option.value },
@@ -380,7 +439,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
                     rounded="full"
                     {...primaryButtonStyle}
                     _hover={{ ...primaryButtonHoverStyle, border: "1px solid" }}
-                    isLoading={isSubmitting}
+                    isLoading={isSubmitting || editLoading}
                     type="button"
                     size="lg"
                     onClick={async () => {
@@ -402,7 +461,7 @@ const ExposureSettlementForm = ({ submitForm }: any) => {
                       submitForm();
                     }}
                   >
-                    Submit
+                    {isEdit ? "Update" : "Submit"}
                   </Button>
                 </Flex>
               </VStack>

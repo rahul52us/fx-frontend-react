@@ -24,6 +24,10 @@ const DailyExposureTable = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [viewData, setViewData] = useState<any>(null);
+
+   const [editRow, setEditRow] = useState<any | null>(null);
+  const [originalRow, setOriginalRow] = useState<any | null>(null);
+  const [formKey, setFormKey] = useState(0);
   
   // Permission checks
   const { canAdd, canEdit, canDelete, canView } = usePermission('dailyExposure');
@@ -46,6 +50,19 @@ const DailyExposureTable = () => {
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
+
+  function handleEdit(row: any) {
+    setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
+    setEditRow(row);
+    onOpen();
+  }
+
+  const handleDrawerClose = () => {
+    setEditRow(null);
+    setOriginalRow(null);
+    setFormKey((prev) => prev + 1); // 🔥 force remount
+    onClose();
+  };
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -260,7 +277,12 @@ const DailyExposureTable = () => {
                 showAddButton: canAdd,
                 function: onOpen,
               },
-              editKey: { showEditButton: canEdit },
+                editKey: {
+                showEditButton: canEdit,
+                function: (row: any) => {
+                  handleEdit(row);
+                },
+              },
                  viewKey: {
                 showViewButton: true,
                 function: (row: any) => {
@@ -280,12 +302,19 @@ const DailyExposureTable = () => {
         {/* Drawer for adding export entry */}
         <CustomDrawer
           open={isOpen}
-          close={onClose}
+          close={handleDrawerClose}
           title="Exposure Settlement Register"
           size="xl"
           width="75%"
         >
-          <ExposureSettlementForm submitForm={submitExportForm} />
+          <ExposureSettlementForm 
+          // submitForm={submitExportForm}
+            submitForm={submitExportForm}
+            key={formKey}
+            editData={editRow}
+            onClose={handleDrawerClose}
+            originalData={originalRow}
+          />
         </CustomDrawer>
 
         {/* Drawer for viewing export entry */}

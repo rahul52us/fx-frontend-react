@@ -7,11 +7,13 @@ const ExposureSettlementController = ({
   setInvoiceOptions,
   setIsPoDisabled,
   setIsInvoiceDisabled,
+  isEdit
 }: {
   setPoOptions: (data: any[]) => void;
   setInvoiceOptions: (data: any[]) => void;
   setIsPoDisabled: any;
   setIsInvoiceDisabled: any;
+  isEdit: boolean
 }) => {
   const { values, setFieldValue } = useFormikContext<any>();
   const url = process.env.REACT_APP_FX_BASE_URL;
@@ -29,7 +31,10 @@ const ExposureSettlementController = ({
      0️⃣ RESET on Exposure / Settlement change
   -------------------------------------------------- */
   useEffect(() => {
-    setFieldValue("poNumber", "");
+    // setFieldValue("poNumber", "");
+    if (!isEdit) {
+  setFieldValue("poNumber", "");
+}
     setFieldValue("invoiceBcNumber", "");
 
     setFieldValue("partyName", "");

@@ -16,8 +16,7 @@ import { extractFieldValue } from "../../../../../config/constant/function";
 import { pickMatchedFields } from "../../../utils/function";
 import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 
-const PCFCForm = ({ submitForm, editData,
-  originalData,onClose }: any) => {
+const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const [showError, setShowError] = useState(false); // Initially false, true on submit
   const isEdit = Boolean(editData);
   const {storeEdited, editLoading} = useStoreEdited();
