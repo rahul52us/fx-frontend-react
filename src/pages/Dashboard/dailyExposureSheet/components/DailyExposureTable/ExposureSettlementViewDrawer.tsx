@@ -214,10 +214,10 @@ const isEEFCEnabled =
             )}
 
             {/* Net Settlement Rate (Exports case) */}
-            {eefc?.netSettlementRate && (
+            {eefc?.netConversionRate && (
               <DataField
-                label="Net Settlement Rate"
-                value={eefc?.netSettlementRate}
+                label="Net Conversion Rate"
+                value={eefc?.netConversionRate}
               />
             )}
 

@@ -58,30 +58,6 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
     }
   };
 
-
-  // const initialValues = {
-  //   dealType: "Cancellation",
-  //   transactionDate: "",
-  //   forwardDealId: "",
-  //   exposureType: "",
-  //   bank: "",
-  //   currency: "",
-  //   outstandingAmount: "",
-  //   bookedRate: "",
-  //   deliveryDateFrom: "",
-  //   deliveryDateTo: "",
-  //   bankMargin: "",
-  //   cancellationAmount: "",
-  //   spotBooked: "",
-  //   fwdPremium: "",
-  //   cashTomSpot: "",
-  //   netCancellationRate: "",
-  //   plInFCY: "",
-  //   washRate: "",
-  //   plInINR: "",
-  //   businessUnit: ""
-  // };
-
   useEffect(() => {
     fetchHedgeDealData();
   }, [])
@@ -128,11 +104,6 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
                                           // setShowError(true);
                                           submitForm(values, actions, "form");
                                         }}
-          // onSubmit={(values, actions) => {
-          //   // console.log("Submitted Values:", values);
-          //   submitForm(values, actions, "form");
-          //   actions.setSubmitting(false);
-          // }}
         >
           {({
             values,

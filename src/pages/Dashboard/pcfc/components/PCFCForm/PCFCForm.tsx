@@ -2,19 +2,19 @@ import { Box, Button, Flex, SimpleGrid, useToast, VStack } from "@chakra-ui/reac
 import { Formik, Form as FormikForm } from "formik";
 import { useState } from "react";
 import * as Yup from "yup";
+import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput"; // Adjust path as needed
+import { extractFieldValue } from "../../../../../config/constant/function";
 import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../../globalStyles"; // Adjust path as needed
+import store from "../../../../../store/store";
+import { pickMatchedFields } from "../../../utils/function";
 import ConversionManager from "./ConversionManager";
 import FormAutoCalculator from "./FormAutoCalculator";
 import ModeOfConversion from "./ModeOfConversion";
 import { getPcfcInitialValues } from "./utils/constant";
-import store from "../../../../../store/store";
-import { extractFieldValue } from "../../../../../config/constant/function";
-import { pickMatchedFields } from "../../../utils/function";
-import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 
 const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const [showError, setShowError] = useState(false); // Initially false, true on submit
@@ -155,28 +155,6 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                                 setShowError(true);
                                 submitForm(values, actions, "form");
                               }}
-          // onSubmit={(values, actions) => {
-          //   values = extractFieldValue(values)
-          //   if (isEdit) {
-          //     submitForm(
-          //       {
-          //         original: originalData,
-          //         updated: values,
-          //         rowId: editData?.rowId,
-          //       },
-          //       actions,
-          //       isEdit ? "edit" : "form",
-          //     );
-          //   } else {
-          //     setShowError(true);
-          //     submitForm(values, actions, "form");
-          //   }
-          // }}
-        // onSubmit={(values, actions) => {
-        //   setShowError(true);
-        //   console.log("Submitting PCFC Form:", values);
-        //   submitForm(values, actions, "form");
-        // }}
         >
           {({ values, handleChange, setFieldValue, isSubmitting, errors, touched, handleSubmit }: any) => (
             <FormikForm>
@@ -205,14 +183,6 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                     error={touched.enteredDrawdownAmount && errors.enteredDrawdownAmount}
                     showError={showError}
                   />
-
-                  {/* <CustomInput
-                    label="PCFC Input Date"
-                    name="pcfcInputDate"
-                    type="date"
-                    value={values.pcfcInputDate}
-                    disabled={true}
-                  /> */}
                   <CustomInput
                     label="Due Date"
                     name="dueDate"
@@ -235,7 +205,42 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                     showError={showError}
                     required
                   />
-                  <CustomInput
+
+<CustomInput
+  label="Bank"
+  name="bank"
+  type="select"
+  required
+  placeholder="Select Bank"
+  options={banksData}
+  value={values.bank}
+  onChange={(opt: any) => {
+    setFieldValue("bank", opt);
+
+    // ✅ Auto-populate bankMargin into every existing spot row
+    const selectedBank = banksData.find((b: any) => b.value === opt?.value);
+    const margin = selectedBank?.bankMargin ?? "";
+
+    if (values.spotList?.length > 0) {
+      const updatedSpotList = values.spotList.map((spot: any) => {
+        const spotBooked = parseFloat(spot.spotBooked) || 0;
+        const cashTom = parseFloat(spot.cashTomSpot) || 0;
+        const marginNum = parseFloat(margin) || 0;
+        const netRate = spotBooked - cashTom - marginNum;
+        return {
+          ...spot,
+          bankMargin: margin,
+          netConversionRate: netRate ? netRate.toFixed(4) : "0.0000",
+        };
+      });
+      setFieldValue("spotList", updatedSpotList);
+    }
+  }}
+  error={touched.bank && errors.bank}
+  showError={showError}
+/>
+
+                  {/* <CustomInput
                     label="Bank"
                     name="bank"
                     type="select"
@@ -246,7 +251,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                     onChange={(opt: any) => setFieldValue("bank", opt)}
                     error={touched.bank && errors.bank}
                     showError={showError}
-                  />
+                  /> */}
                   <CustomInput
                     label="Currency"
                     name="currency"

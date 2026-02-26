@@ -166,33 +166,76 @@ class AuthStore {
       });
   };
 
+  // setBanksDetailsData = (data: any) => {
+  //   const businessUnits = Array.from(
+  //     new Set<string>(data.map((u: any) => u.unitCode))
+  //   ).map((unit) => ({ label: unit, value: unit }));
+
+  //   const banks = Array.from(
+  //     new Set<string>(
+  //       data.flatMap((u: any) =>
+  //         u.banks.map((b: any) => b.bankName)
+  //       )
+  //     )
+  //   ).map((bank) => ({ label: bank, value: bank }));
+
+  //   const currencies = Array.from(
+  //     new Set<string>(
+  //       data.flatMap((u: any) =>
+  //         u.banks.map((b: any) => b.currency)
+  //       )
+  //     )
+  //   ).map((currency) => ({ label: currency, value: currency }));
+
+  //   this.bussinessUnitsData = businessUnits;
+  //   this.currenciesData = currencies;
+  //   this.banksData = banks;
+  // };
+
+
   setBanksDetailsData = (data: any) => {
-    const businessUnits = Array.from(
-      new Set<string>(data.map((u: any) => u.unitCode))
-    ).map((unit) => ({ label: unit, value: unit }));
+  const businessUnits = Array.from(
+    new Set<string>(data.map((u: any) => u.unitCode))
+  ).map((unit) => ({ label: unit, value: unit }));
 
-    const banks = Array.from(
-      new Set<string>(
-        data.flatMap((u: any) =>
-          u.banks.map((b: any) => b.bankName)
-        )
-      )
-    ).map((bank) => ({ label: bank, value: bank }));
+  // Build bankName → margin map (first occurrence wins)
+  // If same bank has different margins per currency, see note below
+  const bankMarginMap = new Map<string, string>();
+  data.forEach((u: any) => {
+    u.banks.forEach((b: any) => {
+      if (!bankMarginMap.has(b.bankName)) {
+        bankMarginMap.set(b.bankName, b.margin);
+      }
+    });
+  });
 
-    const currencies = Array.from(
-      new Set<string>(
-        data.flatMap((u: any) =>
-          u.banks.map((b: any) => b.currency)
-        )
-      )
-    ).map((currency) => ({ label: currency, value: currency }));
+  // ✅ Each bank option now carries its bankMargin
+  const banks = Array.from(
+    new Set<string>(
+      data.flatMap((u: any) => u.banks.map((b: any) => b.bankName))
+    )
+  ).map((bank) => ({
+    label: bank,
+    value: bank,
+    bankMargin: bankMarginMap.get(bank) ?? "",
+  }));
 
-    this.bussinessUnitsData = businessUnits;
-    this.currenciesData = currencies;
-    this.banksData = banks;
-  };
+  const currencies = Array.from(
+    new Set<string>(
+      data.flatMap((u: any) => u.banks.map((b: any) => b.currency))
+    )
+  ).map((currency) => ({ label: currency, value: currency }));
 
+  this.bussinessUnitsData = businessUnits;
+  this.currenciesData = currencies;
+  this.banksData = banks;
+};
 
+// ✅ Helper to get margin by bank name
+getBankMargin = (bankName: string): string => {
+  const bank = this.banksData.find((b: any) => b.value === bankName);
+  return (bank as any)?.bankMargin ?? "";
+};
 
   clearLocalStorage = () => {
     localStorage.removeItem(

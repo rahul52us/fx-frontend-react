@@ -110,6 +110,30 @@ const ConversionManager = ({ showError }: any) => {
               Spot Details
             </Heading>
             <FieldArray name="spotList">
+  {({ push }) => (
+    <Button
+      size="sm"
+      leftIcon={<AddIcon />}
+      colorScheme="blue"
+      variant="outline"
+      onClick={() => {
+        // ✅ Pre-fill bankMargin from the currently selected bank
+        const selectedBank = (values.bank?.bankMargin) ?? "";
+
+        push({
+          amountConverted: "",
+          spotBooked: "",
+          cashTomSpot: "",
+          bankMargin: selectedBank,   // ← pre-filled
+          netConversionRate: "0.0000",
+        });
+      }}
+    >
+      Add Spot Row
+    </Button>
+  )}
+</FieldArray>
+            {/* <FieldArray name="spotList">
               {({ push }) => (
                 <Button
                   size="sm"
@@ -129,7 +153,7 @@ const ConversionManager = ({ showError }: any) => {
                   Add Spot Row
                 </Button>
               )}
-            </FieldArray>
+            </FieldArray> */}
           </Flex>
 
           <FieldArray name="spotList">
@@ -222,6 +246,7 @@ const ConversionManager = ({ showError }: any) => {
                           label="Bank Margin"
                           name={`spotList.${index}.bankMargin`}
                           value={spot.bankMargin}
+                          disabled
                           onChange={(e: any) =>
                             handleSpotFieldChange(
                               index,

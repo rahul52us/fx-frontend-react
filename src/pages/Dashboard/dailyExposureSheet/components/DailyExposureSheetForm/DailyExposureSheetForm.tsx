@@ -202,13 +202,6 @@ const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: 
           }) => (
             <FormikForm>
               <ExposureAutoPopulateWatcher />
-              {/* <ExposureSettlementController
-                setPoOptions={setPoOptions}
-                setInvoiceOptions={setInvoiceOptions}
-                setIsPoDisabled={setIsPoDisabled}
-                setIsInvoiceDisabled={setIsInvoiceDisabled}
-              /> */}
-
               <ExposureSettlementController
   setPoOptions={setPoOptions}
   setInvoiceOptions={setInvoiceOptions}
@@ -269,12 +262,6 @@ const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: 
                     error={touched.exposureType && errors.exposureType}
                     showError={showError}
                   />
-                  <>
-                  {
-                    console.log('------',values.poNumber)
-                  }
-                  </>
-
                   {values.settlementType === "advance" && (
                     <CustomInput
                       label="PO Number"

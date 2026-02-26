@@ -10,16 +10,16 @@ import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
+import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
+import { extractFieldValue } from "../../../../../config/constant/function";
 import { primaryButtonHoverStyle, primaryButtonStyle } from "../../../../../globalStyles";
+import store from "../../../../../store/store";
 import { exportRegisterexposureTypeOptions } from "../../../exportsRegister/component/utils/constant";
 import { importExposureTypeOptions, mainExposureTypeOptions } from "../../../importsRegister/component/utils/constant";
+import { pickMatchedFields } from "../../../utils/function";
 import { calculateHedgeRate, getForwardRegisterInitialValues } from "./constant";
 import ExposureRefSelector from "./ExposureRefSelector";
-import store from "../../../../../store/store";
-import { extractFieldValue } from "../../../../../config/constant/function";
-import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
-import { pickMatchedFields } from "../../../utils/function";
 
 const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const toast = useToast();
@@ -97,8 +97,6 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
       fetchExpoRefNos(selectedMainExposureType, option.value);
     }
   };
-
-
 
   const getSubExposureTypeOptions = () => {
     if (selectedMainExposureType === 'import') {
@@ -194,23 +192,6 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
                       setShowError(true);
                       submitForm(values, actions, "form");
                     }}
-          // onSubmit={(values, actions) => {
-          //   values = extractFieldValue(values)
-          //   if (isEdit) {
-          //     submitForm(
-          //       {
-          //         original: originalData,
-          //         updated: values,
-          //         rowId: editData?.rowId,
-          //       },
-          //       actions,
-          //       isEdit ? "edit" : "form",
-          //     );
-          //   } else {
-          //     setShowError(true);
-          //     submitForm(values, actions, "form");
-          //   }
-          // }}
         >
           {({
             values,
@@ -281,7 +262,7 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
                     required={true}
                   />
 
-                  <CustomInput
+                  {/* <CustomInput
                     label="Bank"
                     type="select"
                     name="bank"
@@ -295,8 +276,37 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
                     }
                     showError={showError}
                     error={touched.bank && errors.bank}
-                  />
+                  /> */}
 
+<CustomInput
+  label="Bank"
+  type="select"
+  name="bank"
+  placeholder="Enter Bank Name"
+  options={banksData}
+  value={values.bank}
+  onChange={(option) => {
+    handleChange({
+      target: { name: "bank", value: option },
+    });
+
+    // ✅ Auto-populate bankMargin from selected bank's margin
+    const selectedBank = banksData.find((b: any) => b.value === option?.value);
+    const margin = selectedBank?.bankMargin ?? "";
+
+    setFieldValue("bankMargin", margin);
+
+    // ✅ Recalculate hedgeRate with new bankMargin
+    const calculatedRate = calculateHedgeRate({
+      ...values,
+      bank: option,
+      bankMargin: margin,
+    });
+    setFieldValue("hedgeRate", calculatedRate);
+  }}
+  showError={showError}
+  error={touched.bank && errors.bank}
+/>
 
 
                   <CustomInput
@@ -432,16 +442,6 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
                     showError={showError}
                   />
                 </SimpleGrid>
-                {/* {(values.exposureType === "import" || values.exposureType === "export") &&
- exposureRefOptions.length > 0 && (
-  <ExposureRefSelector
-    values={values}
-    setFieldValue={setFieldValue}
-    exposureRefOptions={exposureRefOptions}
-    fetchExposureData={getExposureDataByRef}
-  />
-)} */}
-
                 {(values.exposureType === "import" || values.exposureType === "export") &&
                   exposureRefOptions?.length > 0 && (
                     <ExposureRefSelector

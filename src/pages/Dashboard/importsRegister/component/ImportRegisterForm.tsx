@@ -335,7 +335,12 @@ const ImportRegistrationForm = ({
                     <CustomInput
                       label="Business Unit"
                       name="businessUnit"
-                      type="select"
+                       type={
+                        selectedExposureType === "lc_bc_shifting"
+                          ? "text"
+                          : "select"
+                      }
+                      // type="select"
                       placeholder="Unit"
                       options={bussinessUnitsData}
                       value={values.businessUnit}
@@ -350,7 +355,12 @@ const ImportRegistrationForm = ({
                       <CustomInput
                         label="Bank"
                         name="bank"
-                        type="select"
+                        type={
+                        selectedExposureType === "lc_bc_shifting"
+                          ? "text"
+                          : "select"
+                      } 
+                        // type="select"
                         placeholder="Bank"
                         options={banksData}
                         value={values.bank}
