@@ -1,4 +1,4 @@
-import { Button, Flex, Grid, Stack, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, Stack, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { FieldArray, useFormikContext } from "formik";
 import React, { useEffect, useState } from "react";
@@ -71,6 +71,20 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     <FieldArray name="hedgeDeals">
       {({ push, remove }) => (
         <Stack spacing={6}>
+           {typeof errors?.hedgeDeals === "string" && (
+      <Box
+        bg="red.50"
+        border="1px solid"
+        borderColor="red.300"
+        borderRadius="md"
+        px={4}
+        py={2}
+        color="red.600"
+        fontSize="sm"
+      >
+        {errors.hedgeDeals}
+      </Box>
+    )}
           {values.hedgeDeals?.map((item: any, index: number) => {
             const base = `hedgeDeals.${index}`;
 

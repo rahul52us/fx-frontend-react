@@ -59,4 +59,5 @@ export const getForwardRegisterInitialValues = (editData: any = {}) => ({
   dueDateTo: normalizeDate(editData?.dueDateTo) || "",
 
   exposureRefs: editData?.exposureRefs ?? [],
+  outstandingAmount: editData?.outstandingAmount ?? "",
 });

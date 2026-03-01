@@ -16,6 +16,7 @@ interface Props {
   setFieldValue: any;
   exposureRefOptions: any[];
   fetchExposureData: (value: string) => any;
+  errors: any
 }
 
 const ExposureRefSelector = ({
@@ -23,11 +24,26 @@ const ExposureRefSelector = ({
   setFieldValue,
   exposureRefOptions,
   fetchExposureData,
+  errors
 }: Props) => {
   return (
     <FieldArray name="exposureRefs">
       {({ push, remove }) => (
         <Stack spacing={4}>
+                {typeof errors?.exposureRefs === "string" && (
+                <Box
+                  bg="red.50"
+                  border="1px solid"
+                  borderColor="red.300"
+                  borderRadius="md"
+                  px={4}
+                  py={2}
+                  color="red.600"
+                  fontSize="sm"
+                >
+                  {errors.exposureRefs}
+                </Box>
+              )}
           {/* Exposure Cards */}
           {values.exposureRefs?.map((_: any, index: number) => {
             const selectedExposureRef =

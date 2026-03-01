@@ -42,6 +42,8 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
   const isEdit = Boolean(editData);
   const { storeEdited, editLoading } = useStoreEdited();
 
+  console.log('editData',editData)
+
   const validationSchema = Yup.object({
 
   exposureType: Yup.mixed().required("Exposure Type is required"),
@@ -179,6 +181,44 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
         ),
     otherwise: (schema) => schema.notRequired(),
   }),
+  hedgeDeals: Yup.array().of(
+  Yup.object({
+    hedgeAmount: Yup.number().notRequired(),
+  })
+).test(
+  "total-hedge-amount",
+  "Total Hedge Amount must not exceed the Outstanding Amount",
+  function (hedgeDeals) {
+    const { amount, outstandingAmount } = this.parent;
+
+    if (!hedgeDeals || hedgeDeals.length === 0) return true;
+
+    const totalHedge = hedgeDeals.reduce((sum: number, deal: any) => {
+      return sum + (parseFloat(deal.hedgeAmount) || 0);
+    }, 0);
+
+    // Edit mode: validate against outstandingAmount
+   if (isEdit) {
+  if (totalHedge > parseFloat(outstandingAmount)) {
+    return this.createError({
+      message: `Total Hedge Amount (${totalHedge}) must not exceed Outstanding Amount (${outstandingAmount})`,
+    });
+  }
+  return true;
+}
+
+
+    // Non-edit mode: validate against amount field
+    const amountVal = parseFloat(amount);
+    if (amountVal && totalHedge > amountVal) {
+      return this.createError({
+        message: `Total Hedge Amount (${totalHedge}) must not exceed Amount (${amountVal})`,
+      });
+    }
+
+    return true;
+  }
+),
 });
 
  
@@ -270,7 +310,9 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
             amount: editData?.amount || "",
             budgetRate: editData?.budgetRate || "",
             remark: editData?.remark || "",
-            hedgeDeals: editData?.hedgeDeals || [],
+             hedgeDeals: editData?.hedgeDeals || [],
+  outstandingAmount: editData?.outstandingAmount || "",
+            // hedgeDeals: editData?.hedgeDeals || [],
           }}
 
           validationSchema={validationSchema}
@@ -587,9 +629,20 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                       type="date"
                       disabled
                     />
-                    <CustomInput
+                    {selectedExposureType === "shipment" ? (
+                      <CustomInput
+                      name="currency"
                       label="Currency"
-                      type="select"
+                      type="text"
+                      disabled
+                      value={values.currency}
+                      
+                      />
+                    ):(
+
+                      <CustomInput
+                      label="Currency"
+                      type={"select"}
                       name="currency"
                       options={currenciesData}
                       value={values.currency}
@@ -605,7 +658,8 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                       showError={showError}
                       required={true}
                       disabled={selectedExposureType === "shipment"}
-                    />
+                      />
+                    )}
                     <CustomInput
                       label="Amount"
                       name="amount"
