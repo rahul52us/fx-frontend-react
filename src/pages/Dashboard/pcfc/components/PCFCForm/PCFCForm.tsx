@@ -122,39 +122,98 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
           //  initialValues={pcfcInitialValues}
           validationSchema={validationSchema}
           enableReinitialize// Prevent resets on typing
+            // onSubmit={async (values, actions) => {
+            //                     values = extractFieldValue(values)
+            //                     if (isEdit) {
+            //                       const { original, updated } = pickMatchedFields(
+            //                         originalData,
+            //                         values,
+            //                         editData?.rowID
+            //                       );
+                    
+            //                       const payload = {
+            //                         register: "pcfc",
+            //                         data: [
+            //                           {
+            //                             original,
+            //                             updated,
+            //                             rowId: editData?.rowID, // optional if backend still expects it here
+            //                           },
+            //                         ],
+            //                       };
+                    
+            //                       try {
+            //                         await storeEdited(payload, onClose);
+            //                         actions.resetForm();
+            //                         actions.setSubmitting(false);
+            //                       } catch (error) {
+            //                         actions.setSubmitting(false);
+            //                       }
+                    
+            //                       return;
+            //                     }
+            //                     setShowError(true);
+            //                     submitForm(values, actions, "form");
+            //                   }}
+
             onSubmit={async (values, actions) => {
-                                values = extractFieldValue(values)
-                                if (isEdit) {
-                                  const { original, updated } = pickMatchedFields(
-                                    originalData,
-                                    values,
-                                    editData?.rowID
-                                  );
-                    
-                                  const payload = {
-                                    register: "pcfc",
-                                    data: [
-                                      {
-                                        original,
-                                        updated,
-                                        rowId: editData?.rowID, // optional if backend still expects it here
-                                      },
-                                    ],
-                                  };
-                    
-                                  try {
-                                    await storeEdited(payload, onClose);
-                                    actions.resetForm();
-                                    actions.setSubmitting(false);
-                                  } catch (error) {
-                                    actions.setSubmitting(false);
-                                  }
-                    
-                                  return;
-                                }
-                                setShowError(true);
-                                submitForm(values, actions, "form");
-                              }}
+  values = extractFieldValue(values);
+
+  // ✅ Flatten bank: { label, value, bankMargin } → "HDFC"
+  if (values.bank && typeof values.bank === "object") {
+    values.bank = values.bank.value;
+  }
+
+  // ✅ Flatten businessUnit and currency too if they're objects
+  if (values.businessUnit && typeof values.businessUnit === "object") {
+    values.businessUnit = values.businessUnit.value;
+  }
+  if (values.currency && typeof values.currency === "object") {
+    values.currency = values.currency.value;
+  }
+
+  // ✅ Ensure spotList bankMargin stays as plain string
+  if (values.spotList?.length > 0) {
+    values.spotList = values.spotList.map((row: any) => ({
+      ...row,
+      bankMargin: typeof row.bankMargin === "object"
+        ? row.bankMargin?.value
+        : String(row.bankMargin ?? ""),
+    }));
+  }
+
+  if (isEdit) {
+    const { original, updated } = pickMatchedFields(
+      originalData,
+      values,
+      editData?.rowID
+    );
+
+    const payload = {
+      register: "pcfc",
+      data: [
+        {
+          original,
+          updated,
+          rowId: editData?.rowID,
+        },
+      ],
+    };
+
+    try {
+      await storeEdited(payload, onClose);
+      actions.resetForm();
+      actions.setSubmitting(false);
+    } catch (error) {
+      actions.setSubmitting(false);
+    }
+
+    return;
+  }
+
+  setShowError(true);
+  submitForm(values, actions, "form");
+}}
         >
           {({ values, handleChange, setFieldValue, isSubmitting, errors, touched, handleSubmit }: any) => (
             <FormikForm>
@@ -279,7 +338,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                 </SimpleGrid>
 
                 {/* --- Section 2: Dynamic Conversion Manager --- */}
-                <ModeOfConversion />
+                <ModeOfConversion  />
                 {/* Handles Switch Logic and Dynamic Arrays */}
                 <ConversionManager showError={showError} />
 

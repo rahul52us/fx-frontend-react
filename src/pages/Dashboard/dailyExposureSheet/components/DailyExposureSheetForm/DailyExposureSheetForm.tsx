@@ -153,39 +153,85 @@ const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: 
         initialValues={getExposureSettlementInitialValues(editData)}
 
           
-                      onSubmit={async (values, actions) => {
-                                          values = extractFieldValue(values)
-                                          if (isEdit) {
-                                            const { original, updated } = pickMatchedFields(
-                                              originalData,
-                                              values,
-                                              editData?.rowId
-                                            );
+              //         onSubmit={async (values, actions) => {
+              //                             values = extractFieldValue(values)
+              //                             if (isEdit) {
+              //                               const { original, updated } = pickMatchedFields(
+              //                                 originalData,
+              //                                 values,
+              //                                 editData?.rowId
+              //                               );
                               
-                                            const payload = {
-                                              register: "exposure",
-                                              data: [
-                                                {
-                                                  original,
-                                                  updated,
-                                                  rowId: editData?.rowId, // optional if backend still expects it here
-                                                },
-                                              ],
-                                            };
+              //                               const payload = {
+              //                                 register: "exposure",
+              //                                 data: [
+              //                                   {
+              //                                     original,
+              //                                     updated,
+              //                                     rowId: editData?.rowId, // optional if backend still expects it here
+              //                                   },
+              //                                 ],
+              //                               };
                               
-                                            try {
-                                              await storeEdited(payload, onClose);
-                                              actions.resetForm();
-                                              actions.setSubmitting(false);
-                                            } catch (error) {
-                                              actions.setSubmitting(false);
-                                            }
+              //                               try {
+              //                                 await storeEdited(payload, onClose);
+              //                                 actions.resetForm();
+              //                                 actions.setSubmitting(false);
+              //                               } catch (error) {
+              //                                 actions.setSubmitting(false);
+              //                               }
                               
-                                            return;
-                                          }
-                                          setShowError(true);
-                                          submitForm(values, actions, "form");
-              }}
+              //                               return;
+              //                             }
+              //                             setShowError(true);
+              //                             submitForm(values, actions, "form");
+              // }}
+
+              onSubmit={async (values, actions) => {
+  values = extractFieldValue(values);
+
+  // ✅ Flatten spotList bankMargin (already strings, but safety check)
+  if (values.spotList?.length > 0) {
+    values.spotList = values.spotList.map((row: any) => ({
+      ...row,
+      bankMargin: typeof row.bankMargin === "object"
+        ? row.bankMargin?.value
+        : String(row.bankMargin ?? ""),
+    }));
+  }
+
+  if (isEdit) {
+    const { original, updated } = pickMatchedFields(
+      originalData,
+      values,
+      editData?.rowId
+    );
+
+    const payload = {
+      register: "exposure",
+      data: [
+        {
+          original,
+          updated,
+          rowId: editData?.rowId,
+        },
+      ],
+    };
+
+    try {
+      await storeEdited(payload, onClose);
+      actions.resetForm();
+      actions.setSubmitting(false);
+    } catch (error) {
+      actions.setSubmitting(false);
+    }
+
+    return;
+  }
+
+  setShowError(true);
+  submitForm(values, actions, "form");
+}}
           // onSubmit={(values, actions) => {
           //   submitForm(values, actions, "form");
           // }}

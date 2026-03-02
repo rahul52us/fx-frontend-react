@@ -4,18 +4,18 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import CustomDrawer from "../../../../config/component/Drawer/CustomDrawer";
+import RestrictedAccess from "../../../../config/component/common/RestrictedAccess/RestrictedAccess";
+import { useDeleteItem } from "../../../../config/component/customHooks/useDeleteItem";
+import { usePermission } from "../../../../config/component/customHooks/usePermission";
 import CustomTable from "../../../../config/component/CustomTable/CustomTable";
+import CustomDrawer from "../../../../config/component/Drawer/CustomDrawer";
+import store from "../../../../store/store";
 import { dymmyForwardCancellationData } from "../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
   importFromExcel,
 } from "../../exportsRegister/component/utils/function";
 import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellationForm";
-import { useDeleteItem } from "../../../../config/component/customHooks/useDeleteItem";
-import { usePermission } from "../../../../config/component/customHooks/usePermission";
-import RestrictedAccess from "../../../../config/component/common/RestrictedAccess/RestrictedAccess";
-import store from "../../../../store/store";
 
 const ForwardCancellationTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -135,46 +135,77 @@ const ForwardCancellationTable = () => {
     fetchExportRegisterData(page);
   }, [store.auth.viewAsUserId]);
 
+
+  // const DealDataColumns = [
+  //   { headerName: "Deal Type", key: "dealType" },
+  //   { headerName: "Exposure Type", key: "exposureType" },
+  //   { headerName: "Transaction Date", key: "transactionDate" },
+  //   { headerName: "Created Date", key: "createdAt" },
+
+  //   { headerName: "Forward Deal ID", key: "forwardDealId" },
+  //   { headerName: "PO Number", key: "poNumber" },
+
+  //   { headerName: "Bank", key: "bank" },
+  //   { headerName: "Business Unit", key: "businessUnit" },
+  //   { headerName: "Currency", key: "currency" },
+
+  //   { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  //   { headerName: "Cancellation Amount", key: "cancellationAmount" },
+
+  //   { headerName: "Booked Rate", key: "bookedRate" },
+  //   { headerName: "Spot Booked", key: "spotBooked" },
+  //   { headerName: "Forward Premium", key: "fwdPremium" },
+  //   { headerName: "Cash Tom Spot", key: "cashTomSpot" },
+  //   { headerName: "Bank Margin", key: "bankMargin" },
+
+  //   { headerName: "Delivery Date From", key: "deliveryDateFrom" },
+  //   { headerName: "Delivery Date To", key: "deliveryDateTo" },
+
+  //   { headerName: "Net Cancellation Rate", key: "netCancellationRate" },
+  //   { headerName: "P/L in FCY", key: "plInFCY" },
+  //   { headerName: "P/L in INR", key: "plInINR" },
+  //   { headerName: "Wash Rate", key: "washRate" },
+
+  //   {
+  //     headerName: "Actions",
+  //     key: "table-actions",
+  //     type: "table-actions",
+  //     props: {
+  //       row: { minW: 180, textAlign: "center" },
+  //       column: { textAlign: "center" },
+  //     },
+  //   },
+  // ];
+
   const DealDataColumns = [
-    { headerName: "Deal Type", key: "dealType" },
-    { headerName: "Exposure Type", key: "exposureType" },
-    { headerName: "Transaction Date", key: "transactionDate" },
-    { headerName: "Created Date", key: "createdAt" },
+  { headerName: "Deal Type", key: "dealType" },
+  { headerName: "Exposure Type", key: "exposureType" },
+  { headerName: "Transaction Date", key: "transactionDate" },
+  { headerName: "Created Date", key: "createdAt" },
 
-    { headerName: "Forward Deal ID", key: "forwardDealId" },
-    { headerName: "PO Number", key: "poNumber" },
+  { headerName: "Forward Deal ID", key: "forwardDealId" },
 
-    { headerName: "Bank", key: "bank" },
-    { headerName: "Business Unit", key: "businessUnit" },
-    { headerName: "Currency", key: "currency" },
+  { headerName: "Bank", key: "bank" },
+  { headerName: "Business Unit", key: "businessUnit" },
+  { headerName: "Currency", key: "currency" },
 
-    { headerName: "Outstanding Amount", key: "outstandingAmount" },
-    { headerName: "Cancellation Amount", key: "cancellationAmount" },
+  { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  { headerName: "Cancellation Amount", key: "cancellationAmount" },
 
-    { headerName: "Booked Rate", key: "bookedRate" },
-    { headerName: "Spot Booked", key: "spotBooked" },
-    { headerName: "Forward Premium", key: "fwdPremium" },
-    { headerName: "Cash Tom Spot", key: "cashTomSpot" },
-    { headerName: "Bank Margin", key: "bankMargin" },
+  { headerName: "Booked Rate", key: "bookedRate" },
+  { headerName: "Spot Booked", key: "spotBooked" },
+  { headerName: "Forward Premium", key: "fwdPremium" },
+  { headerName: "Cash Tom Spot", key: "cashTomSpot" },
+  { headerName: "Bank Margin", key: "bankMargin" },
 
-    { headerName: "Delivery Date From", key: "deliveryDateFrom" },
-    { headerName: "Delivery Date To", key: "deliveryDateTo" },
+  { headerName: "Delivery Date From", key: "deliveryDateFrom" },
+  { headerName: "Delivery Date To", key: "deliveryDateTo" },
 
-    { headerName: "Net Cancellation Rate", key: "netCancellationRate" },
-    { headerName: "P/L in FCY", key: "plInFCY" },
-    { headerName: "P/L in INR", key: "plInINR" },
-    { headerName: "Wash Rate", key: "washRate" },
-
-    {
-      headerName: "Actions",
-      key: "table-actions",
-      type: "table-actions",
-      props: {
-        row: { minW: 180, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
-  ];
+  { headerName: "Net Cancellation Rate", key: "netCancellationRate" },
+  { headerName: "P/L in FCY", key: "plInFCY" },
+  { headerName: "P/L in INR", key: "plInINR" },
+  { headerName: "Wash Rate", key: "washRate" },
+];
 
   function handleEdit(row: any) {
     setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone

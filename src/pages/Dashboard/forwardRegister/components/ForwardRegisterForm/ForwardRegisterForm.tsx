@@ -199,39 +199,85 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
           initialValues={getForwardRegisterInitialValues(editData)}
           validationSchema={validationSchema}
           enableReinitialize={true}
-             onSubmit={async (values, actions) => {
-                      values = extractFieldValue(values)
-                      if (isEdit) {
-                        const { original, updated } = pickMatchedFields(
-                          originalData,
-                          values,
-                          editData?.rowId
-                        );
+onSubmit={async (values, actions) => {
+  values = extractFieldValue(values);
+
+  // ✅ Flatten select objects to plain strings
+  if (values.bank && typeof values.bank === "object") {
+    values.bank = values.bank.value;
+  }
+  if (values.bussinessUnit && typeof values.bussinessUnit === "object") {
+    values.bussinessUnit = values.bussinessUnit.value;
+  }
+  if (values.currency && typeof values.currency === "object") {
+    values.currency = values.currency.value;
+  }
+
+  if (isEdit) {
+    const { original, updated } = pickMatchedFields(
+      originalData,
+      values,
+      editData?.rowId
+    );
+
+    const payload = {
+      register: "forwardRegister",
+      data: [
+        {
+          original,
+          updated,
+          rowId: editData?.rowId,
+        },
+      ],
+    };
+
+    try {
+      await storeEdited(payload, onClose);
+      actions.resetForm();
+      actions.setSubmitting(false);
+    } catch (error) {
+      actions.setSubmitting(false);
+    }
+
+    return;
+  }
+
+  setShowError(true);
+  submitForm(values, actions, "form");
+}}
+          //  onSubmit={async (values, actions) => {
+            //           values = extractFieldValue(values)
+            //           if (isEdit) {
+            //             const { original, updated } = pickMatchedFields(
+            //               originalData,
+            //               values,
+            //               editData?.rowId
+            //             );
           
-                        const payload = {
-                          register: "forwardRegister",
-                          data: [
-                            {
-                              original,
-                              updated,
-                              rowId: editData?.rowId, // optional if backend still expects it here
-                            },
-                          ],
-                        };
+            //             const payload = {
+            //               register: "forwardRegister",
+            //               data: [
+            //                 {
+            //                   original,
+            //                   updated,
+            //                   rowId: editData?.rowId, // optional if backend still expects it here
+            //                 },
+            //               ],
+            //             };
           
-                        try {
-                          await storeEdited(payload, onClose);
-                          actions.resetForm();
-                          actions.setSubmitting(false);
-                        } catch (error) {
-                          actions.setSubmitting(false);
-                        }
+            //             try {
+            //               await storeEdited(payload, onClose);
+            //               actions.resetForm();
+            //               actions.setSubmitting(false);
+            //             } catch (error) {
+            //               actions.setSubmitting(false);
+            //             }
           
-                        return;
-                      }
-                      setShowError(true);
-                      submitForm(values, actions, "form");
-                    }}
+            //             return;
+            //           }
+            //           setShowError(true);
+            //           submitForm(values, actions, "form");
+            //         }}
         >
           {({
             values,
@@ -324,7 +370,7 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
   name="bank"
   placeholder="Enter Bank Name"
   options={banksData}
-  value={values.bank}
+  value={values.bank.value}
   onChange={(option) => {
     handleChange({
       target: { name: "bank", value: option },

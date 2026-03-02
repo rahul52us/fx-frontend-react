@@ -183,58 +183,101 @@ const ForwardRegisterTable = () => {
     setDeleteRowData(null);
   };
 
+  // const ForwardRegisterColumns = [
+  //   { headerName: "Created On", key: "createdAt" },
+  //   { headerName: "Booking Date", key: "bookingDate" },
+  //   { headerName: "Exposure Type", key: "exposureType" },
+  //   { headerName: "Forward Input Date", key: "forwardInputDate" },
+  //   { headerName: "Forward Modification Date", key: "forwardModificationDate" },
+
+  //   { headerName: "Bank", key: "bank" },
+  //   { headerName: "Business Unit", key: "bussinessUnit" },
+
+  //   {
+  //     headerName: "Exposure Ref(s)",
+  //     key: "exposureRefs",
+  //     type: "component",
+  //     metaData: {
+  //       component: (row: any) => <ExposureRefsCell {...row} />,
+  //     },
+  //   },
+
+  //   { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
+  //   { headerName: "Currency", key: "currency" },
+  //   { headerName: "Hedge Amount", key: "hedgeAmount" },
+  //   { headerName: "Spot Booked", key: "spotBooked" },
+  //   { headerName: "Forward Points", key: "forwardPoints" },
+  //   { headerName: "Bank Margin", key: "bankMargin" },
+  //   { headerName: "Hedge Rate", key: "hedgeRate" },
+  //   { headerName: "Delivery Date From", key: "dueDateFrom" },
+  //   { headerName: "Delivery Date To", key: "dueDateTo" },
+
+  //   { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  //   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+  //   { headerName: "Status", key: "status" },
+
+  //   { headerName: "Settled Amount", key: "settledAmount" },
+  //   { headerName: "Settlement Rate", key: "settlementdRate" },
+  //   { headerName: "Cancelled Amount", key: "cancelledAmount" },
+  //   { headerName: "Cancellation Rate", key: "cancellationRate" },
+  //   { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
+
+  //   { headerName: "Allocated Amount", key: "allocatedAmount" },
+  //   { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
+
+  //   {
+  //     headerName: "Actions",
+  //     key: "table-actions",
+  //     type: "table-actions",
+  //     props: {
+  //       row: { minW: 180, textAlign: "center" },
+  //       column: { textAlign: "center" },
+  //     },
+  //   },
+  // ];
+
+
   const ForwardRegisterColumns = [
-    { headerName: "Created On", key: "createdAt" },
-    { headerName: "Booking Date", key: "bookingDate" },
-    { headerName: "Exposure Type", key: "exposureType" },
-    { headerName: "Forward Input Date", key: "forwardInputDate" },
-    { headerName: "Forward Modification Date", key: "forwardModificationDate" },
+  { headerName: "Created On", key: "createdAt" },
+  { headerName: "Booking Date", key: "bookingDate" },
+  { headerName: "Exposure Type", key: "exposureType" },
 
-    { headerName: "Bank", key: "bank" },
-    { headerName: "Business Unit", key: "bussinessUnit" },
+  { headerName: "Bank", key: "bank" },
+  { headerName: "Business Unit", key: "bussinessUnit" },
 
-    {
-      headerName: "Exposure Ref(s)",
-      key: "exposureRefs",
-      type: "component",
-      metaData: {
-        component: (row: any) => <ExposureRefsCell {...row} />,
-      },
+  {
+    headerName: "Exposure Ref(s)",
+    key: "exposureRefs",
+    type: "component",
+    metaData: {
+      component: (row: any) => <ExposureRefsCell {...row} />,
     },
+  },
 
-    { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
-    { headerName: "Currency", key: "currency" },
-    { headerName: "Hedge Amount", key: "hedgeAmount" },
-    { headerName: "Spot Booked", key: "spotBooked" },
-    { headerName: "Forward Points", key: "forwardPoints" },
-    { headerName: "Bank Margin", key: "bankMargin" },
-    { headerName: "Hedge Rate", key: "hedgeRate" },
-    { headerName: "Delivery Date From", key: "dueDateFrom" },
-    { headerName: "Delivery Date To", key: "dueDateTo" },
+  { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
+  { headerName: "Currency", key: "currency" },
+  { headerName: "Hedge Amount", key: "hedgeAmount" },
+  { headerName: "Spot Booked", key: "spotBooked" },
+  { headerName: "Forward Points", key: "forwardPoints" },
+  { headerName: "Bank Margin", key: "bankMargin" },
+  { headerName: "Hedge Rate", key: "hedgeRate" },
 
-    { headerName: "Outstanding Amount", key: "outstandingAmount" },
-    { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
-    { headerName: "Status", key: "status" },
+  { headerName: "Delivery Date From", key: "dueDateFrom" },
+  { headerName: "Delivery Date To", key: "dueDateTo" },
 
-    { headerName: "Settled Amount", key: "settledAmount" },
-    { headerName: "Settlement Rate", key: "settlementdRate" },
-    { headerName: "Cancelled Amount", key: "cancelledAmount" },
-    { headerName: "Cancellation Rate", key: "cancellationRate" },
-    { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
+  { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+  { headerName: "Status", key: "status" },
 
-    { headerName: "Allocated Amount", key: "allocatedAmount" },
-    { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
+  { headerName: "Settled Amount", key: "settledAmount" },
+  { headerName: "Settlement Rate", key: "settlementdRate" },
+  { headerName: "Cancelled Amount", key: "cancelledAmount" },
+  { headerName: "Cancellation Rate", key: "cancellationRate" },
+  { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
 
-    {
-      headerName: "Actions",
-      key: "table-actions",
-      type: "table-actions",
-      props: {
-        row: { minW: 180, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
-  ];
+  { headerName: "Allocated Amount", key: "allocatedAmount" },
+  { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
+];
 
   return (
     canView ? (

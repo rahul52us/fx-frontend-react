@@ -4,19 +4,19 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
+import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
-import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
+import store from "../../../../../store/store";
 import { exposureSettlementReport } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
 import ExposureSettlementForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
-import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
-import { usePermission } from "../../../../../config/component/customHooks/usePermission";
-import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
-import store from "../../../../../store/store";
 import ExposureSettlementViewDrawer from "./ExposureSettlementViewDrawer";
 
 const DailyExposureTable = () => {
@@ -194,39 +194,82 @@ const DailyExposureTable = () => {
   };
 
 
+  // const DailyExposureColumns = [
+  //   { headerName: "Created At", key: "createdAt", label: "Created At" },
+  //   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
+  //   { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
+
+  //   { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
+  //   { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
+
+  //   { headerName: "PO Number", key: "poNumber", label: "PO Number" },
+  //   { headerName: "Invoice / BC Number", key: "invoiceBcNumber", label: "Invoice / BC No" },
+
+  //   { headerName: "Party Name", key: "partyName", label: "Party Name" },
+  //   { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
+
+  //   { headerName: "Bank", key: "bank", label: "Bank" },
+  //   { headerName: "Currency", key: "currency", label: "Currency" },
+
+  //   { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
+  //   { headerName: "Due Date", key: "dueDate", label: "Due Date" },
+
+  //   { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
+
+  //   { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
+  //   { headerName: "Settled Amount (INR)", key: "settledAmountInInr", label: "Settled Amount INR" },
+
+  //   { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
+  //   { headerName: "Bmk vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
+
+  //   { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
+  //   { headerName: "Market vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
+
+
+  //   {
+  //     headerName: "Actions",
+  //     key: "table-actions",
+  //     type: "table-actions",
+  //     props: {
+  //       row: { minW: 180, textAlign: "center" },
+  //       column: { textAlign: "center" },
+  //     },
+  //   },
+  // ];
+
+
   const DailyExposureColumns = [
-    { headerName: "Created At", key: "createdAt", label: "Created At" },
-    { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
-    { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
+  { headerName: "Created At", key: "createdAt", label: "Created At" },
 
-    { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
-    { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
+  { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
+  { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
 
-    { headerName: "PO Number", key: "poNumber", label: "PO Number" },
-    { headerName: "Invoice / BC Number", key: "invoiceBcNumber", label: "Invoice / BC No" },
+  { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
+  { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
 
-    { headerName: "Party Name", key: "partyName", label: "Party Name" },
-    { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
+  { headerName: "PO Number", key: "poNumber", label: "PO Number" },
+  { headerName: "Invoice / BC Number", key: "invoiceBcNumber", label: "Invoice / BC No" },
 
-    { headerName: "Bank", key: "bank", label: "Bank" },
-    { headerName: "Currency", key: "currency", label: "Currency" },
+  { headerName: "Party Name", key: "partyName", label: "Party Name" },
+  { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
 
-    { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
-    { headerName: "Due Date", key: "dueDate", label: "Due Date" },
+  { headerName: "Bank", key: "bank", label: "Bank" },
+  { headerName: "Currency", key: "currency", label: "Currency" },
 
-    { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
+  { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
+  { headerName: "Due Date", key: "dueDate", label: "Due Date" },
 
-    { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
-    { headerName: "Settled Amount (INR)", key: "settledAmountInInr", label: "Settled Amount INR" },
+  { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
 
-    { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
-    { headerName: "Bmk vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
+  { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
+  { headerName: "Settled Amount (INR)", key: "settledAmountInInr", label: "Settled Amount INR" },
 
-    { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
-    { headerName: "Market vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
+  { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
+  { headerName: "Bmk vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
 
-
-    {
+  { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
+  { headerName: "Market vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
+  {
       headerName: "Actions",
       key: "table-actions",
       type: "table-actions",
@@ -235,7 +278,8 @@ const DailyExposureTable = () => {
         column: { textAlign: "center" },
       },
     },
-  ];
+];
+
 
   return (
     canView ? (

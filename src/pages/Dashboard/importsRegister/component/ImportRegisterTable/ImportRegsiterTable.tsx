@@ -155,67 +155,119 @@ const ImportRegisterTable = () => {
     fetchImportRegisterData(page);
   }, []);
 
+  // const ImportRegisterTableColumns = [
+  //   {
+  //     headerName: "S.No.",
+  //     key: "sno",
+  //     props: { row: { textAlign: "center" } },
+  //   },
+  //   { headerName: "Created On", key: "createdAt" },
+  //   {
+  //     headerName: "Exposure Type",
+  //     key: "exposureType",
+  //     type: "formattedString",
+  //   },
+  //   { headerName: "Exposure Date", key: "exposureInputDate" },
+  //   { headerName: "Exposure Modification Date", key: "exposureModificationDate" },
+  //   { headerName: "PO Date", key: "poDate" },
+  //   { headerName: "PO No", key: "poNo" },
+  //   { headerName: "Invoice No", key: "invoiceNo" },
+  //   { headerName: "Invoice Date", key: "invoiceDate" },
+  //   { headerName: "Party Name", key: "partyName" },
+  //   { headerName: "Bank", key: "bank" },
+  //   { headerName: "Business Unit", key: "businessUnit" },
+  //   { headerName: "BL Date", key: "blDate" },
+  //   { headerName: "Payment Terms", key: "paymentTerms" },
+  //   { headerName: "Due Date", key: "dueDate" },
+  //   { headerName: "Currency", key: "currency" },
+  //   { headerName: "Amount", key: "amount" },
+  //   { headerName: "Budget Rate", key: "budgetRate" },
+  //   { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
+  //   { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
+  //   { headerName: "BMK Rate", key: "bmkRate" },
+  //   { headerName: "RM Policy Rate", key: "rmPolicyRate" },
+  //   { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  //   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+  //   { headerName: "Advance Payment", key: "advancePayment" },
+  //   { headerName: "LC/BC Raised", key: "lc_bc_raised" },
+  //   { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
+  //   { headerName: "Amount Settled", key: "amountSettled" },
+  //   { headerName: "Settlement Rate", key: "settlementRate" },
+  //   { headerName: "P/L in INR", key: "PlInINR" },
+  //   { headerName: "Value in INR", key: "valueInInr" },
+  //   {
+  //     headerName: "Hedge Deals",
+  //     key: "hedgeDeals",
+  //     type: "component",
+  //     metaData: {
+  //       component: (row: any) => <HedgeDealsCell {...row} />,
+  //     },
+  //   },
+  //   {
+  //     headerName: "Actions",
+  //     key: "table-actions",
+  //     type: "table-actions",
+  //     props: {
+  //       row: { minW: 180, textAlign: "center" },
+  //       column: { textAlign: "center" },
+  //     },
+  //   },
+  // ];
+
   const ImportRegisterTableColumns = [
-    {
-      headerName: "S.No.",
-      key: "sno",
-      props: { row: { textAlign: "center" } },
+  { headerName: "Created On", key: "createdAt" },
+
+  {
+    headerName: "Exposure Type",
+    key: "exposureType",
+    type: "formattedString",
+  },
+
+  { headerName: "PO Date", key: "poDate" },
+  { headerName: "PO No", key: "poNo" },
+
+  { headerName: "Invoice No", key: "invoiceNo" },
+  { headerName: "Invoice Date", key: "invoiceDate" },
+
+  { headerName: "Party Name", key: "partyName" },
+  { headerName: "Bank", key: "bank" },
+  { headerName: "Business Unit", key: "businessUnit" },
+
+  { headerName: "BL Date", key: "blDate" },
+  { headerName: "Payment Terms", key: "paymentTerms" },
+  { headerName: "Due Date", key: "dueDate" },
+
+  { headerName: "Currency", key: "currency" },
+  { headerName: "Amount", key: "amount" },
+  { headerName: "Budget Rate", key: "budgetRate" },
+
+  { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
+  { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
+  { headerName: "BMK Rate", key: "bmkRate" },
+  { headerName: "RM Policy Rate", key: "rmPolicyRate" },
+
+  { headerName: "Outstanding Amount", key: "outstandingAmount" },
+  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+
+  { headerName: "Advance Payment", key: "advancePayment" },
+  { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
+
+  { headerName: "Amount Settled", key: "amountSettled" },
+  { headerName: "Settlement Rate", key: "settlementRate" },
+  { headerName: "P/L in INR", key: "PlInINR" },
+
+  { headerName: "Value in INR", key: "valueInInr" },
+
+  {
+    headerName: "Hedge Deals",
+    key: "hedgeDeals",
+    type: "component",
+    metaData: {
+      component: (row: any) => <HedgeDealsCell {...row} />,
     },
-    { headerName: "Created On", key: "createdAt" },
-    {
-      headerName: "Exposure Type",
-      key: "exposureType",
-      type: "formattedString",
-    },
-    { headerName: "Exposure Date", key: "exposureInputDate" },
-    { headerName: "Exposure Modification Date", key: "exposureModificationDate" },
-    { headerName: "PO Date", key: "poDate" },
-    { headerName: "PO No", key: "poNo" },
-    { headerName: "Invoice No", key: "invoiceNo" },
-    { headerName: "Invoice Date", key: "invoiceDate" },
-    { headerName: "Party Name", key: "partyName" },
-    { headerName: "Bank", key: "bank" },
-    { headerName: "Business Unit", key: "businessUnit" },
-    { headerName: "BL Date", key: "blDate" },
-    { headerName: "Payment Terms", key: "paymentTerms" },
-    { headerName: "Due Date", key: "dueDate" },
-    { headerName: "Currency", key: "currency" },
-    { headerName: "Amount", key: "amount" },
-    { headerName: "Budget Rate", key: "budgetRate" },
-    // { headerName: "Hedge Deal Ref No", key: "hedgeDealRefNo" },
-    // { headerName: "Hedged Amount", key: "hedgedAmount" },
-    // { headerName: "Hedged Rate", key: "hedgedRate" },
-    { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
-    { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
-    { headerName: "BMK Rate", key: "bmkRate" },
-    { headerName: "RM Policy Rate", key: "rmPolicyRate" },
-    { headerName: "Outstanding Amount", key: "outstandingAmount" },
-    { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
-    { headerName: "Advance Payment", key: "advancePayment" },
-    { headerName: "LC/BC Raised", key: "lc_bc_raised" },
-    { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
-    { headerName: "Amount Settled", key: "amountSettled" },
-    { headerName: "Settlement Rate", key: "settlementRate" },
-    { headerName: "P/L in INR", key: "PlInINR" },
-    { headerName: "Value in INR", key: "valueInInr" },
-    {
-      headerName: "Hedge Deals",
-      key: "hedgeDeals",
-      type: "component",
-      metaData: {
-        component: (row: any) => <HedgeDealsCell {...row} />,
-      },
-    },
-    {
-      headerName: "Actions",
-      key: "table-actions",
-      type: "table-actions",
-      props: {
-        row: { minW: 180, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
-  ];
+  },
+];
+
 
   function handleEdit(row: any) {
     setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone

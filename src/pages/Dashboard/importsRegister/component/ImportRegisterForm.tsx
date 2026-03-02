@@ -189,6 +189,9 @@ const ImportRegistrationForm = ({
           enableReinitialize={true}
           onSubmit={async (values, actions) => {
             values = extractFieldValue(values)
+                      if (values.bank && typeof values.bank === "object") {
+    values.bank = values.bank.value;  // "HDFC"
+  }
             if (isEdit) {
               const { original, updated } = pickMatchedFields(
                 originalData,

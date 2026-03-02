@@ -197,57 +197,88 @@ const PCFCTable = () => {
     setDeleteRowData(null);
   };
 
+  // const PCFCColumns = [
+  //   { headerName: "Created On", key: "createdAt" },
+  //   { headerName: "Bank Spread", key: "bankSpread", label: "Bank Spread" },
+  //   { headerName: "PCFC Input Date", key: "pcfcInputDate" },
+  //   { headerName: "Drawdown Date", key: "drawdownDate" },
+  //   { headerName: "Due Date", key: "dueDate" },
+  //   {
+  //     headerName: "Bank",
+  //     key: "bank",
+  //     props: { row: { textAlign: "center", textTransform: "capitalize" } },
+  //   },
+  //   { headerName: "Trade Ref No", key: "tradeReferenceNumber" },
+  //   { headerName: "Currency", key: "currency" },
+  //   {
+  //     headerName: "Floating Interest Rate",
+  //     key: "floatingInterestRate",
+  //     label: "Floating Interest Rate",
+  //   },
+  //   {
+  //     headerName: "Amount Settled",
+  //     key: "amountSettled",
+  //     label: "Amount Settled",
+  //   },
+  //   {
+  //     headerName: "Outstanding Amount",
+  //     key: "outStandingAmount",
+  //     label: "Outstanding Amount",
+  //   },
+  //   {
+  //     headerName: "Trade Reference Number",
+  //     key: "tradeReferenceNumber",
+  //     label: "Trade Reference Number",
+  //   },
+  //   {
+  //     headerName: "Outstanding Amount (INR)",
+  //     key: "outstandingAmountInInr",
+  //     label: "Outstanding Amount (INR)",
+  //   },
+  //   { headerName: "Drawdown Amount", key: "drawdownAmount" },
+  //   { headerName: "Drawdown Rate", key: "drawdownRate" },
+  //   { headerName: "Total Interest Rate", key: "totalInterestRate" },
+  //   {
+  //     headerName: "Actions",
+  //     key: "table-actions",
+  //     type: "table-actions",
+  //     props: {
+  //       row: { minW: 200, textAlign: "center" },
+  //       column: { textAlign: "center" },
+  //     },
+  //   },
+  // ];
+
   const PCFCColumns = [
-    { headerName: "Created On", key: "createdAt" },
-    { headerName: "Bank Spread", key: "bankSpread", label: "Bank Spread" },
-    { headerName: "PCFC Input Date", key: "pcfcInputDate" },
-    { headerName: "Drawdown Date", key: "drawdownDate" },
-    { headerName: "Due Date", key: "dueDate" },
-    {
-      headerName: "Bank",
-      key: "bank",
-      props: { row: { textAlign: "center", textTransform: "capitalize" } },
-    },
-    { headerName: "Trade Ref No", key: "tradeReferenceNumber" },
-    { headerName: "Currency", key: "currency" },
-    {
-      headerName: "Floating Interest Rate",
-      key: "floatingInterestRate",
-      label: "Floating Interest Rate",
-    },
-    {
-      headerName: "Amount Settled",
-      key: "amountSettled",
-      label: "Amount Settled",
-    },
-    {
-      headerName: "Outstanding Amount",
-      key: "outStandingAmount",
-      label: "Outstanding Amount",
-    },
-    {
-      headerName: "Trade Reference Number",
-      key: "tradeReferenceNumber",
-      label: "Trade Reference Number",
-    },
-    {
-      headerName: "Outstanding Amount (INR)",
-      key: "outstandingAmountInInr",
-      label: "Outstanding Amount (INR)",
-    },
-    { headerName: "Drawdown Amount", key: "drawdownAmount" },
-    { headerName: "Drawdown Rate", key: "drawdownRate" },
-    { headerName: "Total Interest Rate", key: "totalInterestRate" },
-    {
-      headerName: "Actions",
-      key: "table-actions",
-      type: "table-actions",
-      props: {
-        row: { minW: 200, textAlign: "center" },
-        column: { textAlign: "center" },
-      },
-    },
-  ];
+  { headerName: "Created On", key: "createdAt" },
+
+  { headerName: "Bank Spread", key: "bankSpread" },
+  { headerName: "PCFC Input Date", key: "pcfcInputDate" },
+  { headerName: "Drawdown Date", key: "drawdownDate" },
+  { headerName: "Due Date", key: "dueDate" },
+
+  {
+    headerName: "Bank",
+    key: "bank",
+    props: { row: { textAlign: "center", textTransform: "capitalize" } },
+  },
+
+  { headerName: "Trade Reference Number", key: "tradeReferenceNumber" },
+  { headerName: "Currency", key: "currency" },
+
+  { headerName: "Floating Interest Rate", key: "floatingInterestRate" },
+  { headerName: "Total Interest Rate", key: "totalInterestRate" },
+
+  { headerName: "Drawdown Amount", key: "drawdownAmount" },
+  { headerName: "Drawdown Rate", key: "drawdownRate" },
+
+  { headerName: "Amount Settled", key: "amountSettled" },
+  { headerName: "Outstanding Amount", key: "outStandingAmount" },
+  {
+    headerName: "Outstanding Amount (INR)",
+    key: "outstandingAmountInInr",
+  },
+];
 
   return (
     canView ? (
