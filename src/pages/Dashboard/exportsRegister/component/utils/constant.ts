@@ -21,7 +21,6 @@ export const currencyOptions = [
   { label: "MXNINR", value: "MXNINR" },
 ];
 
-
 export const exposureTypeOptions = [
   { label: "Exports", value: "export" },
   { label: "Imports", value: "import" },
@@ -84,25 +83,46 @@ export const dealTypeOptions = [
 
 export const dummyExportRegisterData = [
   {
-    exposureType: "imports",
-    exposureInputDate: "2025-07-10",
-    exposureModificationDate: "2025-07-15",
-    poDate: "2025-07-12",
-    poNo: "PO987654",
-    invoiceNo: "INV54321",
-    invoiceDate: "2025-07-13",
-    partyName: "Acme Trading Co.",
-    bank: "HDFC Bank",
-    businessUnit: "Export Division",
-    blDate: "2025-07-14",
-    paymentTerms: "30",
-    currency: "EUR",
-    amount: "750000",
-    budgetRate: "1.12",
-    hedgeDealRefNo: "HDR123456",
-    remark: "Urgent shipment, priority clearance",
+    exposureType: "confirmed_order",
+    poNo: "PO909090",
+    poDate: "2026-02-11",
+    invoiceDate: "",
+    blDate: "2026-03-12",
+    dueDate: "2026-05-11",
+    partyName: "name",
+    bank: "SBI",
+    businessUnit: "Delhi",
+    currency: "USDINR",
+    invoiceNo: "",
+    paymentTerms: "60",
+    amount: "1000",
+    budgetRate: "0.5",
+    remark: "Remarks",
+    hedgeDeals: [],
+    // outstandingAmount: "",
   },
 ];
+// export const dummyExportRegisterData = [
+//   {
+//     exposureType: "imports",
+//     exposureInputDate: "2025-07-10",
+//     exposureModificationDate: "2025-07-15",
+//     poDate: "2025-07-12",
+//     poNo: "PO987654",
+//     invoiceNo: "INV54321",
+//     invoiceDate: "2025-07-13",
+//     partyName: "Acme Trading Co.",
+//     bank: "HDFC Bank",
+//     businessUnit: "Export Division",
+//     blDate: "2025-07-14",
+//     paymentTerms: "30",
+//     currency: "EUR",
+//     amount: "750000",
+//     budgetRate: "1.12",
+//     hedgeDealRefNo: "HDR123456",
+//     remark: "Urgent shipment, priority clearance",
+//   },
+// ];
 
 export const exposureSettlementReport = [
   {
@@ -243,13 +263,7 @@ export const dummyExporPOtData = [
     budgetRate: "8",
     outStandingAmount: "2300",
   },
-]
-
-
-
-
-
-
+];
 
 // const validationSchema = Yup.object({
 //     exposureType: Yup.string().required("Exposure Type is required"),
@@ -298,7 +312,7 @@ export const dummyExporPOtData = [
 //         if (!poDate || !Date.parse(poDate)) return schema;
 //         return schema.min(new Date(poDate), "Invoice Date must be after PO Date");
 //       }),
-      
+
 //     blDate: Yup.string()
 //       .required("BL Date is required")
 //       .test(

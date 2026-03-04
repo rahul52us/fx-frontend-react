@@ -1,5 +1,4 @@
 "use client";
-
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -7,6 +6,7 @@ import {
   Flex,
   IconButton,
   SimpleGrid,
+  Text,
   VStack,
   useToast,
 } from "@chakra-ui/react";
@@ -16,12 +16,9 @@ import { useEffect, useState } from "react";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
 
 const PCFCRepaymentSection = ({ showError }: any) => {
-  const { values, setFieldValue, touched, errors }: any =
-    useFormikContext();
-
+  const { values, setFieldValue, touched, errors }: any = useFormikContext();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL;
-
   const [pcfcTradeRefs, setPcfcTradeRefs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -59,10 +56,6 @@ const PCFCRepaymentSection = ({ showError }: any) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchPCFCTradeRefs();
-  }, []);
 
   // 🔹 Dropdown options
   const tradeRefOptions = pcfcTradeRefs.map((item: any) => ({
@@ -112,9 +105,12 @@ const PCFCRepaymentSection = ({ showError }: any) => {
 
     updatedRow.netSettlementRate =
       calculateNetSettlementRate(updatedRow);
-
     setFieldValue(`pcfcList.${index}`, updatedRow);
   };
+
+  useEffect(() => {
+    fetchPCFCTradeRefs();
+  }, []);
 
   return (
     <Box
@@ -130,6 +126,7 @@ const PCFCRepaymentSection = ({ showError }: any) => {
           PCFC Repayment
         </Box>
 
+        {pcfcTradeRefs && pcfcTradeRefs.length > 0 && (
         <FieldArray name="pcfcList">
           {({ push }) => (
             <Button
@@ -143,9 +140,25 @@ const PCFCRepaymentSection = ({ showError }: any) => {
             </Button>
           )}
         </FieldArray>
+      )}
       </Flex>
+      {pcfcTradeRefs && pcfcTradeRefs.length === 0 && (
+        <Box
+          p={4}
+          bg="white"
+          rounded="md"
+          shadow="sm"
+          w="full"
+          position="relative"
+        >
+          <Text color="gray.400" textAlign={'center'}>
+            No data found
+          </Text>
+        </Box>
+      )}
 
       {/* Rows */}
+      {pcfcTradeRefs.length > 0 && (
       <FieldArray name="pcfcList">
         {({ remove }) => (
           <VStack spacing={4}>
@@ -260,8 +273,8 @@ const PCFCRepaymentSection = ({ showError }: any) => {
           </VStack>
         )}
       </FieldArray>
+      )}
     </Box>
   );
 };
-
 export default PCFCRepaymentSection;

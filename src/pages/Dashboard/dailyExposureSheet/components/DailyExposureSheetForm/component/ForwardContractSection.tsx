@@ -6,6 +6,7 @@ import {
   Flex,
   IconButton,
   SimpleGrid,
+  Text,
   VStack,
   useToast,
 } from "@chakra-ui/react";
@@ -132,6 +133,8 @@ const ForwardContractSection = ({
     setFieldValue(`forwardList.${index}`, updatedRow);
   };
 
+  // if(hedgeDeals.length === 0) return <Box></Box>;
+
   return (
     <Box
       p={5}
@@ -146,6 +149,8 @@ const ForwardContractSection = ({
           Forward Contract Settlement
         </Box>
 
+{hedgeDeals && hedgeDeals.length > 0 && (
+  
         <FieldArray name="forwardList">
           {({ push }) => (
             <Button
@@ -159,9 +164,27 @@ const ForwardContractSection = ({
             </Button>
           )}
         </FieldArray>
+)}
       </Flex>
 
+      {hedgeDeals.length === 0 && (
+        <Box
+          p={4}
+          bg="white"
+          shadow="sm"
+          rounded="md"
+          w="full"
+          position="relative"
+        >
+          <Text textAlign={'center'} color="gray.400">
+            No Hedge Deals found
+          </Text>
+        </Box>
+      )}
+
       {/* Rows */}
+      {hedgeDeals.length > 0 && (
+        <>
       <FieldArray name="forwardList">
         {({ remove }) => (
           <VStack spacing={4}>
@@ -317,6 +340,13 @@ const ForwardContractSection = ({
           </VStack>
         )}
       </FieldArray>
+        </>
+      )}
+
+      
+
+
+
     </Box>
   );
 };

@@ -15,6 +15,7 @@ import DeleteConfirmationModal from "../../../../../config/component/common/Dele
 import store from "../../../../../store/store";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
+import AmountSettledList from "./AmountSettledList";
 
 const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -253,6 +254,7 @@ const ExportRegisterTable = () => {
   { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
   { headerName: "BMK Rate", key: "bmkRate" },
   { headerName: "RM Policy Rate", key: "rmPolicyRate" },
+  { headerName: "Budget Rate", key: "budgetRate" },
 
   { headerName: "Invoice Raised", key: "invoiceRaised" },
   { headerName: "Advance Payment", key: "advancePayment" },
@@ -270,6 +272,14 @@ const ExportRegisterTable = () => {
 
   { headerName: "Remark", key: "remark" },
 
+  {
+    headerName: "Amount Settled",
+    key: "amountSettledList",
+    type: "component",
+    metaData: {
+      component: (row: any) => <AmountSettledList {...row} />,
+    },
+  },
   {
     headerName: "Hedge Deals",
     key: "hedgeDeals",
