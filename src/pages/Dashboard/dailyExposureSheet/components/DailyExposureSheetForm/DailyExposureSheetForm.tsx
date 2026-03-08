@@ -10,7 +10,9 @@ import {
 import { Formik, Form as FormikForm } from "formik";
 import { useState } from "react";
 import * as Yup from "yup";
+import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
+import { extractFieldValue } from "../../../../../config/constant/function";
 import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
@@ -19,6 +21,7 @@ import {
   exposureTypeOptions,
   settlementTypeOptions,
 } from "../../../exportsRegister/component/utils/constant";
+import { pickMatchedFields } from "../../../utils/function";
 import ConversionTypeSelector from "./component/ConversionTypeSelector";
 import EEFCExportsSection from "./component/EEFCExportsSection";
 import EEFCImportsSection from "./component/EEFCImportsSection";
@@ -28,11 +31,8 @@ import ExposureSettlementController from "./component/ExposureSettlementControll
 import ForwardContractSection from "./component/ForwardContractSection";
 import PCFCRepaymentSection from "./component/PCFCRepaymentSection";
 import SpotConversionSection from "./component/SpotConversionSection";
-import SpotForwardCalculation from "./utils/SpotForwardCalculation";
-import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
-import { pickMatchedFields } from "../../../utils/function";
-import { extractFieldValue } from "../../../../../config/constant/function";
 import { getExposureSettlementInitialValues } from "./utils/constent";
+import SpotForwardCalculation from "./utils/SpotForwardCalculation";
 
 const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const [showError, setShowError] = useState(false);
@@ -105,7 +105,51 @@ const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: 
           return Number(value) === Number(settledAmount);
         },
       ),
+
+      eefcImportsList: Yup.array().when("isEEFCImportsEnabled", {
+  is: true,
+  then: (schema) =>
+    schema.of(
+      Yup.object().shape({
+        settlementRate: Yup.number()
+          .typeError("Settlement Rate is required")
+          .required("Settlement Rate is required"),
+
+        amount: Yup.number()
+          .typeError("Amount is required")
+          .required("Amount is required")
+          .test(
+            "amount-less-than-closing",
+            "Amount cannot exceed Closing Amount",
+            function (value) {
+              const { closingAmount } = this.parent;
+
+              if (!value) return true;
+
+              return Number(value) <= Number(closingAmount);
+            }
+          ),
+      })
+    ),
+  otherwise: (schema) => schema.notRequired(),
+}),
   });
+
+const getFirstErrorMessage = (errorObj: unknown): string | null => {
+  if (!errorObj) return null;
+
+  if (typeof errorObj === "string") return errorObj;
+
+  if (Array.isArray(errorObj)) {
+    return getFirstErrorMessage(errorObj[0]);
+  }
+
+  if (typeof errorObj === "object") {
+    return getFirstErrorMessage(Object.values(errorObj as Record<string, unknown>)[0]);
+  }
+
+  return null;
+};
 
 
   return (
@@ -188,6 +232,7 @@ const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: 
               // }}
 
               onSubmit={async (values, actions) => {
+                actions.setSubmitting(true)
   values = extractFieldValue(values);
 
   // ✅ Flatten spotList bankMargin (already strings, but safety check)
@@ -476,23 +521,47 @@ const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: 
                     type="button"
                     size="lg"
                     onClick={async () => {
-                      setShowError(true);
-                      const errors = await validateForm();
-                      if (Object.keys(errors).length > 0) {
-                        // 🔹 get first error message
-                        const firstError = Object.values(errors)[0];
-                        toast({
-                          title: "Validation Error",
-                          description: String(firstError),
-                          status: "error",
-                          duration: 3000,
-                          isClosable: true,
-                          position: "top-right",
-                        });
-                        return;
-                      }
-                      submitForm();
-                    }}
+  setShowError(true);
+
+  const errors = await validateForm();
+
+  if (Object.keys(errors).length > 0) {
+    const firstError = getFirstErrorMessage(errors);
+
+    toast({
+      title: "Validation Error",
+      description: firstError,
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+      position: "top-right",
+    });
+
+    return;
+  }
+
+  submitForm();
+}}
+                    // onClick={async () => {
+                    //   setShowError(true);
+                    //   const errors = await validateForm();
+                    //   if (Object.keys(errors).length > 0) {
+                    //     // 🔹 get first error message
+
+                    //     const firstError = Object.values(errors)[0];
+                    //     console.log('firstError',firstError)
+                    //     toast({
+                    //       title: "Validation Error",
+                    //       description: String(firstError),
+                    //       status: "error",
+                    //       duration: 3000,
+                    //       isClosable: true,
+                    //       position: "top-right",
+                    //     });
+                    //     return;
+                    //   }
+                    //   submitForm();
+                    // }}
                   >
                     {isEdit ? "Update" : "Submit"}
                   </Button>

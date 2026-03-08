@@ -364,6 +364,32 @@ onSubmit={async (values, actions) => {
                     error={touched.bank && errors.bank}
                   /> */}
 
+                  <CustomInput
+  label="Bank"
+  type="select"
+  name="bank"
+  placeholder="Enter Bank Name"
+  options={banksData}
+  value={values.bank || null}   // ✅ pass full object
+  onChange={(option) => {
+    setFieldValue("bank", option); // ✅ store full object
+
+    const margin = option?.bankMargin ?? "";
+
+    setFieldValue("bankMargin", margin);
+
+    const calculatedRate = calculateHedgeRate({
+      ...values,
+      bank: option,
+      bankMargin: margin,
+    });
+
+    setFieldValue("hedgeRate", calculatedRate);
+  }}
+  showError={showError}
+  error={touched.bank && errors.bank}
+/>
+{/* 
 <CustomInput
   label="Bank"
   type="select"
@@ -392,7 +418,7 @@ onSubmit={async (values, actions) => {
   }}
   showError={showError}
   error={touched.bank && errors.bank}
-/>
+/> */}
 
 
                   <CustomInput

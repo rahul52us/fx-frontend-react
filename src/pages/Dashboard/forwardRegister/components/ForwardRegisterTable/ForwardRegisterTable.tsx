@@ -277,6 +277,15 @@ const ForwardRegisterTable = () => {
 
   { headerName: "Allocated Amount", key: "allocatedAmount" },
   { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
 ];
 
   return (

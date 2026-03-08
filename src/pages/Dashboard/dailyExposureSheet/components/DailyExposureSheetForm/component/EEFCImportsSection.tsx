@@ -19,13 +19,7 @@ const EEFCImportsSection = ({ showError }: any) => {
   const { values, setFieldValue, errors, touched }: any = useFormikContext();
   const url = process.env.REACT_APP_FX_BASE_URL
   const [loading,setLoading]= useState(false)
-
-  // const emptyRow = {
-  //   amount: "",
-  //   settlementRate: "",
-  //   closingAmount:""
-  // };
-
+  
   const handleChange = (index: number, field: string, value: any) => {
     let updatedRow = { ...values.eefcImportsList[index], [field]: value };
     setFieldValue(`eefcImportsList.${index}`, updatedRow);
@@ -37,7 +31,7 @@ const EEFCImportsSection = ({ showError }: any) => {
       setLoading(true)
       const res = await axios.post(`${url}/eefcregister/eefcdata/`);
 
-      const { prevClosingBalance,prevClosingBalanceInInr } = res?.data?.data || {};
+      const { prevClosingBalance,prevClosingBalanceInInr,weigtedAverageRate } = res?.data?.data || {};
 
       // Ensure at least one row exists
       if (!values.eefcImportsList || values.eefcImportsList.length === 0) {
@@ -46,7 +40,8 @@ const EEFCImportsSection = ({ showError }: any) => {
             amount: "",
             settlementRate: "",
             closingAmount: prevClosingBalance ?? 0,
-            closingAmountInr:prevClosingBalanceInInr ?? 0
+            closingAmountInr:prevClosingBalanceInInr ?? 0,
+            weigtedAverageRate: weigtedAverageRate ?? 0
           },
         ]);
       } else {
@@ -58,6 +53,10 @@ const EEFCImportsSection = ({ showError }: any) => {
         setFieldValue(
           "eefcImportsList.0.closingAmountInr",
           prevClosingBalanceInInr ?? 0
+        );
+        setFieldValue(
+          "eefcImportsList.0.weigtedAverageRate",
+          weigtedAverageRate ?? 0
         );
       }
     } catch (err) {
@@ -136,7 +135,21 @@ const EEFCImportsSection = ({ showError }: any) => {
                       }
                     />
 
-                    <CustomInput
+
+         <CustomInput
+  label="Amount"
+  placeholder="Enter Amount"
+  name={`eefcImportsList.${index}.amount`}
+  type="number"
+  value={row.amount}
+  onChange={(e: any) =>
+    handleChange(index, "amount", e.target.value)
+  }
+  error={rowTouched?.amount ? rowErrors?.amount : ""}
+  showError={showError}
+/>
+
+                    {/* <CustomInput
                       label="Amount"
                       placeholder="Enter Amount"
                       name={`eefcImportsList.${index}.amount`}
@@ -145,7 +158,7 @@ const EEFCImportsSection = ({ showError }: any) => {
                       onChange={(e: any) =>
                         handleChange(index, "amount", e.target.value)
                       }
-                    />
+                    /> */}
 
                 <CustomInput
   label="Closing Amount"
@@ -166,6 +179,16 @@ const EEFCImportsSection = ({ showError }: any) => {
   disabled
   // isDisabled={index === 0}   // 👈 disabled only for 0th row
   error={rowTouched.closingAmountInr && rowErrors.closingAmountInr}
+  showError={showError}
+/>
+<CustomInput
+  label="Weigted Average Rate"
+  placeholder="Weigted Average Rate"
+  name={`eefcImportsList.${index}.weigtedAverageRate`}
+  value={row.weigtedAverageRate}
+  disabled
+  // isDisabled={index === 0}   // 👈 disabled only for 0th row
+  error={rowTouched.weigtedAverageRate && rowErrors.weigtedAverageRate}
   showError={showError}
 />
                   </SimpleGrid>
