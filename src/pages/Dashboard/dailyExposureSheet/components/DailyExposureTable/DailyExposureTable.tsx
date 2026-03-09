@@ -264,8 +264,8 @@ const DailyExposureTable = () => {
   { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
   { headerName: "Settled Amount (INR)", key: "settledAmountInInr", label: "Settled Amount INR" },
 
-  { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
-  { headerName: "Bmk vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
+  { headerName: "RM Policy Rate", key: "rmPolicyRate", label: "RM Policy Rate" },
+  { headerName: "RMP vs Settlement Rate", key: "rmpRateVsSettlementRate", label: "RMP vs Settlement Rate" },
 
   { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
   { headerName: "Market vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },

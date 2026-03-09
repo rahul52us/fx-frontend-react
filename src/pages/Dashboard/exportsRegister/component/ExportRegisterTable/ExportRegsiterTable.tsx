@@ -162,69 +162,6 @@ const ExportRegisterTable = () => {
     setDeleteRowData(null);
   };
 
-  // const ExportRegisterTableColumns = [
-  //   { headerName: "Created On", key: "createdAt" },
-  //   { headerName: "Exposure Type", key: "exposureType" },
-
-  //   { headerName: "PO No", key: "poNo" },
-  //   { headerName: "PO Date", key: "poDate" },
-
-  //   { headerName: "Party Name", key: "partyName" },
-  //   { headerName: "Bank", key: "bank" },
-  //   { headerName: "Business Unit", key: "businessUnit" },
-
-  //   { headerName: "Invoice No", key: "invoiceNo" },
-  //   { headerName: "Invoice Date", key: "invoiceDate" },
-  //   { headerName: "BL Date", key: "blDate" },
-
-  //   { headerName: "Payment Terms", key: "paymentTerms" },
-  //   { headerName: "Due Date", key: "dueDate" },
-
-  //   { headerName: "Currency", key: "currency" },
-  //   { headerName: "Amount", key: "amount" },
-  //   { headerName: "INR Amount", key: "inrAmount" },
-
-  //   { headerName: "Outstanding Amount", key: "outstandingAmount" },
-  //   { headerName: "Outstanding INR", key: "outstandingAmountInINR" },
-
-  //   { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
-  //   { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
-  //   { headerName: "BMK Rate", key: "bmkRate" },
-  //   { headerName: "RM Policy Rate", key: "rmPolicyRate" },
-
-  //   { headerName: "Invoice Raised", key: "invoiceRaised" },
-  //   { headerName: "Advance Payment", key: "advancePayment" },
-  //   { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
-
-  //   { headerName: "Amount Settled", key: "amountSettled" },
-  //   { headerName: "Settlement Rate", key: "settlementRate" },
-  //   { headerName: "Settlement Rate 1", key: "settlementRate1" },
-
-  //   { headerName: "P/L in INR", key: "PlInINR" },
-
-  //   { headerName: "Advance Allotment", key: "advaceAllotment" },
-  //   { headerName: "Advance Rate", key: "advanceRate" },
-  //   { headerName: "Invoice Settlement", key: "invoiceSettlement" },
-
-  //   { headerName: "Remark", key: "remark" },
-  //   {
-  //     headerName: "Hedge Deals",
-  //     key: "hedgeDeals",
-  //     type: "component",
-  //     metaData: {
-  //       component: (row: any) => <HedgeDealsDrawer {...row} />,
-  //     },
-  //   },
-  //   {
-  //     headerName: "Actions",
-  //     key: "table-actions",
-  //     type: "table-actions",
-  //     props: {
-  //       row: { minW: 180, textAlign: "center" },
-  //     },
-  //   },
-  // ];
-
   const ExportRegisterTableColumns = [
   { headerName: "Created On", key: "createdAt" },
   { headerName: "Exposure Type", key: "exposureType" },

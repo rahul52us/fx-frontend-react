@@ -41,8 +41,8 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
   const toast = useToast();
   const isEdit = Boolean(editData);
   const { storeEdited, editLoading } = useStoreEdited();
-
-  console.log('editData',editData)
+  const [poBalance, setPoBalance] = useState<number>(0);
+  
 
   const validationSchema = Yup.object({
 
@@ -61,25 +61,61 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
     otherwise: (schema) => schema.notRequired(),
   }),
 
-  amount: Yup.number()
-    .when("exposureType", {
-      is: (val: string) => val === "forecast",
-      then: (schema) =>
-        schema.required("Amount is required"),
-      otherwise: (schema) =>
-        schema.required("Amount is required") // keep required for others too
-    })
+  // amount: Yup.number()
+  //   .when("exposureType", {
+  //     is: (val: string) => val === "forecast",
+  //     then: (schema) =>
+  //       schema.required("Amount is required"),
+  //     otherwise: (schema) =>
+  //       schema.required("Amount is required") // keep required for others too
+  //   })
+  //   .when(["exposureType", "outStandingAmount"], {
+  //     is: (exposureType: string, outStandingAmount: any) =>
+  //       exposureType === "shipment" && !!outStandingAmount,
+  //     then: (schema) =>
+  //       schema.test("max-outStandingAmount", function (value) {
+  //         const { outStandingAmount } = this.parent;
+  //         if (value && outStandingAmount && value > outStandingAmount) {
+  //           return this.createError({
+  //             message: `Amount must be ≤ Outstanding Amount (${outStandingAmount})`,
+  //           });
+  //         }
+  //         return true;
+  //       }),
+  //   }),
+
+amount: Yup.number()
+    .required("Amount is required")
+
+    // Shipment validation
     .when(["exposureType", "outStandingAmount"], {
       is: (exposureType: string, outStandingAmount: any) =>
         exposureType === "shipment" && !!outStandingAmount,
       then: (schema) =>
         schema.test("max-outStandingAmount", function (value) {
           const { outStandingAmount } = this.parent;
+
           if (value && outStandingAmount && value > outStandingAmount) {
             return this.createError({
               message: `Amount must be ≤ Outstanding Amount (${outStandingAmount})`,
             });
           }
+
+          return true;
+        }),
+    })
+
+    // LC/BC shifting validation using poBalance from state
+    .when("exposureType", {
+      is: (exposureType: string) => exposureType === "shipment",
+      then: (schema) =>
+        schema.test("max-poBalance", function (value) {
+          if (value && poBalance && value > poBalance) {
+            return this.createError({
+              message: `Amount must be ≤ PO Balance (${poBalance})`,
+            });
+          }
+
           return true;
         }),
     }),
@@ -221,6 +257,20 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
 ),
 });
 
+const fetchPoBalance = async (poNumber: string) => {
+  try {
+    const response: any = await axios.post(`${url}/exportregister/pobalance/`, {
+      register: "export",
+      exposureType: selectedExposureType,
+      poNumber,
+    });
+    // setPoBalance(response?.data?.data?.remainingBalance || 0);
+    setPoBalance(response?.data?.data?.remainingBalance || 0);
+  } catch (error:any) {
+    console.error("Error fetching PO balance:", error.message);
+  }
+};
+
  
 
   const fetchPoDetails = async () => {
@@ -314,11 +364,8 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
   outstandingAmount: editData?.outstandingAmount || "",
             // hedgeDeals: editData?.hedgeDeals || [],
           }}
-
           validationSchema={validationSchema}
           enableReinitialize={true}
-          
-
           onSubmit={async (values, actions) => {
             values = extractFieldValue(values)
              if (values.bank && typeof values.bank === "object") {
@@ -420,6 +467,8 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                           setFieldValue("budgetRate", "");
                         }
                         setSelectedExposureType(selectedOption.value);
+                      
+                        // fetchPoBalance(selectedOption.value);
                       }}
                       showError={showError}
                       error={touched.exposureType && errors.exposureType}
@@ -482,6 +531,9 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                               selectedPo.outStandingAmount || 0
                             );
                           }
+                            if (selectedExposureType === "shipment") {
+                          fetchPoBalance(selectedOption.value);
+                        }
                         }}
                         required={true}
                         error={touched.poNo && errors.poNo}
@@ -675,6 +727,8 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
                       showError={showError}
                       required={true}
                     />
+
+ 
                     <CustomInput
                       label="Budget Rate"
                       name="budgetRate"

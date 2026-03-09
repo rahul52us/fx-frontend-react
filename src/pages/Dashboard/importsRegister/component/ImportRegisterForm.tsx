@@ -35,12 +35,28 @@ const ImportRegistrationForm = ({
   const [showError, setShowError] = useState(false);
   const [poData, setPoData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [poBalance, setPoBalance] = useState<number>(0);
+  // const [poBalance, setPoBalance] = useState("");
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL;
   const [selectedExposureType, setSelectedExposureType] = useState<string>("");
   const isEdit = Boolean(editData);
-
   const { storeEdited, editLoading } = useStoreEdited();
+
+const fetchPoBalance = async (poNumber: string) => {
+  try {
+    const response: any = await axios.post(`${url}/exportregister/pobalance/`, {
+      register: "import",
+      exposureType: selectedExposureType,
+      poNumber,
+    });
+    // setPoBalance(response?.data?.data?.remainingBalance || 0);
+    setPoBalance(response?.data?.data?.remainingBalance || 0);
+  } catch (error:any) {
+    console.error("Error fetching PO balance:", error.message);
+  }
+};
+
   const fetchPoDetails = async () => {
     setLoading(true);
     try {
@@ -79,9 +95,29 @@ const ImportRegistrationForm = ({
     paymentTerms: Yup.string().required("Payment Terms is required"),
     dueDate: Yup.string().required("Due Date is required"),
     currency: Yup.mixed().required("Currency is required"),
-    amount: Yup.number().required("Amount is required"),
-    budgetRate: Yup.string().required("Budget Rate is required"),
+    // amount: Yup.number().required("Amount is required"),
 
+    amount: Yup.number()
+  .required("Amount is required")
+  .test(
+    "po-balance-check",
+    function (value:any) {
+      const { exposureType } = this.parent;
+
+      if (exposureType === "lc_bc_shifting") {
+        if (value > poBalance) {
+          return this.createError({
+            message: `Amount (${value}) cannot be greater than PO Balance (${poBalance})`,
+          });
+        }
+      }
+
+      return true;
+    }
+  ),
+
+
+    budgetRate: Yup.string().required("Budget Rate is required"),
     invoiceNo: Yup.string().when("exposureType", {
       is: (val: string) => val !== "da_dp",
       then: (schema) => schema.required("Invoice No is required"),
@@ -119,7 +155,6 @@ const ImportRegistrationForm = ({
       return true;
     }
     
-    
         // Non-edit mode: validate against amount field
         const amountVal = parseFloat(amount);
         if (amountVal && totalHedge > amountVal) {
@@ -131,17 +166,9 @@ const ImportRegistrationForm = ({
         return true;
       }
     ),
-    // invoiceNo: Yup.string().nullable(),
-    // invoiceDate: Yup.string().nullable(),
-
-    // hedgeDealRefNo: Yup.string().nullable(),
-    // hedgeRate: Yup.string().nullable(),
-    // hedgeAmount: Yup.number().nullable(),
-    // remark: Yup.string().nullable(),
   });
   const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
-
     // Check if there are errors
     if (Object.keys(errors).length > 0) {
       const firstError = Object.values(errors)[0] as string;
@@ -154,9 +181,11 @@ const ImportRegistrationForm = ({
         position: "top-right",
       });
     }
-
     handleSubmit();
   };
+
+  console.log('poBalance',poBalance)
+
 
   useEffect(() => {
     fetchPoDetails();
@@ -167,6 +196,7 @@ const ImportRegistrationForm = ({
       {loading && <Loader />}
       {!loading && (
         <Formik
+          enableReinitialize={true}
           initialValues={{
             exposureType: editData?.exposureType || "",
             poNo: editData?.poNo || "",
@@ -186,7 +216,6 @@ const ImportRegistrationForm = ({
             hedgeDeals: editData?.hedgeDeals || [],
           }}
           validationSchema={validationSchema}
-          enableReinitialize={true}
           onSubmit={async (values, actions) => {
             values = extractFieldValue(values)
                       if (values.bank && typeof values.bank === "object") {
@@ -234,9 +263,6 @@ const ImportRegistrationForm = ({
             touched,
             handleSubmit,
           }: any) => {
-
-            console.log('thee values are are', values)
-
             // Helper function to check if field should be readonly
             const isFieldReadOnly = (fieldName: string) => {
               if (values.exposureType !== "lc_bc_shifting") return false;
@@ -266,7 +292,6 @@ const ImportRegistrationForm = ({
                         (option) => option.value === values.exposureType,
                       )}
                       onChange={(selectedOption) => {
-                        // Reset form when exposure type changes
                         setFieldValue("exposureType", selectedOption.value);
                         setFieldValue("poNo", "");
                         setFieldValue("poDate", "");
@@ -327,6 +352,9 @@ const ImportRegistrationForm = ({
                               setFieldValue("dueDate", newDueDate);
                             }
                           }
+                          if(values.exposureType === 'lc_bc_shifting'){
+                            fetchPoBalance(selectedOption.value);
+                          }
                         }}
                         required={true}
                         error={touched.poNo && errors.poNo}
@@ -382,7 +410,6 @@ const ImportRegistrationForm = ({
                           ? "text"
                           : "select"
                       }
-                      // type="select"
                       placeholder="Unit"
                       options={bussinessUnitsData}
                       value={values.businessUnit}
@@ -402,7 +429,6 @@ const ImportRegistrationForm = ({
                           ? "text"
                           : "select"
                       } 
-                        // type="select"
                         placeholder="Bank"
                         options={banksData}
                         value={values.bank}
@@ -516,6 +542,7 @@ const ImportRegistrationForm = ({
                     <CustomInput
                       label="Amount"
                       type="number"
+                      placeholder="Enter Amount"
                       name="amount"
                       value={values.amount}
                       onChange={handleChange}
@@ -523,6 +550,7 @@ const ImportRegistrationForm = ({
                       showError={showError}
                       required={true}
                     />
+                    
 
                     {/* Budget Rate */}
                     <CustomInput

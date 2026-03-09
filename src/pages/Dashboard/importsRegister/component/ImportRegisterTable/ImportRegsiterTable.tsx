@@ -4,22 +4,22 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { toJS } from "mobx";
 import { useEffect, useState } from "react";
-import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
-import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
-import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
-import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
+import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
+import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
+import store from "../../../../../store/store";
+import HedgeDealsCell from "../../../exportsRegister/component/ExportRegisterTable/HedgeDealsPopover";
 import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
 import ImportRegistrationForm from "../ImportRegisterForm";
-import HedgeDealsCell from "../../../exportsRegister/component/ExportRegisterTable/HedgeDealsPopover";
-import store from "../../../../../store/store";
-import { toJS } from "mobx";
 
 const ImportRegisterTable = () => {
   const [importData, setImportData] = useState<any[]>([]);
@@ -228,6 +228,7 @@ const ImportRegisterTable = () => {
 
   { headerName: "Invoice No", key: "invoiceNo" },
   { headerName: "Invoice Date", key: "invoiceDate" },
+  { headerName: "Invoice Raised", key: "invoiceRaised" },
 
   { headerName: "Party Name", key: "partyName" },
   { headerName: "Bank", key: "bank" },
@@ -248,6 +249,7 @@ const ImportRegisterTable = () => {
 
   { headerName: "Outstanding Amount", key: "outstandingAmount" },
   { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+  { headerName: "Import Reg Hedge Amount", key: "importRegHedgeAmount" },
 
   { headerName: "Advance Payment", key: "advancePayment" },
   { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
