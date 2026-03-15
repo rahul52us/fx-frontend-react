@@ -1,7 +1,4 @@
-import {
-  useDisclosure,
-  useToast,
-} from "@chakra-ui/react";
+import { useDisclosure, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
@@ -18,6 +15,8 @@ import ExposureRefsCell from "./ExposureRefsCell";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import store from "../../../../../store/store";
+import CancelledList from "./CancelledList";
+import SettledList from "./SettledList";
 
 const ForwardRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -31,7 +30,8 @@ const ForwardRegisterTable = () => {
   const { deleteItem } = useDeleteItem();
 
   // Permission checks
-  const { canAdd, canEdit, canDelete, canView } = usePermission('forwardRegister');
+  const { canAdd, canEdit, canDelete, canView } =
+    usePermission("forwardRegister");
 
   // Delete Confirmation State
   const {
@@ -52,7 +52,7 @@ const ForwardRegisterTable = () => {
       const response = await axios.post(
         // "http://srv864630.hstgr.cloud:8000/forwardregister/form/",
         `${url}/forwardregister/form/`,
-        payload
+        payload,
       );
 
       if (response.status === 200 && response.data.status === "success") {
@@ -96,7 +96,7 @@ const ForwardRegisterTable = () => {
   };
 
   const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -118,10 +118,12 @@ const ForwardRegisterTable = () => {
     setLoading(true);
     try {
       const { viewAsUserId } = store.auth;
-      const response = await axios.post(
-        `${url}/forwardregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
-      );
+      const response = await axios.post(`${url}/forwardregister/view/`, {
+        userToken: "abcxyz",
+        page: currentPage,
+        limit: rowsPerPage,
+        userId: viewAsUserId,
+      });
       const result = response.data?.data?.data || [];
       const total = response.data?.data?.total_pages || 1;
       const withSerial = result.map((item: any, idx: number) => ({
@@ -236,47 +238,66 @@ const ForwardRegisterTable = () => {
   //   },
   // ];
 
-
   const ForwardRegisterColumns = [
-  { headerName: "Created On", key: "createdAt" },
-  { headerName: "Booking Date", key: "bookingDate" },
-  { headerName: "Exposure Type", key: "exposureType" },
+    { headerName: "Created On", key: "createdAt" },
+    { headerName: "Booking Date", key: "bookingDate" },
+    { headerName: "Exposure Type", key: "exposureType" },
 
-  { headerName: "Bank", key: "bank" },
-  { headerName: "Business Unit", key: "bussinessUnit" },
+    { headerName: "Bank", key: "bank" },
+    { headerName: "Business Unit", key: "bussinessUnit" },
 
-  {
-    headerName: "Exposure Ref(s)",
-    key: "exposureRefs",
-    type: "component",
-    metaData: {
-      component: (row: any) => <ExposureRefsCell {...row} />,
+    {
+      headerName: "Exposure Ref(s)",
+      key: "exposureRefs",
+      type: "component",
+      metaData: {
+        component: (row: any) => <ExposureRefsCell {...row} />,
+      },
     },
-  },
 
-  { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
-  { headerName: "Currency", key: "currency" },
-  { headerName: "Hedge Amount", key: "hedgeAmount" },
-  { headerName: "Spot Booked", key: "spotBooked" },
-  { headerName: "Forward Points", key: "forwardPoints" },
-  { headerName: "Bank Margin", key: "bankMargin" },
-  { headerName: "Hedge Rate", key: "hedgeRate" },
+    { headerName: "Hedge Deal Ref No", key: "hedgeDealReferenceNumber" },
+    { headerName: "Currency", key: "currency" },
+    { headerName: "Hedge Amount", key: "hedgeAmount" },
+    { headerName: "Spot Booked", key: "spotBooked" },
+    { headerName: "Forward Points", key: "forwardPoints" },
+    { headerName: "Bank Margin", key: "bankMargin" },
+    { headerName: "Hedge Rate", key: "hedgeRate" },
 
-  { headerName: "Delivery Date From", key: "dueDateFrom" },
-  { headerName: "Delivery Date To", key: "dueDateTo" },
+    { headerName: "Delivery Date From", key: "dueDateFrom" },
+    { headerName: "Delivery Date To", key: "dueDateTo" },
 
-  { headerName: "Outstanding Amount", key: "outstandingAmount" },
-  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
-  { headerName: "Status", key: "status" },
+    { headerName: "Outstanding Amount", key: "outstandingAmount" },
+    { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+    { headerName: "Status", key: "status" },
 
-  { headerName: "Settled Amount", key: "settledAmount" },
-  { headerName: "Settlement Rate", key: "settlementdRate" },
-  { headerName: "Cancelled Amount", key: "cancelledAmount" },
-  { headerName: "Cancellation Rate", key: "cancellationRate" },
-  { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
+    { headerName: "Settled Amount", key: "settledAmount" },
+    { headerName: "Settlement Rate", key: "settlementdRate" },
+    { headerName: "Cancelled Amount", key: "cancelledAmount" },
+    { headerName: "Cancellation Rate", key: "cancellationRate" },
+    { headerName: "P/L on Cancellation (INR)", key: "plOnCancellationInInr" },
 
-  { headerName: "Allocated Amount", key: "allocatedAmount" },
-  { headerName: "Balance Pending Allocation", key: "balancePendingAllocation" },
+    { headerName: "Allocated Amount", key: "allocatedAmount" },
+    {
+      headerName: "Balance Pending Allocation",
+      key: "balancePendingAllocation",
+    },
+
+    {
+      headerName: "Settled List",
+      key: "exposureRefs",
+      type: "component",
+      metaData: {
+        component: (row: any) => <SettledList {...row} />,
+      },
+    },
+    {
+      headerName: "Cancelled List",
+      key: "exposureRefs",
+      type: "component",
+      metaData: {
+        component: (row: any) => <CancelledList {...row} />,
+      },
+    },
     {
       headerName: "Actions",
       key: "table-actions",
@@ -286,88 +307,89 @@ const ForwardRegisterTable = () => {
         column: { textAlign: "center" },
       },
     },
-];
+  ];
 
-  return (
-    canView ? (
-      <>
-        <CustomTable
-          title="Forward Register"
-          data={exportData}
-          columns={ForwardRegisterColumns}
-          actions={{
-            search: { show: false },
-            resetData: {
-              show: true,
-              text: "Reset Data",
-              function: () => fetchExportRegisterData(1),
+  return canView ? (
+    <>
+      <CustomTable
+        title="Forward Register"
+        data={exportData}
+        columns={ForwardRegisterColumns}
+        actions={{
+          search: { show: false },
+          resetData: {
+            show: true,
+            text: "Reset Data",
+            function: () => fetchExportRegisterData(1),
+          },
+          exportExcel: {
+            show: true,
+            text: "Export Excel",
+            function: () =>
+              exportToExcel({
+                // columns: ForwardRegisterColumns,
+                data: dummyForwardRegisterData,
+                fileName: "Forward_Register.xlsx",
+              }),
+          },
+          uploadFile: {
+            show: true,
+            text: "Upload Excel",
+            function: (e: any) => handleFileUpload(e),
+          },
+          pagination: {
+            show: true,
+            onClick: handlePageChange,
+            currentPage: page,
+            totalPages: totalPages,
+          },
+          actionBtn: {
+            addKey: {
+              showAddButton: canAdd,
+              function: onOpen,
             },
-            exportExcel: {
-              show: true,
-              text: "Export Excel",
-              function: () =>
-                exportToExcel({
-                  // columns: ForwardRegisterColumns,
-                  data: dummyForwardRegisterData,
-                  fileName: "Forward_Register.xlsx",
-                }),
-            },
-            uploadFile: {
-              show: true,
-              text: "Upload Excel",
-              function: (e: any) => handleFileUpload(e),
-            },
-            pagination: {
-              show: true,
-              onClick: handlePageChange,
-              currentPage: page,
-              totalPages: totalPages,
-            },
-            actionBtn: {
-              addKey: {
-                showAddButton: canAdd,
-                function: onOpen,
-              },
-              editKey: {
-                showEditButton: canEdit,
-                function: (row: any) => {
-                  handleEdit(row);
-                },
-              },
-              deleteKey: {
-                showDeleteButton: canDelete,
-                function: handleDeleteClick,
+            editKey: {
+              showEditButton: canEdit,
+              function: (row: any) => {
+                handleEdit(row);
               },
             },
-          }}
-          loading={loading}
+            deleteKey: {
+              showDeleteButton: canDelete,
+              function: handleDeleteClick,
+            },
+          },
+        }}
+        loading={loading}
+      />
+
+      <CustomDrawer
+        open={isOpen}
+        close={handleDrawerClose}
+        title="Forward Register"
+        width="75vw"
+        size="xl"
+      >
+        <ForwardRegisterForm
+          submitForm={submitExportForm}
+          key={formKey}
+          editData={editRow}
+          onClose={handleDrawerClose}
+          originalData={originalRow}
         />
+      </CustomDrawer>
 
-        <CustomDrawer
-          open={isOpen}
-          close={handleDrawerClose}
-          title="Forward Register"
-          width="75vw"
-          size="xl"
-        >
-          <ForwardRegisterForm
-            submitForm={submitExportForm}
-            key={formKey}
-            editData={editRow}
-            onClose={handleDrawerClose}
-            originalData={originalRow}
-          />
-        </CustomDrawer>
-
-        <DeleteConfirmationModal
-          isOpen={isDeleteOpen}
-          onClose={onDeleteClose}
-          onConfirm={onConfirmDelete}
-          title="Delete Entry"
-          description="Are you sure? You can't undo this action afterwards."
-          isLoading={deleteLoading}
-        />
-      </>) : <RestrictedAccess />
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={onConfirmDelete}
+        title="Delete Entry"
+        description="Are you sure? You can't undo this action afterwards."
+        isLoading={deleteLoading}
+      />
+    </>
+  ) : (
+    <RestrictedAccess />
   );
 };
 

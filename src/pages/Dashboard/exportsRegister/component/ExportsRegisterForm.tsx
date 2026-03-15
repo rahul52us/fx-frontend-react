@@ -217,9 +217,68 @@ amount: Yup.number()
         ),
     otherwise: (schema) => schema.notRequired(),
   }),
-  hedgeDeals: Yup.array().of(
+//   hedgeDeals: Yup.array().of(
+//   Yup.object({
+//     hedgeAmount: Yup.number().notRequired(),
+//   })
+// ).test(
+//   "total-hedge-amount",
+//   "Total Hedge Amount must not exceed the Outstanding Amount",
+//   function (hedgeDeals) {
+//     const { amount, outstandingAmount } = this.parent;
+
+//     if (!hedgeDeals || hedgeDeals.length === 0) return true;
+
+//     const totalHedge = hedgeDeals.reduce((sum: number, deal: any) => {
+//       return sum + (parseFloat(deal.hedgeAmount) || 0);
+//     }, 0);
+
+//     // Edit mode: validate against outstandingAmount
+//    if (isEdit) {
+//   if (totalHedge > parseFloat(outstandingAmount)) {
+//     return this.createError({
+//       message: `Total Hedge Amount (${totalHedge}) must not exceed Outstanding Amount (${outstandingAmount})`,
+//     });
+//   }
+//   return true;
+// }
+
+
+//     // Non-edit mode: validate against amount field
+//     const amountVal = parseFloat(amount);
+//     if (amountVal && totalHedge > amountVal) {
+//       return this.createError({
+//         message: `Total Hedge Amount (${totalHedge}) must not exceed Amount (${amountVal})`,
+//       });
+//     }
+
+//     return true;
+//   }
+// ),
+hedgeDeals: Yup.array().of(
   Yup.object({
-    hedgeAmount: Yup.number().notRequired(),
+    hedgeAmount: Yup.number()
+      .notRequired()
+      .test("max-balance", function (value) {
+        const { balanceAmount } = this.parent;
+        const balance = parseFloat(balanceAmount) || 0;
+
+        // ✅ Balance amount must be positive
+        if (balance <= 0) {
+          return this.createError({
+            message: `Balance Amount must be positive (current: ${balance})`,
+          });
+        }
+
+        // ✅ Hedge amount must be ≤ balance amount
+        if (value && value > balance) {
+          return this.createError({
+            message: `Hedge Amount (${value}) must be ≤ Balance Amount (${balance})`,
+          });
+        }
+
+        return true;
+      }),
   })
 ).test(
   "total-hedge-amount",
@@ -233,18 +292,15 @@ amount: Yup.number()
       return sum + (parseFloat(deal.hedgeAmount) || 0);
     }, 0);
 
-    // Edit mode: validate against outstandingAmount
-   if (isEdit) {
-  if (totalHedge > parseFloat(outstandingAmount)) {
-    return this.createError({
-      message: `Total Hedge Amount (${totalHedge}) must not exceed Outstanding Amount (${outstandingAmount})`,
-    });
-  }
-  return true;
-}
+    if (isEdit) {
+      if (totalHedge > parseFloat(outstandingAmount)) {
+        return this.createError({
+          message: `Total Hedge Amount (${totalHedge}) must not exceed Outstanding Amount (${outstandingAmount})`,
+        });
+      }
+      return true;
+    }
 
-
-    // Non-edit mode: validate against amount field
     const amountVal = parseFloat(amount);
     if (amountVal && totalHedge > amountVal) {
       return this.createError({

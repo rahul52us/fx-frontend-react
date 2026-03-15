@@ -1,8 +1,5 @@
 "use client";
-import {
-  useDisclosure,
-  useToast,
-} from "@chakra-ui/react";
+import { useDisclosure, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { toJS } from "mobx";
 import { useEffect, useState } from "react";
@@ -37,7 +34,8 @@ const ImportRegisterTable = () => {
   console.log("User Permissions:", toJS(store.auth.user?.permissions));
 
   // Permission checks
-  const { canAdd, canEdit, canDelete, canView } = usePermission('importRegister');
+  const { canAdd, canEdit, canDelete, canView } =
+    usePermission("importRegister");
 
   // Delete Confirmation State
   const {
@@ -67,7 +65,7 @@ const ImportRegisterTable = () => {
         // "http://srv864630.hstgr.cloud:8000/importregister/form/",
         `${url}/importregister/form/`,
 
-        payload
+        payload,
       );
 
       if (response.status === 200 && response.data.status === "success") {
@@ -125,10 +123,12 @@ const ImportRegisterTable = () => {
     setLoading(true);
     try {
       const { viewAsUserId } = store.auth;
-      const response = await axios.post(
-        `${url}/importregister/view/`,
-        { userToken: "abcdxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
-      );
+      const response = await axios.post(`${url}/importregister/view/`, {
+        userToken: "abcdxyz",
+        page: currentPage,
+        limit: rowsPerPage,
+        userId: viewAsUserId,
+      });
       const result = response.data?.data?.data || [];
       const total = response.data?.data?.total_pages || 1;
       const withSerial = result.map((item: any, idx: number) => ({
@@ -216,50 +216,53 @@ const ImportRegisterTable = () => {
   // ];
 
   const ImportRegisterTableColumns = [
-  { headerName: "Created On", key: "createdAt" },
+    { headerName: "Created On", key: "createdAt" },
 
-  {
-    headerName: "Exposure Type",
-    key: "exposureType",
-    type: "formattedString",
-  },
+    {
+      headerName: "Exposure Type",
+      key: "exposureType",
+      type: "formattedString",
+    },
 
-  { headerName: "PO Date", key: "poDate" },
-  { headerName: "PO No", key: "poNo" },
+    { headerName: "PO Date", key: "poDate" },
+    { headerName: "PO No", key: "poNo" },
 
-  { headerName: "Invoice No", key: "invoiceNo" },
-  { headerName: "Invoice Date", key: "invoiceDate" },
-  { headerName: "Invoice Raised", key: "invoiceRaised" },
+    { headerName: "Invoice No", key: "invoiceNo" },
+    { headerName: "Invoice Date", key: "invoiceDate" },
+    { headerName: "Invoice Raised", key: "invoiceRaised" },
 
-  { headerName: "Party Name", key: "partyName" },
-  { headerName: "Bank", key: "bank" },
-  { headerName: "Business Unit", key: "businessUnit" },
+    { headerName: "Party Name", key: "partyName" },
+    { headerName: "Bank", key: "bank" },
+    { headerName: "Business Unit", key: "businessUnit" },
 
-  { headerName: "BL Date", key: "blDate" },
-  { headerName: "Payment Terms", key: "paymentTerms" },
-  { headerName: "Due Date", key: "dueDate" },
+    { headerName: "BL Date", key: "blDate" },
+    { headerName: "Payment Terms", key: "paymentTerms" },
+    { headerName: "Due Date", key: "dueDate" },
 
-  { headerName: "Currency", key: "currency" },
-  { headerName: "Amount", key: "amount" },
-  { headerName: "Budget Rate", key: "budgetRate" },
+    { headerName: "Currency", key: "currency" },
+    { headerName: "Amount", key: "amount" },
+    { headerName: "Budget Rate", key: "budgetRate" },
 
-  { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
-  { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
-  { headerName: "BMK Rate", key: "bmkRate" },
-  { headerName: "RM Policy Rate", key: "rmPolicyRate" },
+    { headerName: "Spot on BMK Date", key: "spotOnBmkDate" },
+    { headerName: "Premium on BMK Date", key: "premiumOnBmkDate" },
+    { headerName: "BMK Rate", key: "bmkRate" },
+    { headerName: "RM Policy Rate", key: "rmPolicyRate" },
 
-  { headerName: "Outstanding Amount", key: "outstandingAmount" },
-  { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
-  { headerName: "Import Reg Hedge Amount", key: "importRegHedgeAmount" },
+    { headerName: "Outstanding Amount", key: "outstandingAmount" },
+    { headerName: "Outstanding Amount (INR)", key: "outstandingAmountInInr" },
+    { headerName: "Import Reg Hedge Amount", key: "importRegHedgeAmount" },
 
-  { headerName: "Advance Payment", key: "advancePayment" },
-  { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
+    { headerName: "Advance Payment", key: "advancePayment" },
+    { headerName: "Advance Realization Rate", key: "advanceRealizationRate" },
 
-  { headerName: "Amount Settled", key: "amountSettled" },
-  { headerName: "Settlement Rate", key: "settlementRate" },
-  { headerName: "P/L in INR", key: "PlInINR" },
+    { headerName: "Amount Settled", key: "amountSettled" },
+    { headerName: "Settlement Rate", key: "settlementRate" },
+    { headerName: "P/L in INR", key: "PlInINR" },
 
-  { headerName: "Value in INR", key: "valueInInr" },
+    { headerName: "Value in INR", key: "valueInInr" },
+    { headerName: "Import Hedged Rate", key: "importHedgedRate" },
+    { headerName: "Remark", key: "remark" },
+    { headerName: "Status", key: "status" },
 
     {
       headerName: "Amount Settled",
@@ -270,25 +273,24 @@ const ImportRegisterTable = () => {
       },
     },
 
-  {
-    headerName: "Hedge Deals",
-    key: "hedgeDeals",
-    type: "component",
-    metaData: {
-      component: (row: any) => <HedgeDealsCell {...row} />,
-    },
-  },
-   {
-        headerName: "Actions",
-        key: "table-actions",
-        type: "table-actions",
-        props: {
-          row: { minW: 180, textAlign: "center" },
-          column: { textAlign: "center" },
-        },
+    {
+      headerName: "Hedge Deals",
+      key: "hedgeDeals",
+      type: "component",
+      metaData: {
+        component: (row: any) => <HedgeDealsCell {...row} />,
       },
-];
-
+    },
+    {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
+  ];
 
   function handleEdit(row: any) {
     setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
@@ -297,7 +299,7 @@ const ImportRegisterTable = () => {
   }
 
   const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -332,88 +334,86 @@ const ImportRegisterTable = () => {
     setDeleteRowData(null);
   };
 
-  return (
-    canView ? (
-      <>
-        <CustomTable
-          title="Import Register"
-          data={importData}
-          columns={ImportRegisterTableColumns}
-          actions={{
-            search: { show: false },
-            resetData: {
-              show: true,
-              text: "Reset Data",
-              function: () => fetchImportRegisterData(1),
+  return canView ? (
+    <>
+      <CustomTable
+        title="Import Register"
+        data={importData}
+        columns={ImportRegisterTableColumns}
+        actions={{
+          search: { show: false },
+          resetData: {
+            show: true,
+            text: "Reset Data",
+            function: () => fetchImportRegisterData(1),
+          },
+          exportExcel: {
+            show: true,
+            text: "Export Excel",
+            function: () =>
+              exportToExcel({
+                data: dummyImportRegisterData,
+                fileName: "Import_Register.xlsx",
+              }),
+          },
+          uploadFile: {
+            show: true,
+            text: "Upload Excel",
+            function: (e: any) => handleFileUpload(e),
+          },
+          pagination: {
+            show: true,
+            onClick: handlePageChange,
+            currentPage: page,
+            totalPages: totalPages,
+          },
+          actionBtn: {
+            addKey: {
+              showAddButton: canAdd,
+              function: onOpen,
             },
-            exportExcel: {
-              show: true,
-              text: "Export Excel",
-              function: () =>
-                exportToExcel({
-                  data: dummyImportRegisterData,
-                  fileName: "Import_Register.xlsx",
-                }),
-            },
-            uploadFile: {
-              show: true,
-              text: "Upload Excel",
-              function: (e: any) => handleFileUpload(e),
-            },
-            pagination: {
-              show: true,
-              onClick: handlePageChange,
-              currentPage: page,
-              totalPages: totalPages,
-            },
-            actionBtn: {
-              addKey: {
-                showAddButton: canAdd,
-                function: onOpen,
-              },
-              editKey: {
-                showEditButton: canEdit,
-                function: (row: any) => {
-                  handleEdit(row);
-                },
-              },
-              deleteKey: {
-                showDeleteButton: canDelete,
-                function: handleDeleteClick,
+            editKey: {
+              showEditButton: canEdit,
+              function: (row: any) => {
+                handleEdit(row);
               },
             },
-          }}
-          loading={loading}
+            deleteKey: {
+              showDeleteButton: canDelete,
+              function: handleDeleteClick,
+            },
+          },
+        }}
+        loading={loading}
+      />
+
+      <CustomDrawer
+        open={isOpen}
+        close={handleDrawerClose}
+        title="Add Import Entry"
+        width="75vw"
+        size="xl"
+      >
+        <ImportRegistrationForm
+          submitImportForm={submitImportForm}
+          key={formKey}
+          onClose={onClose}
+          editData={editRow}
+          originalData={originalRow}
         />
+      </CustomDrawer>
 
-        <CustomDrawer
-          open={isOpen}
-          close={handleDrawerClose}
-          title="Add Import Entry"
-          width="75vw"
-          size="xl"
-        >
-          <ImportRegistrationForm
-            submitImportForm={submitImportForm}
-            key={formKey}
-            onClose={onClose}
-            editData={editRow}
-            originalData={originalRow}
-          />
-        </CustomDrawer>
-
-        <DeleteConfirmationModal
-          isOpen={isDeleteOpen}
-          onClose={onDeleteClose}
-          onConfirm={onConfirmDelete}
-          title="Delete Entry"
-          description="Are you sure? You can't undo this action afterwards."
-          isLoading={deleteLoading}
-        />
-      </>)
-      : <RestrictedAccess />
-
-
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={onConfirmDelete}
+        title="Delete Entry"
+        description="Are you sure? You can't undo this action afterwards."
+        isLoading={deleteLoading}
+      />
+    </>
+  ) : (
+    <RestrictedAccess />
   );
 };
 

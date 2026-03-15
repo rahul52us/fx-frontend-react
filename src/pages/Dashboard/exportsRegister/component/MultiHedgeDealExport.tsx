@@ -13,7 +13,7 @@ interface MultiHedgeDealExportProps {
 export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
   url,
   showError,
-  exposureType
+  exposureType,
 }) => {
   const { values, setFieldValue, touched, errors }: any = useFormikContext();
   const [hedgeDealsMaster, setHedgeDealsMaster] = useState<any[]>([]);
@@ -24,8 +24,8 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     if (hedgeDealsMaster.length > 0) return;
     try {
       setLoading(true);
-      const res = await axios.post(`${url}/forwardregister/hedgedealid/`,{
-        exposureType: exposureType
+      const res = await axios.post(`${url}/forwardregister/hedgedealid/`, {
+        exposureType: exposureType,
       });
       if (res?.data?.status === "success") {
         setHedgeDealsMaster(res.data.data);
@@ -71,20 +71,20 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     <FieldArray name="hedgeDeals">
       {({ push, remove }) => (
         <Stack spacing={6}>
-           {typeof errors?.hedgeDeals === "string" && (
-      <Box
-        bg="red.50"
-        border="1px solid"
-        borderColor="red.300"
-        borderRadius="md"
-        px={4}
-        py={2}
-        color="red.600"
-        fontSize="sm"
-      >
-        {errors.hedgeDeals}
-      </Box>
-    )}
+          {typeof errors?.hedgeDeals === "string" && (
+            <Box
+              bg="red.50"
+              border="1px solid"
+              borderColor="red.300"
+              borderRadius="md"
+              px={4}
+              py={2}
+              color="red.600"
+              fontSize="sm"
+            >
+              {errors.hedgeDeals}
+            </Box>
+          )}
           {values.hedgeDeals?.map((item: any, index: number) => {
             const base = `hedgeDeals.${index}`;
 
@@ -167,7 +167,7 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
                   disabled
                 />
 
-                <CustomInput
+                {/* <CustomInput
                   label="Hedge Amount"
                   name={`${base}.hedgeAmount`}
                   type="number"
@@ -177,6 +177,22 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
                   onChange={(e: any) =>
                     setFieldValue(`${base}.hedgeAmount`, e.target.value)
                   }
+                /> */}
+                <CustomInput
+                  label="Hedge Amount"
+                  name={`${base}.hedgeAmount`}
+                  type="number"
+                  placeholder="Enter Hedge Amount"
+                  value={item.hedgeAmount}
+                  onChange={(e: any) =>
+                    setFieldValue(`${base}.hedgeAmount`, e.target.value)
+                  }
+                  // ✅ Per-row error: covers both balance>0 and hedgeAmount<=balance
+                  error={
+                    touched?.hedgeDeals?.[index]?.hedgeAmount &&
+                    (errors?.hedgeDeals?.[index] as any)?.hedgeAmount
+                  }
+                  showError={showError}
                 />
 
                 <CustomInput
