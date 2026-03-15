@@ -205,6 +205,15 @@ const ForwardCancellationTable = () => {
   { headerName: "P/L in FCY", key: "plInFCY" },
   { headerName: "P/L in INR", key: "plInINR" },
   { headerName: "Wash Rate", key: "washRate" },
+   {
+      headerName: "Actions",
+      key: "table-actions",
+      type: "table-actions",
+      props: {
+        row: { minW: 180, textAlign: "center" },
+        column: { textAlign: "center" },
+      },
+    },
 ];
 
   function handleEdit(row: any) {

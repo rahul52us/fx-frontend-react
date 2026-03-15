@@ -20,6 +20,7 @@ import {
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
 import ImportRegistrationForm from "../ImportRegisterForm";
+import AmountSettledList from "../../../exportsRegister/component/ExportRegisterTable/AmountSettledList";
 
 const ImportRegisterTable = () => {
   const [importData, setImportData] = useState<any[]>([]);
@@ -260,6 +261,15 @@ const ImportRegisterTable = () => {
 
   { headerName: "Value in INR", key: "valueInInr" },
 
+    {
+      headerName: "Amount Settled",
+      key: "amountSettledList",
+      type: "component",
+      metaData: {
+        component: (row: any) => <AmountSettledList {...row} />,
+      },
+    },
+
   {
     headerName: "Hedge Deals",
     key: "hedgeDeals",
@@ -268,6 +278,15 @@ const ImportRegisterTable = () => {
       component: (row: any) => <HedgeDealsCell {...row} />,
     },
   },
+   {
+        headerName: "Actions",
+        key: "table-actions",
+        type: "table-actions",
+        props: {
+          row: { minW: 180, textAlign: "center" },
+          column: { textAlign: "center" },
+        },
+      },
 ];
 
 
