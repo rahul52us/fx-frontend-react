@@ -1,20 +1,20 @@
 import {
-    Box,
-    Drawer,
-    DrawerBody,
-    DrawerCloseButton,
-    DrawerContent,
-    DrawerHeader,
-    DrawerOverlay,
-    SimpleGrid,
-    Stack,
-    Tab,
-    TabList,
-    TabPanel,
-    TabPanels,
-    Tabs,
-    Text,
-    useColorModeValue
+  Box,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  SimpleGrid,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  useColorModeValue
 } from "@chakra-ui/react";
 
 // Reusable Data Field
@@ -51,6 +51,7 @@ const ExposureSettlementViewDrawer = ({ isOpen, onClose, data }: any) => {
 const isEEFCEnabled =
   data?.isEEFCExportsEnabled || data?.isEEFCImportsEnabled;
 
+  const pcfcList = Array.isArray(data?.pcfcList) ? data.pcfcList : [];
 
   return (
     <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
@@ -88,6 +89,12 @@ const isEEFCEnabled =
              {isEEFCEnabled && (
   <Tab fontWeight="bold">
     EEFC ({eefcList?.length || 0})
+  </Tab>
+)}
+
+{data?.isPCFCEnabled && (
+  <Tab fontWeight="bold">
+    PCFC ({data?.pcfcList?.length || 0})
   </Tab>
 )}
 
@@ -141,6 +148,8 @@ const isEEFCEnabled =
                   </Box>
                 </Box>
               </TabPanel>
+
+
 
               {/* ================= SPOT DETAILS ================= */}
               {data?.isSpotEnabled && (
@@ -236,6 +245,34 @@ const isEEFCEnabled =
                 value={eefc?.closingAmountInr}
               />
             )}
+          </SimpleGrid>
+        </Box>
+      ))}
+    </Stack>
+  </TabPanel>
+)}
+
+
+              {data?.isPCFCEnabled && (
+  <TabPanel p={0}>
+    <Stack spacing={4}>
+      {pcfcList?.map((pcfc: any, index: number) => (
+        <Box
+          key={index}
+          bg={cardBg}
+          p={5}
+          borderRadius="lg"
+          boxShadow="md"
+          borderLeft="4px solid"
+          borderLeftColor="purple.400"
+        >
+          <SimpleGrid columns={2} spacing={5}>
+            <DataField label="Trade Ref Number" value={pcfc?.tradeRefNumber} />
+            <DataField label="Outstanding Amount" value={pcfc?.outstandingAmount} />
+            <DataField label="Utilization Amount" value={pcfc?.utilizationAmount} />
+            <DataField label="Net Drawdown Rate" value={pcfc?.netDrawdownRate} />
+            <DataField label="Net Settlement Rate" value={pcfc?.netSettlementRate} />
+            <DataField label="Due Date" value={pcfc?.dueDate} />
           </SimpleGrid>
         </Box>
       ))}

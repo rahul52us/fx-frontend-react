@@ -402,16 +402,18 @@ const ConversionManager = ({ showError }: any) => {
                     >
                         <SimpleGrid columns={[1, 2, 3]} spacing={4}>
   {/* New Hedge Deal Component */}
-  <HedgeDealSelector
-    index={index}
-    values={fw}
-    bank={values.bank}
-    businessUnit={values.businessUnit}
-    setFieldValue={setFieldValue}
-    touched={touched.forwardList?.[index]}
-    errors={errors.forwardList?.[index]}
-    showError={showError}
-  />
+<HedgeDealSelector
+  index={index}
+  values={fw}
+  bank={values.bank}
+  businessUnit={values.businessUnit}
+  exposureType={values.exposureType}   // add this
+  dueDate={values.dueDate}             // add this
+  setFieldValue={setFieldValue}
+  touched={touched.forwardList?.[index]}
+  errors={errors.forwardList?.[index]}
+  showError={showError}
+/>
 
   <CustomInput
     label="Utilization Amount"

@@ -299,18 +299,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   showError={showError}
 />
 
-                  {/* <CustomInput
-                    label="Bank"
-                    name="bank"
-                    type="select"
-                    required
-                    placeholder="Select Bank"
-                    options={banksData}
-                    value={values.bank}
-                    onChange={(opt: any) => setFieldValue("bank", opt)}
-                    error={touched.bank && errors.bank}
-                    showError={showError}
-                  /> */}
+               
                   <CustomInput
                     label="Currency"
                     name="currency"

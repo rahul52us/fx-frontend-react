@@ -3,16 +3,18 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 
+// 1. Add exposureType and documentDueDate to props interface
 interface HedgeDealSelectorProps {
-//   url: string;
-  index: number; // required for FieldArray
-  values: any; // forwardList[index]
+  index: number;
+  values: any;
   setFieldValue: any;
   touched: any;
   errors: any;
   showError: boolean;
-  bank: string;
-  businessUnit: string;
+  bank: any;           // can be string or object
+  businessUnit: any;   // can be string or object
+  exposureType: any;   // add this
+  dueDate: string;     // add this (documentDueDate)
 }
 
 const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
@@ -24,7 +26,9 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
   errors,
   showError,
   bank,
-  businessUnit
+  businessUnit,
+  exposureType,
+  dueDate
 }) => {
   const [hedgeDeals, setHedgeDeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,10 +38,16 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
   const fetchHedgeDeal = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(`${url}/forwardregister/hedgedealid/`,{
-        bank: bank,
-        businessUnit: businessUnit
+       const response = await axios.post(`${url}/forwardregister/hedgedealid/`, {
+        bank: typeof bank === "object" ? bank?.value ?? "" : bank ?? "",
+        businessUnit: typeof businessUnit === "object" ? businessUnit?.value ?? "" : businessUnit ?? "",
+        exposureType: typeof exposureType === "object" ? exposureType?.value ?? "" : exposureType ?? "",
+        documentDueDate: dueDate ?? "",
       });
+      // const response = await axios.post(`${url}/forwardregister/hedgedealid/`,{
+      //   bank: bank,
+      //   businessUnit: businessUnit
+      // });
       if (response?.data?.status === "success") {
         setHedgeDeals(response.data.data || []);
       }

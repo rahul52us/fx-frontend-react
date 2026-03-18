@@ -465,7 +465,9 @@ const getFirstErrorMessage = (errorObj: unknown): string | null => {
                 <SpotForwardCalculation />
                 {/* ===================== CONDITIONAL SECTIONS ===================== */}
                 {values.isSpotEnabled && (
-                  <SpotConversionSection showError={showError} />
+                  <SpotConversionSection 
+                  showError={showError}
+                   />
                 )}
 
                 {values.isEEFCExportsEnabled && (

@@ -38,10 +38,10 @@ const EEFCImportsSection = ({ showError }: any) => {
         setFieldValue("eefcImportsList", [
           {
             amount: "",
-            settlementRate: "",
+            // settlementRate: "",
             closingAmount: prevClosingBalance ?? 0,
             closingAmountInr:prevClosingBalanceInInr ?? 0,
-            weigtedAverageRate: weigtedAverageRate ?? 0
+            settlementRate: weigtedAverageRate ?? 0
           },
         ]);
       } else {
@@ -55,7 +55,7 @@ const EEFCImportsSection = ({ showError }: any) => {
           prevClosingBalanceInInr ?? 0
         );
         setFieldValue(
-          "eefcImportsList.0.weigtedAverageRate",
+          "eefcImportsList.0.settlementRate",
           weigtedAverageRate ?? 0
         );
       }
@@ -127,6 +127,7 @@ const EEFCImportsSection = ({ showError }: any) => {
                   <SimpleGrid columns={[1, 2, 3]} spacing={4}>
                     <CustomInput
                       label="Settlement Rate"
+                      disabled
                       placeholder="Enter settlement rate"
                       name={`eefcImportsList.${index}.settlementRate`}
                       value={row.settlementRate}
