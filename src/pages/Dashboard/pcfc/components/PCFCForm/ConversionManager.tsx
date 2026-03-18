@@ -407,7 +407,7 @@ const ConversionManager = ({ showError }: any) => {
   values={fw}
   bank={values.bank}
   businessUnit={values.businessUnit}
-  exposureType={values.exposureType}   // add this
+  // exposureType={values.exposureType}   // add this
   dueDate={values.dueDate}             // add this
   setFieldValue={setFieldValue}
   touched={touched.forwardList?.[index]}
