@@ -151,7 +151,7 @@ const GenerateRows = ({ column, row, action }: any) => {
           overflow="hidden"
           textOverflow="ellipsis"
         >
-          {row[column.key] || "--"}
+          {row[column.key] !== undefined && row[column.key] !== null ? row[column.key] : "--"}
         </Td>
       );
   }

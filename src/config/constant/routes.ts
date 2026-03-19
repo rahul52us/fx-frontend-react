@@ -33,6 +33,7 @@ export const dashboard = {
   superAdminTab: `/${dashboardName}/admin`,
   adminTab:`/${dashboardName}/users`,
   approvals:`/${dashboardName}/approvals`,
+  summary: `/${dashboardName}/summary`,
   
   exportApproval: `/${dashboardName}/export-register/approvals`,
   // Profile

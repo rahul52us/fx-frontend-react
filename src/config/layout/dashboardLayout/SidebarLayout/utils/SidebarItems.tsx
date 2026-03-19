@@ -235,6 +235,13 @@ const sidebarDatas: SidebarItem[] = [
     url: dashboard.adminTab,
     role: ["admin"],
   },
+  {
+    id: 1300,
+    name: "Summary",
+    icon: <IoDocumentText />,
+    url: dashboard.summary,
+    role: ["user", "admin", "manager"],
+  },
 ];
 
 export const sidebarFooterData: SidebarItem[] = [

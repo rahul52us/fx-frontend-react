@@ -26,6 +26,7 @@ import OrderStore from "./orderStore/orderStore";
 import WebTemplateStore from "./webTemplateStore/webTemplateStore";
 import ApprovalStore from "./approvalStore/approvalStore";
 import AdminStore from "./adminStore/adminStore";
+import SummaryStore from "./summaryStore/summaryStore";
 
 configure({ enforceActions: "never" });
 
@@ -61,6 +62,7 @@ const store = {
   //
   WebTemplateStore: new WebTemplateStore(),
   adminStore: new AdminStore(),
+  summaryStore: new SummaryStore(),
 };
 
 export default store;

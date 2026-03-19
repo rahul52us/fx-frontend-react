@@ -176,6 +176,7 @@ const SalarySlip = lazy(() => import("../../pages/Dashboard/salary/salarySlip/Sa
 // Blogs
 
 const BlogIndex = lazy(() => import("../../pages/Dashboard/Blog/BlogIndex"))
+const SummaryPage = lazy(() => import("../../pages/Dashboard/summary/SummaryPage"))
 
 export const DashboardRoutes = [
   {
@@ -246,6 +247,11 @@ export const DashboardRoutes = [
   {
     element : <UserList />,
     path : dashboard.adminTab,
+    privateRoutes : true
+  },
+  {
+    element : <SummaryPage />,
+    path : dashboard.summary,
     privateRoutes : true
   },
   {
