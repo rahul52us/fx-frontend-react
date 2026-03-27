@@ -1,6 +1,6 @@
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
@@ -109,15 +109,15 @@ const ForwardRegisterTable = () => {
   };
 
   /* ---------------- Fetch Data ---------------- */
+  const { viewAsUserId } = store.auth;
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
 
-  const fetchExportRegisterData = async (currentPage = 1) => {
+  const fetchExportRegisterData = useCallback(async (currentPage = 1) => {
     setLoading(true);
     try {
-      const { viewAsUserId } = store.auth;
       const response = await axios.post(`${url}/forwardregister/view/`, {
         userToken: "abcxyz",
         page: currentPage,
@@ -137,7 +137,7 @@ const ForwardRegisterTable = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, rowsPerPage, viewAsUserId]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -160,7 +160,7 @@ const ForwardRegisterTable = () => {
   useEffect(() => {
     if (!canView) return;
     fetchExportRegisterData(page);
-  }, [store.auth.viewAsUserId]);
+  }, [viewAsUserId, canView, fetchExportRegisterData, page]);
 
   /* ---------------- Delete Handlers ---------------- */
 

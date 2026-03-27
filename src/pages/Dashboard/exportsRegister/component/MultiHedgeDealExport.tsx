@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Grid, Stack, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { FieldArray, useFormikContext } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 
 interface MultiHedgeDealExportProps {
@@ -20,7 +20,7 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-  const fetchHedgeDeals = async () => {
+  const fetchHedgeDeals = useCallback(async () => {
     if (hedgeDealsMaster.length > 0) return;
     try {
       setLoading(true);
@@ -39,7 +39,7 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [hedgeDealsMaster.length, url, exposureType, toast]);
 
   const handleAddClick = async (push: any) => {
     if (hedgeDealsMaster.length === 0) {
@@ -65,7 +65,7 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     if (values?.hedgeDeals?.length > 0 && hedgeDealsMaster.length === 0) {
       fetchHedgeDeals();
     }
-  }, [values?.hedgeDeals]);
+  }, [values?.hedgeDeals, hedgeDealsMaster.length, fetchHedgeDeals]);
 
   return (
     <FieldArray name="hedgeDeals">

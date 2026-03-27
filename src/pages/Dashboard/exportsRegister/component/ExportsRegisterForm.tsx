@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import * as Yup from "yup";
 import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
@@ -34,7 +34,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
   const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
   const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [_, setSubmitAttempted] = useState(false);
+  const [, setSubmitAttempted] = useState(false);
   const [poData, setPoData] = useState<any[]>([]);
   const url = process.env.REACT_APP_FX_BASE_URL;
   const [selectedExposureType, setSelectedExposureType] = useState<string>("");
@@ -329,7 +329,7 @@ const fetchPoBalance = async (poNumber: string) => {
 
  
 
-  const fetchPoDetails = async () => {
+  const fetchPoDetails = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.post(`${url}/exportregister/polist/`);
@@ -371,11 +371,11 @@ const fetchPoBalance = async (poNumber: string) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url]);
 
   useEffect(() => {
     fetchPoDetails();
-  }, []);
+  }, [fetchPoDetails]);
 
   const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);

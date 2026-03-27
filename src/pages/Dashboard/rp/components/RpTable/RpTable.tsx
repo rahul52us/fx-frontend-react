@@ -20,7 +20,6 @@ import RestrictedAccess from "../../../../../config/component/common/RestrictedA
 
 const RpTable = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [_, setFileBase64] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
 
   const toast = useToast();
@@ -46,7 +45,6 @@ const RpTable = () => {
     try {
       // Convert file to Base64
       const base64 = await convertFileToBase64(file);
-      setFileBase64(base64);
 
       // Send Base64 to API
       await submitExportForm(base64);

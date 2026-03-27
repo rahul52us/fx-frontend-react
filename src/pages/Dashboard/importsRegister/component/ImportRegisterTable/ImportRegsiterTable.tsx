@@ -2,7 +2,7 @@
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { toJS } from "mobx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
@@ -111,18 +111,11 @@ const ImportRegisterTable = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
+  const { viewAsUserId } = store.auth;
 
-  useEffect(() => {
-    if (!canView) {
-      return;
-    }
-    fetchImportRegisterData(page);
-  }, [store.auth.viewAsUserId]);
-
-  const fetchImportRegisterData = async (currentPage = 1) => {
+  const fetchImportRegisterData = useCallback(async (currentPage = 1) => {
     setLoading(true);
     try {
-      const { viewAsUserId } = store.auth;
       const response = await axios.post(`${url}/importregister/view/`, {
         userToken: "abcdxyz",
         page: currentPage,
@@ -142,19 +135,20 @@ const ImportRegisterTable = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    fetchImportRegisterData(newPage);
-  };
+  }, [url, rowsPerPage, viewAsUserId]);
 
   useEffect(() => {
     if (!canView) {
       return;
     }
     fetchImportRegisterData(page);
-  }, []);
+  }, [viewAsUserId, canView, fetchImportRegisterData, page]);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchImportRegisterData(newPage);
+  };
+
 
   // const ImportRegisterTableColumns = [
   //   {

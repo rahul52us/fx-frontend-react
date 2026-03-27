@@ -14,6 +14,7 @@ import EEFCRegister from "../../pages/Dashboard/eefcRegister/EEFCRegister";
 import Rp from "../../pages/Dashboard/rp/Rp";
 import Approvals from "../../pages/Dashboard/Approvals/Approvals";
 import ExportApprovals from "../../pages/Dashboard/exportsRegister/component/ExportApproval/ExportApproval";
+// import NewDashboard from "../../pages/Dashboard/mainDashboard/NewDashboard/NewDashboard";
 
 const VerifyInvitationPage = lazy(() => import("../component/common/VerifyInvitationPages/VerifyInvitationPage"))
 
@@ -38,6 +39,10 @@ const PageNotFound = lazy(
 const DashboardIndex = lazy(
   () => import("../../pages/Dashboard/DashboardIndex")
 );
+
+const NewDashboard = lazy(
+  () => import("../../pages/Dashboard/mainDashboard/NewDashboard/NewDashboard")
+)
 const QuizDashIndex = lazy(
   () => import("../../pages/Dashboard/quiz/QuizIndex")
 );
@@ -182,6 +187,11 @@ export const DashboardRoutes = [
   {
     element: <DashboardIndex />,
     path: dashboard.home,
+    privateRoutes: true
+  },
+  {
+    element: <NewDashboard />,
+    path: dashboard.newDashboard,
     privateRoutes: true
   },
   {

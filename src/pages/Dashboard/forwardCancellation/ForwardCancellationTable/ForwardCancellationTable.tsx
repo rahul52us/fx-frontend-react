@@ -3,7 +3,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import RestrictedAccess from "../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { useDeleteItem } from "../../../../config/component/customHooks/useDeleteItem";
 import { usePermission } from "../../../../config/component/customHooks/usePermission";
@@ -101,11 +101,11 @@ const ForwardCancellationTable = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
+  const { viewAsUserId } = store.auth;
 
-  const fetchExportRegisterData = async (currentPage = 1) => {
+  const fetchExportRegisterData = useCallback(async (currentPage = 1) => {
     setLoading(true);
     try {
-      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/forwardCancellationpcfc/view/`,
         { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
@@ -123,7 +123,7 @@ const ForwardCancellationTable = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, rowsPerPage, viewAsUserId]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -133,7 +133,7 @@ const ForwardCancellationTable = () => {
   useEffect(() => {
     if (!canView) return;
     fetchExportRegisterData(page);
-  }, [store.auth.viewAsUserId]);
+  }, [viewAsUserId, canView, fetchExportRegisterData, page]);
 
 
   // const DealDataColumns = [

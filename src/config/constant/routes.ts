@@ -14,6 +14,7 @@ const dashboardName = "dashboard";
 
 export const dashboard = {
   home: `/${dashboardName}`,
+  newDashboard: `/${dashboardName}/new-dashboard`,
   calender: `/${dashboardName}/pcfc`,
   testimonial: `/${dashboardName}/forward-regsiter`,
   videos: `/${dashboardName}/forward-cancellation`,

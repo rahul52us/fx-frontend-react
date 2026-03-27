@@ -383,7 +383,7 @@ const SidebarLayout: React.FC<SidebarProps> = observer(
 
     useEffect(() => {
       if (!isMobile) setOpenMobileSideDrawer(false);
-    }, [isMobile]);
+    }, [isMobile, setOpenMobileSideDrawer]);
 
     const expandedPath =
       activeItemId !== null ? findPathToActiveItem(sidebarData, activeItemId) : [];

@@ -1,6 +1,6 @@
 import { useToast } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 
 // 1. Add exposureType and documentDueDate to props interface
@@ -35,7 +35,7 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
 
-  const fetchHedgeDeal = async () => {
+  const fetchHedgeDeal = useCallback(async () => {
     try {
       setLoading(true);
        const response = await axios.post(`${url}/forwardregister/hedgedealid/`, {
@@ -63,13 +63,13 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, bank, businessUnit, dueDate, toast]);
 
  
 
   useEffect(() => {
     fetchHedgeDeal();
-  }, []);
+  }, [fetchHedgeDeal]);
 
   // Drop-down options
   const hedgeDealOptions = hedgeDeals.map((item: any) => ({

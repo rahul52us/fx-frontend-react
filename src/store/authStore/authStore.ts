@@ -551,12 +551,6 @@ getBankMargin = (bankName: string): string => {
       return true
     }
     // Superadmin can do everything
-    if (this.user?.role === 'superadmin') {
-      return false;
-    }
-
-    return false
-
     // For other roles, use existing permission system
     return this.checkPermission(context || '', action);
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, startTransition, Suspense } from 'react';
+import { useEffect, useRef, startTransition, Suspense, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Box,
@@ -47,9 +47,9 @@ const DashboardLayout = observer(() => {
   const isMobile = useBreakpointValue({ base: true, lg: false }) ?? false;
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
-  const closeDrawerModel = () => {
+  const closeDrawerModel = useCallback(() => {
     setOpenMobileSideDrawer(false);
-  };
+  }, [setOpenMobileSideDrawer]);
 
   const handleSidebarItemClick = (item: any) => {
     if (!item.children || item.url) {
@@ -117,7 +117,7 @@ const DashboardLayout = observer(() => {
         navigate(lastRoute, { replace: true });
       }
     });
-  }, [user?.role]);
+  }, [user?.role, navigate]);
 
   /* ------------------ LOADER ------------------ */
   if (!user) {

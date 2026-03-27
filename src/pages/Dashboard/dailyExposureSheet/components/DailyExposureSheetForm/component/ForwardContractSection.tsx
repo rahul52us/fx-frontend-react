@@ -13,7 +13,7 @@ import {
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import { FieldArray, useFormikContext } from "formik";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
 
 const ForwardContractSection = ({
@@ -45,7 +45,7 @@ const ForwardContractSection = ({
   };
 
   // 🔹 Fetch Hedge Deals (POST)
-  const fetchHedgeDeals = async () => {
+  const fetchHedgeDeals = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.post(
@@ -73,11 +73,11 @@ const ForwardContractSection = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [bank, businessUnit, exposureType, documentDueDate, url, toast]);
 
   useEffect(() => {
     fetchHedgeDeals();
-  }, [bank, businessUnit, exposureType]);
+  }, [fetchHedgeDeals]);
 
   // 🔹 Select options
   const hedgeOptions = hedgeDeals.map((item: any) => ({

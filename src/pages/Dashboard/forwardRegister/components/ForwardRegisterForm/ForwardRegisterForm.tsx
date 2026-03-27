@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import * as Yup from "yup";
 import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
@@ -93,7 +93,7 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
 
   });
 
-  const fetchExpoRefNos = async (mainExposureType: string, subExposureType: string) => {
+  const fetchExpoRefNos = useCallback(async (mainExposureType: string, subExposureType: string) => {
     try {
       const response = await axios.post(
         `${url}/exportregister/fetchdataforforwardreg/`,
@@ -115,7 +115,7 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
       console.error("Error fetching exposure details:", error);
       setExposureRefOptions([]);
     }
-  };
+  }, [url]);
 
   const handleMainExposureTypeChange = (option: any, setFieldValue: any, currentValues: any) => {
     const mainType = option.value;
@@ -190,7 +190,7 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
         editData.subExposureType
       );
     }
-  }, [isEdit, editData]);
+  }, [isEdit, editData, fetchExpoRefNos]);
 
   return (
     <Box py={4}>

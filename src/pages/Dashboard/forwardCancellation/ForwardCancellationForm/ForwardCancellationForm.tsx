@@ -2,7 +2,7 @@
 import { Box, Button, Flex, SimpleGrid, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import * as Yup from "yup";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import {
@@ -31,7 +31,7 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
     cashTomSpot: Yup.number().required("Cash/Tom Spot is required"),
   });
 
-  const fetchHedgeDealData = async () => {
+  const fetchHedgeDealData = useCallback(async () => {
     try {
       const response = await axios.post(
         `${url}/forwardCancellationpcfc/dealid/`
@@ -56,11 +56,11 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
     } catch (error) {
       console.error("Error fetching hedge deal data:", error);
     }
-  };
+  }, [url]);
 
   useEffect(() => {
     fetchHedgeDealData();
-  }, [])
+  }, [fetchHedgeDealData]);
 
   console.log('editData',editData)
 

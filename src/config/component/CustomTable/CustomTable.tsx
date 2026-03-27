@@ -57,6 +57,7 @@ interface CustomTableProps {
   serial?: any;
   loading: boolean;
   actions?: any;
+  variant?: string;
   tableProps?: any;
 }
 
@@ -166,6 +167,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   serial,
   loading,
   actions,
+  variant,
   tableProps = {},
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -265,6 +267,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
         <Table
           size="sm"
           w="100%"
+          variant={variant}
           minW="900px"
           tableLayout="fixed"
           {...tableProps.table}

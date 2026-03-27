@@ -3,7 +3,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
@@ -135,11 +135,11 @@ const DailyExposureTable = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
+  const { viewAsUserId } = store.auth;
 
-  const fetchExportRegisterData = async (currentPage = 1) => {
+  const fetchExportRegisterData = useCallback(async (currentPage = 1) => {
     setLoading(true);
     try {
-      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         `${url}/exposuresettlementreport/view/`,
         { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
@@ -157,7 +157,7 @@ const DailyExposureTable = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, rowsPerPage, viewAsUserId]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -167,8 +167,7 @@ const DailyExposureTable = () => {
   useEffect(() => {
     if (!canView) return;
     fetchExportRegisterData(page);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store.auth.viewAsUserId]);
+  }, [viewAsUserId, canView, fetchExportRegisterData, page]);
 
   /* ---------------- Delete Handlers ---------------- */
 
@@ -192,50 +191,6 @@ const DailyExposureTable = () => {
     onDeleteClose();
     setDeleteRowData(null);
   };
-
-
-  // const DailyExposureColumns = [
-  //   { headerName: "Created At", key: "createdAt", label: "Created At" },
-  //   { headerName: "Settlement Date", key: "settlementDate", label: "Settlement Date" },
-  //   { headerName: "Settlement Input Date", key: "settlementInputDate", label: "Settlement Input Date" },
-
-  //   { headerName: "Exposure Type", key: "exposureType", label: "Exposure Type" },
-  //   { headerName: "Settlement Type", key: "settlementType", label: "Settlement Type" },
-
-  //   { headerName: "PO Number", key: "poNumber", label: "PO Number" },
-  //   { headerName: "Invoice / BC Number", key: "invoiceBcNumber", label: "Invoice / BC No" },
-
-  //   { headerName: "Party Name", key: "partyName", label: "Party Name" },
-  //   { headerName: "Business Unit", key: "bussinessUnit", label: "Business Unit" },
-
-  //   { headerName: "Bank", key: "bank", label: "Bank" },
-  //   { headerName: "Currency", key: "currency", label: "Currency" },
-
-  //   { headerName: "Outstanding Amount", key: "outStandingAmount", label: "Outstanding Amount" },
-  //   { headerName: "Due Date", key: "dueDate", label: "Due Date" },
-
-  //   { headerName: "Settled Amount", key: "settledAmount", label: "Settled Amount" },
-
-  //   { headerName: "Settlement Rate", key: "settlementRate", label: "Settlement Rate" },
-  //   { headerName: "Settled Amount (INR)", key: "settledAmountInInr", label: "Settled Amount INR" },
-
-  //   { headerName: "Benchmark Rate", key: "benchmarkRate", label: "Benchmark Rate" },
-  //   { headerName: "Bmk vs Settlement Rate", key: "bmkVsSettlementRate", label: "Bmk vs Sett Rate" },
-
-  //   { headerName: "Spot on Settlement Date", key: "spotOnSettlementDate", label: "Spot on Sett Date" },
-  //   { headerName: "Market vs Settlement Rate", key: "marketVsSettlementRate", label: "Market vs Sett Rate" },
-
-
-  //   {
-  //     headerName: "Actions",
-  //     key: "table-actions",
-  //     type: "table-actions",
-  //     props: {
-  //       row: { minW: 180, textAlign: "center" },
-  //       column: { textAlign: "center" },
-  //     },
-  //   },
-  // ];
 
 
   const DailyExposureColumns = [

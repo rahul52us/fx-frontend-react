@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import { Box, useToast } from "@chakra-ui/react";
 import store from "../../../store/store";
@@ -18,7 +18,7 @@ const AdminList = observer(() => {
   const [drawerMode, setDrawerMode] = useState<"add" | "view" | "edit">("add");
   const [selectedRow, setSelectedRow] = useState<any>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await adminStore.getAdmins({ search, role: 'admin' });
@@ -39,11 +39,11 @@ const AdminList = observer(() => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [adminStore, search]);
 
   useEffect(() => {
     fetchData();
-  }, [search]);
+  }, [fetchData]);
 
   const openDrawer = (mode: "add" | "view" | "edit", row?: any) => {
     setDrawerMode(mode);

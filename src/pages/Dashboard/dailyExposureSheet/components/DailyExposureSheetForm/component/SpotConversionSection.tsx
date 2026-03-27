@@ -3,7 +3,7 @@
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import { Box, Button, Flex, IconButton, SimpleGrid, VStack } from "@chakra-ui/react";
 import { FieldArray, useFormikContext } from "formik";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
 import store from "../../../../../../store/store";
 
@@ -11,13 +11,13 @@ const SpotConversionSection = ({ showError }: any) => {
   const { values, setFieldValue, errors, touched }: any = useFormikContext();
   const { auth: { banksData } } = store;
 
-  const getBankMargin = () => {
+  const getBankMargin = useCallback(() => {
     const bankValue = typeof values.bank === "string"
       ? values.bank
       : values.bank?.value;
     const found = banksData.find((b: any) => b.value === bankValue);
     return found?.bankMargin ?? "";
-  };
+  }, [values.bank, banksData]);
 
   // Recalculate all rows when bank or exposureType changes
   useEffect(() => {
@@ -50,7 +50,7 @@ const SpotConversionSection = ({ showError }: any) => {
     });
 
     setFieldValue("spotList", updatedList);
-  }, [values.bank, values.exposureType]); // ✅ Re‑run when bank or exposureType changes
+  }, [values.bank, values.exposureType, getBankMargin, setFieldValue, values.spotList]); // ✅ Re‑run when bank or exposureType changes
 
   // Create a new row with correct net rate based on current exposureType and bank margin
   const getEmptySpotRow = () => {

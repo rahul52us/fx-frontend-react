@@ -17,7 +17,7 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useApprovalApi } from "../../../../../config/component/customHooks/useApprovalApi";
 import { ApprovalDrawer } from "../../../Approvals/component/ApprovalDrawer";
 import { ApprovalItem } from "../../../Approvals/interface";
@@ -146,22 +146,22 @@ const [activeTab, setActiveTab] = useState<ApprovalStatus>("pending");
     submitApproval,
   } = useApprovalApi();
 
+  const loadData = useCallback(async () => {
+    const res = await getApprovals({
+      // register: "export",
+      userId: "379e8658-7450-4ff6-a24d-580bb38393ad",
+    });
+
+    setApprovalData({
+      pending: res.data.pending || [],
+      approved: res.data.approved || [],
+      rejected: res.data.rejected || [],
+    });
+  }, [getApprovals]);
+
   useEffect(() => {
     loadData();
-  }, []);
-
-const loadData = async () => {
-  const res = await getApprovals({
-    // register: "export",
-    userId: "379e8658-7450-4ff6-a24d-580bb38393ad",
-  });
-
-  setApprovalData({
-    pending: res.data.pending || [],
-    approved: res.data.approved || [],
-    rejected: res.data.rejected || [],
-  });
-};
+  }, [loadData]);
 
 
   const sections = useMemo(

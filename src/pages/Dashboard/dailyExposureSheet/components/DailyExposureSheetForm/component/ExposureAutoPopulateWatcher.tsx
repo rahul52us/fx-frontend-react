@@ -51,7 +51,7 @@ const url = process.env.REACT_APP_FX_BASE_URL
     };
 
     fetchExposureData();
-  }, [settlementType, poNumber, invoiceBcNumber]);
+  }, [settlementType, poNumber, invoiceBcNumber, setFieldValue, url]);
 
   return null; // 👈 watcher only
 };

@@ -67,7 +67,7 @@ const EEFCImportsSection = ({ showError }: any) => {
   };
 
   fetchEEFCData();
-}, []);
+  }, [url, values.eefcImportsList, setFieldValue]);
 
 
 

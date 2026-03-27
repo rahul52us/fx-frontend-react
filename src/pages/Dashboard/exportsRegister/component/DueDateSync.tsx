@@ -18,7 +18,7 @@ const DueDateSync = () => {
     } else {
       setFieldValue("dueDate", "", false);
     }
-  }, [values.blDate, values.paymentTerms]);
+  }, [values.blDate, values.paymentTerms, setFieldValue, values]);
 
   return null;
 };

@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import * as Yup from "yup";
 import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
@@ -57,7 +57,7 @@ const fetchPoBalance = async (poNumber: string) => {
   }
 };
 
-  const fetchPoDetails = async () => {
+  const fetchPoDetails = useCallback(async () => {
     setLoading(true);
     try {
       const response: any = await axios.post(`${url}/importregister/polist/`);
@@ -82,7 +82,7 @@ const fetchPoBalance = async (poNumber: string) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url]);
 
   const validationSchema = Yup.object().shape({
     exposureType: Yup.mixed().required("Exposure Type is required"),
@@ -189,7 +189,7 @@ const fetchPoBalance = async (poNumber: string) => {
 
   useEffect(() => {
     fetchPoDetails();
-  }, []);
+  }, [fetchPoDetails]);
 
   return (
     <Box mx="auto" borderRadius="2xl">
@@ -248,10 +248,10 @@ const fetchPoBalance = async (poNumber: string) => {
               }
 
               return;
-            } {
-              setShowError(true);
-              submitImportForm(values, actions, "form");
-            }
+              } else {
+                setShowError(true);
+                submitImportForm(values, actions, "form");
+              }
           }}
         >
           {({

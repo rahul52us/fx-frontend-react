@@ -23,6 +23,13 @@ interface SidebarItem {
 
 const sidebarDatas: SidebarItem[] = [
   {
+    id: 1010,
+    name: "New Dashboard",
+    icon: <IoPieChartSharp />,
+    url: dashboard.newDashboard,
+    role: ["user", "admin", "manager"],
+  },
+  {
     id: 101,
     name: "Dashboard",
     icon: <IoPieChartSharp />,

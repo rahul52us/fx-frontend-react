@@ -9,7 +9,7 @@ import {
   VStack
 } from "@chakra-ui/react";
 import { FieldArray, useFormikContext } from "formik";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import store from "../../../../../store/store";
 import { forwardRegDataAllData } from "./dummyData";
@@ -44,13 +44,13 @@ const ConversionManager = ({ showError }: any) => {
     setFieldValue(`spotList.${index}`, updatedRow);
   };
 
-  const getBankMargin = () => {
+  const getBankMargin = useCallback(() => {
     const bankValue = typeof values.bank === "string"
       ? values.bank
       : values.bank?.value;
     const found = banksData.find((b: any) => b.value === bankValue);
     return found?.bankMargin ?? "";
-  };
+  }, [values.bank, banksData]);
 
   useEffect(() => {
     if (!values.isSpotEnabled) return;
@@ -74,7 +74,7 @@ const ConversionManager = ({ showError }: any) => {
     });
 
     setFieldValue("spotList", updatedSpotList);
-  }, [values.isSpotEnabled]); // ← fires when spot section is toggled on
+  }, [values.isSpotEnabled, getBankMargin, values.spotList, setFieldValue]); // ← fires when spot section is toggled on
 
   // ✅ Also patch when bank changes while spot is already enabled
   useEffect(() => {
@@ -96,7 +96,7 @@ const ConversionManager = ({ showError }: any) => {
     });
 
     setFieldValue("spotList", updatedSpotList);
-  }, [values.bank]); // ← fires when bank changes
+  }, [values.bank, getBankMargin, values.isSpotEnabled, values.spotList, setFieldValue]); // ← fires when bank changes
 
   // ✅ Pre-fill new rows with bank margin
   const getEmptySpotRow = () => ({

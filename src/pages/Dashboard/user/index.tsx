@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import { Box, useToast } from "@chakra-ui/react";
 import store from "../../../store/store";
@@ -23,7 +23,7 @@ const UserList = observer(() => {
   const [loading, setLoading] = useState(false);
 
   /* -------------------- Fetch Users from API -------------------- */
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await User.getUsersWithAuth({ search, role: 'user' });
@@ -47,11 +47,11 @@ const UserList = observer(() => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [User, search, toast]);
 
   useEffect(() => {
     fetchData();
-  }, [search]);
+  }, [fetchData]);
 
   /* -------------------- Drawer Controls -------------------- */
   const openDrawer = (mode: "add" | "view" | "edit", row?: any) => {

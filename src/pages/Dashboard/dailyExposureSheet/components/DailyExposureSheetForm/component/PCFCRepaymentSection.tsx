@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FieldArray, useFormikContext } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import CustomInput from "../../../../../../config/component/CustomInput/CustomInput";
 
 const PCFCRepaymentSection = ({ showError }: any) => {
@@ -32,7 +32,7 @@ const PCFCRepaymentSection = ({ showError }: any) => {
   };
 
   // 🔹 Fetch PCFC Trade Ref Data (POST API)
-  const fetchPCFCTradeRefs = async () => {
+  const fetchPCFCTradeRefs = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.post(
@@ -55,7 +55,7 @@ const PCFCRepaymentSection = ({ showError }: any) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, toast]);
 
   // 🔹 Dropdown options
   const tradeRefOptions = pcfcTradeRefs.map((item: any) => ({
@@ -110,7 +110,7 @@ const PCFCRepaymentSection = ({ showError }: any) => {
 
   useEffect(() => {
     fetchPCFCTradeRefs();
-  }, []);
+  }, [fetchPCFCTradeRefs]);
 
   return (
     <Box

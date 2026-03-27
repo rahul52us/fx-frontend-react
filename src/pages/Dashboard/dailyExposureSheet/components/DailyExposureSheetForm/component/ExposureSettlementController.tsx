@@ -51,7 +51,7 @@ const ExposureSettlementController = ({
     setIsInvoiceDisabled(false);
 
     exposureFetchLock.current = false;
-  }, [exposureType, settlementType]);
+  }, [exposureType, settlementType, isEdit, setFieldValue, setPoOptions, setInvoiceOptions, setIsPoDisabled, setIsInvoiceDisabled]);
 
   /* --------------------------------------------------
      1️⃣ PO ↔ Invoice mutual exclusivity + disable
@@ -80,7 +80,7 @@ const ExposureSettlementController = ({
     setFieldValue("dueDate", "");
 
     exposureFetchLock.current = false;
-  }, [poNumber, invoiceBcNumber]);
+  }, [poNumber, invoiceBcNumber, setFieldValue, setIsInvoiceDisabled, setIsPoDisabled]);
 
   /* --------------------------------------------------
      2️⃣ Fetch PO / Invoice numbers
@@ -118,7 +118,7 @@ const ExposureSettlementController = ({
     };
 
     fetchPoInv();
-  }, [exposureType, settlementType]);
+  }, [exposureType, settlementType, url, setPoOptions, setInvoiceOptions]);
 
   /* --------------------------------------------------
      3️⃣ Fetch Exposure Data (LOCKED)
@@ -172,6 +172,8 @@ const ExposureSettlementController = ({
     settlementType,
     poNumber,
     invoiceBcNumber,
+    setFieldValue,
+    url
   ]);
 
   return null;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
@@ -80,11 +80,11 @@ const BookingRegisterTableColumns = [
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
   const [data, setData] = useState<any[]>([]);
+  const { viewAsUserId } = store.auth;
 
-  const fetchmtmData = async (currentPage = 1) => {
+  const fetchmtmData = useCallback(async (currentPage = 1) => {
     // setLoading(true);
     try {
-      const { viewAsUserId } = store.auth;
       const response = await axios.post(
         // "http://srv864630.hstgr.cloud:8000/mtm/view/",
         "http://srv864630.hstgr.cloud:8000/mtmview/view/",
@@ -106,7 +106,7 @@ const BookingRegisterTableColumns = [
     } finally {
       // setLoading(false);
     }
-  };
+  }, [rowsPerPage, viewAsUserId]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -115,7 +115,7 @@ const BookingRegisterTableColumns = [
 
   useEffect(() => {
     fetchmtmData(page);
-  }, [store.auth.viewAsUserId])
+  }, [viewAsUserId, fetchmtmData, page]);
 
   return (
     canView ? (

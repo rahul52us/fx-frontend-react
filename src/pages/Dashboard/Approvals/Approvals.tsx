@@ -28,7 +28,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import store from "../../../store/store";
 
 const DataComparison = ({ original, updated, depth = 0 }: any) => {
@@ -132,13 +132,8 @@ const Approvals = () => {
   const [status, setStatus] = useState("pending");
   const [totalPages, setTotalPages] = useState(1);
   const [data, setData] = useState([]);
-  useEffect(() => {
-    if (viewAsUserId) {
-      fetchData();
-    }
-  }, [page, status, viewAsUserId]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const response: any = await approvalStore.getEditedData({ userId: viewAsUserId, status, page });
       if (response?.status === "success") {
@@ -150,7 +145,13 @@ const Approvals = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
+  }, [approvalStore, viewAsUserId, status, page]);
+
+  useEffect(() => {
+    if (viewAsUserId) {
+      fetchData();
+    }
+  }, [viewAsUserId, fetchData]);
 
   const handleRowClick = (item: any) => {
     setSelectedItem(item);
