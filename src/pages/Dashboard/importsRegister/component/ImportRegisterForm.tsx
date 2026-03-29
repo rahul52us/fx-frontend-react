@@ -25,6 +25,8 @@ import { calculateDueDate, normalizeDate } from "../../exportsRegister/component
 import { pickMatchedFields } from "../../utils/function";
 import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
 
+import ForecastExposureFields from "../../exportsRegister/component/ForecastExposureFields";
+
 const ImportRegistrationForm = ({
   submitImportForm,
   editData,
@@ -86,45 +88,80 @@ const fetchPoBalance = async (poNumber: string) => {
 
   const validationSchema = Yup.object().shape({
     exposureType: Yup.mixed().required("Exposure Type is required"),
-    poDate: Yup.string().required("PO Date is required"),
-    poNo: Yup.string().required("PO No is required"),
-    partyName: Yup.string().required("Party Name is required"),
-    bank: Yup.mixed().required("Bank is required"),
-    businessUnit: Yup.mixed().required("Business Unit is required"),
-    blDate: Yup.string().required("BL Date is required"),
-    paymentTerms: Yup.string().required("Payment Terms is required"),
-    dueDate: Yup.string().required("Due Date is required"),
-    currency: Yup.mixed().required("Currency is required"),
-    // amount: Yup.number().required("Amount is required"),
+    
+    businessUnit: Yup.mixed().when("exposureType", {
+      is: (val: string) => val === "forecast",
+      then: (schema) => schema.required("Business Unit is required"),
+      otherwise: (schema) => schema.required("Business Unit is required"),
+    }),
+
+    currency: Yup.mixed().when("exposureType", {
+      is: (val: string) => val === "forecast",
+      then: (schema) => schema.required("Currency is required"),
+      otherwise: (schema) => schema.required("Currency is required"),
+    }),
 
     amount: Yup.number()
-  .required("Amount is required")
-  .test(
-    "po-balance-check",
-    function (value:any) {
-      const { exposureType } = this.parent;
-
-      if (exposureType === "lc_bc_shifting") {
-        if (value > poBalance) {
-          return this.createError({
-            message: `Amount (${value}) cannot be greater than PO Balance (${poBalance})`,
-          });
+      .required("Amount is required")
+      .test(
+        "po-balance-check",
+        function (value:any) {
+          const { exposureType } = this.parent;
+          if (exposureType === "lc_bc_shifting") {
+            if (value > poBalance) {
+              return this.createError({
+                message: `Amount (${value}) cannot be greater than PO Balance (${poBalance})`,
+              });
+            }
+          }
+          return true;
         }
-      }
+      ),
 
-      return true;
-    }
-  ),
+    dueDate: Yup.string().required("Due Date is required"),
 
-
-    budgetRate: Yup.string().required("Budget Rate is required"),
+    poDate: Yup.string().when("exposureType", {
+      is: (val: string) => val !== "forecast",
+      then: (schema) => schema.required("PO Date is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    poNo: Yup.string().when("exposureType", {
+      is: (val: string) => val !== "forecast",
+      then: (schema) => schema.required("PO No is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    partyName: Yup.string().when("exposureType", {
+      is: (val: string) => val !== "forecast",
+      then: (schema) => schema.required("Party Name is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    bank: Yup.mixed().when("exposureType", {
+      is: (val: string) => val !== "forecast",
+      then: (schema) => schema.required("Bank is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    blDate: Yup.string().when("exposureType", {
+      is: (val: string) => val !== "forecast",
+      then: (schema) => schema.required("BL Date is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    paymentTerms: Yup.string().when("exposureType", {
+      is: (val: string) => val !== "forecast",
+      then: (schema) => schema.required("Payment Terms is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    budgetRate: Yup.string().when("exposureType", {
+      is: (val: string) => val !== "forecast",
+      then: (schema) => schema.required("Budget Rate is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     invoiceNo: Yup.string().when("exposureType", {
-      is: (val: string) => val !== "da_dp",
+      is: (val: string) => val !== "da_dp" && val !== "forecast",
       then: (schema) => schema.required("Invoice No is required"),
       otherwise: (schema) => schema.notRequired(),
     }),
     invoiceDate: Yup.date().when("exposureType", {
-      is: (val: string) => val !== "da_dp",
+      is: (val: string) => val !== "da_dp" && val !== "forecast",
       then: (schema) => schema.required("Invoice Date is required"),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -183,9 +220,6 @@ const fetchPoBalance = async (poNumber: string) => {
     }
     handleSubmit();
   };
-
-  console.log('poBalance',poBalance)
-
 
   useEffect(() => {
     fetchPoDetails();
@@ -307,6 +341,22 @@ const fetchPoBalance = async (poNumber: string) => {
                       showError={showError}
                       required={true}
                     />
+                  </SimpleGrid>
+
+                  {values.exposureType === "forecast" ? (
+                    <ForecastExposureFields
+                      values={values}
+                      handleChange={handleChange}
+                      touched={touched}
+                      errors={errors}
+                      showError={showError}
+                      currenciesData={currenciesData}
+                      bussinessUnitsData={bussinessUnitsData}
+                      setFieldValue={setFieldValue}
+                    />
+                  ) : (
+                    <>
+                  <SimpleGrid columns={[1, null, 2]} spacing={8}>
 
                     {values.exposureType === "lc_bc_shifting" ? (
                       <CustomInput
@@ -566,6 +616,8 @@ const fetchPoBalance = async (poNumber: string) => {
                     />
                   </SimpleGrid>
                   <MultiHedgeDealExport url={url} showError={showError} exposureType={'import'} />
+                    </>
+                  )}
 
                   {/* Remark */}
                   <CustomInput

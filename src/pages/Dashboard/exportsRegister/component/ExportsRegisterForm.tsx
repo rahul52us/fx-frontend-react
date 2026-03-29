@@ -472,20 +472,6 @@ const fetchPoBalance = async (poNumber: string) => {
             return (
               <FormikForm>
                 <VStack spacing={6} align="stretch">
-                  {values.exposureType === "forecast" ? (
-
-                    <ForecastExposureFields
-                    values={values}
-      handleChange={handleChange}
-      touched={touched}
-      errors={errors}
-      showError={showError}
-      currenciesData={currenciesData}
-      bussinessUnitsData={bussinessUnitsData}
-      setFieldValue={setFieldValue}
-      />
-    ):(
-    <>
                   <SimpleGrid columns={[1, null, 2]} spacing={8}>
                     <CustomInput
                       label="Exposure Type"
@@ -530,6 +516,22 @@ const fetchPoBalance = async (poNumber: string) => {
                       error={touched.exposureType && errors.exposureType}
                       required={true}
                     />
+                  </SimpleGrid>
+                  {values.exposureType === "forecast" ? (
+
+                    <ForecastExposureFields
+                    values={values}
+      handleChange={handleChange}
+      touched={touched}
+      errors={errors}
+      showError={showError}
+      currenciesData={currenciesData}
+      bussinessUnitsData={bussinessUnitsData}
+      setFieldValue={setFieldValue}
+      />
+    ):(
+    <>
+                  <SimpleGrid columns={[1, null, 2]} spacing={8}>
 
                     {values.exposureType === "confirmed_order" ? (
                       <CustomInput

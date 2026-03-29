@@ -52,8 +52,24 @@ export default function AdminViewDetails({ data }: { data: any }) {
     policy,
     benchmarking,
     policyCriteria,
-    policyRatioType,
   } = data;
+
+  const criteriaEntries = Array.isArray(policyCriteria?.entries)
+    ? policyCriteria.entries
+    : policyCriteria
+      ? [
+          {
+            businessUnitCode: null,
+            basis: policyCriteria.type,
+            importMin: policyCriteria.import,
+            importMax: "",
+            exportMin: policyCriteria.export,
+            exportMax: "",
+            min: policyCriteria.import,
+            max: policyCriteria.export,
+          },
+        ]
+      : [];
 
   return (
     <Stack spacing={6}>
@@ -129,6 +145,7 @@ export default function AdminViewDetails({ data }: { data: any }) {
                       <Item label="Bank Name" value={bank.bankName} />
                       <Item label="Currency" value={bank.currency} />
                       <Item label="Margin" value={bank.margin} />
+                      <Item label="Bank Spread" value={bank.bankSpread} />
                     </Stack>
                   </Box>
                 ))}
@@ -142,7 +159,7 @@ export default function AdminViewDetails({ data }: { data: any }) {
       <Section title="Policy Tenure">
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
           <Item label="Tenure Type" value={policy?.tenureType} />
-          <Item label="Mode" value={policy?.tenureMode} />
+          <Item label="Mode" value={policy?.tenureMode || "rolling"} />
           <Item
             label="Values"
             value={policy?.tenureValues?.join(", ")}
@@ -167,22 +184,42 @@ export default function AdminViewDetails({ data }: { data: any }) {
       {/* ================= POLICY CRITERIA ================= */}
       {policyCriteria && (
         <Section title="Policy Criteria">
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
-            <Item label="Type" value={policyCriteria.type} />
-            <Item label="Import (%)" value={policyCriteria.import} />
-            <Item label="Export (%)" value={policyCriteria.export} />
-          </SimpleGrid>
-        </Section>
-      )}
-
-      {/* ================= POLICY RATIO TYPE ================= */}
-      {policyRatioType && (
-        <Section title="Policy Ratio Type">
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
-            <Item label="Type" value={policyRatioType.type} />
-            <Item label="Import (%)" value={policyRatioType.import} />
-            <Item label="Export (%)" value={policyRatioType.export} />
-          </SimpleGrid>
+          <Stack spacing={5}>
+            <Item label="Scope" value={policyCriteria.scope || "Consolidated"} />
+            {criteriaEntries.map((entry: any, index: number) => (
+              <Box
+                key={`${entry.businessUnitCode || "criteria"}-${index}`}
+                bg="gray.50"
+                borderRadius="lg"
+                p={4}
+                border="1px solid"
+                borderColor="gray.200"
+              >
+                <Text fontWeight="600" mb={3} color="gray.700">
+                  {policyCriteria.scope === "standalone"
+                    ? entry.businessUnitCode || `Business Unit ${index + 1}`
+                    : "Consolidated"}
+                </Text>
+                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
+                  <Item label="Basis" value={entry.basis || entry.type} />
+                  {(entry.basis === "Gross" || entry.type === "Gross") && (
+                    <>
+                      <Item label="Export Min" value={entry.exportMin} />
+                      <Item label="Export Max" value={entry.exportMax} />
+                      <Item label="Import Min" value={entry.importMin} />
+                      <Item label="Import Max" value={entry.importMax} />
+                    </>
+                  )}
+                  {(entry.basis === "Net" || entry.type === "Net") && (
+                    <>
+                      <Item label="Min" value={entry.min} />
+                      <Item label="Max" value={entry.max} />
+                    </>
+                  )}
+                </SimpleGrid>
+              </Box>
+            ))}
+          </Stack>
         </Section>
       )}
     </Stack>

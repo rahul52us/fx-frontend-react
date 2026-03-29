@@ -13,6 +13,7 @@ export const importExposureTypeOptions = [
   { label: 'DA/DP', value: 'da_dp' },
   { label: 'LC/BC Shifting', value: 'lc_bc_shifting' },
   { label: 'LC/BC Direct', value: 'lc_bc_direct' },
+  { label: 'Forecast', value: 'forecast' },
 ]
 
 

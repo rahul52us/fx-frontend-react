@@ -1,364 +1,299 @@
-import React, { useState } from "react";
+import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, InfoIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Box,
+  Button,
+  Flex,
+  Heading,
+  Icon,
+  Spinner,
   Table,
-  Thead,
   Tbody,
-  Tr,
-  Th,
   Td,
   Text,
-  Heading,
-  Flex,
-  Badge,
-  IconButton,
-  Button,
-  Collapse,
-  Spinner,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import React, { useMemo, useState } from "react";
 import { primaryColor } from "../../../../globalColors";
 
 interface SummaryTableProps {
   data: any[];
   loading: boolean;
   exposureType: string;
-  onViewDetails?: (details: any) => void; // kept for backward compat, not used
 }
 
-// ── inline detail panel ────────────────────────────────────────────────────────
+// ── Summary rows — top-level fields only (outside details array) ───────────
 
-const DetailTable: React.FC<{ tableData: any[]; type: string }> = ({
-  tableData,
-  type,
-}) => (
-  <Box overflowX="auto">
-    <Table size="sm" variant="simple">
-      <Thead>
-        <Tr bg="gray.50">
-          {type === "export" && (
-            <>
-              <Th fontSize="xs" color="gray.500" textTransform="uppercase">
-                PCFC Drawdown
-              </Th>
-              <Th fontSize="xs" color="gray.500" textTransform="uppercase">
-                PCFC Rate
-              </Th>
-            </>
-          )}
-          <Th fontSize="xs" color="gray.500" textTransform="uppercase">
-            Spot Conversion
-          </Th>
-          <Th fontSize="xs" color="gray.500" textTransform="uppercase">
-            Spot Rate
-          </Th>
-          <Th fontSize="xs" color="gray.500" textTransform="uppercase">
-            EEFC Conversion
-          </Th>
-          <Th fontSize="xs" color="gray.500" textTransform="uppercase">
-            EEFC Rate
-          </Th>
-          <Th fontSize="xs" color="gray.500" textTransform="uppercase">
-            Forward Utilization
-          </Th>
-          <Th fontSize="xs" color="gray.500" textTransform="uppercase">
-            Forward Rate
-          </Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {tableData.map((item, idx) => (
-          <Tr
-            key={idx}
-            _hover={{ bg: "blue.50" }}
-            transition="background 0.15s"
-          >
-            {type === "export" && (
-              <>
-                <Td fontSize="sm">{item.pcfcDrawDown ?? "—"}</Td>
-                <Td fontSize="sm">{item.pcfcRate ?? "—"}</Td>
-              </>
-            )}
-            <Td fontSize="sm">{item.spotConversion ?? "—"}</Td>
-            <Td fontSize="sm">{item.spotRate ?? "—"}</Td>
-            <Td fontSize="sm">{item.eefcConversion ?? "—"}</Td>
-            <Td fontSize="sm">{item.eefcRate ?? "—"}</Td>
-            <Td fontSize="sm">{item.forwardUtilization ?? "—"}</Td>
-            <Td fontSize="sm">{item.forwardRate ?? "—"}</Td>
-          </Tr>
-        ))}
-      </Tbody>
-    </Table>
-  </Box>
-);
+function useSummaryRows(exposureType: string) {
+  return useMemo(() => {
+    const commonRows = [
+      { label: "Settlement Rate",          key: "settlementRate" },
+      { label: "Average BMK Rate",         key: "averageBmkRate" },
+      { label: "BMK vs Settlement",        key: "bmkVsSettlementRate" },
+      { label: "Spot on Sett. Date",       key: "spotOnSettlementDate" },
+      { label: "Forward Cancellation P/L", key: "plOnForwardCancellation" },
+      { label: "Net P/L",                  key: "netPl", highlight: true },
+    ];
 
-const ExpandedPanel: React.FC<{ row: any; exposureType: string }> = ({
-  row,
-  exposureType,
-}) => {
-  if (exposureType === "total") {
-    const exportRows = row?.exportDetails?.[0]?.details ?? [];
-    const importRows = row?.importDetails?.[0]?.details ?? [];
-    const hasAny = exportRows.length > 0 || importRows.length > 0;
-
-    if (!hasAny) {
-      return (
-        <Text fontSize="sm" color="gray.400" textAlign="center" py={4}>
-          No details available.
-        </Text>
-      );
+    if (exposureType === "export") {
+      return [
+        { label: "Total Export Conversion",  key: "totalExportConversion" },
+        { label: "Spot vs Sett. Rate",       key: "spotOnSettlementVsSettlementRate" },
+        ...commonRows,
+      ];
     }
 
-    return (
-      <Flex direction="column" gap={6}>
-        {exportRows.length > 0 && (
-          <Box>
-            <Flex align="center" gap={2} mb={3}>
-              <Badge colorScheme="green" variant="subtle" px={2} py={0.5}>
-                Export
-              </Badge>
-              <Text fontSize="xs" color="gray.400">
-                {exportRows.length} record{exportRows.length !== 1 ? "s" : ""}
-              </Text>
-            </Flex>
-            <DetailTable tableData={exportRows} type="export" />
-          </Box>
-        )}
-        {importRows.length > 0 && (
-          <Box>
-            <Flex align="center" gap={2} mb={3}>
-              <Badge colorScheme="blue" variant="subtle" px={2} py={0.5}>
-                Import
-              </Badge>
-              <Text fontSize="xs" color="gray.400">
-                {importRows.length} record{importRows.length !== 1 ? "s" : ""}
-              </Text>
-            </Flex>
-            <DetailTable tableData={importRows} type="import" />
-          </Box>
-        )}
-      </Flex>
-    );
-  }
-
-  const details = row?.details ?? [];
-  if (!details.length) {
-    return (
-      <Text fontSize="sm" color="gray.400" textAlign="center" py={4}>
-        No details available.
-      </Text>
-    );
-  }
-
-  return <DetailTable tableData={details} type={exposureType} />;
-};
-
-// ── column definitions ─────────────────────────────────────────────────────────
-
-const getColumns = (exposureType: string) => {
-  if (exposureType === "export") {
-    return [
-      { label: "Month-Year", key: "monthYear" },
-      { label: "Total Export Conversion", key: "totalExportConversion" },
-      { label: "Settlement Rate", key: "settlementRate" },
-      { label: "Average BMK Rate", key: "averageBmkRate" },
-      { label: "BMK vs Settlement Rate", key: "bmkVsSettlementRate" },
-      { label: "Spot on Settlement Date", key: "spotOnSettlementDate" },
-      { label: "Spot vs Settlement Rate", key: "spotOnSettlementVsSettlementRate" },
-      { label: "P/L on Forward Cancellation", key: "plOnForwardCancellation" },
-      { label: "Net P/L", key: "netPl" },
-    ];
-  }
-  if (exposureType === "import") {
-    return [
-      { label: "Month-Year", key: "monthYear" },
-      { label: "Total Import Conversion", key: "totalImportConversion" },
-      { label: "Settlement Rate", key: "settlementRate" },
-      { label: "Average BMK Rate", key: "averageBmkRate" },
-      { label: "BMK vs Settlement Rate", key: "bmkVsSettlementRate" },
-      { label: "Spot on Settlement Date", key: "spotOnSettlementDate" },
-      { label: "Market vs Settlement Rate", key: "marketVsSettlementRate" },
-      { label: "P/L on Forward Cancellation", key: "plOnForwardCancellation" },
-      { label: "Net P/L", key: "netPl" },
-    ];
-  }
-  return [
-    { label: "Month-Year", key: "monthYear" },
-    { label: "BMK vs Settlement Rate", key: "bmkVsSettlementRate" },
-    { label: "Market vs Settlement Rate", key: "marketVsSettlementRate" },
-    { label: "P/L on Forward Cancellation", key: "plOnForwardCancellation" },
-    { label: "Net P/L", key: "netPl" },
-  ];
-};
-
-// ── main component ─────────────────────────────────────────────────────────────
-
-const SummaryTable: React.FC<SummaryTableProps> = ({
-  data,
-  loading,
-  exposureType,
-}) => {
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const columns = getColumns(exposureType);
-  const title =
-    exposureType.charAt(0).toUpperCase() + exposureType.slice(1) + " Summary";
-
-  const allExpanded = data.length > 0 && expandedRows.size === data.length;
-
-  const toggleRow = (idx: number) => {
-    setExpandedRows((prev) => {
-      const next = new Set(prev);
-      next.has(idx) ? next.delete(idx) : next.add(idx);
-      return next;
-    });
-  };
-
-  const toggleAll = () => {
-    if (allExpanded) {
-      setExpandedRows(new Set());
-    } else {
-      setExpandedRows(new Set(data.map((_, i) => i)));
+    if (exposureType === "import") {
+      return [
+        { label: "Total Import Conversion",  key: "totalImportConversion" },
+        { label: "Market vs Sett. Rate",     key: "marketVsSettlementRate" },
+        ...commonRows,
+      ];
     }
-  };
+
+    return commonRows;
+  }, [exposureType]);
+}
+
+// ── Detail rows — fields from details[0] only, shown on expand ────────────
+
+function useDetailRows(exposureType: string) {
+  return useMemo(() => {
+    const base = [
+      { label: "Spot Conversion",  key: "spotConversion" },
+      { label: "Spot Rate",        key: "spotRate" },
+      { label: "EEFC Conversion",  key: "eefcConversion" },
+      { label: "EEFC Rate",        key: "eefcRate" },
+      { label: "Forward Util.",    key: "forwardUtilization" },
+      { label: "Forward Rate",     key: "forwardRate" },
+    ];
+
+    if (exposureType === "export") {
+      return [
+        { label: "PCFC Drawdown",  key: "pcfcDrawDown" },
+        { label: "PCFC Rate",      key: "pcfcRate" },
+        ...base,
+      ];
+    }
+
+    if (exposureType === "import") {
+      return [
+        { label: "Import Drawdown", key: "drawdown" },
+        { label: "Import Rate",     key: "rate" },
+        ...base,
+      ];
+    }
+
+    return base;
+  }, [exposureType]);
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+function cellColor(value: any): string | undefined {
+  const n = parseFloat(value);
+  if (isNaN(n)) return undefined;
+  return n < 0 ? "red.600" : undefined;
+}
+
+const LabelCell: React.FC<{
+  children: React.ReactNode;
+  highlight?: boolean;
+  isDetail?: boolean;
+}> = ({ children, highlight, isDetail }) => {
+  let bg = "white";
+  if (highlight) bg = "green.50";
+  if (isDetail) bg = "blue.50";
 
   return (
-    <Box bg="white" rounded="xl" shadow="sm" border="1px solid" borderColor="gray.100" overflow="hidden">
-      {/* Header */}
-      <Flex
-        px={6}
-        py={4}
-        borderBottom="1px solid"
-        borderColor="gray.100"
-        align="center"
-        justify="space-between"
-      >
-        <Heading size="sm" color="gray.700">
-          {title}
-        </Heading>
-        <Flex align="center" gap={3}>
-          {data.length > 0 && (
-            <Badge colorScheme="blue" variant="subtle" px={2} py={1} borderRadius="md">
-              {data.length} row{data.length !== 1 ? "s" : ""}
-            </Badge>
-          )}
-          {data.length > 0 && !loading && (
-            <Button
-              size="sm"
-              variant="outline"
-              colorScheme="blue"
-              leftIcon={allExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-              onClick={toggleAll}
-            >
-              {allExpanded ? "Collapse All" : "Expand All"}
-            </Button>
-          )}
-        </Flex>
+    <Td
+      fontSize="sm"
+      fontWeight={highlight ? "bold" : "medium"}
+      color={highlight ? "green.700" : isDetail ? "blue.600" : "gray.600"}
+      py={3}
+      px={5}
+      pl={isDetail ? 8 : 5}
+      position="sticky"
+      left={0}
+      zIndex={1}
+      bg={bg}
+      borderRight="2px solid"
+      borderColor="gray.200"
+      whiteSpace="nowrap"
+    >
+      {children}
+    </Td>
+  );
+};
+
+// ── Main Component ─────────────────────────────────────────────────────────
+
+const SummaryTable: React.FC<SummaryTableProps> = ({ data, loading, exposureType }) => {
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+
+  const summaryRows = useSummaryRows(exposureType);
+  const detailRows  = useDetailRows(exposureType);
+
+  if (loading) {
+    return (
+      <Flex justify="center" align="center" py={24} direction="column" gap={4}>
+        <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color={primaryColor} size="xl" />
+        <Text color="gray.500" fontWeight="medium">Compiling Report...</Text>
+      </Flex>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <Flex direction="column" align="center" py={20} gap={4} bg="white" rounded="xl" shadow="sm">
+        <Icon as={InfoIcon} w={10} h={10} color="gray.200" />
+        <Text color="gray.400" fontWeight="medium">No analysis data found.</Text>
+      </Flex>
+    );
+  }
+
+  return (
+    <Box bg="white" rounded="2xl" shadow="2xl" overflow="hidden">
+
+      {/* ── Header ── */}
+      <Flex align="center" gap={3} px={6} py={4} borderBottom="1px solid" borderColor="gray.100">
+        <Icon as={CalendarIcon} color={primaryColor} />
+        <Heading size="sm" color="gray.700">Analysis Summary</Heading>
+        <Badge colorScheme="blue" variant="solid" px={3} py={1} rounded="full" fontSize="xs" ml="auto">
+          {exposureType.toUpperCase()}
+        </Badge>
       </Flex>
 
-      {/* Table */}
+      {/* ── Table ── */}
       <Box overflowX="auto">
-        {loading ? (
-          <Flex justify="center" align="center" py={16}>
-            <Spinner color={primaryColor} size="lg" />
-          </Flex>
-        ) : data.length === 0 ? (
-          <Text textAlign="center" py={12} color="gray.400" fontSize="sm">
-            No data found. Adjust your filters and search again.
-          </Text>
-        ) : (
-          <Table variant="simple" size="sm">
-            <Thead>
-              <Tr bg="gray.50">
-                {columns.map((col) => (
-                  <Th
-                    key={col.key}
-                    fontSize="xs"
-                    color="gray.500"
-                    textTransform="uppercase"
-                    whiteSpace="nowrap"
-                    py={3}
-                  >
-                    {col.label}
-                  </Th>
-                ))}
-                {/* expand toggle column */}
-                <Th w="48px" />
-              </Tr>
-            </Thead>
-            <Tbody>
-              {data.map((row, idx) => {
-                const isExpanded = expandedRows.has(idx);
-                return (
-                  <React.Fragment key={idx}>
-                    {/* ── data row ── */}
-                    <Tr
-                      cursor="pointer"
-                      onClick={() => toggleRow(idx)}
-                      bg={isExpanded ? "blue.50" : undefined}
-                      _hover={{ bg: isExpanded ? "blue.50" : "gray.50" }}
-                      transition="background 0.15s"
-                      borderLeft={isExpanded ? "3px solid" : "3px solid transparent"}
-                      borderLeftColor={isExpanded ? primaryColor : "transparent"}
-                    >
-                      {columns.map((col) => (
-                        <Td key={col.key} fontSize="sm" py={3} whiteSpace="nowrap">
-                          {row[col.key] ?? "—"}
-                        </Td>
-                      ))}
-                      <Td textAlign="center" p={2}>
-                        <IconButton
-                          aria-label={isExpanded ? "Collapse" : "Expand"}
-                          icon={isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                          size="xs"
-                          variant="ghost"
-                          colorScheme="blue"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleRow(idx);
-                          }}
-                        />
-                      </Td>
-                    </Tr>
+        <Table size="sm" variant="simple">
 
-                    {/* ── expanded detail row ── */}
-                    {isExpanded && (
-                      <Tr>
+          {/* Month column headers */}
+          <Thead>
+            <Tr bg="gray.50">
+              <Th
+                fontSize="11px"
+                py={4}
+                px={5}
+                minW="220px"
+                position="sticky"
+                left={0}
+                zIndex={2}
+                bg="gray.50"
+                borderRight="2px solid"
+                borderColor="gray.200"
+              >
+                METRIC
+              </Th>
+              {data.map((month) => (
+                <Th
+                  key={month.monthYear}
+                  fontSize="11px"
+                  py={4}
+                  px={5}
+                  textAlign="center"
+                  minW="150px"
+                >
+                  {month.monthYear}
+                </Th>
+              ))}
+            </Tr>
+          </Thead>
+
+          <Tbody>
+
+            {/* ── Toggle button row ── */}
+            <Tr bg="blue.50">
+              <Td
+                colSpan={data.length + 1}
+                py={2}
+                px={5}
+                borderBottom={detailsExpanded ? "none" : "2px solid"}
+                borderColor="blue.100"
+              >
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="blue"
+                  rightIcon={detailsExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                  onClick={() => setDetailsExpanded((prev) => !prev)}
+                  fontWeight="semibold"
+                  fontSize="12px"
+                >
+                  {detailsExpanded ? "Hide Record Details" : "Show Record Details"}
+                </Button>
+              </Td>
+            </Tr>
+
+            {/* ── Detail rows — only visible when expanded, reads details[0] ── */}
+            {detailsExpanded && (
+              <>
+                {detailRows.map((row, i) => (
+                  <Tr
+                    key={`detail-${row.key}`}
+                    bg={i % 2 === 0 ? "blue.50" : "white"}
+                    _hover={{ bg: "blue.100" }}
+                  >
+                    <LabelCell isDetail>{row.label}</LabelCell>
+                    {data.map((month) => {
+                      const val = month.details?.[0]?.[row.key];
+                      return (
                         <Td
-                          colSpan={columns.length + 1}
-                          p={0}
-                          borderBottom="2px solid"
-                          borderBottomColor="blue.100"
+                          key={month.monthYear}
+                          fontSize="sm"
+                          py={3}
+                          px={5}
+                          textAlign="center"
+                          color={cellColor(val)}
                         >
-                          <Collapse in={isExpanded} animateOpacity>
-                            <Box
-                              px={6}
-                              py={5}
-                              bg="gray.50"
-                              borderTop="1px solid"
-                              borderTopColor="blue.100"
-                            >
-                              <Text
-                                fontSize="xs"
-                                fontWeight="semibold"
-                                color="gray.400"
-                                textTransform="uppercase"
-                                letterSpacing="wide"
-                                mb={4}
-                              >
-                                Breakdown · {row.monthYear}
-                              </Text>
-                              <ExpandedPanel row={row} exposureType={exposureType} />
-                            </Box>
-                          </Collapse>
+                          {val ?? "—"}
                         </Td>
-                      </Tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </Tbody>
-          </Table>
-        )}
+                      );
+                    })}
+                  </Tr>
+                ))}
+
+                {/* Separator */}
+                <Tr>
+                  <Td colSpan={data.length + 1} p={0} borderBottom="2px solid" borderColor="blue.200" />
+                </Tr>
+              </>
+            )}
+
+            {/* ── Summary rows — always visible, reads top-level month fields ── */}
+            {summaryRows.map((row) => (
+              <Tr
+                key={`summary-${row.key}`}
+                _hover={{ bg: "gray.50" }}
+                bg={row.highlight ? "green.50" : undefined}
+              >
+                <LabelCell highlight={row.highlight}>{row.label}</LabelCell>
+                {data.map((month) => {
+                  const val = month[row.key];
+                  const color = row.highlight
+                    ? (parseFloat(val) < 0 ? "red.600" : "green.700")
+                    : cellColor(val);
+                  return (
+                    <Td
+                      key={month.monthYear}
+                      fontSize="sm"
+                      py={3}
+                      px={5}
+                      textAlign="center"
+                      color={color}
+                      fontWeight={row.highlight ? "bold" : undefined}
+                    >
+                      {val ?? "—"}
+                    </Td>
+                  );
+                })}
+              </Tr>
+            ))}
+
+          </Tbody>
+        </Table>
       </Box>
     </Box>
   );

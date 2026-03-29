@@ -13,6 +13,9 @@ class SummaryStore {
     exposureType: "export", // default
     currency: "",
     year: new Date().getFullYear().toString(),
+    financialYear: "",
+    businessUnit: "",
+    bank: "",
   };
 
   constructor() {
@@ -41,13 +44,16 @@ class SummaryStore {
     this.summaryData.loading = true;
     try {
       this.summaryData.loading = true;
-      const { userId, exposureType, currency, year } = this.filters;
+      const { userId, exposureType, currency, year, financialYear, businessUnit, bank } = this.filters;
       
       const payload = {
         userId: userId,
         exposureType,
         currency,
-        year
+        year: financialYear ? "" : year,
+        financialYear: financialYear || "",
+        businessUnit: businessUnit || "",
+        bank: bank || ""
       };
 
       const { data: responseData } = await axios.post("/mtmview/conversionsummary/", payload);
