@@ -69,15 +69,20 @@ interface BusinessUnitConfig {
 type CriteriaScope = "consolidated" | "standalone" | "";
 type CriteriaBasis = "gross" | "net" | "";
 
+// For gross: export and import each have a "min" or "max" selector (not a value)
 interface PolicyCriteriaEntry {
   businessUnitCode: string | null;
   basis: CriteriaBasis;
-  importMin: string;
-  importMax: string;
-  exportMin: string;
-  exportMax: string;
-  min: string;
-  max: string;
+  exportType: "min" | "max" | ""; // selector: is export treated as min or max?
+  importType: "min" | "max" | ""; // selector: is import treated as min or max?
+  min: string; // net min value
+  max: string; // net max value
+}
+
+// Tenure entry per scope unit
+interface TenureEntry {
+  businessUnitCode: string | null;
+  values: string[];
 }
 
 const createEmptyBank = (): BankConfig => ({
@@ -95,12 +100,15 @@ const createEmptyBusinessUnit = (): BusinessUnitConfig => ({
 const createCriteriaEntry = (businessUnitCode: string | null = null): PolicyCriteriaEntry => ({
   businessUnitCode,
   basis: "",
-  importMin: "",
-  importMax: "",
-  exportMin: "",
-  exportMax: "",
+  exportType: "",
+  importType: "",
   min: "",
   max: "",
+});
+
+const createTenureEntry = (businessUnitCode: string | null = null): TenureEntry => ({
+  businessUnitCode,
+  values: Array(TENURE_INPUT_COUNT).fill(""),
 });
 
 const normalizeCriteriaEntries = (
@@ -126,6 +134,28 @@ const normalizeCriteriaEntries = (
   });
 };
 
+const normalizeTenureEntries = (
+  scope: CriteriaScope,
+  units: BusinessUnitConfig[],
+  currentEntries: TenureEntry[]
+): TenureEntry[] => {
+  if (!scope) return [currentEntries[0] || createTenureEntry(null)];
+
+  if (scope === "consolidated") {
+    return [currentEntries[0] || createTenureEntry(null)];
+  }
+
+  return units.map((unit, index) => {
+    const existing =
+      currentEntries.find((entry) => entry.businessUnitCode === unit.unitCode) ||
+      currentEntries[index];
+    return {
+      ...(existing || createTenureEntry(unit.unitCode || null)),
+      businessUnitCode: unit.unitCode || null,
+    };
+  });
+};
+
 const getCriteriaLabel = (scope: CriteriaScope, unitCode: string | null, index: number) => {
   if (scope === "consolidated") return "Consolidated";
   return unitCode?.trim() ? unitCode : `Business Unit ${index + 1}`;
@@ -139,7 +169,6 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
 
   const [basic, setBasic] = useState({
     userName: "",
-    fatherName: "",
     organisationName: "",
     address: "",
     contact: "",
@@ -162,8 +191,9 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
   const [policy, setPolicy] = useState({
     tenureType: "monthly",
     tenureMode: "rolling",
-    tenureValues: Array(TENURE_INPUT_COUNT).fill(""),
   });
+
+  const [tenureEntries, setTenureEntries] = useState<TenureEntry[]>([createTenureEntry(null)]);
 
   const [benchmarking, setBenchmarking] = useState<"budget" | "bmk" | "">("");
 
@@ -174,9 +204,17 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
 
   const passwordsMatch = basic.password === basic.confirmPassword;
 
+  // Sync criteria entries when scope or business units change
   useEffect(() => {
     setCriteriaEntries((current) =>
       normalizeCriteriaEntries(criteriaScope, businessUnits, current)
+    );
+  }, [criteriaScope, businessUnits]);
+
+  // Sync tenure entries when scope or business units change
+  useEffect(() => {
+    setTenureEntries((current) =>
+      normalizeTenureEntries(criteriaScope, businessUnits, current)
     );
   }, [criteriaScope, businessUnits]);
 
@@ -228,20 +266,25 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
   };
 
   const handleTenureTypeChange = (type: string) => {
-    setPolicy({
-      ...policy,
-      tenureType: type,
-      tenureMode: "rolling",
-      tenureValues:
-        policy.tenureValues.length === TENURE_INPUT_COUNT
-          ? policy.tenureValues
-          : Array(TENURE_INPUT_COUNT).fill(""),
+    setPolicy({ ...policy, tenureType: type });
+  };
+
+  const handleTenureValueChange = (entryIndex: number, valueIndex: number, value: string) => {
+    setTenureEntries((current) => {
+      const updated = [...current];
+      const entry = { ...updated[entryIndex] };
+      const values = [...entry.values];
+      values[valueIndex] = value;
+      entry.values = values;
+      updated[entryIndex] = entry;
+      return updated;
     });
   };
 
   const handleCriteriaScopeChange = (value: CriteriaScope) => {
     setCriteriaScope(value);
     setCriteriaEntries((current) => normalizeCriteriaEntries(value, businessUnits, current));
+    setTenureEntries((current) => normalizeTenureEntries(value, businessUnits, current));
   };
 
   const handleCriteriaEntryChange = (
@@ -259,10 +302,8 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
           updated[index].min = "";
           updated[index].max = "";
         } else if (value === "net") {
-          updated[index].importMin = "";
-          updated[index].importMax = "";
-          updated[index].exportMin = "";
-          updated[index].exportMax = "";
+          updated[index].exportType = "";
+          updated[index].importType = "";
         }
       }
 
@@ -270,12 +311,23 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
     });
   };
 
+  // Label map for basic fields
+  const fieldLabels: Record<string, string> = {
+    userName: "Full Name",
+    organisationName: "Organisation Name",
+    address: "Address",
+    contact: "Contact",
+    email: "Email",
+    designation: "Designation",
+  };
+
   const validateForm = () => {
     const errorMessages: string[] = [];
 
     Object.entries(basic).forEach(([key, value]) => {
       if (!value) {
-        errorMessages.push(`${key.replace(/([A-Z])/g, " $1")} is required`);
+        const label = fieldLabels[key] || key.replace(/([A-Z])/g, " $1");
+        errorMessages.push(`${label} is required`);
       }
     });
 
@@ -330,8 +382,8 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         }
 
         if (entry.basis === "gross") {
-          if (!entry.exportMin || !entry.exportMax || !entry.importMin || !entry.importMax) {
-            errorMessages.push(`${label}: Gross criteria requires min and max for export and import`);
+          if (!entry.exportType || !entry.importType) {
+            errorMessages.push(`${label}: Gross criteria requires export type and import type selections`);
           }
         }
 
@@ -361,7 +413,6 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
     const payload = {
       basicDetails: {
         userName: basic.userName,
-        fatherName: basic.fatherName,
         organisationName: basic.organisationName,
         address: basic.address,
         contact: basic.contact,
@@ -372,9 +423,9 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
       currencies,
       businessUnits,
       policy: {
-        ...policy,
+        tenureType: policy.tenureType,
         tenureMode: "rolling",
-        tenureValues: policy.tenureValues.slice(0, TENURE_INPUT_COUNT),
+        tenureEntries: normalizeTenureEntries(criteriaScope, businessUnits, tenureEntries),
       },
       benchmarking:
         benchmarking === "budget"
@@ -389,10 +440,8 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
               (entry) => ({
                 businessUnitCode: criteriaScope === "standalone" ? entry.businessUnitCode : null,
                 basis: entry.basis === "gross" ? "Gross" : "Net",
-                importMin: entry.basis === "gross" ? entry.importMin : "",
-                importMax: entry.basis === "gross" ? entry.importMax : "",
-                exportMin: entry.basis === "gross" ? entry.exportMin : "",
-                exportMax: entry.basis === "gross" ? entry.exportMax : "",
+                exportType: entry.basis === "gross" ? entry.exportType : "",
+                importType: entry.basis === "gross" ? entry.importType : "",
                 min: entry.basis === "net" ? entry.min : "",
                 max: entry.basis === "net" ? entry.max : "",
               })
@@ -432,32 +481,27 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
 
   return (
     <Stack spacing={6}>
+      {/* ── User & Organisation Details ── */}
       <Section
         title="User & Organisation Details"
         subtitle="Basic identification, contact information and credentials"
       >
         <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-          {[
-            "userName",
-            "fatherName",
-            "organisationName",
-            "address",
-            "contact",
-            "email",
-            "designation",
-          ].map((key) => (
-            <FormControl key={key}>
-              <FormLabel fontSize="sm" color="gray.600">
-                {key.replace(/([A-Z])/g, " $1").trim()}
-              </FormLabel>
-              <Input
-                placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").trim()}`}
-                name={key}
-                value={basic[key as keyof typeof basic] as string}
-                onChange={handleBasicChange}
-              />
-            </FormControl>
-          ))}
+          {(["userName", "organisationName", "address", "contact", "email", "designation"] as const).map(
+            (key) => (
+              <FormControl key={key}>
+                <FormLabel fontSize="sm" color="gray.600">
+                  {fieldLabels[key]}
+                </FormLabel>
+                <Input
+                  placeholder={`Enter ${fieldLabels[key]}`}
+                  name={key}
+                  value={basic[key]}
+                  onChange={handleBasicChange}
+                />
+              </FormControl>
+            )
+          )}
 
           <FormControl>
             <FormLabel fontSize="sm" color="gray.600">
@@ -516,6 +560,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         </Grid>
       </Section>
 
+      {/* ── Currency Master ── */}
       <Section
         title="Currency Master"
         subtitle="Create currencies used across all business units"
@@ -550,6 +595,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         )}
       </Section>
 
+      {/* ── Business Units & Bank Configuration ── */}
       <Section
         title="Business Units & Bank Configuration"
         subtitle="Configure banks, margins and bank spread per business unit"
@@ -652,6 +698,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         </Stack>
       </Section>
 
+      {/* ── Benchmarking Mechanism ── */}
       <Section
         title="Benchmarking Mechanism"
         subtitle="Select the rate type to be used for benchmarking"
@@ -664,12 +711,13 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         </RadioGroup>
       </Section>
 
+      {/* ── Policy Criteria ── */}
       <Section
         title="Policy Criteria"
         subtitle="Choose consolidated or standalone, then configure gross or net limits"
       >
         <Stack spacing={5}>
-          <FormControl w={'50%'}>
+          <FormControl w="50%">
             <FormLabel fontSize="sm">Criteria Scope</FormLabel>
             <Select
               placeholder="Select criteria scope"
@@ -710,55 +758,39 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
                   </RadioGroup>
                 </FormControl>
 
+                {/* Gross: select whether Export is Min/Max and whether Import is Min/Max */}
                 {entry.basis === "gross" && (
-                  <Grid templateColumns="repeat(4, 1fr)" gap={4}>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={4}>
                     <FormControl>
-                      <FormLabel fontSize="sm">Export Min</FormLabel>
-                      <Input
-                        type="number"
-                        placeholder="Export min"
-                        value={entry.exportMin}
+                      <FormLabel fontSize="sm">Export Type</FormLabel>
+                      <Select
+                        placeholder="Select export type"
+                        value={entry.exportType}
                         onChange={(e) =>
-                          handleCriteriaEntryChange(index, "exportMin", e.target.value)
+                          handleCriteriaEntryChange(index, "exportType", e.target.value)
                         }
-                      />
+                      >
+                        <option value="min">Min</option>
+                        <option value="max">Max</option>
+                      </Select>
                     </FormControl>
                     <FormControl>
-                      <FormLabel fontSize="sm">Export Max</FormLabel>
-                      <Input
-                        type="number"
-                        placeholder="Export max"
-                        value={entry.exportMax}
+                      <FormLabel fontSize="sm">Import Type</FormLabel>
+                      <Select
+                        placeholder="Select import type"
+                        value={entry.importType}
                         onChange={(e) =>
-                          handleCriteriaEntryChange(index, "exportMax", e.target.value)
+                          handleCriteriaEntryChange(index, "importType", e.target.value)
                         }
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel fontSize="sm">Import Min</FormLabel>
-                      <Input
-                        type="number"
-                        placeholder="Import min"
-                        value={entry.importMin}
-                        onChange={(e) =>
-                          handleCriteriaEntryChange(index, "importMin", e.target.value)
-                        }
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel fontSize="sm">Import Max</FormLabel>
-                      <Input
-                        type="number"
-                        placeholder="Import max"
-                        value={entry.importMax}
-                        onChange={(e) =>
-                          handleCriteriaEntryChange(index, "importMax", e.target.value)
-                        }
-                      />
+                      >
+                        <option value="min">Min</option>
+                        <option value="max">Max</option>
+                      </Select>
                     </FormControl>
                   </Grid>
                 )}
 
+                {/* Net: numeric min and max values */}
                 {entry.basis === "net" && (
                   <Grid templateColumns="repeat(2, 1fr)" gap={4}>
                     <FormControl>
@@ -791,11 +823,12 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         </Stack>
       </Section>
 
+      {/* ── Policy Ratio Tenure ── */}
       <Section
         title="Policy Ratio Tenure"
         subtitle="Tenure values always use rolling mode and always show 12 inputs"
       >
-        <Stack spacing={4}>
+        <Stack spacing={5}>
           <FormControl maxW="320px">
             <FormLabel fontSize="sm">Tenure Type</FormLabel>
             <Select
@@ -808,20 +841,62 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
             </Select>
           </FormControl>
 
-          <Grid templateColumns="repeat(4, 1fr)" gap={3}>
-            {policy.tenureValues.map((val: string, idx: number) => (
-              <Input
-                key={idx}
-                placeholder={`Value ${idx + 1}`}
-                value={val}
-                onChange={(e) => {
-                  const updated = [...policy.tenureValues];
-                  updated[idx] = e.target.value;
-                  setPolicy({ ...policy, tenureValues: updated, tenureMode: "rolling" });
-                }}
-              />
-            ))}
-          </Grid>
+          {/* Render one set of 12 inputs per scope unit (consolidated = 1, standalone = per BU) */}
+          {tenureEntries.map((tenureEntry, entryIndex) => (
+            <Box
+              key={`tenure-${tenureEntry.businessUnitCode || entryIndex}`}
+              border="1px solid"
+              borderColor="gray.200"
+              rounded="lg"
+              p={4}
+              bg="gray.50"
+            >
+              {criteriaScope === "standalone" && (
+                <Text fontWeight="600" color="gray.700" mb={3}>
+                  {tenureEntry.businessUnitCode?.trim()
+                    ? tenureEntry.businessUnitCode
+                    : `Business Unit ${entryIndex + 1}`}
+                </Text>
+              )}
+              {criteriaScope === "consolidated" && (
+                <Text fontWeight="600" color="gray.700" mb={3}>
+                  Consolidated
+                </Text>
+              )}
+              <Grid templateColumns="repeat(4, 1fr)" gap={3}>
+                {tenureEntry.values.map((val: string, idx: number) => (
+                  <Input
+                    key={idx}
+                    placeholder={`Value ${idx + 1}`}
+                    value={val}
+                    onChange={(e) => handleTenureValueChange(entryIndex, idx, e.target.value)}
+                  />
+                ))}
+              </Grid>
+            </Box>
+          ))}
+
+          {/* Fallback when no scope selected yet */}
+          {!criteriaScope && (
+            <Box
+              border="1px solid"
+              borderColor="gray.200"
+              rounded="lg"
+              p={4}
+              bg="gray.50"
+            >
+              <Grid templateColumns="repeat(4, 1fr)" gap={3}>
+                {tenureEntries[0]?.values.map((val: string, idx: number) => (
+                  <Input
+                    key={idx}
+                    placeholder={`Value ${idx + 1}`}
+                    value={val}
+                    onChange={(e) => handleTenureValueChange(0, idx, e.target.value)}
+                  />
+                ))}
+              </Grid>
+            </Box>
+          )}
         </Stack>
       </Section>
 
