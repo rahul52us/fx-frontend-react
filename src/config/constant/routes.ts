@@ -35,6 +35,7 @@ export const dashboard = {
   adminTab:`/${dashboardName}/users`,
   approvals:`/${dashboardName}/approvals`,
   summary: `/${dashboardName}/summary`,
+  mtmConversionSummary: `/${dashboardName}/mtm-conversion-summary`,
   
   exportApproval: `/${dashboardName}/export-register/approvals`,
   // Profile
