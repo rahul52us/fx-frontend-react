@@ -202,6 +202,13 @@ const sidebarDatas: SidebarItem[] = [
         url: dashboard.mtmConversionSummary,
         role: ["user", "manager", "admin"],
       },
+      {
+        id: 903,
+        name: "USD Summary",
+        icon: <CalendarIcon />,
+        url: dashboard.mtmUSDSummary,
+        role: ["user", "manager", "admin"],
+      },
     ],
   },
 

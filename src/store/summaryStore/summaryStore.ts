@@ -8,6 +8,12 @@ class SummaryStore {
     error: null,
   };
 
+  usdSummaryData: any = {
+    data: null,
+    loading: false,
+    error: null,
+  };
+
   filters: any = {
     userId: "",
     exposureType: "export", // default
@@ -21,10 +27,13 @@ class SummaryStore {
   constructor() {
     makeObservable(this, {
       summaryData: observable,
+      usdSummaryData: observable,
       filters: observable,
       setFilters: action,
       fetchSummaryData: action,
+      fetchUSDSummaryData: action,
       resetSummaryData: action,
+      resetUSDSummaryData: action,
     });
   }
 
@@ -34,6 +43,14 @@ class SummaryStore {
 
   resetSummaryData = () => {
     this.summaryData = {
+      data: null,
+      loading: false,
+      error: null,
+    };
+  };
+
+  resetUSDSummaryData = () => {
+    this.usdSummaryData = {
       data: null,
       loading: false,
       error: null,
@@ -76,6 +93,29 @@ class SummaryStore {
       this.summaryData.data = [];
     } finally {
       this.summaryData.loading = false;
+    }
+  };
+
+  fetchUSDSummaryData = async () => {
+    this.usdSummaryData.loading = true;
+    try {
+      const { userId } = this.filters;
+      const payload = { userId };
+
+      const { data: responseData } = await axios.post(
+        `${process.env.REACT_APP_FX_BASE_URL}/mtmview/usdsummary/`,
+        payload
+      );
+      
+      console.log("USD Summary Raw Response:", responseData);
+      this.usdSummaryData.data = responseData.data || null;
+      this.usdSummaryData.error = null;
+    } catch (err: any) {
+      console.error("Error fetching USD summary data:", err);
+      this.usdSummaryData.error = err.message || "Failed to fetch USD summary";
+      this.usdSummaryData.data = null;
+    } finally {
+      this.usdSummaryData.loading = false;
     }
   };
 }

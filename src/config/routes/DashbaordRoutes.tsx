@@ -11,6 +11,7 @@ import PcFc from "../../pages/Dashboard/pcfc/Pcfc";
 import DailyExposureSheet from "../../pages/Dashboard/dailyExposureSheet/page";
 import MTMTable from "../../pages/Dashboard/mtm/component/MTMTable/MTMTable";
 import MTMConversionSummary from "../../pages/Dashboard/mtm/ConversionSummary";
+import MTMUSDSummary from "../../pages/Dashboard/mtm/USDSummary";
 import EEFCRegister from "../../pages/Dashboard/eefcRegister/EEFCRegister";
 import Rp from "../../pages/Dashboard/rp/Rp";
 import Approvals from "../../pages/Dashboard/Approvals/Approvals";
@@ -213,6 +214,11 @@ export const DashboardRoutes = [
   {
     element: <MTMConversionSummary />,
     path: dashboard.mtmConversionSummary,
+    privateRoutes: true,
+  },
+  {
+    element: <MTMUSDSummary />,
+    path: dashboard.mtmUSDSummary,
     privateRoutes: true,
   },
   {
