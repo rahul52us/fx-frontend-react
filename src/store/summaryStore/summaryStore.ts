@@ -99,8 +99,13 @@ class SummaryStore {
   fetchUSDSummaryData = async () => {
     this.usdSummaryData.loading = true;
     try {
-      const { userId } = this.filters;
-      const payload = { userId };
+      const { userId, businessUnit, currency, bank } = this.filters;
+      const payload = { 
+        userId,
+        bussiness_unit: businessUnit || "",
+        currency: currency || "",
+        bank: bank || ""
+      };
 
       const { data: responseData } = await axios.post(
         `${process.env.REACT_APP_FX_BASE_URL}/mtmview/usdsummary/`,

@@ -154,7 +154,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
                 <Tr 
                   key={metric.key} 
                   _hover={{ bg:"blue.50" }}
-                  bg={isHighlight ? "blue.50" : "transparent"}
+                  bg={isHighlight ? "blue.100" : "transparent"}
                 >
                   <Td
                     position="sticky"
