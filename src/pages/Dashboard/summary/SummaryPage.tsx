@@ -70,26 +70,26 @@ const SummaryPage: React.FC = observer(() => {
   }
 
   return (
-    <Box p={4}>
+    <Box>
       <Flex direction="column" gap={6}>
         {/* ── filter bar ── */}
         <Box
           bg="white"
-          p={6}
+          p={4}
           rounded="xl"
           shadow="sm"
           border="1px solid"
           borderColor="gray.100"
         >
-          <Heading size="md" mb={6}>
-            Summary Filters
+          <Heading size="md" mb={4}>
+            Conversion Summary
           </Heading>
           <Grid
             templateColumns={{
               base: "1fr",
               md: "repeat(3, 1fr)",
               lg: "repeat(4, 1fr)",
-              xl: "repeat(6, 1fr)",
+              xl: "repeat(7, 1fr)",
             }}
             gap={4}
             alignItems="flex-end"
@@ -205,6 +205,7 @@ const SummaryPage: React.FC = observer(() => {
                 <Button
                   size="sm"
                   variant="outline"
+                  bg={'blue.100'}
                   onClick={() => {
                     if (filters.financialYear) {
                       setFilters({ financialYear: "", year: currentYear.toString() });
@@ -223,8 +224,8 @@ const SummaryPage: React.FC = observer(() => {
               colorScheme="blue"
               onClick={handleSearch}
               isLoading={summaryData.loading}
-              w="full"
-              gridColumn={{ xl: "span 6" }}
+              // w="full"
+              // gridColumn={{ xl: "span 6" }}
               mt={4}
             >
               Search

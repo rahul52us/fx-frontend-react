@@ -73,10 +73,9 @@ type CriteriaBasis = "gross" | "net" | "";
 interface PolicyCriteriaEntry {
   businessUnitCode: string | null;
   basis: CriteriaBasis;
-  exportType: "min" | "max" | ""; // selector: is export treated as min or max?
-  importType: "min" | "max" | ""; // selector: is import treated as min or max?
-  min: string; // net min value
-  max: string; // net max value
+  exposureType: "export" | "import" | "";
+  grossType: "min" | "max" | "";
+  netType: "min" | "max" | "";
 }
 
 // Tenure entry per scope unit
@@ -100,10 +99,9 @@ const createEmptyBusinessUnit = (): BusinessUnitConfig => ({
 const createCriteriaEntry = (businessUnitCode: string | null = null): PolicyCriteriaEntry => ({
   businessUnitCode,
   basis: "",
-  exportType: "",
-  importType: "",
-  min: "",
-  max: "",
+  exposureType: "",
+  grossType: "",
+  netType: "",
 });
 
 const createTenureEntry = (businessUnitCode: string | null = null): TenureEntry => ({
@@ -299,11 +297,10 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
 
       if (field === "basis") {
         if (value === "gross") {
-          updated[index].min = "";
-          updated[index].max = "";
+          updated[index].netType = "";
         } else if (value === "net") {
-          updated[index].exportType = "";
-          updated[index].importType = "";
+          updated[index].exposureType = "";
+          updated[index].grossType = "";
         }
       }
 
@@ -382,13 +379,15 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         }
 
         if (entry.basis === "gross") {
-          if (!entry.exportType || !entry.importType) {
-            errorMessages.push(`${label}: Gross criteria requires export type and import type selections`);
+          if (!entry.exposureType || !entry.grossType) {
+            errorMessages.push(`${label}: Gross criteria requires exposure type and min/max selection`);
           }
         }
 
-        if (entry.basis === "net" && (!entry.min || !entry.max)) {
-          errorMessages.push(`${label}: Net criteria requires min and max`);
+        if (entry.basis === "net") {
+          if (!entry.netType) {
+            errorMessages.push(`${label}: Net criteria requires min/max selection`);
+          }
         }
       });
     }
@@ -440,10 +439,9 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
               (entry) => ({
                 businessUnitCode: criteriaScope === "standalone" ? entry.businessUnitCode : null,
                 basis: entry.basis === "gross" ? "Gross" : "Net",
-                exportType: entry.basis === "gross" ? entry.exportType : "",
-                importType: entry.basis === "gross" ? entry.importType : "",
-                min: entry.basis === "net" ? entry.min : "",
-                max: entry.basis === "net" ? entry.max : "",
+                exposureType: entry.basis === "gross" ? { value: entry.exposureType } : "",
+                grossType: entry.basis === "gross" ? entry.grossType : "",
+                netType: entry.basis === "net" ? entry.netType : "",
               })
             ),
           }
@@ -758,29 +756,29 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
                   </RadioGroup>
                 </FormControl>
 
-                {/* Gross: select whether Export is Min/Max and whether Import is Min/Max */}
+                {/* Gross: select Exposure Type then Min/Max */}
                 {entry.basis === "gross" && (
                   <Grid templateColumns="repeat(2, 1fr)" gap={4}>
                     <FormControl>
-                      <FormLabel fontSize="sm">Export Type</FormLabel>
+                      <FormLabel fontSize="sm">Exposure Type</FormLabel>
                       <Select
-                        placeholder="Select export type"
-                        value={entry.exportType}
+                        placeholder="Select exposure type"
+                        value={entry.exposureType}
                         onChange={(e) =>
-                          handleCriteriaEntryChange(index, "exportType", e.target.value)
+                          handleCriteriaEntryChange(index, "exposureType", e.target.value)
                         }
                       >
-                        <option value="min">Min</option>
-                        <option value="max">Max</option>
+                        <option value="export">Export</option>
+                        <option value="import">Import</option>
                       </Select>
                     </FormControl>
                     <FormControl>
-                      <FormLabel fontSize="sm">Import Type</FormLabel>
+                      <FormLabel fontSize="sm">Type</FormLabel>
                       <Select
-                        placeholder="Select import type"
-                        value={entry.importType}
+                        placeholder="Select type"
+                        value={entry.grossType}
                         onChange={(e) =>
-                          handleCriteriaEntryChange(index, "importType", e.target.value)
+                          handleCriteriaEntryChange(index, "grossType", e.target.value)
                         }
                       >
                         <option value="min">Min</option>
@@ -790,32 +788,21 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
                   </Grid>
                 )}
 
-                {/* Net: numeric min and max values */}
+                {/* Net: select Min/Max */}
                 {entry.basis === "net" && (
-                  <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-                    <FormControl>
-                      <FormLabel fontSize="sm">Min</FormLabel>
-                      <Input
-                        type="number"
-                        placeholder="Net min"
-                        value={entry.min}
-                        onChange={(e) =>
-                          handleCriteriaEntryChange(index, "min", e.target.value)
-                        }
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel fontSize="sm">Max</FormLabel>
-                      <Input
-                        type="number"
-                        placeholder="Net max"
-                        value={entry.max}
-                        onChange={(e) =>
-                          handleCriteriaEntryChange(index, "max", e.target.value)
-                        }
-                      />
-                    </FormControl>
-                  </Grid>
+                  <FormControl>
+                    <FormLabel fontSize="sm">Type</FormLabel>
+                    <Select
+                      placeholder="Select type"
+                      value={entry.netType}
+                      onChange={(e) =>
+                        handleCriteriaEntryChange(index, "netType", e.target.value)
+                      }
+                    >
+                      <option value="min">Min</option>
+                      <option value="max">Max</option>
+                    </Select>
+                  </FormControl>
                 )}
               </Stack>
             </Box>

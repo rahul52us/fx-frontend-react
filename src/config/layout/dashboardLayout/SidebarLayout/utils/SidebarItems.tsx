@@ -6,11 +6,14 @@ import {
   FaShip,
 } from "react-icons/fa";
 import { GiCheckMark } from "react-icons/gi";
-import { GrDocumentPerformance } from "react-icons/gr";
+import { GrCurrency, GrDocumentPerformance } from "react-icons/gr";
 import { ImCancelCircle } from "react-icons/im";
 import { IoDocumentText, IoPieChartSharp } from "react-icons/io5";
 import { MdLocalShipping } from "react-icons/md";
+import { SiConvertio } from "react-icons/si";
 import { dashboard } from "../../../../constant/routes";
+import { FaFileCircleCheck } from "react-icons/fa6";
+
 
 interface SidebarItem {
   id: number;
@@ -195,20 +198,20 @@ const sidebarDatas: SidebarItem[] = [
         url: dashboard.mtm,
         role: ["user", "manager", "admin"],
       },
-      {
-        id: 902,
-        name: "Conversion Summary",
-        icon: <CalendarIcon />,
-        url: dashboard.mtmConversionSummary,
-        role: ["user", "manager", "admin"],
-      },
-      {
-        id: 903,
-        name: "USD Summary",
-        icon: <CalendarIcon />,
-        url: dashboard.mtmUSDSummary,
-        role: ["user", "manager", "admin"],
-      },
+      // {
+      //   id: 902,
+      //   name: "Conversion Summary",
+      //   icon: <CalendarIcon />,
+      //   url: dashboard.mtmConversionSummary,
+      //   role: ["user", "manager", "admin"],
+      // },
+      // {
+        // id: 903,
+        // name: "USD Summary",
+        // icon: <CalendarIcon />,
+        // url: dashboard.mtmUSDSummary,
+        // role: ["user", "manager", "admin"],
+      // },
     ],
   },
 
@@ -245,7 +248,7 @@ const sidebarDatas: SidebarItem[] = [
   {
     id: 1201,
     name: "Approvals",
-    icon: <CalendarIcon />,
+    icon: <FaFileCircleCheck />,
     url: dashboard.approvals,
     role: ["admin"],
   },
@@ -258,10 +261,17 @@ const sidebarDatas: SidebarItem[] = [
   },
   {
     id: 1300,
-    name: "Summary",
-    icon: <IoDocumentText />,
+    name: "Conversion Summary",
+    icon: <SiConvertio />,
     url: dashboard.summary,
     role: ["user", "admin", "manager"],
+  },
+  {
+      id: 1401,
+      name: "Summary",
+      icon: <GrCurrency />,
+      url: dashboard.mtmUSDSummary,
+      role: ["user", "manager", "admin"],
   },
 ];
 

@@ -26,6 +26,19 @@ const MTMUSDSummary = observer(() => {
   
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUserDetails, setSelectedUserDetails] = useState<any>(null);
+
+  const years = [];
+  const currentYear = new Date().getFullYear();
+  for (let i = currentYear; i >= currentYear - 5; i--) {
+    years.push(i.toString());
+  }
+
+  const financialYears: string[] = [];
+  for (let i = 0; i < 5; i++) {
+    const y = currentYear - i;
+    const fy = `${y - 1}-${y.toString().slice(-2)}`;
+    financialYears.push(fy);
+  }
   
   const fetchUsers = useCallback(async () => {
     try {
@@ -105,17 +118,19 @@ const MTMUSDSummary = observer(() => {
           borderColor={borderColor}
         >
           <Heading size="md" mb={6} color={useColorModeValue("blue.700", "blue.200")}>
-            MTM USD Summary Filters
+            MTM Summary
           </Heading>
           <Grid
             templateColumns={{
               base: "1fr",
               md: "repeat(2, 1fr)",
               lg: "repeat(4, 1fr)",
+              xl: "repeat(7, 1fr)",
             }}
             gap={4}
             alignItems="flex-end"
           >
+
             <FormControl>
               <FormLabel fontSize="sm">User</FormLabel>
               <Select
@@ -131,6 +146,20 @@ const MTMUSDSummary = observer(() => {
                 ))}
               </Select>
             </FormControl>
+
+            <FormControl>
+              <FormLabel fontSize="sm">Exposure Type</FormLabel>
+              <Select
+                value={filters.exposureType}
+                onChange={(e) => setFilters({ exposureType: e.target.value })}
+                bg={bg}
+              >
+                <option value="export">Export</option>
+                <option value="import">Import</option>
+                <option value="total">Total</option>
+              </Select>
+            </FormControl>
+
 
             <FormControl>
               <FormLabel fontSize="sm">Currency</FormLabel>
@@ -189,16 +218,66 @@ const MTMUSDSummary = observer(() => {
               </Select>
             </FormControl>
 
+            {/* Period Selection (Year vs Fin Year) */}
+            <FormControl>
+              <FormLabel fontSize="sm">
+                {filters.financialYear ? "Financial Year" : "Calendar Year"}
+              </FormLabel>
+              <Flex gap={2}>
+                {filters.financialYear ? (
+                  <Select
+                    value={filters.financialYear}
+                    onChange={(e) => setFilters({ financialYear: e.target.value, year: "" })}
+                    bg={bg}
+                  >
+                    {financialYears.map((fy) => (
+                      <option key={fy} value={fy}>
+                        {fy}
+                      </option>
+                    ))}
+                  </Select>
+                ) : (
+                  <Select
+                    value={filters.year}
+                    onChange={(e) => setFilters({ year: e.target.value, financialYear: "" })}
+                    bg={bg}
+                  >
+                    {years.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+                <Button
+                  size="md"
+                  variant="outline"
+                  bg={useColorModeValue('blue.50', 'blue.900')}
+                  onClick={() => {
+                    if (filters.financialYear) {
+                      setFilters({ financialYear: "", year: currentYear.toString() });
+                    } else {
+                      setFilters({ financialYear: financialYears[0], year: "" });
+                    }
+                  }}
+                  px={4}
+                >
+                  {filters.financialYear ? "Year" : "FY"}
+                </Button>
+              </Flex>
+            </FormControl>
+
+
             <Button
               colorScheme="blue"
               onClick={handleSearch}
               isLoading={usdSummaryData.loading}
               w="full"
-              gridColumn={{ lg: "span 4" }}
               mt={2}
             >
               Fetch USD Summary
             </Button>
+
           </Grid>
         </Box>
 

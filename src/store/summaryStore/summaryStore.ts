@@ -65,7 +65,7 @@ class SummaryStore {
       
       const payload = {
         userId: userId,
-        exposureType,
+        exposureType: { value: exposureType },
         currency,
         year: financialYear ? "" : year,
         financialYear: financialYear || "",
@@ -99,16 +99,19 @@ class SummaryStore {
   fetchUSDSummaryData = async () => {
     this.usdSummaryData.loading = true;
     try {
-      const { userId, businessUnit, currency, bank } = this.filters;
+      const { userId, exposureType, currency, year, financialYear, businessUnit, bank } = this.filters;
       const payload = { 
         userId,
-        bussiness_unit: businessUnit || "",
-        currency: currency || "",
+        exposureType: { value: exposureType },
+        currency,
+        year: financialYear ? "" : year,
+        financialYear: financialYear || "",
+        businessUnit: businessUnit || "",
         bank: bank || ""
       };
 
       const { data: responseData } = await axios.post(
-        `${process.env.REACT_APP_FX_BASE_URL}/mtmview/usdsummary/`,
+        `${process.env.REACT_APP_FX_BASE_URL}/mtmview/summary/`,
         payload
       );
       

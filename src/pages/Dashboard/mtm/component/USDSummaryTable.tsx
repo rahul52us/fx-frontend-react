@@ -110,7 +110,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
     <Box bg={bg} rounded="2xl" shadow="xl" overflow="hidden" border="1px solid" borderColor={borderColor}>
       <Box p={6} borderBottom="1px solid" borderColor={borderColor}>
         <Heading size="md" color={"blue.700"}>
-          USD Exposure Summary Metrics
+          Exposure Summary Metrics
         </Heading>
       </Box>
 
