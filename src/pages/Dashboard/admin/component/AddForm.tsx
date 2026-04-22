@@ -73,8 +73,8 @@ type CriteriaBasis = "gross" | "net" | "";
 interface PolicyCriteriaEntry {
   businessUnitCode: string | null;
   basis: CriteriaBasis;
-  exposureType: "export" | "import" | "";
-  grossType: "min" | "max" | "";
+  exportType: "min" | "max" | "";
+  importType: "min" | "max" | "";
   netType: "min" | "max" | "";
 }
 
@@ -82,6 +82,8 @@ interface PolicyCriteriaEntry {
 interface TenureEntry {
   businessUnitCode: string | null;
   values: string[];
+  exportValues: string[];
+  importValues: string[];
 }
 
 const createEmptyBank = (): BankConfig => ({
@@ -99,14 +101,16 @@ const createEmptyBusinessUnit = (): BusinessUnitConfig => ({
 const createCriteriaEntry = (businessUnitCode: string | null = null): PolicyCriteriaEntry => ({
   businessUnitCode,
   basis: "",
-  exposureType: "",
-  grossType: "",
+  exportType: "",
+  importType: "",
   netType: "",
 });
 
 const createTenureEntry = (businessUnitCode: string | null = null): TenureEntry => ({
   businessUnitCode,
   values: Array(TENURE_INPUT_COUNT).fill(""),
+  exportValues: Array(TENURE_INPUT_COUNT).fill(""),
+  importValues: Array(TENURE_INPUT_COUNT).fill(""),
 });
 
 const normalizeCriteriaEntries = (
@@ -267,13 +271,18 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
     setPolicy({ ...policy, tenureType: type });
   };
 
-  const handleTenureValueChange = (entryIndex: number, valueIndex: number, value: string) => {
+  const handleTenureValueChange = (
+    entryIndex: number,
+    valueIndex: number,
+    value: string,
+    type: "values" | "exportValues" | "importValues" = "values"
+  ) => {
     setTenureEntries((current) => {
       const updated = [...current];
       const entry = { ...updated[entryIndex] };
-      const values = [...entry.values];
+      const values = [...entry[type]];
       values[valueIndex] = value;
-      entry.values = values;
+      entry[type] = values;
       updated[entryIndex] = entry;
       return updated;
     });
@@ -299,8 +308,8 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         if (value === "gross") {
           updated[index].netType = "";
         } else if (value === "net") {
-          updated[index].exposureType = "";
-          updated[index].grossType = "";
+          updated[index].exportType = "";
+          updated[index].importType = "";
         }
       }
 
@@ -379,8 +388,8 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
         }
 
         if (entry.basis === "gross") {
-          if (!entry.exposureType || !entry.grossType) {
-            errorMessages.push(`${label}: Gross criteria requires exposure type and min/max selection`);
+          if (!entry.exportType || !entry.importType) {
+            errorMessages.push(`${label}: Gross criteria requires Min/Max selection for both Export and Import`);
           }
         }
 
@@ -439,8 +448,8 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
               (entry) => ({
                 businessUnitCode: criteriaScope === "standalone" ? entry.businessUnitCode : null,
                 basis: entry.basis === "gross" ? "Gross" : "Net",
-                exposureType: entry.basis === "gross" ? { value: entry.exposureType } : "",
-                grossType: entry.basis === "gross" ? entry.grossType : "",
+                exportType: entry.basis === "gross" ? entry.exportType : "",
+                importType: entry.basis === "gross" ? entry.importType : "" ,
                 netType: entry.basis === "net" ? entry.netType : "",
               })
             ),
@@ -756,35 +765,35 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
                   </RadioGroup>
                 </FormControl>
 
-                {/* Gross: select Exposure Type then Min/Max */}
+                {/* Gross: select Min/Max for Export and Import */}
                 {entry.basis === "gross" && (
-                  <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-                    <FormControl>
-                      <FormLabel fontSize="sm">Exposure Type</FormLabel>
-                      <Select
-                        placeholder="Select exposure type"
-                        value={entry.exposureType}
-                        onChange={(e) =>
-                          handleCriteriaEntryChange(index, "exposureType", e.target.value)
-                        }
-                      >
-                        <option value="export">Export</option>
-                        <option value="import">Import</option>
-                      </Select>
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel fontSize="sm">Type</FormLabel>
+                  <Grid templateColumns="1fr 1fr" gap={4} >
+                      <Box >
+                      <Text mb={2} fontSize="sm" fontWeight="500">Export</Text>
                       <Select
                         placeholder="Select type"
-                        value={entry.grossType}
+                        value={entry.exportType}
                         onChange={(e) =>
-                          handleCriteriaEntryChange(index, "grossType", e.target.value)
+                          handleCriteriaEntryChange(index, "exportType", e.target.value)
                         }
                       >
                         <option value="min">Min</option>
                         <option value="max">Max</option>
                       </Select>
-                    </FormControl>
+                      </Box>
+                      <Box>
+                      <Text fontSize="sm" fontWeight="500"  mb={2}>Import</Text>
+                      <Select
+                        placeholder="Select type"
+                        value={entry.importType}
+                        onChange={(e) =>
+                          handleCriteriaEntryChange(index, "importType", e.target.value)
+                        }
+                      >
+                        <option value="min">Min</option>
+                        <option value="max">Max</option>
+                      </Select>
+                      </Box>
                   </Grid>
                 )}
 
@@ -794,6 +803,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
                     <FormLabel fontSize="sm">Type</FormLabel>
                     <Select
                       placeholder="Select type"
+                      w={'50%'}
                       value={entry.netType}
                       onChange={(e) =>
                         handleCriteriaEntryChange(index, "netType", e.target.value)
@@ -829,39 +839,80 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
           </FormControl>
 
           {/* Render one set of 12 inputs per scope unit (consolidated = 1, standalone = per BU) */}
-          {tenureEntries.map((tenureEntry, entryIndex) => (
-            <Box
-              key={`tenure-${tenureEntry.businessUnitCode || entryIndex}`}
-              border="1px solid"
-              borderColor="gray.200"
-              rounded="lg"
-              p={4}
-              bg="gray.50"
-            >
-              {criteriaScope === "standalone" && (
-                <Text fontWeight="600" color="gray.700" mb={3}>
-                  {tenureEntry.businessUnitCode?.trim()
-                    ? tenureEntry.businessUnitCode
-                    : `Business Unit ${entryIndex + 1}`}
-                </Text>
-              )}
-              {criteriaScope === "consolidated" && (
-                <Text fontWeight="600" color="gray.700" mb={3}>
-                  Consolidated
-                </Text>
-              )}
-              <Grid templateColumns="repeat(4, 1fr)" gap={3}>
-                {tenureEntry.values.map((val: string, idx: number) => (
-                  <Input
-                    key={idx}
-                    placeholder={`Value ${idx + 1}`}
-                    value={val}
-                    onChange={(e) => handleTenureValueChange(entryIndex, idx, e.target.value)}
-                  />
-                ))}
-              </Grid>
-            </Box>
-          ))}
+          {tenureEntries.map((tenureEntry, entryIndex) => {
+            const correspondingCriteria = criteriaEntries[entryIndex];
+            const isGross = correspondingCriteria?.basis === "gross";
+
+            return (
+              <Box
+                key={`tenure-${tenureEntry.businessUnitCode || entryIndex}`}
+                border="1px solid"
+                borderColor="gray.200"
+                rounded="lg"
+                p={4}
+                bg="gray.50"
+              >
+                {criteriaScope === "standalone" && (
+                  <Text fontWeight="600" color="gray.700" mb={3}>
+                    {tenureEntry.businessUnitCode?.trim()
+                      ? tenureEntry.businessUnitCode
+                      : `Business Unit ${entryIndex + 1}`}
+                  </Text>
+                )}
+                {criteriaScope === "consolidated" && (
+                  <Text fontWeight="600" color="gray.700" mb={3}>
+                    Consolidated
+                  </Text>
+                )}
+
+                {isGross ? (
+                  <Stack spacing={6}>
+                    <Box>
+                      <Text fontSize="sm" fontWeight="600" mb={2}>Export Tenure</Text>
+                      <Grid templateColumns="repeat(4, 1fr)" gap={3}>
+                        {tenureEntry.exportValues.map((val: string, idx: number) => (
+                          <Input
+                            key={idx}
+                            placeholder={`Exp Value ${idx + 1}`}
+                            value={val}
+                            onChange={(e) =>
+                              handleTenureValueChange(entryIndex, idx, e.target.value, "exportValues")
+                            }
+                          />
+                        ))}
+                      </Grid>
+                    </Box>
+                    <Box>
+                      <Text fontSize="sm" fontWeight="600" mb={2}>Import Tenure</Text>
+                      <Grid templateColumns="repeat(4, 1fr)" gap={3}>
+                        {tenureEntry.importValues.map((val: string, idx: number) => (
+                          <Input
+                            key={idx}
+                            placeholder={`Imp Value ${idx + 1}`}
+                            value={val}
+                            onChange={(e) =>
+                              handleTenureValueChange(entryIndex, idx, e.target.value, "importValues")
+                            }
+                          />
+                        ))}
+                      </Grid>
+                    </Box>
+                  </Stack>
+                ) : (
+                  <Grid templateColumns="repeat(4, 1fr)" gap={3}>
+                    {tenureEntry.values.map((val: string, idx: number) => (
+                      <Input
+                        key={idx}
+                        placeholder={`Value ${idx + 1}`}
+                        value={val}
+                        onChange={(e) => handleTenureValueChange(entryIndex, idx, e.target.value, "values")}
+                      />
+                    ))}
+                  </Grid>
+                )}
+              </Box>
+            );
+          })}
 
           {/* Fallback when no scope selected yet */}
           {!criteriaScope && (
@@ -878,7 +929,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
                     key={idx}
                     placeholder={`Value ${idx + 1}`}
                     value={val}
-                    onChange={(e) => handleTenureValueChange(0, idx, e.target.value)}
+                    onChange={(e) => handleTenureValueChange(0, idx, e.target.value, "values")}
                   />
                 ))}
               </Grid>
