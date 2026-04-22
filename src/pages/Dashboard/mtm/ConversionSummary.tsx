@@ -134,7 +134,7 @@ const MTMConversionSummary = observer(() => {
           border="1px solid"
           borderColor={borderColor}
         >
-          <Heading size="md" mb={6} color={useColorModeValue("blue.700", "blue.200")}>
+          <Heading size="md" mb={6} color={useColorModeValue("teal.700", "teal.200")}>
             MTM Conversion Summary Filters
           </Heading>
           <Grid
@@ -209,7 +209,7 @@ const MTMConversionSummary = observer(() => {
             </FormControl>
 
             <Button
-              colorScheme="blue"
+              colorScheme="teal"
               onClick={handleSearch}
               isLoading={loading}
               w="full"
@@ -235,7 +235,7 @@ const MTMConversionSummary = observer(() => {
         
         {loading && (
            <Center py={20}>
-             <Spinner size="xl" color="blue.500" />
+             <Spinner size="xl" color="teal.500" />
            </Center>
         )}
       </Flex>

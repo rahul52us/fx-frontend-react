@@ -105,13 +105,13 @@ const LabelCell: React.FC<{
 }> = ({ children, highlight, isDetail }) => {
   let bg = "white";
   if (highlight) bg = "green.50";
-  if (isDetail) bg = "blue.50";
+  if (isDetail) bg = "teal.50";
 
   return (
     <Td
       fontSize="sm"
       fontWeight={highlight ? "bold" : "medium"}
-      color={highlight ? "green.700" : isDetail ? "blue.600" : "gray.600"}
+      color={highlight ? "green.700" : isDetail ? "teal.600" : "gray.600"}
       py={3}
       px={5}
       pl={isDetail ? 8 : 5}
@@ -161,7 +161,7 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data, loading, exposureType
       <Flex align="center" gap={3} px={6} py={4} borderBottom="1px solid" borderColor="gray.100">
         <Icon as={CalendarIcon} color={primaryColor} />
         <Heading size="sm" color="gray.700">Analysis Summary</Heading>
-        <Badge colorScheme="blue" variant="solid" px={3} py={1} rounded="full" fontSize="xs" ml="auto">
+        <Badge colorScheme="teal" variant="solid" px={3} py={1} rounded="full" fontSize="xs" ml="auto">
           {exposureType.toUpperCase()}
         </Badge>
       </Flex>
@@ -205,18 +205,18 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data, loading, exposureType
           <Tbody>
 
             {/* ── Toggle button row ── */}
-            <Tr bg="blue.50">
+            <Tr bg="teal.50">
               <Td
                 colSpan={data.length + 1}
                 py={2}
                 px={5}
                 borderBottom={detailsExpanded ? "none" : "2px solid"}
-                borderColor="blue.100"
+                borderColor="teal.100"
               >
                 <Button
                   size="xs"
                   variant="ghost"
-                  colorScheme="blue"
+                  colorScheme="teal"
                   rightIcon={detailsExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
                   onClick={() => setDetailsExpanded((prev) => !prev)}
                   fontWeight="semibold"
@@ -233,8 +233,8 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data, loading, exposureType
                 {detailRows.map((row, i) => (
                   <Tr
                     key={`detail-${row.key}`}
-                    bg={i % 2 === 0 ? "blue.50" : "white"}
-                    _hover={{ bg: "blue.100" }}
+                    bg={i % 2 === 0 ? "teal.50" : "white"}
+                    _hover={{ bg: "teal.100" }}
                   >
                     <LabelCell isDetail>{row.label}</LabelCell>
                     {data.map((month) => {
@@ -257,7 +257,7 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data, loading, exposureType
 
                 {/* Separator */}
                 <Tr>
-                  <Td colSpan={data.length + 1} p={0} borderBottom="2px solid" borderColor="blue.200" />
+                  <Td colSpan={data.length + 1} p={0} borderBottom="2px solid" borderColor="teal.200" />
                 </Tr>
               </>
             )}

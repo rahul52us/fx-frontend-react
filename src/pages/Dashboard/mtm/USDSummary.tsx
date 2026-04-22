@@ -117,7 +117,7 @@ const MTMUSDSummary = observer(() => {
           border="1px solid"
           borderColor={borderColor}
         >
-          <Heading size="md" mb={6} color={useColorModeValue("blue.700", "blue.200")}>
+          <Heading size="md" mb={6} color={useColorModeValue("teal.700", "teal.200")}>
             Summary
           </Heading>
           <Grid
@@ -252,7 +252,7 @@ const MTMUSDSummary = observer(() => {
                 <Button
                   size="md"
                   variant="outline"
-                  bg={useColorModeValue('blue.50', 'blue.900')}
+                  bg={useColorModeValue('teal.50', 'teal.900')}
                   onClick={() => {
                     if (filters.financialYear) {
                       setFilters({ financialYear: "", year: currentYear.toString() });
@@ -269,7 +269,7 @@ const MTMUSDSummary = observer(() => {
 
 
             <Button
-              colorScheme="blue"
+              colorScheme="teal"
               onClick={handleSearch}
               isLoading={usdSummaryData.loading}
               w="full"
@@ -294,7 +294,7 @@ const MTMUSDSummary = observer(() => {
         
         {usdSummaryData.loading && (
            <Center py={20}>
-             <Spinner size="xl" color="blue.500" />
+              <Spinner size="xl" color="teal.500" />
            </Center>
         )}
       </Flex>

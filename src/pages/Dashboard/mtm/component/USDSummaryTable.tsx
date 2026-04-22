@@ -1,6 +1,7 @@
 import { InfoOutlineIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Select as ChakraSelect,
   Flex,
   Heading,
   Icon,
@@ -13,7 +14,7 @@ import {
   Tr,
   useColorModeValue,
 } from "@chakra-ui/react";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
 interface USDSummaryTableProps {
   data: any;
@@ -67,22 +68,34 @@ const metrics = [
   { label: "Breakeven Rate", key: "breakevenRatenetUnhedgeExposure", isRate: true },
 ];
 
-const formatValue = (val: any, isRate: boolean) => {
+const denominations = [
+  { label: "Absolute", value: "absolute", factor: 1 },
+  { label: "In Thousands", value: "thousands", factor: 1000 },
+  { label: "In Lakhs", value: "lakhs", factor: 100000 },
+  { label: "In Millions", value: "millions", factor: 1000000 },
+  { label: "In Crores", value: "crores", factor: 10000000 },
+];
+
+const formatValue = (val: any, isRate: boolean, factor: number = 1) => {
   if (val === undefined || val === null) return "—";
   const num = parseFloat(val);
   if (isNaN(num)) return val;
   if (num === 0) return "—";
   if (isRate) return num.toFixed(4);
+
+  const converted = num / factor;
   return new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(num);
+    minimumFractionDigits: factor === 1 ? 0 : 2,
+    maximumFractionDigits: factor === 1 ? 0 : 2,
+  }).format(converted);
 };
 
 const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
   const bg = useColorModeValue("white", "gray.800");
-  const headerBg = useColorModeValue("blue.500", "gray.700");
+  const headerBg = useColorModeValue("teal.500", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+
+  const [denomination, setDenomination] = useState(denominations[0]);
 
   const columns = useMemo(() => {
     if (!data) return [];
@@ -109,11 +122,33 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
 
   return (
     <Box bg={bg} rounded="2xl" shadow="xl" overflow="hidden" border="1px solid" borderColor={borderColor}>
-      <Box p={6} borderBottom="1px solid" borderColor={borderColor}>
-        <Heading size="md" color={"blue.700"}>
+      <Flex 
+        p={6} 
+        borderBottom="1px solid" 
+        borderColor={borderColor} 
+        justify="space-between" 
+        align="center"
+        wrap="wrap"
+        gap={4}
+      >
+        <Heading size="md" color={"teal.700"}>
           Exposure Summary Metrics
         </Heading>
-      </Box>
+        <ChakraSelect 
+          w="200px" 
+          size="sm" 
+          rounded="lg"
+          value={denomination.value} 
+          onChange={(e) => {
+            const selected = denominations.find(d => d.value === e.target.value);
+            if (selected) setDenomination(selected);
+          }}
+        >
+          {denominations.map(d => (
+            <option key={d.value} value={d.value}>{d.label}</option>
+          ))}
+        </ChakraSelect>
+      </Flex>
 
       <Box overflowX="auto" maxH={'80vh'} >
         <Table variant="simple" size="sm">
@@ -155,16 +190,16 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
               return (
                 <Tr 
                   key={metric.key} 
-                  _hover={{ bg:"blue.50" }}
-                  bg={isHighlight ? "blue.100" : "transparent"}
+                  _hover={{ bg:"teal.50" }}
+                  bg={isHighlight ? "teal.100" : "transparent"}
                 >
                   <Td
                     position="sticky"
                     left={0}
                     zIndex={1}
-                    bg={isHighlight ? "blue.50" : bg}
+                    bg={isHighlight ? "teal.50" : bg}
                     fontWeight={metric.isTotal ? "bold" : "medium"}
-                    color={metric.isTotal ? "blue.600" : "gray.600"}
+                    color={metric.isTotal ? "teal.600" : "gray.600"}
                     borderRight="1px solid"
                     borderColor={borderColor}
                     whiteSpace="nowrap"
@@ -183,7 +218,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
                         fontWeight={metric.isTotal ? "bold" : "normal"}
                         color={color}
                       >
-                        {formatValue(value, metric.isRate || false)}
+                        {formatValue(value, metric.isRate || false, denomination.factor)}
                       </Td>
                     );
                   })}
