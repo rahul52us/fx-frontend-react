@@ -107,25 +107,25 @@ const MTMUSDSummary = observer(() => {
   if (!canView) return <RestrictedAccess />;
 
   return (
-    <Box p={4}>
+    <Box>
       <Flex direction="column" gap={6}>
         <Box
           bg={bg}
-          p={6}
-          rounded="xl"
-          shadow="sm"
+          p={5}
+          rounded="2xl"
+          shadow="md"
           border="1px solid"
           borderColor={borderColor}
         >
           <Heading size="md" mb={6} color={useColorModeValue("blue.700", "blue.200")}>
-            MTM Summary
+            Summary
           </Heading>
           <Grid
             templateColumns={{
               base: "1fr",
               md: "repeat(2, 1fr)",
               lg: "repeat(4, 1fr)",
-              xl: "repeat(7, 1fr)",
+              xl: "repeat(6, 1fr)",
             }}
             gap={4}
             alignItems="flex-end"
@@ -147,7 +147,7 @@ const MTMUSDSummary = observer(() => {
               </Select>
             </FormControl>
 
-            <FormControl>
+            {/* <FormControl>
               <FormLabel fontSize="sm">Exposure Type</FormLabel>
               <Select
                 value={filters.exposureType}
@@ -158,7 +158,7 @@ const MTMUSDSummary = observer(() => {
                 <option value="import">Import</option>
                 <option value="total">Total</option>
               </Select>
-            </FormControl>
+            </FormControl> */}
 
 
             <FormControl>
@@ -275,7 +275,7 @@ const MTMUSDSummary = observer(() => {
               w="full"
               mt={2}
             >
-              Fetch USD Summary
+              Fetch Summary
             </Button>
 
           </Grid>
@@ -288,7 +288,7 @@ const MTMUSDSummary = observer(() => {
           />
         ) : !usdSummaryData.loading && filters.userId ? (
           <Center py={10} bg={bg} rounded="xl" border="1px solid" borderColor={borderColor}>
-            <Text color="gray.500">Pick a user and click "Fetch USD Summary" to view data.</Text>
+            <Text color="gray.500">Pick a user and click "Fetch Summary" to view data.</Text>
           </Center>
         ) : null}
         

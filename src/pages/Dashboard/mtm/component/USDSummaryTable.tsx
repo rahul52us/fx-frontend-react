@@ -22,49 +22,49 @@ interface USDSummaryTableProps {
 
 const metrics = [
   { label: "Shipment Made", key: "shipmentMade" },
-  { label: "Benchmark Rate (Shipment)", key: "benchmarkRateShipment", isRate: true },
+  { label: "Benchmark Rate", key: "benchmarkRateShipment", isRate: true },
   { label: "Confirmed Order", key: "confirmedOrder" },
-  { label: "Benchmark Rate (Confirmed Order)", key: "benchmarkRateConfirmedOrder", isRate: true },
+  { label: "Benchmark Rate", key: "benchmarkRateConfirmedOrder", isRate: true },
   { label: "Projected Exports", key: "projectedExports" },
-  { label: "Benchmark Rate (Projected)", key: "benchmarkRateProjected", isRate: true },
+  { label: "Benchmark Rate", key: "benchmarkRateProjected", isRate: true },
   { label: "Total Exports", key: "totalExports", isTotal: true },
-  { label: "Benchmark Rate (Total Exports)", key: "benchmarkRateTotalExports", isRate: true },
+  { label: "Benchmark Rate", key: "benchmarkRateTotalExports", isRate: true },
   { divider: true },
   { label: "PCFC Repayment Maturity", key: "pcfcRepaymentMaturity" },
-  { label: "Drawdown Rate (PCFC)", key: "drawdownRatePcfcRepaymentMaturity", isRate: true },
+  { label: "Drawdown Rate", key: "drawdownRatePcfcRepaymentMaturity", isRate: true },
   { label: "Projected PCFC Drawdown", key: "projectedPcfcDrawdown" },
-  { label: "Drawdown Rate (Drawdown)", key: "drawdownRatePcfcDrawdown", isRate: true },
+  { label: "Drawdown Rate", key: "drawdownRatePcfcDrawdown", isRate: true },
   { divider: true },
   { label: "Net Exports", key: "netExports", isTotal: true },
-  { label: "Benchmark Rate (Net Exports)", key: "benchmarkRateNetExports", isRate: true },
+  { label: "Benchmark Rate ", key: "benchmarkRateNetExports", isRate: true },
   { divider: true },
   { label: "DA/DP", key: "daDp" },
-  { label: "Benchmark Rate (DA/DP)", key: "benchmarkRateDaDp", isRate: true },
+  { label: "Benchmark Rate", key: "benchmarkRateDaDp", isRate: true },
   { label: "LC/BC Shifting", key: "lcBcShifting" },
-  { label: "Benchmark Rate (LC/BC Shifting)", key: "benchmarkRateLcBcShifting", isRate: true },
+  { label: "Benchmark Rate ", key: "benchmarkRateLcBcShifting", isRate: true },
   { label: "LC/BC Direct", key: "lcBcDirect" },
-  { label: "Benchmark Rate (LC/BC Direct)", key: "benchmarkRateLcBcDirect", isRate: true },
+  { label: "Benchmark Rate ", key: "benchmarkRateLcBcDirect", isRate: true },
   { label: "Forecast", key: "forecast" },
-  { label: "Benchmark Rate (Forecast)", key: "benchmarkRateForecast", isRate: true },
+  { label: "Benchmark Rate", key: "benchmarkRateForecast", isRate: true },
   { divider: true },
   { label: "Total Imports", key: "totalImports", isTotal: true },
-  { label: "Benchmark Rate (Total Imports)", key: "benchmarkRateTotalImports", isRate: true },
+  { label: "Benchmark Rate", key: "benchmarkRateTotalImports", isRate: true },
   { divider: true },
   { label: "Net Exposure", key: "netExposure", isTotal: true, highlight: true },
   { divider: true },
   { label: "Export Forwards", key: "exportForwards" },
-  { label: "Contracted Rate (Export Forward)", key: "contractedRateExportForward", isRate: true },
+  { label: "Contracted Rate", key: "contractedRateExportForward", isRate: true },
   { label: "Import Forwards", key: "importForwards" },
-  { label: "Contracted Rate (Import Forwards)", key: "contractedRateImportForwards", isRate: true },
+  { label: "Contracted Rate", key: "contractedRateImportForwards", isRate: true },
   { label: "Net Hedging", key: "netHedging", isTotal: true },
-  { label: "Contracted Rate (Net Hedging)", key: "contractedRateNetHedging", isRate: true },
+  { label: "Contracted Rate", key: "contractedRateNetHedging", isRate: true },
   { divider: true },
   { label: "Net Unhedged Exports", key: "netUnhedgedExports" },
-  { label: "Breakeven Rate (Net Unhedged Export)", key: "breakevenRatenetUnhedgeExport", isRate: true },
+  { label: "Breakeven Rate", key: "breakevenRatenetUnhedgeExport", isRate: true },
   { label: "Net Unhedged Import", key: "netUnhedgeImport" },
-  { label: "Breakeven Rate (Net Unhedged Import)", key: "breakevenRatenetUnhedgeImport", isRate: true },
+  { label: "Breakeven Rate", key: "breakevenRatenetUnhedgeImport", isRate: true },
   { label: "Net Unhedged Exposure", key: "netUnhedgeExposure", isTotal: true, highlight: true },
-  { label: "Breakeven Rate (Net Unhedged Exposure)", key: "breakevenRatenetUnhedgeExposure", isRate: true },
+  { label: "Breakeven Rate", key: "breakevenRatenetUnhedgeExposure", isRate: true },
 ];
 
 const formatValue = (val: any, isRate: boolean) => {
@@ -81,7 +81,7 @@ const formatValue = (val: any, isRate: boolean) => {
 
 const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
   const bg = useColorModeValue("white", "gray.800");
-  const headerBg = useColorModeValue("gray.50", "gray.700");
+  const headerBg = useColorModeValue("blue.500", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const columns = useMemo(() => {
@@ -89,12 +89,12 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
     // Get columns from the first available metric
     const firstMetricKey = Object.keys(data)[0];
     if (!firstMetricKey) return [];
-    return Object.keys(data[firstMetricKey]);
+    return Object.keys(data[firstMetricKey]).filter(
+      (col) => col !== "dueWithIn15Days" && col !== "overDueExposure"
+    );
   }, [data]);
 
   const formatColumnHeader = (col: string) => {
-    if (col === "dueWithIn15Days") return "Due within 15 Days";
-    if (col === "overDueExposure") return "Overdue Exposure";
     return col;
   };
 
@@ -115,13 +115,14 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
         </Heading>
       </Box>
 
-      <Box overflowX="auto">
+      <Box overflowX="auto" maxH={'80vh'} >
         <Table variant="simple" size="sm">
-          <Thead bg={headerBg}>
+          <Thead bg={headerBg} position="sticky" top={0} zIndex={5}>
             <Tr>
               <Th
                 position="sticky"
                 left={0}
+                color={'white'}
                 zIndex={2}
                 bg={headerBg}
                 minW="250px"
@@ -132,7 +133,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
                 Metric
               </Th>
               {columns.map((col) => (
-                <Th key={col} textAlign="right" py={4} whiteSpace="nowrap">
+                <Th key={col} textAlign="right" py={4} whiteSpace="nowrap" color={'white'}>
                   {formatColumnHeader(col)}
                 </Th>
               ))}
