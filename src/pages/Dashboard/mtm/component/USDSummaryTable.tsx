@@ -71,6 +71,7 @@ const formatValue = (val: any, isRate: boolean) => {
   if (val === undefined || val === null) return "—";
   const num = parseFloat(val);
   if (isNaN(num)) return val;
+  if (num === 0) return "—";
   if (isRate) return num.toFixed(4);
   return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
