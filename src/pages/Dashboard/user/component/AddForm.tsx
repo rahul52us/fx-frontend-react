@@ -1,26 +1,26 @@
+import { CloseIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
+  Checkbox,
   Divider,
   Flex,
   FormControl,
   FormLabel,
   Grid,
+  IconButton,
   Input,
   Select,
   Stack,
   Text,
-  IconButton,
   useToast,
-  Checkbox,
 } from "@chakra-ui/react";
-import { CloseIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import { registerPermissions } from "../../Users/component/UserDetails/utils/constant";
-import { transformPermissionsForDB } from "../../Users/component/UserDetails/utils/function";
-import { formatCamelCaseLabel } from "../../../../config/constant/function";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import { formatCamelCaseLabel } from "../../../../config/constant/function";
 import store from "../../../../store/store";
+import { registerPermissions } from "../../Users/component/UserDetails/utils/constant";
+import { transformPermissionsForDB } from "../../Users/component/UserDetails/utils/function";
 
 /* ---------------- UI Card ---------------- */
 const Section = ({ title, subtitle, children }: any) => (
