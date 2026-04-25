@@ -269,9 +269,11 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
 
       <Section title="User Details">
         <Grid templateColumns="repeat(2,1fr)" gap={4}>
-          {Object.keys(basic).map((k) => (
+          {Object.keys(basic).filter(k => k !== "fatherName").map((k) => (
             <FormControl key={k} isInvalid={k === "confirmPassword" && !!passwordError}>
-              <FormLabel>{k.replace(/([A-Z])/g, " $1")}</FormLabel>
+              <FormLabel>
+                {k === "userName" ? "Name" : k.replace(/([A-Z])/g, " $1")}
+              </FormLabel>
 
               {k === "password" || k === "confirmPassword" ? (
                 <Flex align="center">

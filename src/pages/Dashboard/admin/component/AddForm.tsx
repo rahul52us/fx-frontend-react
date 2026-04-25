@@ -319,7 +319,7 @@ const AddForm = ({ onSubmit, onCancel }: AddFormProps) => {
 
   // Label map for basic fields
   const fieldLabels: Record<string, string> = {
-    userName: "Full Name",
+    userName: "Name",
     organisationName: "Organisation Name",
     address: "Address",
     contact: "Contact",

@@ -66,6 +66,18 @@ const metrics = [
   { label: "Breakeven Rate", key: "breakevenRatenetUnhedgeImport", isRate: true },
   { label: "Net Unhedged Exposure", key: "netUnhedgeExposure", isTotal: true, highlight: true },
   { label: "Breakeven Rate", key: "breakevenRatenetUnhedgeExposure", isRate: true },
+  { divider: true },
+  { label: "Current Fwd Rate", key: "currentFwdrate", isRate: true },
+  { label: "Current Hedging %", key: "currentHedging", isPercentage: true },
+  { label: "Hedging Gap", key: "hedgingGap" },
+  { divider: true },
+  { label: "Export Prescribed Hedging % (RMP)", key: "exportPrescribedHedging%AsPerRMP", isPercentage: true },
+  { label: "Import Prescribed Hedging % (RMP)", key: "importPrescribedHedging%AsPerRMP", isPercentage: true },
+  { label: "Net Prescribed Hedging % (RMP)", key: "netPrescribedHedging%AsPerRMP", isPercentage: true },
+  { divider: true },
+  { label: "P/L on Net Unhedged Exports (INR)", key: "PlOnNetUnHedgedExportsInInr", isINR: true },
+  { label: "P/L on Net Unhedged Imports (INR)", key: "PlOnNetUnHedgedImportsInInr", isINR: true },
+  { label: "P/L on Net Unhedged Exposure (INR)", key: "PlOnNetUnHedgedExposureInInr", isINR: true },
 ];
 
 const denominations = [
@@ -76,12 +88,14 @@ const denominations = [
   { label: "In Crores", value: "crores", factor: 10000000 },
 ];
 
-const formatValue = (val: any, isRate: boolean, factor: number = 1) => {
+const formatValue = (val: any, isRate: boolean, factor: number = 1, isPercentage: boolean = false) => {
   if (val === undefined || val === null) return "—";
   const num = parseFloat(val);
   if (isNaN(num)) return val;
   if (num === 0) return "—";
+  
   if (isRate) return num.toFixed(4);
+  if (isPercentage) return (num * 100).toFixed(2) + "%";
 
   const converted = num / factor;
   return new Intl.NumberFormat("en-US", {
@@ -99,12 +113,23 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
 
   const columns = useMemo(() => {
     if (!data) return [];
-    // Get columns from the first available metric
-    const firstMetricKey = Object.keys(data)[0];
-    if (!firstMetricKey) return [];
-    return Object.keys(data[firstMetricKey]).filter(
+    
+    // Find first metric that is an object and has keys
+    const firstObjMetric = Object.values(data).find(
+      (v) => v !== null && typeof v === "object" && Object.keys(v).length > 0
+    ) as any;
+
+    if (!firstObjMetric) return [];
+
+    const keys = Object.keys(firstObjMetric).filter(
       (col) => col !== "dueWithIn15Days" && col !== "overDueExposure"
     );
+
+    // Sort: Months first, then total
+    const months = keys.filter((k) => k !== "total");
+    const hasTotal = keys.includes("total");
+
+    return hasTotal ? [...months, "total"] : months;
   }, [data]);
 
   const formatColumnHeader = (col: string) => {
@@ -132,7 +157,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
         gap={4}
       >
         <Heading size="md" color={"teal.700"}>
-          Exposure Summary Metrics
+        Summary Metrics
         </Heading>
         <ChakraSelect 
           w="200px" 
@@ -207,18 +232,25 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data }) => {
                     {metric.label}
                   </Td>
                   {columns.map((col) => {
-                    const value = metricData[col];
+                    let value;
+                    if (metric.isINR) {
+                      // For INR fields which are single numbers in the API
+                      value = col === "total" ? data[metric.key as string] : undefined;
+                    } else {
+                      value = metricData[col];
+                    }
+                    
                     const numVal = parseFloat(value);
-                    const color = !metric.isRate && numVal < 0 ? "red.500" : undefined;
+                    const color = !metric.isRate && !metric.isPercentage && numVal < 0 ? "red.500" : undefined;
                     
                     return (
                       <Td 
                         key={col} 
                         textAlign="right" 
-                        fontWeight={metric.isTotal ? "bold" : "normal"}
+                        fontWeight={metric.isTotal || metric.isINR ? "bold" : "normal"}
                         color={color}
                       >
-                        {formatValue(value, metric.isRate || false, denomination.factor)}
+                        {formatValue(value, (metric as any).isRate || false, denomination.factor, (metric as any).isPercentage || false)}
                       </Td>
                     );
                   })}
