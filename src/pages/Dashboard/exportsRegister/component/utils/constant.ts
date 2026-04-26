@@ -84,7 +84,7 @@ export const dealTypeOptions = [
 export const dummyExportRegisterData = [
   {
     exposureType: "confirmed_order",
-    poNo: "PO909090",
+    poNo: "PO99121211",
     poDate: "2026-02-11",
     invoiceDate: "",
     blDate: "2026-03-12",
@@ -99,7 +99,6 @@ export const dummyExportRegisterData = [
     budgetRate: "0.5",
     remark: "Remarks",
     hedgeDeals: [],
-    // outstandingAmount: "",
   },
 ];
 // export const dummyExportRegisterData = [

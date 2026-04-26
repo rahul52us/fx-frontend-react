@@ -3,19 +3,22 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
+import BulkUploadStatusModal from "../../../../../config/component/common/BulkUploadStatusModal/BulkUploadStatusModal";
+import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
+import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
-import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
+import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
+import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
+import Loader from "../../../../../config/component/Loader/Loader";
+import store from "../../../../../store/store";
 import ExposureForm from "../ExportsRegisterForm";
 import { dummyExportRegisterData } from "../utils/constant";
-import { exportToExcel, importFromExcel } from "../utils/function";
-import HedgeDealsDrawer from "./HedgeDealsDrawer";
-import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
-import store from "../../../../../store/store";
-import { usePermission } from "../../../../../config/component/customHooks/usePermission";
-import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
+import { calculateDueDate, exportToExcel, importFromExcel, normalizeDate } from "../utils/function";
+import { getExportRegisterValidationSchema } from "../utils/validationSchema";
 import AmountSettledList from "./AmountSettledList";
+import HedgeDealsDrawer from "./HedgeDealsDrawer";
 
 const ExportRegisterTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
@@ -23,6 +26,17 @@ const ExportRegisterTable = () => {
   const [editRow, setEditRow] = useState<any | null>(null);
   const [originalRow, setOriginalRow] = useState<any | null>(null);
   const [formKey, setFormKey] = useState(0);
+  const [uploadResults, setUploadResults] = useState<{
+    success: number;
+    failures: number;
+    errors: any[];
+  }>({ success: 0, failures: 0, errors: [] });
+  const {
+    isOpen: isStatusOpen,
+    onOpen: onStatusOpen,
+    onClose: onStatusClose,
+  } = useDisclosure();
+  const [isUploading, setIsUploading] = useState(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -49,6 +63,7 @@ const ExportRegisterTable = () => {
   }
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
+    if (type === "excel") setIsUploading(true);
     try {
       const payload = {
         userToken: "abcxyz",
@@ -61,22 +76,52 @@ const ExportRegisterTable = () => {
       );
 
       if (response.status === 200 && response.data.status === "success") {
-        toast({
-          title: "Success",
-          description: response.data.message,
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top-right",
-        });
+        if (type === "excel") {
+          const successCount = response.data.data?.success_count || values.length;
+          const failureCount = response.data.data?.failure_count || 0;
+          const apiErrors = response.data.data?.errors || [];
 
-        onClose();
+          setUploadResults({
+            success: successCount,
+            failures: failureCount,
+            errors: apiErrors,
+          });
+          onStatusOpen();
+        } else {
+          toast({
+            title: "Success",
+            description: response.data.message,
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
+          onClose();
+        }
         fetchExportRegisterData();
         actions?.resetForm?.();
+      } else {
+        if (type === "excel") {
+          setUploadResults({
+            success: 0,
+            failures: values.length,
+            errors: [{ row: 0, message: response.data.message || "Failed to upload excel data" }],
+          });
+          onStatusOpen();
+        }
       }
     } catch (error: any) {
       console.error("Submit error", error.message);
+      if (type === "excel") {
+        setUploadResults({
+          success: 0,
+          failures: values.length,
+          errors: [{ row: 0, message: error.response?.data?.message || error.message || "An error occurred during upload" }],
+        });
+        onStatusOpen();
+      }
     } finally {
+      setIsUploading(false);
       actions?.setSubmitting?.(false);
     }
   };
@@ -87,11 +132,67 @@ const ExportRegisterTable = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setIsUploading(true);
     try {
       const data = await importFromExcel(file);
-      await submitExportForm(data, {}, "excel");
-    } catch (err) {
+      const schema = getExportRegisterValidationSchema(false); // isEdit=false
+
+      const validatedData = [];
+      const validationErrors = [];
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+
+        // Normalize dates before validation
+        const normalizedRow: any = {
+          ...row,
+          poDate: normalizeDate(row.poDate),
+          invoiceDate: normalizeDate(row.invoiceDate),
+          blDate: normalizeDate(row.blDate),
+          paymentTerms: Number(row.paymentTerms),
+          dueDate: normalizeDate(row.dueDate) || calculateDueDate(normalizeDate(row.blDate), Number(row.paymentTerms)),
+        };
+
+        // Keep hedgeDeals empty for excel upload
+        normalizedRow.hedgeDeals = [];
+
+        try {
+          await schema.validate(normalizedRow, { abortEarly: false });
+          validatedData.push(normalizedRow);
+        } catch (error: any) {
+          validationErrors.push({
+            row: i + 1,
+            message: error.errors.join(", "),
+          });
+        }
+      }
+
+      if (validationErrors.length > 0) {
+        setUploadResults({
+          success: validatedData.length,
+          failures: validationErrors.length,
+          errors: validationErrors,
+        });
+        onStatusOpen();
+        setIsUploading(false);
+        return;
+      }
+
+      if (validatedData.length > 0) {
+        await submitExportForm(validatedData, {}, "excel");
+      }
+    } catch (err: any) {
       console.error("Excel import failed", err);
+      setUploadResults({
+        success: 0,
+        failures: 0,
+        errors: [{ row: 0, message: err.message || "Failed to process excel file" }],
+      });
+      onStatusOpen();
+    } finally {
+      setIsUploading(false);
+      // Reset input value so same file can be uploaded again if needed
+      event.target.value = "";
     }
   };
 
@@ -319,6 +420,14 @@ const ExportRegisterTable = () => {
           description="Are you sure? You can't undo this action afterwards."
           isLoading={deleteLoading}
         />
+
+        <BulkUploadStatusModal
+          isOpen={isStatusOpen}
+          onClose={onStatusClose}
+          results={uploadResults}
+          title="Export Register Upload Results"
+        />
+        {isUploading && <Loader />}
       </>) : <RestrictedAccess />
   );
 };
