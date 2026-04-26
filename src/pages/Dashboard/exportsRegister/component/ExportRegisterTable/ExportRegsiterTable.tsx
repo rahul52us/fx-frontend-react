@@ -1,9 +1,18 @@
 import {
+  Box,
+  Button,
+  Collapse,
+  Flex,
+  Input,
+  Select,
+  SimpleGrid,
+  Text,
   useDisclosure,
-  useToast,
+  useToast
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { FiFilter, FiSearch, FiX } from "react-icons/fi";
 import BulkUploadStatusModal from "../../../../../config/component/common/BulkUploadStatusModal/BulkUploadStatusModal";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
@@ -53,6 +62,16 @@ const ExportRegisterTable = () => {
   } = useDisclosure();
   const [deleteRowData, setDeleteRowData] = useState<any>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const { isOpen: isFilterOpen, onToggle: onFilterToggle } = useDisclosure();
+
+  const [filterState, setFilterState] = useState<any>({
+    startDate: "",
+    endDate: "",
+    exposureType: "",
+    search: ""
+  });
+
+  const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   const url = process.env.REACT_APP_FX_BASE_URL;
 
@@ -206,9 +225,25 @@ const ExportRegisterTable = () => {
   const fetchExportRegisterData = useCallback(async (currentPage = 1) => {
     setLoading(true);
     try {
+      const payload: any = {
+        userToken: "abcxyz",
+        page: currentPage,
+        limit: rowsPerPage,
+        userId: viewAsUserId,
+      };
+
+      if (appliedFilters) {
+        payload.filters = {
+          ...appliedFilters,
+          isFilter: true
+        };
+      } else {
+        payload.filters = false;
+      }
+
       const response = await axios.post(
         `${url}/exportregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
+        payload
       );
 
       const result = response.data?.data?.data || [];
@@ -221,7 +256,46 @@ const ExportRegisterTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [url, rowsPerPage, viewAsUserId, appliedFilters]);
+
+  const handleFilterChange = (e: any) => {
+    const { name, value } = e.target;
+    setFilterState((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const applyFilters = () => {
+    const hasValue = Object.values(filterState).some(val => val !== "");
+    if (hasValue) {
+      setAppliedFilters({ ...filterState });
+      setPage(1);
+    } else {
+      setAppliedFilters(null);
+    }
+  };
+
+  useEffect(() => {
+    // Only debounce if there is a search term or if it was cleared
+    const delayDebounceFn = setTimeout(() => {
+       setAppliedFilters((prev: any) => {
+         // If nothing is changed compared to current applied filters, don't trigger
+         if (prev?.search === filterState.search) return prev;
+         return { ...filterState };
+       });
+    }, 800);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [filterState.search]);
+
+  const clearFilters = () => {
+    setFilterState({
+      startDate: "",
+      endDate: "",
+      exposureType: "",
+      search: ""
+    });
+    setAppliedFilters(null);
+    setPage(1);
+  };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -340,13 +414,108 @@ const ExportRegisterTable = () => {
   return (
     canView ? (
       <>
+        <Flex mb={4} justify="flex-end" gap={2}>
+           <Button
+            leftIcon={<FiFilter />}
+            variant={isFilterOpen ? "solid" : "outline"}
+            colorScheme="teal"
+            onClick={onFilterToggle}
+            borderRadius="full"
+            size="sm"
+          >
+            {isFilterOpen ? "Hide Filters" : "Show Filters"}
+          </Button>
+          {appliedFilters && (
+             <Button
+             leftIcon={<FiX />}
+             variant="ghost"
+             colorScheme="red"
+             onClick={clearFilters}
+             borderRadius="full"
+             size="sm"
+           >
+             Clear All
+           </Button>
+          )}
+        </Flex>
+
+        <Collapse in={isFilterOpen} animateOpacity>
+          <Box
+            p={5}
+            mb={6}
+            bg="white"
+            rounded="xl"
+            border="1px solid"
+            borderColor="gray.100"
+            shadow="sm"
+          >
+            <SimpleGrid columns={[1, 2, 3, 4]} spacing={4}>
+              <Box>
+                <Text fontSize="xs" fontWeight="bold" mb={1} color="gray.500">START DATE</Text>
+                <Input
+                  size="sm"
+                  type="date"
+                  name="startDate"
+                  value={filterState.startDate}
+                  onChange={handleFilterChange}
+                  borderRadius="md"
+                />
+              </Box>
+              <Box>
+                <Text fontSize="xs" fontWeight="bold" mb={1} color="gray.500">END DATE</Text>
+                <Input
+                  size="sm"
+                  type="date"
+                  name="endDate"
+                  value={filterState.endDate}
+                  onChange={handleFilterChange}
+                  borderRadius="md"
+                />
+              </Box>
+              <Box>
+                <Text fontSize="xs" fontWeight="bold" mb={1} color="gray.500">EXPOSURE TYPE</Text>
+                <Select
+                  size="sm"
+                  name="exposureType"
+                  value={filterState.exposureType}
+                  onChange={handleFilterChange}
+                  borderRadius="md"
+                  placeholder="All Types"
+                >
+                  <option value="shipment">Shipment</option>
+                  <option value="confirmed_order">Confirmed Order</option>
+                  <option value="forecast">Forecast</option>
+                </Select>
+              </Box>
+              <Flex align="flex-end">
+                <Button
+                  leftIcon={<FiSearch />}
+                  colorScheme="teal"
+                  size="sm"
+                  w="full"
+                  onClick={applyFilters}
+                  borderRadius="md"
+                >
+                  Apply Filters
+                </Button>
+              </Flex>
+            </SimpleGrid>
+          </Box>
+        </Collapse>
+
         <CustomTable
           title="Export Register"
           data={exportData}
           columns={ExportRegisterTableColumns}
           loading={loading}
           actions={{
-            search: { show: false },
+            search: { 
+              show: true, 
+              searchValue: filterState.search,
+              onSearchChange: (e: any) => {
+                setFilterState((prev: any) => ({ ...prev, search: e.target.value }));
+              }
+            },
 
             resetData: {
               show: true,

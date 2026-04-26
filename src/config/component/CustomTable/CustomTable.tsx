@@ -29,8 +29,8 @@ import { IoMdInformationCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { litePrimaryColor, primaryColor } from "../../../globalColors";
 import { formatDate } from "../../constant/dateUtils";
-import TableLoader from "./TableLoader";
 import Pagination from "../pagination/Pagination";
+import TableLoader from "./TableLoader";
 
 /* -------------------- Types -------------------- */
 
