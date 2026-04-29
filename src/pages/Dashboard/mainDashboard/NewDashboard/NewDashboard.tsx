@@ -6,8 +6,14 @@ import {
     HStack,
     Text,
     useToast,
-    VStack
+    VStack,
+    Skeleton
 } from "@chakra-ui/react";
+import { observer } from "mobx-react-lite";
+import { useEffect, useState } from "react";
+import store from "../../../../store/store";
+import { useNavigate } from "react-router-dom";
+import { dashboard } from "../../../../config/constant/routes";
 
 import {
     FiActivity,
@@ -141,20 +147,91 @@ const modules = [
     count: 8,
     color: "gray.500",
     bg: "gray.100"
+  },
+  {
+    key: "forwardCancellation",
+    title: "Forward Cancellation",
+    description: "Manage forward cancellations",
+    icon: FiRepeat,
+    count: 0,
+    color: "red.500",
+    bg: "red.100",
+    link: dashboard.forwardCancellation
   }
 ];
 
-const NewDashboard = () => {
+const NewDashboard = observer(() => {
+    const navigate = useNavigate();
+    const {
+        auth: { getDashboardCountsss, viewAsUserId },
+      } = store;
+
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+          setLoading(true);
+          try {
+            const response: any = await getDashboardCountsss({ userId: viewAsUserId });
+            if (response?.status === "success") {
+              setData(response.data);
+            }
+          } catch (error: any) {
+            console.error("Failed to fetch dashboard counts", error);
+          } finally {
+            setLoading(false);
+          }
+        };
+        if (viewAsUserId) {
+          fetchData();
+        }
+      }, [getDashboardCountsss, viewAsUserId]);
 
     const toast = useToast();
-  const handleModuleClick = (title: string) => {
-    toast({
-      title,
-      status: "info",
-      duration: 3000,
-      isClosable: true
-    })
+  const handleModuleClick = (link?: string, title?: string) => {
+    if (link) {
+        navigate(link);
+    } else {
+        toast({
+            title: title || "Module Clicked",
+            status: "info",
+            duration: 3000,
+            isClosable: true
+          })
+    }
   };
+
+  // Map real data to modules
+  const updatedModules = modules.map(mod => {
+    const key = mod.title === "Export Register" ? "export" :
+                mod.title === "Import Register" ? "import" :
+                mod.title === "Forward Register" ? "forwardRegister" :
+                mod.title === "PCFC Register" ? "pcfc" :
+                mod.title === "Settlement Register" ? "exposure" :
+                mod.title === "EEFC Register" ? "eefc" :
+                mod.title === "Forward Cancellation" ? "forwardCancellation" : null;
+    
+    const count = key && data?.[key]?.total ? data[key].total : 0;
+    const pending = key && data?.[key]?.pending ? data[key].pending : 0;
+    const approved = key && data?.[key]?.approved ? data[key].approved : 0;
+    const rejected = key && data?.[key]?.rejected ? data[key].rejected : 0;
+    
+    // Assign links if not present or mapping
+    let link = (mod as any).link;
+    if (!link) {
+        if (mod.title === "Export Register") link = dashboard.exportRegister;
+        if (mod.title === "Import Register") link = dashboard.importRegister;
+        if (mod.title === "Forward Register") link = dashboard.forwardRegister;
+        if (mod.title === "PCFC Register") link = dashboard.pcfc;
+        if (mod.title === "Settlement Register") link = dashboard.dailyExposureSheet;
+        if (mod.title === "EEFC Register") link = dashboard.eefcRegister;
+        if (mod.title === "MTM Register") link = dashboard.mtm;
+        if (mod.title === "RP Forms") link = dashboard.rp;
+    }
+
+    return { ...mod, count, pending, approved, rejected, link };
+  });
 
   return (
     <Box minH="100vh" bg="gray.50">
@@ -230,7 +307,7 @@ const NewDashboard = () => {
                   key={kpi.title}
                   {...kpi}
                   delay={i * 80}
-                  onClick={() => handleModuleClick(kpi.title)}
+                  onClick={() => handleModuleClick(undefined, kpi.title)}
                 />
               ))}
             </Grid>
@@ -261,14 +338,20 @@ const NewDashboard = () => {
             </Text>
 
             <Grid templateColumns={{ base: "1fr", sm: "repeat(2,1fr)", lg: "repeat(4,1fr)" }} gap="4">
-              {modules.map((mod, i) => (
-                <ModuleCard
-                  key={mod.title}
-                  {...mod}
-                  delay={i * 60}
-                  onClick={() => handleModuleClick(mod.title)}
-                />
-              ))}
+              {loading ? (
+                Array(8).fill(0).map((_, i) => (
+                    <Skeleton key={i} height="80px" borderRadius="xl" />
+                ))
+              ) : (
+                updatedModules.map((mod, i) => (
+                    <ModuleCard
+                      key={mod.title}
+                      {...mod}
+                      delay={i * 60}
+                      onClick={() => handleModuleClick(mod.link, mod.title)}
+                    />
+                  ))
+              )}
             </Grid>
           </Box>
 
@@ -276,6 +359,6 @@ const NewDashboard = () => {
       </Container>
     </Box>
   );
-};
+});
 
 export default NewDashboard;

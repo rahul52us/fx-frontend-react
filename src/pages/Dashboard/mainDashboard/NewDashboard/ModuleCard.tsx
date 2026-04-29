@@ -6,6 +6,9 @@ interface ModuleCardProps {
   description: string;
   icon: any;
   count: number;
+  pending?: number;
+  approved?: number;
+  rejected?: number;
   color: string;     // e.g. "blue.500"
   bg: string;        // e.g. "blue.100"
   onClick?: () => void;
@@ -17,6 +20,9 @@ const ModuleCard = ({
   description,
   icon: Icon,
   count,
+  pending = 0,
+  approved = 0,
+  rejected = 0,
   color,
   bg,
   onClick,
@@ -61,6 +67,13 @@ const ModuleCard = ({
           <Text fontSize="xs" color="gray.500" mt="0.5" noOfLines={1}>
             {description}
           </Text>
+          {(pending > 0 || approved > 0 || rejected > 0) && (
+            <Flex gap="3" mt="2" fontSize="10px" fontWeight="bold">
+              <Text color="orange.400">P: {pending}</Text>
+              <Text color="green.500">A: {approved}</Text>
+              <Text color="red.400">R: {rejected}</Text>
+            </Flex>
+          )}
         </Box>
 
         {/* Count + Arrow */}
