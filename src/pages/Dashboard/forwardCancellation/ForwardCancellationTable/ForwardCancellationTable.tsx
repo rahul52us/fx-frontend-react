@@ -135,6 +135,47 @@ const ForwardCancellationTable = () => {
     fetchExportRegisterData(page);
   }, [viewAsUserId, canView, fetchExportRegisterData, page]);
 
+  const handleDownloadAll = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${url}/forwardCancellationpcfc/view/`,
+        { userToken: "abcxyz", page: 1, limit: 1000000, userId: viewAsUserId }
+      );
+      const result = response.data?.data?.data || [];
+      if (result.length > 0) {
+        // Remove unwanted fields before export
+        const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
+
+        exportToExcel({
+          data: exportData,
+          fileName: "forward_cancellation_all_data.xlsx",
+        });
+      } else {
+        toast({
+          title: "No Data",
+          description: "No data available to download",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right"
+        });
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download data",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   // const DealDataColumns = [
   //   { headerName: "Deal Type", key: "dealType" },
@@ -245,13 +286,18 @@ const ForwardCancellationTable = () => {
             },
             exportExcel: {
               show: true,
-              text: "Export Excel",
+              label: "Download Sample",
               function: () =>
                 exportToExcel({
                   // columns: DealDataColumns,
-                  data: dymmyForwardCancellationData,
-                  fileName: "Forward_Cancellation.xlsx",
+                  data: dymmyForwardCancellationData.map(({ hedgeDeals, ...rest }: any) => rest),
+                  fileName: "Forward_Cancellation_Sample.xlsx",
                 }),
+            },
+            downloadExcel: {
+              show: true,
+              label: "Download Data",
+              function: handleDownloadAll,
             },
             uploadFile: {
               show: true,

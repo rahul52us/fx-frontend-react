@@ -235,7 +235,16 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     icon={<BiDownload />}
                     onClick={actions.exportExcel.function}
                   >
-                    Export Excel
+                    {actions.exportExcel.label || "Export Excel"}
+                  </MenuItem>
+                )}
+
+                {actions?.downloadExcel?.show && (
+                  <MenuItem
+                    icon={<BiDownload />}
+                    onClick={actions.downloadExcel.function}
+                  >
+                    {actions.downloadExcel.label || "Download Data"}
                   </MenuItem>
                 )}
 

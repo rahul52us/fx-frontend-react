@@ -144,6 +144,52 @@ const ImportRegisterTable = () => {
     fetchImportRegisterData(page);
   }, [viewAsUserId, canView, fetchImportRegisterData, page]);
 
+  const handleDownloadAll = async () => {
+    setLoading(true);
+    try {
+      const payload: any = {
+        userToken: "abcdxyz",
+        page: 1,
+        limit: 1000000, // Large number to get all records
+        userId: viewAsUserId,
+      };
+
+      const response = await axios.post(`${url}/importregister/view/`, payload);
+
+      const result = response.data?.data?.data || [];
+      if (result.length > 0) {
+        // Remove unwanted fields before export
+        const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
+
+        exportToExcel({
+          data: exportData,
+          fileName: "import_register_all_data.xlsx",
+        });
+      } else {
+        toast({
+          title: "No Data",
+          description: "No data available to download",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right"
+        });
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download data",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     fetchImportRegisterData(newPage);
@@ -343,12 +389,17 @@ const ImportRegisterTable = () => {
           },
           exportExcel: {
             show: true,
-            text: "Export Excel",
+            label: "Download Sample",
             function: () =>
               exportToExcel({
-                data: dummyImportRegisterData,
-                fileName: "Import_Register.xlsx",
+                data: dummyImportRegisterData.map(({ hedgeDeals, ...rest }: any) => rest),
+                fileName: "Import_Register_Sample.xlsx",
               }),
+          },
+          downloadExcel: {
+            show: true,
+            label: "Download Data",
+            function: handleDownloadAll,
           },
           uploadFile: {
             show: true,

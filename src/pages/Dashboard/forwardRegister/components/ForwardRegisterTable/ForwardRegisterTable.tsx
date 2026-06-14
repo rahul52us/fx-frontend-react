@@ -162,6 +162,50 @@ const ForwardRegisterTable = () => {
     fetchExportRegisterData(page);
   }, [viewAsUserId, canView, fetchExportRegisterData, page]);
 
+  const handleDownloadAll = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${url}/forwardregister/view/`, {
+        userToken: "abcxyz",
+        page: 1,
+        limit: 1000000,
+        userId: viewAsUserId,
+      });
+      const result = response.data?.data?.data || [];
+      if (result.length > 0) {
+        // Remove unwanted fields before export
+        const exportData = result.map(({ _id, __v, userId, exposureRefs, cancelledList, settledList, ...rest }: any) => rest);
+
+        exportToExcel({
+          data: exportData,
+          fileName: "forward_register_all_data.xlsx",
+        });
+      } else {
+        toast({
+          title: "No Data",
+          description: "No data available to download",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right"
+        });
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download data",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   /* ---------------- Delete Handlers ---------------- */
 
   const handleDeleteClick = (row: any) => {
@@ -324,13 +368,18 @@ const ForwardRegisterTable = () => {
           },
           exportExcel: {
             show: true,
-            text: "Export Excel",
+            label: "Download Sample",
             function: () =>
               exportToExcel({
                 // columns: ForwardRegisterColumns,
-                data: dummyForwardRegisterData,
-                fileName: "Forward_Register.xlsx",
+                data: dummyForwardRegisterData.map(({ exposureRefs, cancelledList, settledList, ...rest }: any) => rest),
+                fileName: "Forward_Register_Sample.xlsx",
               }),
+          },
+          downloadExcel: {
+            show: true,
+            label: "Download Data",
+            function: handleDownloadAll,
           },
           uploadFile: {
             show: true,

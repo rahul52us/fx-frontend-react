@@ -314,6 +314,64 @@ const ExportRegisterTable = () => {
     fetchExportRegisterData(page);
   }, [viewAsUserId, canView, fetchExportRegisterData, page]); // Initial load only, subsequent loads handled by pagination click
 
+  const handleDownloadAll = async () => {
+    setLoading(true);
+    try {
+      const payload: any = {
+        userToken: "abcxyz",
+        page: 1,
+        limit: 1000000, // Large number to get all records
+        userId: viewAsUserId,
+      };
+
+      if (appliedFilters) {
+        payload.filters = {
+          ...appliedFilters,
+          isFilter: true
+        };
+      } else {
+        payload.filters = false;
+      }
+
+      const response = await axios.post(
+        `${url}/exportregister/view/`,
+        payload
+      );
+
+      const result = response.data?.data?.data || [];
+      if (result.length > 0) {
+        // Remove unwanted fields before export
+        const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
+
+        exportToExcel({
+          data: exportData,
+          fileName: "export_register_all_data.xlsx",
+        });
+      } else {
+        toast({
+          title: "No Data",
+          description: "No data available to download",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right"
+        });
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download data",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /* ---------------- Delete Handlers ---------------- */
 
   const handleDeleteClick = (row: any) => {
@@ -524,11 +582,18 @@ const ExportRegisterTable = () => {
 
             exportExcel: {
               show: true,
+              label: "Download Sample",
               function: () =>
                 exportToExcel({
-                  data: dummyExportRegisterData,
-                  fileName: "exportregister.xlsx",
+                  data: dummyExportRegisterData.map(({ hedgeDeals, ...rest }: any) => rest),
+                  fileName: "exportregister_sample.xlsx",
                 }),
+            },
+
+            downloadExcel: {
+              show: true,
+              label: "Download Data",
+              function: handleDownloadAll,
             },
 
             uploadFile: {
