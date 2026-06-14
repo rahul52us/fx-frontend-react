@@ -1,14 +1,17 @@
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState, useCallback } from "react";
+import BulkUploadStatusModal from "../../../../../config/component/common/BulkUploadStatusModal/BulkUploadStatusModal";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
+import Loader from "../../../../../config/component/Loader/Loader";
 import { dummyForwardRegisterData } from "../../../exportsRegister/component/utils/constant";
 import {
   exportToExcel,
   importFromExcel,
+  normalizeDate,
 } from "../../../exportsRegister/component/utils/function";
 import ForwardRegisterForm from "../ForwardRegisterForm/ForwardRegisterForm";
 import ExposureRefsCell from "./ExposureRefsCell";
@@ -17,8 +20,21 @@ import RestrictedAccess from "../../../../../config/component/common/RestrictedA
 import store from "../../../../../store/store";
 import CancelledList from "./CancelledList";
 import SettledList from "./SettledList";
+import { getForwardRegisterValidationSchema } from "../utils/validationSchema";
 
 const ForwardRegisterTable = () => {
+  const [uploadResults, setUploadResults] = useState<{
+    success: number;
+    failures: number;
+    errors: any[];
+  }>({ success: 0, failures: 0, errors: [] });
+  const {
+    isOpen: isStatusOpen,
+    onOpen: onStatusOpen,
+    onClose: onStatusClose,
+  } = useDisclosure();
+  const [isUploading, setIsUploading] = useState(false);
+
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [editRow, setEditRow] = useState<any | null>(null);
@@ -43,68 +59,151 @@ const ForwardRegisterTable = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
+    if (type === "excel") setIsUploading(true);
     try {
-      // let payload = type === "excel" ? values : [values];
       let payload = {
         userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        // "http://srv864630.hstgr.cloud:8000/forwardregister/form/",
         `${url}/forwardregister/form/`,
         payload,
       );
 
       if (response.status === 200 && response.data.status === "success") {
-        toast({
-          title: "Success",
-          description: response.data.message,
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top-right",
-        });
-        if (onClose) {
+        if (type === "excel") {
+          const successCount = response.data.data?.success_count || values.length;
+          const failureCount = response.data.data?.failure_count || 0;
+          const apiErrors = response.data.data?.errors || [];
+
+          setUploadResults({
+            success: successCount,
+            failures: failureCount,
+            errors: apiErrors,
+          });
+          onStatusOpen();
+        } else {
+          toast({
+            title: "Success",
+            description: response.data.message,
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
           onClose();
         }
-        if (fetchExportRegisterData) {
-          fetchExportRegisterData();
+        fetchExportRegisterData();
+        actions?.resetForm?.();
+      } else {
+        if (type === "excel") {
+          setUploadResults({
+            success: 0,
+            failures: values.length,
+            errors: [{ row: 0, message: response.data.message || "Failed to upload excel data" }],
+          });
+          onStatusOpen();
+        } else {
+          toast({
+            title: "Submission failed",
+            description: "Unexpected server response.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
         }
-        actions.resetForm();
+      }
+    } catch (error: any) {
+      console.error("Submit error", error.message);
+      if (type === "excel") {
+        setUploadResults({
+          success: 0,
+          failures: values.length,
+          errors: [{ row: 0, message: error.response?.data?.message || error.message || "An error occurred during upload" }],
+        });
+        onStatusOpen();
       } else {
         toast({
-          title: "Submission failed",
-          description: "Unexpected server response.",
+          title: "Error",
+          description: error?.response?.data?.message || "Something went wrong.",
           status: "error",
           duration: 5000,
           isClosable: true,
           position: "top-right",
         });
       }
-    } catch (error: any) {
-      // toast({
-      //   title: "Error",
-      //   description: error?.response?.data?.message || "Something went wrong.",
-      //   status: "error",
-      //   duration: 5000,
-      //   isClosable: true,
-      //   position: "top-right",
-      // });
     } finally {
-      actions.setSubmitting(false);
+      setIsUploading(false);
+      actions?.setSubmitting?.(false);
     }
   };
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileUpload = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    setIsUploading(true);
     try {
       const data = await importFromExcel(file);
-      await submitExportForm(data, {}, "excel");
-    } catch (err) {
+      const schema = getForwardRegisterValidationSchema(false); // isEdit=false
+
+      const validatedData = [];
+      const validationErrors = [];
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+
+        // Normalize dates before validation
+        const normalizedRow: any = {
+          ...row,
+          bookingDate: normalizeDate(row.bookingDate),
+          dueDateFrom: normalizeDate(row.dueDateFrom),
+          dueDateTo: normalizeDate(row.dueDateTo),
+        };
+
+        // Keep exposureRefs, cancelledList, settledList empty for excel upload
+        normalizedRow.exposureRefs = [];
+        normalizedRow.cancelledList = [];
+        normalizedRow.settledList = [];
+
+        try {
+          await schema.validate(normalizedRow, { abortEarly: false });
+          validatedData.push(normalizedRow);
+        } catch (error: any) {
+          validationErrors.push({
+            row: i + 1,
+            message: error.errors.join(", "),
+          });
+        }
+      }
+
+      if (validationErrors.length > 0) {
+        setUploadResults({
+          success: validatedData.length,
+          failures: validationErrors.length,
+          errors: validationErrors,
+        });
+        onStatusOpen();
+        setIsUploading(false);
+        return;
+      }
+
+      if (validatedData.length > 0) {
+        await submitExportForm(validatedData, {}, "excel");
+      }
+    } catch (err: any) {
       console.error("Excel import failed", err);
+      setUploadResults({
+        success: 0,
+        failures: 0,
+        errors: [{ row: 0, message: err.message || "Failed to process excel file" }],
+      });
+      onStatusOpen();
+    } finally {
+      setIsUploading(false);
+      // Reset input value so same file can be uploaded again if needed
+      event.target.value = "";
     }
   };
 
@@ -436,6 +535,14 @@ const ForwardRegisterTable = () => {
         description="Are you sure? You can't undo this action afterwards."
         isLoading={deleteLoading}
       />
+
+      <BulkUploadStatusModal
+        isOpen={isStatusOpen}
+        onClose={onStatusClose}
+        results={uploadResults}
+        title="Forward Register Upload Results"
+      />
+      {isUploading && <Loader />}
     </>
   ) : (
     <RestrictedAccess />

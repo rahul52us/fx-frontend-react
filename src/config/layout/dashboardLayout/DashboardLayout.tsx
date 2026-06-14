@@ -114,7 +114,17 @@ const DashboardLayout = observer(() => {
       }
 
       if (lastRoute) {
-        navigate(lastRoute, { replace: true });
+        if (
+          lastRoute.startsWith('/login') ||
+          lastRoute.startsWith('/forgot') ||
+          lastRoute.startsWith('/register') ||
+          lastRoute === '/'
+        ) {
+          sessionStorage.removeItem('lastRoute');
+          navigate(dashboard.home, { replace: true });
+        } else {
+          navigate(lastRoute, { replace: true });
+        }
       }
     });
   }, [user?.role, navigate]);

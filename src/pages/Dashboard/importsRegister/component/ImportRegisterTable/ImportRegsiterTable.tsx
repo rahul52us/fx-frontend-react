@@ -3,25 +3,42 @@ import { useDisclosure, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { toJS } from "mobx";
 import { useEffect, useState, useCallback } from "react";
+import BulkUploadStatusModal from "../../../../../config/component/common/BulkUploadStatusModal/BulkUploadStatusModal";
 import DeleteConfirmationModal from "../../../../../config/component/common/DeleteConfirmationModal/DeleteConfirmationModal";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { useDeleteItem } from "../../../../../config/component/customHooks/useDeleteItem";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import CustomTable from "../../../../../config/component/CustomTable/CustomTable";
 import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
+import Loader from "../../../../../config/component/Loader/Loader";
 import store from "../../../../../store/store";
 import HedgeDealsCell from "../../../exportsRegister/component/ExportRegisterTable/HedgeDealsPopover";
 import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
 import {
+  calculateDueDate,
   exportToExcel,
   importFromExcel,
+  normalizeDate,
 } from "../../../exportsRegister/component/utils/function";
 import ImportRegistrationForm from "../ImportRegisterForm";
 import AmountSettledList from "../../../exportsRegister/component/ExportRegisterTable/AmountSettledList";
+import { getImportRegisterValidationSchema } from "../utils/validationSchema";
 
 const ImportRegisterTable = () => {
+  const [uploadResults, setUploadResults] = useState<{
+    success: number;
+    failures: number;
+    errors: any[];
+  }>({ success: 0, failures: 0, errors: [] });
+  const {
+    isOpen: isStatusOpen,
+    onOpen: onStatusOpen,
+    onClose: onStatusClose,
+  } = useDisclosure();
+  const [isUploading, setIsUploading] = useState(false);
   const [importData, setImportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editRow, setEditRow] = useState<any | null>(null);
   const [originalRow, setOriginalRow] = useState<any | null>(null);
@@ -54,57 +71,83 @@ const ImportRegisterTable = () => {
   };
 
   const submitImportForm = async (values: any, actions: any, type: string) => {
-    // console.log('values',values)
+    if (type === "excel") setIsUploading(true);
     try {
-      // let payload = type === "excel" ? values : [values];
       let payload = {
         userToken: "abcxyz",
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        // "http://srv864630.hstgr.cloud:8000/importregister/form/",
         `${url}/importregister/form/`,
-
         payload,
       );
 
       if (response.status === 200 && response.data.status === "success") {
-        toast({
-          title: "Success",
-          description: response.data.message,
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top-right",
-        });
-        if (onClose) {
+        if (type === "excel") {
+          const successCount = response.data.data?.success_count || values.length;
+          const failureCount = response.data.data?.failure_count || 0;
+          const apiErrors = response.data.data?.errors || [];
+
+          setUploadResults({
+            success: successCount,
+            failures: failureCount,
+            errors: apiErrors,
+          });
+          onStatusOpen();
+        } else {
+          toast({
+            title: "Success",
+            description: response.data.message,
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
           onClose();
         }
-        if (fetchImportRegisterData) {
-          fetchImportRegisterData();
+        fetchImportRegisterData();
+        actions?.resetForm?.();
+      } else {
+        if (type === "excel") {
+          setUploadResults({
+            success: 0,
+            failures: values.length,
+            errors: [{ row: 0, message: response.data.message || "Failed to upload excel data" }],
+          });
+          onStatusOpen();
+        } else {
+          toast({
+            title: "Submission failed",
+            description: "Unexpected server response.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
         }
-        actions.resetForm();
+      }
+    } catch (error: any) {
+      console.error("Submit error", error.message);
+      if (type === "excel") {
+        setUploadResults({
+          success: 0,
+          failures: values.length,
+          errors: [{ row: 0, message: error.response?.data?.message || error.message || "An error occurred during upload" }],
+        });
+        onStatusOpen();
       } else {
         toast({
-          title: "Submission failed",
-          description: "Unexpected server response.",
+          title: "Error",
+          description: error?.response?.data?.message || "Something went wrong.",
           status: "error",
           duration: 5000,
           isClosable: true,
           position: "top-right",
         });
       }
-    } catch (error: any) {
-      // toast({
-      //   title: "Error",
-      //   description: error?.response?.data?.message || "Something went wrong.",
-      //   status: "error",
-      //   duration: 5000,
-      //   isClosable: true,
-      //   position: "top-right",
-      // });
     } finally {
-      actions.setSubmitting(false);
+      setIsUploading(false);
+      actions?.setSubmitting?.(false);
     }
   };
 
@@ -338,16 +381,71 @@ const ImportRegisterTable = () => {
     onOpen();
   }
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileUpload = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    setIsUploading(true);
     try {
       const data = await importFromExcel(file);
-      await submitImportForm(data, {}, "excel");
-    } catch (err) {
+      const schema = getImportRegisterValidationSchema(false); // isEdit=false
+
+      const validatedData = [];
+      const validationErrors = [];
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+
+        // Normalize dates before validation
+        const normalizedRow: any = {
+          ...row,
+          poDate: normalizeDate(row.poDate),
+          invoiceDate: normalizeDate(row.invoiceDate),
+          blDate: normalizeDate(row.blDate),
+          paymentTerms: Number(row.paymentTerms),
+          dueDate: normalizeDate(row.dueDate) || calculateDueDate(normalizeDate(row.blDate), Number(row.paymentTerms)),
+        };
+
+        // Keep hedgeDeals empty for excel upload
+        normalizedRow.hedgeDeals = [];
+
+        try {
+          await schema.validate(normalizedRow, { abortEarly: false });
+          validatedData.push(normalizedRow);
+        } catch (error: any) {
+          validationErrors.push({
+            row: i + 1,
+            message: error.errors.join(", "),
+          });
+        }
+      }
+
+      if (validationErrors.length > 0) {
+        setUploadResults({
+          success: validatedData.length,
+          failures: validationErrors.length,
+          errors: validationErrors,
+        });
+        onStatusOpen();
+        setIsUploading(false);
+        return;
+      }
+
+      if (validatedData.length > 0) {
+        await submitImportForm(validatedData, {}, "excel");
+      }
+    } catch (err: any) {
       console.error("Excel import failed", err);
+      setUploadResults({
+        success: 0,
+        failures: 0,
+        errors: [{ row: 0, message: err.message || "Failed to process excel file" }],
+      });
+      onStatusOpen();
+    } finally {
+      setIsUploading(false);
+      // Reset input value so same file can be uploaded again if needed
+      event.target.value = "";
     }
   };
 
@@ -456,6 +554,14 @@ const ImportRegisterTable = () => {
         description="Are you sure? You can't undo this action afterwards."
         isLoading={deleteLoading}
       />
+
+      <BulkUploadStatusModal
+        isOpen={isStatusOpen}
+        onClose={onStatusClose}
+        results={uploadResults}
+        title="Import Register Upload Results"
+      />
+      {isUploading && <Loader />}
     </>
   ) : (
     <RestrictedAccess />

@@ -189,6 +189,7 @@ export const dummyForwardRegisterData = [
     spotBooked: "82.9",
     forwardPoints: "0.6",
     bankMargin: "1.2",
+    subExposureType: "shipment",
   },
 ];
 

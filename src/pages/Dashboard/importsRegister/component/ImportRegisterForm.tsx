@@ -9,7 +9,6 @@ import {
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
 import { useEffect, useState, useCallback } from "react";
-import * as Yup from "yup";
 import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import Loader from "../../../../config/component/Loader/Loader";
@@ -24,6 +23,7 @@ import { MultiHedgeDealExport } from "../../exportsRegister/component/MultiHedge
 import { calculateDueDate, normalizeDate } from "../../exportsRegister/component/utils/function";
 import { pickMatchedFields } from "../../utils/function";
 import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
+import { getImportRegisterValidationSchema } from "./utils/validationSchema";
 
 import ForecastExposureFields from "../../exportsRegister/component/ForecastExposureFields";
 
@@ -86,124 +86,7 @@ const fetchPoBalance = async (poNumber: string) => {
     }
   }, [url]);
 
-  const validationSchema = Yup.object().shape({
-    exposureType: Yup.mixed().required("Exposure Type is required"),
-    
-    businessUnit: Yup.mixed().when("exposureType", {
-      is: (val: string) => val === "forecast",
-      then: (schema) => schema.required("Business Unit is required"),
-      otherwise: (schema) => schema.required("Business Unit is required"),
-    }),
-
-    currency: Yup.mixed().when("exposureType", {
-      is: (val: string) => val === "forecast",
-      then: (schema) => schema.required("Currency is required"),
-      otherwise: (schema) => schema.required("Currency is required"),
-    }),
-
-    amount: Yup.number()
-      .required("Amount is required")
-      .test(
-        "po-balance-check",
-        function (value:any) {
-          const { exposureType } = this.parent;
-          if (exposureType === "lc_bc_shifting") {
-            if (value > poBalance) {
-              return this.createError({
-                message: `Amount (${value}) cannot be greater than PO Balance (${poBalance})`,
-              });
-            }
-          }
-          return true;
-        }
-      ),
-
-    dueDate: Yup.string().required("Due Date is required"),
-
-    poDate: Yup.string().when("exposureType", {
-      is: (val: string) => val !== "forecast",
-      then: (schema) => schema.required("PO Date is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    poNo: Yup.string().when("exposureType", {
-      is: (val: string) => val !== "forecast",
-      then: (schema) => schema.required("PO No is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    partyName: Yup.string().when("exposureType", {
-      is: (val: string) => val !== "forecast",
-      then: (schema) => schema.required("Party Name is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    bank: Yup.mixed().when("exposureType", {
-      is: (val: string) => val !== "forecast",
-      then: (schema) => schema.required("Bank is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    blDate: Yup.string().when("exposureType", {
-      is: (val: string) => val !== "forecast",
-      then: (schema) => schema.required("BL Date is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    paymentTerms: Yup.string().when("exposureType", {
-      is: (val: string) => val !== "forecast",
-      then: (schema) => schema.required("Payment Terms is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    budgetRate: Yup.string().when("exposureType", {
-      is: (val: string) => val !== "forecast",
-      then: (schema) => schema.required("Budget Rate is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    invoiceNo: Yup.string().when("exposureType", {
-      is: (val: string) => val !== "da_dp" && val !== "forecast",
-      then: (schema) => schema.required("Invoice No is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    invoiceDate: Yup.date().when("exposureType", {
-      is: (val: string) => val !== "da_dp" && val !== "forecast",
-      then: (schema) => schema.required("Invoice Date is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-
-    hedgeDeals: Yup.array().of(
-      Yup.object({
-        hedgeAmount: Yup.number().notRequired(),
-      })
-    ).test(
-      "total-hedge-amount",
-      "Total Hedge Amount must not exceed the Outstanding Amount",
-      function (hedgeDeals) {
-        const { amount, outstandingAmount } = this.parent;
-    
-        if (!hedgeDeals || hedgeDeals.length === 0) return true;
-    
-        const totalHedge = hedgeDeals.reduce((sum: number, deal: any) => {
-          return sum + (parseFloat(deal.hedgeAmount) || 0);
-        }, 0);
-    
-        // Edit mode: validate against outstandingAmount
-       if (isEdit) {
-      if (totalHedge > parseFloat(outstandingAmount)) {
-        return this.createError({
-          message: `Total Hedge Amount (${totalHedge}) must not exceed Outstanding Amount (${outstandingAmount})`,
-        });
-      }
-      return true;
-    }
-    
-        // Non-edit mode: validate against amount field
-        const amountVal = parseFloat(amount);
-        if (amountVal && totalHedge > amountVal) {
-          return this.createError({
-            message: `Total Hedge Amount (${totalHedge}) must not exceed Amount (${amountVal})`,
-          });
-        }
-    
-        return true;
-      }
-    ),
-  });
+  const validationSchema = getImportRegisterValidationSchema(isEdit, poBalance);
   const handleFormSubmit = (handleSubmit: any, errors: any) => {
     setShowError(true);
     // Check if there are errors

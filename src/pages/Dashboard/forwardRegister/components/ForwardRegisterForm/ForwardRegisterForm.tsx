@@ -9,7 +9,6 @@ import {
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
 import { useEffect, useState, useCallback } from "react";
-import * as Yup from "yup";
 import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import { extractFieldValue } from "../../../../../config/constant/function";
@@ -20,6 +19,7 @@ import { importExposureTypeOptions, mainExposureTypeOptions } from "../../../imp
 import { pickMatchedFields } from "../../../utils/function";
 import { calculateHedgeRate, getForwardRegisterInitialValues } from "./constant";
 import ExposureRefSelector from "./ExposureRefSelector";
+import { getForwardRegisterValidationSchema } from "../utils/validationSchema";
 
 const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const toast = useToast();
@@ -30,68 +30,7 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
   const [selectedMainExposureType, setSelectedMainExposureType] = useState('');
   const url = process.env.REACT_APP_FX_BASE_URL;
   const { storeEdited, editLoading } = useStoreEdited();
-  const validationSchema = Yup.object({
-    bookingDate: Yup.string().required("Booking Date is required"),
-    exposureType: Yup.string().required("Exposure Type is required"),
-    subExposureType: Yup.string().when('exposureType', {
-      is: (exposureType: string) => exposureType === 'import' || exposureType === 'export',
-      then: (schema) => schema.required("Sub Exposure Type is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    bank: Yup.mixed().required("Bank is required"),
-    bussinessUnit: Yup.mixed().required("Business Unit is required"),
-    hedgeDealReferenceNumber: Yup.string().required(
-      "Hedge Deal Reference Number is required"
-    ),
-    currency: Yup.mixed().required("Currency is required"),
-    hedgeAmount: Yup.number().required("Hedge Amount is required"),
-    spotBooked: Yup.string().required("Spot Booked is required"),
-    forwardPoints: Yup.string().required("Forward Points is required"),
-    bankMargin: Yup.string().required("Bank Margin is required"),
-    hedgeRate: Yup.string().required("Hedge Rate is required"),
-    dueDateFrom: Yup.string().required("Due Date From is required"),
-    dueDateTo: Yup.string().required("Due Date To is required"),
-
-        exposureRefs: Yup.array().of(
-          Yup.object({
-            allocatedAmount: Yup.number().notRequired(),
-          })
-        ).test(
-          "total-allocated-amount",
-          "Total Allocated Amount must not exceed the Outstanding Amount",
-          function (exposureRefs) {
-            const { hedgeAmount, outstandingAmount } = this.parent;
-        
-            if (!exposureRefs || exposureRefs.length === 0) return true;
-        
-            const totalHedge = exposureRefs.reduce((sum: number, deal: any) => {
-              return sum + (parseFloat(deal.allocatedAmount) || 0);
-            }, 0);
-        
-            // Edit mode: validate against outstandingAmount
-           if (isEdit) {
-          if (totalHedge > parseFloat(outstandingAmount)) {
-            return this.createError({
-              message: `Total Allocated Amount (${totalHedge}) must not exceed Outstanding Amount (${outstandingAmount})`,
-            });
-          }
-          return true;
-        }
-        
-        
-            // Non-edit mode: validate against amount field
-            const amountVal = parseFloat(hedgeAmount);
-            if (amountVal && totalHedge > amountVal) {
-              return this.createError({
-                message: `Total Allocated Amount (${totalHedge}) must not exceed Hedge Amount (${amountVal})`,
-              });
-            }
-        
-            return true;
-          }
-        ),
-
-  });
+  const validationSchema = getForwardRegisterValidationSchema(isEdit);
 
   const fetchExpoRefNos = useCallback(async (mainExposureType: string, subExposureType: string) => {
     try {

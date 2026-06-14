@@ -70,12 +70,13 @@ const Login = observer(() => {
             onSubmit={(values, { setSubmitting }) => {
               login({ ...values, loginType: "username" })
                 .then((data: any) => {
-                      sessionStorage.setItem("justLoggedIn", "true"); // 👈 ADD THIS
+                  sessionStorage.setItem("justLoggedIn", "true"); // 👈 ADD THIS
                   openNotification({
                     title: "Login Success",
                     message: data.message,
                     type: "success",
                   });
+                  navigate("/dashboard");
                 })
                 .catch((error) => {
                   openNotification({
