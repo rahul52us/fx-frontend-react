@@ -15,10 +15,20 @@ import {
   exportToExcel,
   importFromExcel,
 } from "../../exportsRegister/component/utils/function";
+import {
+  RegisterFilterPanel,
+  createFilterState,
+  filterTableData,
+  hasActiveFilters,
+  paginateRows,
+} from "../../common/registerTableFilters";
 import ForwardCancellationForm from "../ForwardCancellationForm/ForwardCancellationForm";
+import { dealTypeOptions } from "../../exportsRegister/component/utils/constant";
+import { mainExposureTypeOptions } from "../../importsRegister/component/utils/constant";
 
 const ForwardCancellationTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
+  const [filteredRows, setFilteredRows] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -27,6 +37,26 @@ const ForwardCancellationTable = () => {
   const [formKey, setFormKey] = useState(0);
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
+  const filterFields = [
+    { name: "startDate", label: "Start Date" },
+    { name: "endDate", label: "End Date" },
+    {
+      name: "dealType",
+      label: "Deal Type",
+      type: "select" as const,
+      placeholder: "All Deal Types",
+      options: dealTypeOptions,
+    },
+    {
+      name: "exposureType",
+      label: "Exposure Type",
+      type: "select" as const,
+      placeholder: "All Types",
+      options: mainExposureTypeOptions,
+    },
+  ];
+  const [filterState, setFilterState] = useState(createFilterState(filterFields));
+  const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   // Permission checks
   const { canAdd, canEdit, canDelete, canView } = usePermission('forwardCancellation');
@@ -103,30 +133,103 @@ const ForwardCancellationTable = () => {
   const rowsPerPage = 10;
   const { viewAsUserId } = store.auth;
 
-  const fetchExportRegisterData = useCallback(async (currentPage = 1) => {
+  const fetchForwardCancellationPage = useCallback(async (currentPage = 1) => {
+    const response = await axios.post(
+      `${url}/forwardCancellationpcfc/view/`,
+      { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
+    );
+    const result = response.data?.data?.data || [];
+    const total = response.data?.data?.total_pages || 1;
+    return { result, total };
+  }, [url, rowsPerPage, viewAsUserId]);
+
+  const fetchAllForwardCancellationData = useCallback(async () => {
+    const response = await axios.post(
+      `${url}/forwardCancellationpcfc/view/`,
+      { userToken: "abcxyz", page: 1, limit: 1000000, userId: viewAsUserId }
+    );
+    return response.data?.data?.data || [];
+  }, [url, viewAsUserId]);
+
+  const fetchExportRegisterData = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${url}/forwardCancellationpcfc/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
-      );
-      const result = response.data?.data?.data || [];
-      const total = response.data?.data?.total_pages || 1;
-      const withSerial = result.map((item: any, idx: number) => ({
-        ...item,
-        sno: (currentPage - 1) * rowsPerPage + idx + 1,
-      }));
-      setExportData(withSerial);
+      if (hasActiveFilters(filters)) {
+        const allRows = await fetchAllForwardCancellationData();
+        const filtered = filterTableData(allRows, filters, {
+          dateKeys: ["createdAt", "transactionDate", "deliveryDateFrom", "deliveryDateTo"],
+          searchKeys: [
+            "forwardDealId",
+            "bank",
+            "businessUnit",
+            "currency",
+            "washRate",
+          ],
+        });
+        setFilteredRows(filtered);
+        setExportData(paginateRows(filtered, currentPage, rowsPerPage));
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / rowsPerPage)));
+        return;
+      }
+
+      const { result, total } = await fetchForwardCancellationPage(currentPage);
+      setFilteredRows(null);
+      setExportData(result);
       setTotalPages(total);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [appliedFilters, fetchAllForwardCancellationData, fetchForwardCancellationPage, rowsPerPage]);
+
+  const applyFilters = () => {
+    const nextFilters = hasActiveFilters(filterState) ? { ...filterState } : null;
+    setAppliedFilters(nextFilters);
+    setPage(1);
+    fetchExportRegisterData(1, nextFilters);
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setAppliedFilters((prev: any) => {
+        if ((prev?.search || "") === filterState.search) return prev;
+        const nextFilters = hasActiveFilters({
+          ...(prev || {}),
+          ...filterState,
+          search: filterState.search,
+        })
+          ? {
+              ...(prev || {}),
+              ...filterState,
+              search: filterState.search,
+            }
+          : null;
+
+        fetchExportRegisterData(1, nextFilters);
+        setPage(1);
+        return nextFilters;
+      });
+    }, 800);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [fetchExportRegisterData, filterState.search]);
+
+  const clearFilters = () => {
+    const initialState = createFilterState(filterFields);
+    setFilterState(initialState);
+    setAppliedFilters(null);
+    setFilteredRows(null);
+    setPage(1);
+    fetchExportRegisterData(1, null);
+  };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    if (filteredRows) {
+      setExportData(paginateRows(filteredRows, newPage, rowsPerPage));
+      return;
+    }
     fetchExportRegisterData(newPage);
   };
 
@@ -138,11 +241,7 @@ const ForwardCancellationTable = () => {
   const handleDownloadAll = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${url}/forwardCancellationpcfc/view/`,
-        { userToken: "abcxyz", page: 1, limit: 1000000, userId: viewAsUserId }
-      );
-      const result = response.data?.data?.data || [];
+      const result = filteredRows ?? (await fetchAllForwardCancellationData());
       if (result.length > 0) {
         // Remove unwanted fields before export
         const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
@@ -273,16 +372,33 @@ const ForwardCancellationTable = () => {
   return (
     canView ? (
       <>
+        <RegisterFilterPanel
+          fields={filterFields}
+          filterState={filterState}
+          hasAppliedFilters={hasActiveFilters(appliedFilters)}
+          onChange={(e: any) => {
+            const { name, value } = e.target;
+            setFilterState((prev: any) => ({ ...prev, [name]: value }));
+          }}
+          onApply={applyFilters}
+          onClear={clearFilters}
+        />
+
         <CustomTable
           title="Forward Cancellation"
           data={exportData}
           columns={DealDataColumns}
           actions={{
-            search: { show: false },
+            search: {
+              show: true,
+              searchValue: filterState.search,
+              onSearchChange: (e: any) =>
+                setFilterState((prev: any) => ({ ...prev, search: e.target.value })),
+            },
             resetData: {
               show: true,
               text: "Reset Data",
-              function: () => fetchExportRegisterData(1),
+              function: () => clearFilters(),
             },
             exportExcel: {
               show: true,

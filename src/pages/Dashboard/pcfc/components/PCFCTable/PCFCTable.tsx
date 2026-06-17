@@ -19,9 +19,17 @@ import PCFCViewDrawer from "./PCFCViewDrawer";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import store from "../../../../../store/store";
+import {
+  RegisterFilterPanel,
+  createFilterState,
+  filterTableData,
+  hasActiveFilters,
+  paginateRows,
+} from "../../../common/registerTableFilters";
 
 const PCFCTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
+  const [filteredRows, setFilteredRows] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [editRow, setEditRow] = useState<any | null>(null);
   const [originalRow, setOriginalRow] = useState<any | null>(null);
@@ -49,6 +57,12 @@ const PCFCTable = () => {
   } = useDisclosure();
   const [deleteRowData, setDeleteRowData] = useState<any>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const filterFields = [
+    { name: "startDate", label: "Start Date" },
+    { name: "endDate", label: "End Date" },
+  ];
+  const [filterState, setFilterState] = useState(createFilterState(filterFields));
+  const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -124,35 +138,114 @@ const PCFCTable = () => {
   const rowsPerPage = 10;
   const { viewAsUserId } = store.auth;
 
-  const fetchExportRegisterData = useCallback(async (currentPage = 1) => {
+  const fetchPcfcPage = useCallback(async (currentPage = 1) => {
+    const response = await axios.post(
+      `${url}/pcfcregister/view/`,
+      { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId },
+      {
+        headers: {
+          Authorization: autoToken,
+        },
+      }
+    );
+    const result = response.data?.data?.data || [];
+    const total = response.data?.data?.total_pages || 1;
+    return { result, total };
+  }, [url, rowsPerPage, viewAsUserId]);
+
+  const fetchAllPcfcData = useCallback(async () => {
+    const response = await axios.post(
+      `${url}/pcfcregister/view/`,
+      { userToken: "abcxyz", page: 1, limit: 1000000, userId: viewAsUserId },
+      {
+        headers: {
+          Authorization: autoToken,
+        },
+      }
+    );
+    return response.data?.data?.data || [];
+  }, [url, viewAsUserId]);
+
+  const fetchExportRegisterData = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${url}/pcfcregister/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId },
-        {
-          headers: {
-            Authorization: autoToken,
-          },
-        }
-      );
-      const result = response.data?.data?.data || [];
-      const total = response.data?.data?.total_pages || 1;
-      const withSerial = result.map((item: any, idx: number) => ({
-        ...item,
-        sno: (currentPage - 1) * rowsPerPage + idx + 1,
-      }));
-      setExportData(withSerial);
+      if (hasActiveFilters(filters)) {
+        const allRows = await fetchAllPcfcData();
+        const filtered = filterTableData(allRows, filters, {
+          dateKeys: ["createdAt", "pcfcInputDate", "drawdownDate", "dueDate"],
+          searchKeys: [
+            "bank",
+            "tradeReferenceNumber",
+            "currency",
+            "drawdownAmount",
+          ],
+        });
+        setFilteredRows(filtered);
+        setExportData(paginateRows(filtered, currentPage, rowsPerPage));
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / rowsPerPage)));
+        return;
+      }
+
+      const { result, total } = await fetchPcfcPage(currentPage);
+      setFilteredRows(null);
+      setExportData(result);
       setTotalPages(total);
     } catch (error) {
       console.error("Error fetching export register data:", error);
     } finally {
       setLoading(false);
     }
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [appliedFilters, fetchAllPcfcData, fetchPcfcPage, rowsPerPage]);
+
+  const applyFilters = () => {
+    const nextFilters = hasActiveFilters(filterState) ? { ...filterState } : null;
+    setAppliedFilters(nextFilters);
+    setPage(1);
+    fetchExportRegisterData(1, nextFilters);
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setAppliedFilters((prev: any) => {
+        if ((prev?.search || "") === filterState.search) return prev;
+        const nextFilters = hasActiveFilters({
+          ...(prev || {}),
+          search: filterState.search,
+          startDate: filterState.startDate,
+          endDate: filterState.endDate,
+        })
+          ? {
+              ...(prev || {}),
+              search: filterState.search,
+              startDate: filterState.startDate,
+              endDate: filterState.endDate,
+            }
+          : null;
+
+        fetchExportRegisterData(1, nextFilters);
+        setPage(1);
+        return nextFilters;
+      });
+    }, 800);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [fetchExportRegisterData, filterState.endDate, filterState.search, filterState.startDate]);
+
+  const clearFilters = () => {
+    const initialState = createFilterState(filterFields);
+    setFilterState(initialState);
+    setAppliedFilters(null);
+    setFilteredRows(null);
+    setPage(1);
+    fetchExportRegisterData(1, null);
+  };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    if (filteredRows) {
+      setExportData(paginateRows(filteredRows, newPage, rowsPerPage));
+      return;
+    }
     fetchExportRegisterData(newPage);
   };
 
@@ -177,17 +270,7 @@ const PCFCTable = () => {
   const handleDownloadAll = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${url}/pcfcregister/view/`,
-        { userToken: "abcxyz", page: 1, limit: 1000000, userId: viewAsUserId },
-        {
-          headers: {
-            Authorization: autoToken,
-          },
-        }
-      );
-
-      const result = response.data?.data?.data || [];
+      const result = filteredRows ?? (await fetchAllPcfcData());
       if (result.length > 0) {
         // Remove unwanted fields before export
         const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
@@ -339,16 +422,33 @@ const PCFCTable = () => {
   return (
     canView ? (
       <>
+        <RegisterFilterPanel
+          fields={filterFields}
+          filterState={filterState}
+          hasAppliedFilters={hasActiveFilters(appliedFilters)}
+          onChange={(e: any) => {
+            const { name, value } = e.target;
+            setFilterState((prev: any) => ({ ...prev, [name]: value }));
+          }}
+          onApply={applyFilters}
+          onClear={clearFilters}
+        />
+
         <CustomTable
           title="PCFC Register"
           data={exportData}
           columns={PCFCColumns}
           actions={{
-            search: { show: false },
+            search: {
+              show: true,
+              searchValue: filterState.search,
+              onSearchChange: (e: any) =>
+                setFilterState((prev: any) => ({ ...prev, search: e.target.value })),
+            },
             resetData: {
               show: true,
               text: "Reset Data",
-              function: () => fetchExportRegisterData(1),
+              function: () => clearFilters(),
             },
             exportExcel: {
               show: true,

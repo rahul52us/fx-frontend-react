@@ -12,6 +12,13 @@ import CustomTable from "../../../../../config/component/CustomTable/CustomTable
 import CustomDrawer from "../../../../../config/component/Drawer/CustomDrawer";
 import Loader from "../../../../../config/component/Loader/Loader";
 import store from "../../../../../store/store";
+import {
+  RegisterFilterPanel,
+  createFilterState,
+  filterTableData,
+  hasActiveFilters,
+  paginateRows,
+} from "../../../common/registerTableFilters";
 import HedgeDealsCell from "../../../exportsRegister/component/ExportRegisterTable/HedgeDealsPopover";
 import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
 import {
@@ -22,6 +29,10 @@ import {
 } from "../../../exportsRegister/component/utils/function";
 import ImportRegistrationForm from "../ImportRegisterForm";
 import AmountSettledList from "../../../exportsRegister/component/ExportRegisterTable/AmountSettledList";
+import {
+  exposureTypeOptions as importExposureBaseOptions,
+  importExposureTypeOptions,
+} from "../utils/constant";
 import { getImportRegisterValidationSchema } from "../utils/validationSchema";
 
 const ImportRegisterTable = () => {
@@ -37,6 +48,7 @@ const ImportRegisterTable = () => {
   } = useDisclosure();
   const [isUploading, setIsUploading] = useState(false);
   const [importData, setImportData] = useState<any[]>([]);
+  const [filteredRows, setFilteredRows] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -62,6 +74,31 @@ const ImportRegisterTable = () => {
   } = useDisclosure();
   const [deleteRowData, setDeleteRowData] = useState<any>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const filterFields = [
+    { name: "startDate", label: "Start Date" },
+    { name: "endDate", label: "End Date" },
+    {
+      name: "exposureType",
+      label: "Exposure Type",
+      type: "select" as const,
+      placeholder: "All Types",
+      options: [...importExposureBaseOptions, ...importExposureTypeOptions],
+    },
+    {
+      name: "status",
+      label: "Status",
+      type: "select" as const,
+      placeholder: "All Statuses",
+      options: [
+        { label: "Open", value: "open" },
+        { label: "Closed", value: "closed" },
+        { label: "Settled", value: "settled" },
+      ],
+    },
+  ];
+  const [filterState, setFilterState] = useState(createFilterState(filterFields));
+  const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   const handleDrawerClose = () => {
     setEditRow(null);
@@ -156,29 +193,107 @@ const ImportRegisterTable = () => {
   const rowsPerPage = 10;
   const { viewAsUserId } = store.auth;
 
-  const fetchImportRegisterData = useCallback(async (currentPage = 1) => {
+  const fetchImportRegisterPage = useCallback(async (currentPage = 1) => {
+    const response = await axios.post(`${url}/importregister/view/`, {
+      userToken: "abcdxyz",
+      page: currentPage,
+      limit: rowsPerPage,
+      userId: viewAsUserId,
+    });
+    const result = response.data?.data?.data || [];
+    const total = response.data?.data?.total_pages || 1;
+    return { result, total };
+  }, [url, rowsPerPage, viewAsUserId]);
+
+  const fetchAllImportRegisterData = useCallback(async () => {
+    const response = await axios.post(`${url}/importregister/view/`, {
+      userToken: "abcdxyz",
+      page: 1,
+      limit: 1000000,
+      userId: viewAsUserId,
+    });
+    return response.data?.data?.data || [];
+  }, [url, viewAsUserId]);
+
+  const fetchImportRegisterData = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${url}/importregister/view/`, {
-        userToken: "abcdxyz",
-        page: currentPage,
-        limit: rowsPerPage,
-        userId: viewAsUserId,
-      });
-      const result = response.data?.data?.data || [];
-      const total = response.data?.data?.total_pages || 1;
-      const withSerial = result.map((item: any, idx: number) => ({
-        ...item,
-        sno: (currentPage - 1) * rowsPerPage + idx + 1,
-      }));
-      setImportData(withSerial);
+      if (hasActiveFilters(filters)) {
+        const allRows = await fetchAllImportRegisterData();
+        const filtered = filterTableData(allRows, filters, {
+          dateKeys: ["createdAt", "poDate", "invoiceDate", "dueDate"],
+          searchKeys: [
+            "poNo",
+            "invoiceNo",
+            "partyName",
+            "bank",
+            "businessUnit",
+            "currency",
+            "remark",
+          ],
+        });
+        setFilteredRows(filtered);
+        setImportData(paginateRows(filtered, currentPage, rowsPerPage));
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / rowsPerPage)));
+        return;
+      }
+
+      const { result, total } = await fetchImportRegisterPage(currentPage);
+      setFilteredRows(null);
+      setImportData(result);
       setTotalPages(total);
     } catch (error) {
       console.error("Error fetching import register data:", error);
     } finally {
       setLoading(false);
     }
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [appliedFilters, fetchAllImportRegisterData, fetchImportRegisterPage, rowsPerPage]);
+
+  const handleFilterChange = (e: any) => {
+    const { name, value } = e.target;
+    setFilterState((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const applyFilters = () => {
+    const nextFilters = hasActiveFilters(filterState) ? { ...filterState } : null;
+    setAppliedFilters(nextFilters);
+    setPage(1);
+    fetchImportRegisterData(1, nextFilters);
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setAppliedFilters((prev: any) => {
+        if ((prev?.search || "") === filterState.search) return prev;
+        const nextFilters = hasActiveFilters({
+          ...(prev || {}),
+          ...filterState,
+          search: filterState.search,
+        })
+          ? {
+              ...(prev || {}),
+              ...filterState,
+              search: filterState.search,
+            }
+          : null;
+
+        fetchImportRegisterData(1, nextFilters);
+        setPage(1);
+        return nextFilters;
+      });
+    }, 800);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [fetchImportRegisterData, filterState.search]);
+
+  const clearFilters = () => {
+    const initialState = createFilterState(filterFields);
+    setFilterState(initialState);
+    setAppliedFilters(null);
+    setFilteredRows(null);
+    setPage(1);
+    fetchImportRegisterData(1, null);
+  };
 
   useEffect(() => {
     if (!canView) {
@@ -190,16 +305,7 @@ const ImportRegisterTable = () => {
   const handleDownloadAll = async () => {
     setLoading(true);
     try {
-      const payload: any = {
-        userToken: "abcdxyz",
-        page: 1,
-        limit: 1000000, // Large number to get all records
-        userId: viewAsUserId,
-      };
-
-      const response = await axios.post(`${url}/importregister/view/`, payload);
-
-      const result = response.data?.data?.data || [];
+      const result = filteredRows ?? await fetchAllImportRegisterData();
       if (result.length > 0) {
         // Remove unwanted fields before export
         const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
@@ -235,6 +341,10 @@ const ImportRegisterTable = () => {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    if (filteredRows) {
+      setImportData(paginateRows(filteredRows, newPage, rowsPerPage));
+      return;
+    }
     fetchImportRegisterData(newPage);
   };
 
@@ -474,16 +584,30 @@ const ImportRegisterTable = () => {
 
   return canView ? (
     <>
+      <RegisterFilterPanel
+        fields={filterFields}
+        filterState={filterState}
+        hasAppliedFilters={hasActiveFilters(appliedFilters)}
+        onChange={handleFilterChange}
+        onApply={applyFilters}
+        onClear={clearFilters}
+      />
+
       <CustomTable
         title="Import Register"
         data={importData}
         columns={ImportRegisterTableColumns}
         actions={{
-          search: { show: false },
+          search: {
+            show: true,
+            searchValue: filterState.search,
+            onSearchChange: (e: any) =>
+              setFilterState((prev: any) => ({ ...prev, search: e.target.value })),
+          },
           resetData: {
             show: true,
             text: "Reset Data",
-            function: () => fetchImportRegisterData(1),
+            function: () => clearFilters(),
           },
           exportExcel: {
             show: true,

@@ -18,9 +18,17 @@ import ExposureRefsCell from "./ExposureRefsCell";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import store from "../../../../../store/store";
+import {
+  RegisterFilterPanel,
+  createFilterState,
+  filterTableData,
+  hasActiveFilters,
+  paginateRows,
+} from "../../../common/registerTableFilters";
 import CancelledList from "./CancelledList";
 import SettledList from "./SettledList";
 import { getForwardRegisterValidationSchema } from "../utils/validationSchema";
+import { mainExposureTypeOptions } from "../../../importsRegister/component/utils/constant";
 
 const ForwardRegisterTable = () => {
   const [uploadResults, setUploadResults] = useState<{
@@ -36,6 +44,7 @@ const ForwardRegisterTable = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const [exportData, setExportData] = useState<any[]>([]);
+  const [filteredRows, setFilteredRows] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [editRow, setEditRow] = useState<any | null>(null);
   const [originalRow, setOriginalRow] = useState<any | null>(null);
@@ -57,6 +66,30 @@ const ForwardRegisterTable = () => {
   } = useDisclosure();
   const [deleteRowData, setDeleteRowData] = useState<any>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const filterFields = [
+    { name: "startDate", label: "Start Date" },
+    { name: "endDate", label: "End Date" },
+    {
+      name: "exposureType",
+      label: "Exposure Type",
+      type: "select" as const,
+      placeholder: "All Types",
+      options: mainExposureTypeOptions,
+    },
+    {
+      name: "status",
+      label: "Status",
+      type: "select" as const,
+      placeholder: "All Statuses",
+      options: [
+        { label: "Open", value: "open" },
+        { label: "Cancelled", value: "cancelled" },
+        { label: "Settled", value: "settled" },
+      ],
+    },
+  ];
+  const [filterState, setFilterState] = useState(createFilterState(filterFields));
+  const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     if (type === "excel") setIsUploading(true);
@@ -214,32 +247,112 @@ const ForwardRegisterTable = () => {
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
 
-  const fetchExportRegisterData = useCallback(async (currentPage = 1) => {
+  const fetchForwardRegisterPage = useCallback(async (currentPage = 1) => {
+    const response = await axios.post(`${url}/forwardregister/view/`, {
+      userToken: "abcxyz",
+      page: currentPage,
+      limit: rowsPerPage,
+      userId: viewAsUserId,
+    });
+    const result = response.data?.data?.data || [];
+    const total = response.data?.data?.total_pages || 1;
+    return { result, total };
+  }, [url, rowsPerPage, viewAsUserId]);
+
+  const fetchAllForwardRegisterData = useCallback(async () => {
+    const response = await axios.post(`${url}/forwardregister/view/`, {
+      userToken: "abcxyz",
+      page: 1,
+      limit: 1000000,
+      userId: viewAsUserId,
+    });
+    return response.data?.data?.data || [];
+  }, [url, viewAsUserId]);
+
+  const fetchExportRegisterData = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${url}/forwardregister/view/`, {
-        userToken: "abcxyz",
-        page: currentPage,
-        limit: rowsPerPage,
-        userId: viewAsUserId,
-      });
-      const result = response.data?.data?.data || [];
-      const total = response.data?.data?.total_pages || 1;
-      const withSerial = result.map((item: any, idx: number) => ({
-        ...item,
-        sno: (currentPage - 1) * rowsPerPage + idx + 1,
-      }));
-      setExportData(withSerial);
+      if (hasActiveFilters(filters)) {
+        const allRows = await fetchAllForwardRegisterData();
+        const filtered = filterTableData(allRows, filters, {
+          dateKeys: ["createdAt", "bookingDate", "dueDateFrom", "dueDateTo"],
+          searchKeys: [
+            "bank",
+            "bussinessUnit",
+            "currency",
+            "hedgeDealReferenceNumber",
+            "status",
+          ],
+        });
+        setFilteredRows(filtered);
+        setExportData(paginateRows(filtered, currentPage, rowsPerPage));
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / rowsPerPage)));
+        return;
+      }
+
+      const { result, total } = await fetchForwardRegisterPage(currentPage);
+      setFilteredRows(null);
+      setExportData(result);
       setTotalPages(total);
     } catch (error) {
       console.error("Error fetching export register data:", error);
     } finally {
       setLoading(false);
     }
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [appliedFilters, fetchAllForwardRegisterData, fetchForwardRegisterPage, rowsPerPage]);
+
+  const handleFilterChange = (e: any) => {
+    const { name, value } = e.target;
+    setFilterState((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const applyFilters = () => {
+    const nextFilters = hasActiveFilters(filterState) ? { ...filterState } : null;
+    setAppliedFilters(nextFilters);
+    setPage(1);
+    fetchExportRegisterData(1, nextFilters);
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setAppliedFilters((prev: any) => {
+        if ((prev?.search || "") === filterState.search) return prev;
+        const nextFilters = hasActiveFilters({
+          ...(prev || {}),
+          ...filterState,
+          search: filterState.search,
+        })
+          ? {
+              ...(prev || {}),
+              ...filterState,
+              search: filterState.search,
+            }
+          : null;
+
+        fetchExportRegisterData(1, nextFilters);
+        setPage(1);
+        return nextFilters;
+      });
+    }, 800);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [fetchExportRegisterData, filterState.search]);
+
+  const clearFilters = () => {
+    const initialState = createFilterState(filterFields);
+    setFilterState(initialState);
+    setAppliedFilters(null);
+    setFilteredRows(null);
+    setPage(1);
+    fetchExportRegisterData(1, null);
+  };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    if (filteredRows) {
+      setExportData(paginateRows(filteredRows, newPage, rowsPerPage));
+      return;
+    }
     fetchExportRegisterData(newPage);
   };
 
@@ -270,7 +383,7 @@ const ForwardRegisterTable = () => {
         limit: 1000000,
         userId: viewAsUserId,
       });
-      const result = response.data?.data?.data || [];
+      const result = filteredRows ?? (response.data?.data?.data || []);
       if (result.length > 0) {
         // Remove unwanted fields before export
         const exportData = result.map(({ _id, __v, userId, exposureRefs, cancelledList, settledList, ...rest }: any) => rest);
@@ -454,16 +567,30 @@ const ForwardRegisterTable = () => {
 
   return canView ? (
     <>
+      <RegisterFilterPanel
+        fields={filterFields}
+        filterState={filterState}
+        hasAppliedFilters={hasActiveFilters(appliedFilters)}
+        onChange={handleFilterChange}
+        onApply={applyFilters}
+        onClear={clearFilters}
+      />
+
       <CustomTable
         title="Forward Register"
         data={exportData}
         columns={ForwardRegisterColumns}
         actions={{
-          search: { show: false },
+          search: {
+            show: true,
+            searchValue: filterState.search,
+            onSearchChange: (e: any) =>
+              setFilterState((prev: any) => ({ ...prev, search: e.target.value })),
+          },
           resetData: {
             show: true,
             text: "Reset Data",
-            function: () => fetchExportRegisterData(1),
+            function: () => clearFilters(),
           },
           exportExcel: {
             show: true,

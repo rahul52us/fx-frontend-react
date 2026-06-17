@@ -16,11 +16,23 @@ import {
   exportToExcel,
   importFromExcel,
 } from "../../../exportsRegister/component/utils/function";
+import {
+  RegisterFilterPanel,
+  createFilterState,
+  filterTableData,
+  hasActiveFilters,
+  paginateRows,
+} from "../../../common/registerTableFilters";
 import ExposureSettlementForm from "../DailyExposureSheetForm/DailyExposureSheetForm";
 import ExposureSettlementViewDrawer from "./ExposureSettlementViewDrawer";
+import {
+  exposureTypeOptions,
+  settlementTypeOptions,
+} from "../../../exportsRegister/component/utils/constant";
 
 const DailyExposureTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
+  const [filteredRows, setFilteredRows] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [viewData, setViewData] = useState<any>(null);
@@ -50,6 +62,26 @@ const DailyExposureTable = () => {
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
+  const filterFields = [
+    { name: "startDate", label: "Start Date" },
+    { name: "endDate", label: "End Date" },
+    {
+      name: "exposureType",
+      label: "Exposure Type",
+      type: "select" as const,
+      placeholder: "All Types",
+      options: exposureTypeOptions,
+    },
+    {
+      name: "settlementType",
+      label: "Settlement Type",
+      type: "select" as const,
+      placeholder: "All Types",
+      options: settlementTypeOptions,
+    },
+  ];
+  const [filterState, setFilterState] = useState(createFilterState(filterFields));
+  const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   function handleEdit(row: any) {
     setOriginalRow(JSON.parse(JSON.stringify(row))); // deep clone
@@ -137,30 +169,104 @@ const DailyExposureTable = () => {
   const rowsPerPage = 10;
   const { viewAsUserId } = store.auth;
 
-  const fetchExportRegisterData = useCallback(async (currentPage = 1) => {
+  const fetchExposureSettlementPage = useCallback(async (currentPage = 1) => {
+    const response = await axios.post(
+      `${url}/exposuresettlementreport/view/`,
+      { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
+    );
+    const result = response.data?.data?.data || [];
+    const total = response.data?.data?.total_pages || 1;
+    return { result, total };
+  }, [url, rowsPerPage, viewAsUserId]);
+
+  const fetchAllExposureSettlementData = useCallback(async () => {
+    const response = await axios.post(
+      `${url}/exposuresettlementreport/view/`,
+      { userToken: "abcxyz", page: 1, limit: 1000000, userId: viewAsUserId }
+    );
+    return response.data?.data?.data || [];
+  }, [url, viewAsUserId]);
+
+  const fetchExportRegisterData = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${url}/exposuresettlementreport/view/`,
-        { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
-      );
-      const result = response.data?.data?.data || [];
-      const total = response.data?.data?.total_pages || 1;
-      const withSerial = result.map((item: any, idx: number) => ({
-        ...item,
-        sno: (currentPage - 1) * rowsPerPage + idx + 1,
-      }));
-      setExportData(withSerial);
+      if (hasActiveFilters(filters)) {
+        const allRows = await fetchAllExposureSettlementData();
+        const filtered = filterTableData(allRows, filters, {
+          dateKeys: ["createdAt", "settlementDate", "settlementInputDate", "dueDate"],
+          searchKeys: [
+            "poNumber",
+            "invoiceBcNumber",
+            "partyName",
+            "bussinessUnit",
+            "bank",
+            "currency",
+          ],
+        });
+        setFilteredRows(filtered);
+        setExportData(paginateRows(filtered, currentPage, rowsPerPage));
+        setTotalPages(Math.max(1, Math.ceil(filtered.length / rowsPerPage)));
+        return;
+      }
+
+      const { result, total } = await fetchExposureSettlementPage(currentPage);
+      setFilteredRows(null);
+      setExportData(result);
       setTotalPages(total);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [appliedFilters, fetchAllExposureSettlementData, fetchExposureSettlementPage, rowsPerPage]);
+
+  const applyFilters = () => {
+    const nextFilters = hasActiveFilters(filterState) ? { ...filterState } : null;
+    setAppliedFilters(nextFilters);
+    setPage(1);
+    fetchExportRegisterData(1, nextFilters);
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setAppliedFilters((prev: any) => {
+        if ((prev?.search || "") === filterState.search) return prev;
+        const nextFilters = hasActiveFilters({
+          ...(prev || {}),
+          ...filterState,
+          search: filterState.search,
+        })
+          ? {
+              ...(prev || {}),
+              ...filterState,
+              search: filterState.search,
+            }
+          : null;
+
+        fetchExportRegisterData(1, nextFilters);
+        setPage(1);
+        return nextFilters;
+      });
+    }, 800);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [fetchExportRegisterData, filterState.search]);
+
+  const clearFilters = () => {
+    const initialState = createFilterState(filterFields);
+    setFilterState(initialState);
+    setAppliedFilters(null);
+    setFilteredRows(null);
+    setPage(1);
+    fetchExportRegisterData(1, null);
+  };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    if (filteredRows) {
+      setExportData(paginateRows(filteredRows, newPage, rowsPerPage));
+      return;
+    }
     fetchExportRegisterData(newPage);
   };
 
@@ -172,11 +278,7 @@ const DailyExposureTable = () => {
   const handleDownloadAll = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${url}/exposuresettlementreport/view/`,
-        { userToken: "abcxyz", page: 1, limit: 1000000, userId: viewAsUserId }
-      );
-      const result = response.data?.data?.data || [];
+      const result = filteredRows ?? (await fetchAllExposureSettlementData());
       if (result.length > 0) {
         // Remove unwanted fields before export
         const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
@@ -281,16 +383,33 @@ const DailyExposureTable = () => {
   return (
     canView ? (
       <>
+        <RegisterFilterPanel
+          fields={filterFields}
+          filterState={filterState}
+          hasAppliedFilters={hasActiveFilters(appliedFilters)}
+          onChange={(e: any) => {
+            const { name, value } = e.target;
+            setFilterState((prev: any) => ({ ...prev, [name]: value }));
+          }}
+          onApply={applyFilters}
+          onClear={clearFilters}
+        />
+
         <CustomTable
           title="Exposure Settlement Register"
           data={exportData}
           columns={DailyExposureColumns}
           actions={{
-            search: { show: false },
+            search: {
+              show: true,
+              searchValue: filterState.search,
+              onSearchChange: (e: any) =>
+                setFilterState((prev: any) => ({ ...prev, search: e.target.value })),
+            },
             resetData: {
               show: true,
               text: "Reset Data",
-              function: () => fetchExportRegisterData(1),
+              function: () => clearFilters(),
             },
             exportExcel: {
               show: true,
