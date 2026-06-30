@@ -76,7 +76,7 @@ const PCFCTable = () => {
           Authorization: autoToken,
         },
       });
-      // "http://srv864630.hstgr.cloud:8000/pcfcregister/form/",
+      // "https://kzen.co.in/crudapi/pcfcregister/form/",
 
       if (response.status === 200 && response.data.status === "success") {
         toast({

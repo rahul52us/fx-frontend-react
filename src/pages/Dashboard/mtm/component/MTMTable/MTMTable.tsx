@@ -9,7 +9,7 @@ import store from "../../../../../store/store";
 const MTMTable = () => {
   // Permission checks
   const { canView } = usePermission('mtm');
-  
+
 
   // const BookingRegisterTableColumns = [
   //   { headerName: "S.No.", key: "sno", props: { row: { textAlign: "center" } } },
@@ -86,9 +86,9 @@ const BookingRegisterTableColumns = [
     // setLoading(true);
     try {
       const response = await axios.post(
-        // "http://srv864630.hstgr.cloud:8000/mtm/view/",
-        "http://srv864630.hstgr.cloud:8000/mtmview/view/",
-        
+        // "https://kzen.co.in/crudapi/mtm/view/",
+        "https://kzen.co.in/crudapi/mtmview/view/",
+
         { condition: "", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
 

@@ -21,7 +21,7 @@ export const useStoreEdited = () => {
       //   const token = localStorage.getItem("accessToken"); // or wherever you store it
 
       const response: any = await axios.post(
-        "http://srv864630.hstgr.cloud:8000/api/storeedited/",
+        "https://kzen.co.in/crudapi/api/storeedited/",
         payload,
         // {
         //   headers: {

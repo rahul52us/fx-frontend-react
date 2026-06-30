@@ -58,8 +58,10 @@ const ConversionManager = ({ showError }: any) => {
     const margin = getBankMargin();
     if (!margin) return;
 
+    let hasChanges = false;
     const updatedSpotList = values.spotList?.map((row: any) => {
       if (!row.bankMargin) {
+        hasChanges = true;
         const spot = parseFloat(row.spotBooked) || 0;
         const cashTom = parseFloat(row.cashTomSpot) || 0;
         const marginNum = parseFloat(margin) || 0;
@@ -73,7 +75,9 @@ const ConversionManager = ({ showError }: any) => {
       return row;
     });
 
-    setFieldValue("spotList", updatedSpotList);
+    if (hasChanges) {
+      setFieldValue("spotList", updatedSpotList);
+    }
   }, [values.isSpotEnabled, getBankMargin, values.spotList, setFieldValue]); // ← fires when spot section is toggled on
 
   // ✅ Also patch when bank changes while spot is already enabled
@@ -83,19 +87,28 @@ const ConversionManager = ({ showError }: any) => {
     const margin = getBankMargin();
     if (!margin) return;
 
+    let hasChanges = false;
     const updatedSpotList = values.spotList?.map((row: any) => {
       const spot = parseFloat(row.spotBooked) || 0;
       const cashTom = parseFloat(row.cashTomSpot) || 0;
       const marginNum = parseFloat(margin) || 0;
       const netRate = spot - cashTom - marginNum;
-      return {
-        ...row,
-        bankMargin: margin,
-        netConversionRate: netRate ? netRate.toFixed(4) : "0.0000",
-      };
+      const computedNetRate = netRate ? netRate.toFixed(4) : "0.0000";
+
+      if (row.bankMargin !== margin || row.netConversionRate !== computedNetRate) {
+        hasChanges = true;
+        return {
+          ...row,
+          bankMargin: margin,
+          netConversionRate: computedNetRate,
+        };
+      }
+      return row;
     });
 
-    setFieldValue("spotList", updatedSpotList);
+    if (hasChanges) {
+      setFieldValue("spotList", updatedSpotList);
+    }
   }, [values.bank, getBankMargin, values.isSpotEnabled, values.spotList, setFieldValue]); // ← fires when bank changes
 
   // ✅ Pre-fill new rows with bank margin

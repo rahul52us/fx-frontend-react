@@ -40,10 +40,10 @@ const DailyExposureTable = () => {
    const [editRow, setEditRow] = useState<any | null>(null);
   const [originalRow, setOriginalRow] = useState<any | null>(null);
   const [formKey, setFormKey] = useState(0);
-  
+
   // Permission checks
   const { canAdd, canEdit, canDelete, canView } = usePermission('dailyExposure');
-  
+
       const {
         isOpen: isViewOpen,
         onOpen: onViewOpen,
@@ -104,7 +104,7 @@ const DailyExposureTable = () => {
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        // "http://srv864630.hstgr.cloud:8000/exposuresettlementreport/form/",
+        // "https://kzen.co.in/crudapi/exposuresettlementreport/form/",
         `${url}/exposuresettlementreport/form/`,
         payload
       );
@@ -472,7 +472,7 @@ const DailyExposureTable = () => {
           size="xl"
           width="75%"
         >
-          <ExposureSettlementForm 
+          <ExposureSettlementForm
           // submitForm={submitExportForm}
             submitForm={submitExportForm}
             key={formKey}
