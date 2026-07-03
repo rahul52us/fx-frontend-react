@@ -1,5 +1,6 @@
 // services/approval.service.ts
 import axios from "axios";
+import { autoToken } from "../pages/Dashboard/utils/constant";
 
 const BASE_URL = process.env.REACT_APP_FX_BASE_URL;
 
@@ -7,6 +8,7 @@ const api = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
+    Authorization: autoToken,
   },
 });
 
@@ -35,7 +37,7 @@ export const processApproval = async (payload: {
   action: "approved" | "rejected";
   data: any[]; // ApprovalItem[]
 }) => {
-  const res = await axios.post("/api/updateval/", payload);
+  const res = await api.post("/api/updateval/", payload);
   return res.data;
 };
 
