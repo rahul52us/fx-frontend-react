@@ -189,7 +189,7 @@ const fetchPoBalance = async (poNumber: string) => {
               return;
             }
             setShowError(true);
-            submitExportForm(values, actions, "form");
+            await submitExportForm(values, actions, "form");
           }}
         >
           {({

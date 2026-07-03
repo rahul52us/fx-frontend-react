@@ -102,7 +102,7 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
                                             return;
                                           }
                                           // setShowError(true);
-                                          submitForm(values, actions, "form");
+                                          await submitForm(values, actions, "form");
                                         }}
         >
           {({

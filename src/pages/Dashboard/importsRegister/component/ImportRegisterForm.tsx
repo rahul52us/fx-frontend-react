@@ -167,7 +167,7 @@ const fetchPoBalance = async (poNumber: string) => {
               return;
               } else {
                 setShowError(true);
-                submitImportForm(values, actions, "form");
+                await submitImportForm(values, actions, "form");
               }
           }}
         >

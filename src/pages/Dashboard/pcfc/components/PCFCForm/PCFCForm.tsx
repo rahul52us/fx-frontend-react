@@ -212,7 +212,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   }
 
   setShowError(true);
-  submitForm(values, actions, "form");
+  await submitForm(values, actions, "form");
 }}
         >
           {({ values, handleChange, setFieldValue, isSubmitting, errors, touched, handleSubmit }: any) => (

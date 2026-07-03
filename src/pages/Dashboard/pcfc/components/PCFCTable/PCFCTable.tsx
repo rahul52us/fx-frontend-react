@@ -105,14 +105,14 @@ const PCFCTable = () => {
         });
       }
     } catch (error: any) {
-      // toast({
-      //   title: "Error",
-      //   description: error?.response?.data?.message || "Something went wrong.",
-      //   status: "error",
-      //   duration: 5000,
-      //   isClosable: true,
-      //   position: "top-right",
-      // });
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Something went wrong.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
     } finally {
       actions.setSubmitting(false);
     }

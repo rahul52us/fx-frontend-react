@@ -12,7 +12,7 @@ const api = axios.create({
   },
 });
 
-// Optional: attach token dynamically
+// Optional: attach token dynamicallyon th
 // export const setAuthToken = (token: string) => {
 //   api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 // };

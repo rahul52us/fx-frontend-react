@@ -182,7 +182,7 @@ onSubmit={async (values, actions) => {
   }
 
   setShowError(true);
-  submitForm(values, actions, "form");
+  await submitForm(values, actions, "form");
 }}
           //  onSubmit={async (values, actions) => {
             //           values = extractFieldValue(values)

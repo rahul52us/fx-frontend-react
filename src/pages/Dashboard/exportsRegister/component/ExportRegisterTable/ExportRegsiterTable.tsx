@@ -127,6 +127,15 @@ const ExportRegisterTable = () => {
             errors: [{ row: 0, message: response.data.message || "Failed to upload excel data" }],
           });
           onStatusOpen();
+        } else {
+          toast({
+            title: "Submission failed",
+            description: "Unexpected server response.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
         }
       }
     } catch (error: any) {
@@ -138,6 +147,15 @@ const ExportRegisterTable = () => {
           errors: [{ row: 0, message: error.response?.data?.message || error.message || "An error occurred during upload" }],
         });
         onStatusOpen();
+      } else {
+        toast({
+          title: "Error",
+          description: error?.response?.data?.message || "Something went wrong.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
       }
     } finally {
       setIsUploading(false);

@@ -275,7 +275,7 @@ const getFirstErrorMessage = (errorObj: unknown): string | null => {
   }
 
   setShowError(true);
-  submitForm(values, actions, "form");
+  await submitForm(values, actions, "form");
 }}
           // onSubmit={(values, actions) => {
           //   submitForm(values, actions, "form");

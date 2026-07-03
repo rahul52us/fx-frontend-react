@@ -21,13 +21,13 @@ import RestrictedAccess from "../../../../../config/component/common/RestrictedA
 const EEFCTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onClose } = useDisclosure();
   const toast = useToast();
   const url = process.env.REACT_APP_FX_BASE_URL
   const { deleteItem } = useDeleteItem();
 
   // Permission checks
-  const { canAdd, canEdit, canDelete, canView } = usePermission('eefcRegister');
+  const {  canEdit, canDelete, canView } = usePermission('eefcRegister');
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     try {
@@ -187,10 +187,6 @@ const EEFCTable = () => {
               totalPages: totalPages,
             },
             actionBtn: {
-              addKey: {
-                showAddButton: canAdd,
-                function: onOpen,
-              },
               editKey: { showEditButton: canEdit },
               deleteKey: {
                 showDeleteButton: canDelete,
