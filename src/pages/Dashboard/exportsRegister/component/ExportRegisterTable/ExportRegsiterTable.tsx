@@ -560,7 +560,7 @@ const ExportRegisterTable = () => {
                 >
                   <option value="shipment">Shipment</option>
                   <option value="confirmed_order">Confirmed Order</option>
-                  <option value="forecast">Forecast</option>
+                  {/* <option value="forecast">Forecast</option> */}
                 </Select>
               </Box>
               <Flex align="flex-end">
@@ -585,8 +585,8 @@ const ExportRegisterTable = () => {
           columns={ExportRegisterTableColumns}
           loading={loading}
           actions={{
-            search: { 
-              show: true, 
+            search: {
+              show: true,
               searchValue: filterState.search,
               onSearchChange: (e: any) => {
                 setFilterState((prev: any) => ({ ...prev, search: e.target.value }));

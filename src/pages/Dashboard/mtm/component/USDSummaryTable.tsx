@@ -51,7 +51,7 @@ const metrics = [
   { label: "Benchmark Rate ", key: "benchmarkRateLcBcShifting", isRate: true },
   { label: "LC/BC Direct", key: "lcBcDirect" },
   { label: "Benchmark Rate ", key: "benchmarkRateLcBcDirect", isRate: true },
-  { label: "Forecast", key: "forecast" },
+  // { label: "Forecast", key: "forecast" },
   { label: "Benchmark Rate", key: "benchmarkRateForecast", isRate: true },
   { divider: true },
   { label: "Total Imports", key: "totalImports", isTotal: true },
@@ -98,7 +98,7 @@ const formatValue = (val: any, isRate: boolean, factor: number = 1, isPercentage
   const num = parseFloat(val);
   if (isNaN(num)) return val;
   if (num === 0) return "—";
-  
+
   if (isRate) return num.toFixed(4);
   if (isPercentage) return (num * 100).toFixed(2) + "%";
 
@@ -173,7 +173,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
         } else {
           value = metricData[col];
         }
-        
+
         if (value === undefined || value === null || value === 0) {
           rowValues[col] = "-";
         } else {
@@ -202,7 +202,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
       row.eachCell((cell, colNumber) => {
         // Basic alignment
         cell.alignment = { vertical: "middle", horizontal: colNumber === 1 ? "left" : "right" };
-        
+
         // Borders
         cell.border = {
           top: { style: "thin", color: { argb: "FFE2E8F0" } },
@@ -250,7 +250,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
 
   const columns = useMemo(() => {
     if (!data) return [];
-    
+
     // Find first metric that is an object and has keys
     const firstObjMetric = Object.values(data).find(
       (v) => v !== null && typeof v === "object" && Object.keys(v).length > 0
@@ -293,11 +293,11 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
 
   return (
     <Box bg={bg} rounded="2xl" shadow="xl" overflow="hidden" border="1px solid" borderColor={borderColor}>
-      <Flex 
-        p={6} 
-        borderBottom="1px solid" 
-        borderColor={borderColor} 
-        justify="space-between" 
+      <Flex
+        p={6}
+        borderBottom="1px solid"
+        borderColor={borderColor}
+        justify="space-between"
         align="center"
         wrap="wrap"
         gap={4}
@@ -306,11 +306,11 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
         Summary Metrics
         </Heading>
         <Flex align="center" gap={3}>
-          <ChakraSelect 
-            w="180px" 
-            size="sm" 
+          <ChakraSelect
+            w="180px"
+            size="sm"
             rounded="lg"
-            value={denomination.value} 
+            value={denomination.value}
             onChange={(e) => {
               const selected = denominations.find(d => d.value === e.target.value);
               if (selected) setDenomination(selected);
@@ -335,13 +335,13 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
 
       <Box overflowX="auto" maxH={'80vh'} position="relative">
         {loading && data && Object.keys(data).length > 0 && (
-          <Center 
-            position="absolute" 
-            top={0} 
-            left={0} 
-            right={0} 
-            bottom={0} 
-            bg="whiteAlpha.700" 
+          <Center
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="whiteAlpha.700"
             zIndex={20}
             backdropFilter="blur(2px)"
           >
@@ -386,8 +386,8 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
               const isSticky = (metric as any).key === "currentFwdrate";
 
               return (
-                <Tr 
-                  key={metric.key} 
+                <Tr
+                  key={metric.key}
                   _hover={{ bg:"teal.50" }}
                   bg={isSticky ? "teal.50" : (isHighlight ? "teal.100" : "transparent")}
                   position={isSticky ? "sticky" : "relative"}
@@ -416,14 +416,14 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
                     } else {
                       value = metricData[col];
                     }
-                    
+
                     const numVal = parseFloat(value);
                     const color = !metric.isRate && !metric.isPercentage && numVal < 0 ? "red.500" : undefined;
-                    
+
                     return (
-                      <Td 
-                        key={col} 
-                        textAlign="right" 
+                      <Td
+                        key={col}
+                        textAlign="right"
                         fontWeight={isSticky || metric.isTotal || metric.isINR ? "bold" : "normal"}
                         color={color}
                         position={isSticky ? "sticky" : "relative"}

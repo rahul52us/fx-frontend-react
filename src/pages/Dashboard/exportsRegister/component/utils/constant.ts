@@ -28,8 +28,8 @@ export const exposureTypeOptions = [
 
 export const exportRegisterexposureTypeOptions = [
   { label: "Shipment", value: "shipment" },
-  { label: "Confirmed Order", value: "confirmed_order" },
-  { label: "Forecast", value: "forecast" },
+  { label: "Confirmed Order", value: "confirmed_order" }
+  // { label: "Forecast", value: "forecast" },
 ];
 
 export const priorityOptions = [
