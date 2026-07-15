@@ -21,9 +21,8 @@ import store from "../../../../../store/store";
 import {
   RegisterFilterPanel,
   createFilterState,
-  filterTableData,
+  getRegisterApiFilters,
   hasActiveFilters,
-  paginateRows,
 } from "../../../common/registerTableFilters";
 import CancelledList from "./CancelledList";
 import SettledList from "./SettledList";
@@ -44,7 +43,6 @@ const ForwardRegisterTable = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const [exportData, setExportData] = useState<any[]>([]);
-  const [filteredRows, setFilteredRows] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [editRow, setEditRow] = useState<any | null>(null);
   const [originalRow, setOriginalRow] = useState<any | null>(null);
@@ -247,51 +245,34 @@ const ForwardRegisterTable = () => {
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 10;
 
-  const fetchForwardRegisterPage = useCallback(async (currentPage = 1) => {
+  const fetchForwardRegisterPage = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     const response = await axios.post(`${url}/forwardregister/view/`, {
       userToken: "abcxyz",
       page: currentPage,
       limit: rowsPerPage,
       userId: viewAsUserId,
+      filters: getRegisterApiFilters(filters),
     });
     const result = response.data?.data?.data || [];
     const total = response.data?.data?.total_pages || 1;
     return { result, total };
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [url, rowsPerPage, viewAsUserId, appliedFilters]);
 
-  const fetchAllForwardRegisterData = useCallback(async () => {
+  const fetchAllForwardRegisterData = useCallback(async (filters = appliedFilters) => {
     const response = await axios.post(`${url}/forwardregister/view/`, {
       userToken: "abcxyz",
       page: 1,
       limit: 1000000,
       userId: viewAsUserId,
+      filters: getRegisterApiFilters(filters),
     });
     return response.data?.data?.data || [];
-  }, [url, viewAsUserId]);
+  }, [url, viewAsUserId, appliedFilters]);
 
   const fetchExportRegisterData = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     setLoading(true);
     try {
-      if (hasActiveFilters(filters)) {
-        const allRows = await fetchAllForwardRegisterData();
-        const filtered = filterTableData(allRows, filters, {
-          dateKeys: ["createdAt", "bookingDate", "dueDateFrom", "dueDateTo"],
-          searchKeys: [
-            "bank",
-            "bussinessUnit",
-            "currency",
-            "hedgeDealReferenceNumber",
-            "status",
-          ],
-        });
-        setFilteredRows(filtered);
-        setExportData(paginateRows(filtered, currentPage, rowsPerPage));
-        setTotalPages(Math.max(1, Math.ceil(filtered.length / rowsPerPage)));
-        return;
-      }
-
-      const { result, total } = await fetchForwardRegisterPage(currentPage);
-      setFilteredRows(null);
+      const { result, total } = await fetchForwardRegisterPage(currentPage, filters);
       setExportData(result);
       setTotalPages(total);
     } catch (error) {
@@ -299,7 +280,7 @@ const ForwardRegisterTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [appliedFilters, fetchAllForwardRegisterData, fetchForwardRegisterPage, rowsPerPage]);
+  }, [appliedFilters, fetchForwardRegisterPage]);
 
   const handleFilterChange = (e: any) => {
     const { name, value } = e.target;
@@ -342,17 +323,12 @@ const ForwardRegisterTable = () => {
     const initialState = createFilterState(filterFields);
     setFilterState(initialState);
     setAppliedFilters(null);
-    setFilteredRows(null);
     setPage(1);
     fetchExportRegisterData(1, null);
   };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    if (filteredRows) {
-      setExportData(paginateRows(filteredRows, newPage, rowsPerPage));
-      return;
-    }
     fetchExportRegisterData(newPage);
   };
 
@@ -377,13 +353,7 @@ const ForwardRegisterTable = () => {
   const handleDownloadAll = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${url}/forwardregister/view/`, {
-        userToken: "abcxyz",
-        page: 1,
-        limit: 1000000,
-        userId: viewAsUserId,
-      });
-      const result = filteredRows ?? (response.data?.data?.data || []);
+      const result = await fetchAllForwardRegisterData(appliedFilters);
       if (result.length > 0) {
         // Remove unwanted fields before export
         const exportData = result.map(({ _id, __v, userId, exposureRefs, cancelledList, settledList, ...rest }: any) => rest);

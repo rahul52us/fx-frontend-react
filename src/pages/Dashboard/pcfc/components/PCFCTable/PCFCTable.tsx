@@ -22,14 +22,12 @@ import store from "../../../../../store/store";
 import {
   RegisterFilterPanel,
   createFilterState,
-  filterTableData,
+  getRegisterApiFilters,
   hasActiveFilters,
-  paginateRows,
 } from "../../../common/registerTableFilters";
 
 const PCFCTable = () => {
   const [exportData, setExportData] = useState<any[]>([]);
-  const [filteredRows, setFilteredRows] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [editRow, setEditRow] = useState<any | null>(null);
   const [originalRow, setOriginalRow] = useState<any | null>(null);
@@ -138,10 +136,16 @@ const PCFCTable = () => {
   const rowsPerPage = 10;
   const { viewAsUserId } = store.auth;
 
-  const fetchPcfcPage = useCallback(async (currentPage = 1) => {
+  const fetchPcfcPage = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     const response = await axios.post(
       `${url}/pcfcregister/view/`,
-      { userToken: "abcxyz", page: currentPage, limit: rowsPerPage, userId: viewAsUserId },
+      {
+        userToken: "abcxyz",
+        page: currentPage,
+        limit: rowsPerPage,
+        userId: viewAsUserId,
+        filters: getRegisterApiFilters(filters),
+      },
       {
         headers: {
           Authorization: autoToken,
@@ -151,12 +155,18 @@ const PCFCTable = () => {
     const result = response.data?.data?.data || [];
     const total = response.data?.data?.total_pages || 1;
     return { result, total };
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [url, rowsPerPage, viewAsUserId, appliedFilters]);
 
-  const fetchAllPcfcData = useCallback(async () => {
+  const fetchAllPcfcData = useCallback(async (filters = appliedFilters) => {
     const response = await axios.post(
       `${url}/pcfcregister/view/`,
-      { userToken: "abcxyz", page: 1, limit: 1000000, userId: viewAsUserId },
+      {
+        userToken: "abcxyz",
+        page: 1,
+        limit: 1000000,
+        userId: viewAsUserId,
+        filters: getRegisterApiFilters(filters),
+      },
       {
         headers: {
           Authorization: autoToken,
@@ -164,30 +174,12 @@ const PCFCTable = () => {
       }
     );
     return response.data?.data?.data || [];
-  }, [url, viewAsUserId]);
+  }, [url, viewAsUserId, appliedFilters]);
 
   const fetchExportRegisterData = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     setLoading(true);
     try {
-      if (hasActiveFilters(filters)) {
-        const allRows = await fetchAllPcfcData();
-        const filtered = filterTableData(allRows, filters, {
-          dateKeys: ["createdAt", "pcfcInputDate", "drawdownDate", "dueDate"],
-          searchKeys: [
-            "bank",
-            "tradeReferenceNumber",
-            "currency",
-            "drawdownAmount",
-          ],
-        });
-        setFilteredRows(filtered);
-        setExportData(paginateRows(filtered, currentPage, rowsPerPage));
-        setTotalPages(Math.max(1, Math.ceil(filtered.length / rowsPerPage)));
-        return;
-      }
-
-      const { result, total } = await fetchPcfcPage(currentPage);
-      setFilteredRows(null);
+      const { result, total } = await fetchPcfcPage(currentPage, filters);
       setExportData(result);
       setTotalPages(total);
     } catch (error) {
@@ -195,7 +187,7 @@ const PCFCTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [appliedFilters, fetchAllPcfcData, fetchPcfcPage, rowsPerPage]);
+  }, [appliedFilters, fetchPcfcPage]);
 
   const applyFilters = () => {
     const nextFilters = hasActiveFilters(filterState) ? { ...filterState } : null;
@@ -235,17 +227,12 @@ const PCFCTable = () => {
     const initialState = createFilterState(filterFields);
     setFilterState(initialState);
     setAppliedFilters(null);
-    setFilteredRows(null);
     setPage(1);
     fetchExportRegisterData(1, null);
   };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    if (filteredRows) {
-      setExportData(paginateRows(filteredRows, newPage, rowsPerPage));
-      return;
-    }
     fetchExportRegisterData(newPage);
   };
 
@@ -270,7 +257,7 @@ const PCFCTable = () => {
   const handleDownloadAll = async () => {
     setLoading(true);
     try {
-      const result = filteredRows ?? (await fetchAllPcfcData());
+      const result = await fetchAllPcfcData(appliedFilters);
       if (result.length > 0) {
         // Remove unwanted fields before export
         const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);

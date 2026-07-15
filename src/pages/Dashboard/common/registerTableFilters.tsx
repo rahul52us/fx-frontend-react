@@ -61,6 +61,14 @@ export const createFilterState = (fields: RegisterFilterField[]): RegisterFilter
 export const hasActiveFilters = (filters: RegisterFilterState | null | undefined) =>
   !!filters && Object.values(filters).some((value) => `${value ?? ""}`.trim() !== "");
 
+export const getRegisterApiFilters = (filters: RegisterFilterState | null | undefined) =>
+  hasActiveFilters(filters)
+    ? {
+        ...filters,
+        isFilter: true,
+      }
+    : false;
+
 const normalizeValue = (value: any) => `${value ?? ""}`.trim().toLowerCase();
 
 const parseRowDate = (row: any, dateKeys: string[] = []) => {

@@ -15,9 +15,8 @@ import store from "../../../../../store/store";
 import {
   RegisterFilterPanel,
   createFilterState,
-  filterTableData,
+  getRegisterApiFilters,
   hasActiveFilters,
-  paginateRows,
 } from "../../../common/registerTableFilters";
 import HedgeDealsCell from "../../../exportsRegister/component/ExportRegisterTable/HedgeDealsPopover";
 import { dummyImportRegisterData } from "../../../exportsRegister/component/utils/constant";
@@ -48,7 +47,6 @@ const ImportRegisterTable = () => {
   } = useDisclosure();
   const [isUploading, setIsUploading] = useState(false);
   const [importData, setImportData] = useState<any[]>([]);
-  const [filteredRows, setFilteredRows] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -193,53 +191,34 @@ const ImportRegisterTable = () => {
   const rowsPerPage = 10;
   const { viewAsUserId } = store.auth;
 
-  const fetchImportRegisterPage = useCallback(async (currentPage = 1) => {
+  const fetchImportRegisterPage = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     const response = await axios.post(`${url}/importregister/view/`, {
       userToken: "abcdxyz",
       page: currentPage,
       limit: rowsPerPage,
       userId: viewAsUserId,
+      filters: getRegisterApiFilters(filters),
     });
     const result = response.data?.data?.data || [];
     const total = response.data?.data?.total_pages || 1;
     return { result, total };
-  }, [url, rowsPerPage, viewAsUserId]);
+  }, [url, rowsPerPage, viewAsUserId, appliedFilters]);
 
-  const fetchAllImportRegisterData = useCallback(async () => {
+  const fetchAllImportRegisterData = useCallback(async (filters = appliedFilters) => {
     const response = await axios.post(`${url}/importregister/view/`, {
       userToken: "abcdxyz",
       page: 1,
       limit: 1000000,
       userId: viewAsUserId,
+      filters: getRegisterApiFilters(filters),
     });
     return response.data?.data?.data || [];
-  }, [url, viewAsUserId]);
+  }, [url, viewAsUserId, appliedFilters]);
 
   const fetchImportRegisterData = useCallback(async (currentPage = 1, filters = appliedFilters) => {
     setLoading(true);
     try {
-      if (hasActiveFilters(filters)) {
-        const allRows = await fetchAllImportRegisterData();
-        const filtered = filterTableData(allRows, filters, {
-          dateKeys: ["createdAt", "poDate", "invoiceDate", "dueDate"],
-          searchKeys: [
-            "poNo",
-            "invoiceNo",
-            "partyName",
-            "bank",
-            "businessUnit",
-            "currency",
-            "remark",
-          ],
-        });
-        setFilteredRows(filtered);
-        setImportData(paginateRows(filtered, currentPage, rowsPerPage));
-        setTotalPages(Math.max(1, Math.ceil(filtered.length / rowsPerPage)));
-        return;
-      }
-
-      const { result, total } = await fetchImportRegisterPage(currentPage);
-      setFilteredRows(null);
+      const { result, total } = await fetchImportRegisterPage(currentPage, filters);
       setImportData(result);
       setTotalPages(total);
     } catch (error) {
@@ -247,7 +226,7 @@ const ImportRegisterTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [appliedFilters, fetchAllImportRegisterData, fetchImportRegisterPage, rowsPerPage]);
+  }, [appliedFilters, fetchImportRegisterPage]);
 
   const handleFilterChange = (e: any) => {
     const { name, value } = e.target;
@@ -290,7 +269,6 @@ const ImportRegisterTable = () => {
     const initialState = createFilterState(filterFields);
     setFilterState(initialState);
     setAppliedFilters(null);
-    setFilteredRows(null);
     setPage(1);
     fetchImportRegisterData(1, null);
   };
@@ -305,7 +283,7 @@ const ImportRegisterTable = () => {
   const handleDownloadAll = async () => {
     setLoading(true);
     try {
-      const result = filteredRows ?? await fetchAllImportRegisterData();
+      const result = await fetchAllImportRegisterData(appliedFilters);
       if (result.length > 0) {
         // Remove unwanted fields before export
         const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
@@ -341,10 +319,6 @@ const ImportRegisterTable = () => {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    if (filteredRows) {
-      setImportData(paginateRows(filteredRows, newPage, rowsPerPage));
-      return;
-    }
     fetchImportRegisterData(newPage);
   };
 
