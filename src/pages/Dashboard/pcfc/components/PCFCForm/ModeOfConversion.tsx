@@ -1,55 +1,83 @@
 // ModeOfConversion.tsx
 import { Box, FormControl, FormLabel, HStack, Switch } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
+import store from "../../../../../store/store";
+import {
+  createEmptySpotRow,
+  getBankMarginFromForm,
+} from "./utils/spotHelpers";
+
+const EMPTY_FORWARD_ROW = {
+  hedgeDealRefNo: "",
+  outstandingAmount: "",
+  utilizationAmount: "",
+  hedgeRate: "",
+  forwardPremium: "",
+  cashTomSpot: "",
+  deliveryDateFrom: "",
+  deliveryDateTo: "",
+  netSettlementRate: "0.0000",
+};
 
 const ModeOfConversion = () => {
-  const { values, setFieldValue }: any = useFormikContext();
+  const { values, setValues }: any = useFormikContext();
+  const { auth: { banksData } } = store;
 
-  // add 1 default row when toggled ON, clear when OFF
-  const handleSpotToggle = (e: any) => {
+  const handleSpotToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = e.target.checked;
-    setFieldValue("isSpotEnabled", isChecked);
 
-    if (isChecked && (!values.spotList || values.spotList.length === 0)) {
-      setFieldValue("spotList", [
+    if (isChecked) {
+      const bankMargin = getBankMarginFromForm(values.bank, banksData);
+      setValues(
         {
-          amountConverted: "",
-          spotBooked: "",
-          cashTomSpot: "",
-          bankMargin: "",
-          netConversionRate: 0,
+          ...values,
+          isSpotEnabled: true,
+          spotList:
+            values.spotList?.length > 0
+              ? values.spotList
+              : [createEmptySpotRow(bankMargin)],
         },
-      ]);
+        false
+      );
+      return;
     }
 
-    if (!isChecked) {
-      setFieldValue("spotList", []);
-    }
+    setValues(
+      {
+        ...values,
+        isSpotEnabled: false,
+        spotList: [],
+      },
+      false
+    );
   };
 
-  const handleForwardToggle = (e: any) => {
+  const handleForwardToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = e.target.checked;
-    setFieldValue("isForwardEnabled", isChecked);
 
-    if (isChecked && (!values.forwardList || values.forwardList.length === 0)) {
-      setFieldValue("forwardList", [
+    if (isChecked) {
+      setValues(
         {
-          hedgeDealRefNo: "",
-          outstandingAmount: "",
-          utilizationAmount: "",
-          hedgeRate: "",
-          forwardPremium: "",
-          cashTomSpot: "",
-          deliveryDateFrom: "",
-          deliveryDateTo: "",
-          netSettlementRate: 0,
+          ...values,
+          isForwardEnabled: true,
+          forwardList:
+            values.forwardList?.length > 0
+              ? values.forwardList
+              : [{ ...EMPTY_FORWARD_ROW }],
         },
-      ]);
+        false
+      );
+      return;
     }
 
-    if (!isChecked) {
-      setFieldValue("forwardList", []);
-    }
+    setValues(
+      {
+        ...values,
+        isForwardEnabled: false,
+        forwardList: [],
+      },
+      false
+    );
   };
 
   return (

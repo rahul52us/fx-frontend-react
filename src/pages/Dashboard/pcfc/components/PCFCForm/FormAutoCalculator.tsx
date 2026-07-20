@@ -8,25 +8,18 @@ const FormAutoCalculator = () => {
   useEffect(() => {
     const floatRate = parseFloat(values.floatingInterestRate) || 0;
     const spread = parseFloat(values.bankSpread) || 0;
-
     const totalInterest = (floatRate + spread).toFixed(2);
 
-    if (values.totalInterestRate !== totalInterest) {
-      setFieldValue("totalInterestRate", totalInterest);
+    if (String(values.totalInterestRate) !== totalInterest) {
+      setFieldValue("totalInterestRate", totalInterest, false);
     }
-  }, [
-    values.floatingInterestRate,
-    values.bankSpread,
-    values.totalInterestRate,
-    setFieldValue,
-  ]);
+  }, [values.floatingInterestRate, values.bankSpread, setFieldValue]);
 
   // B. Spot + Forward Weighted Drawdown Rate
   useEffect(() => {
     let totalAmount = 0;
     let weightedSum = 0;
 
-    // Spot
     if (values.isSpotEnabled && values.spotList?.length) {
       values.spotList.forEach((item: any) => {
         const amt = parseFloat(item.amountConverted) || 0;
@@ -37,7 +30,6 @@ const FormAutoCalculator = () => {
       });
     }
 
-    // Forward
     if (values.isForwardEnabled && values.forwardList?.length) {
       values.forwardList.forEach((item: any) => {
         const amt = parseFloat(item.utilizationAmount) || 0;
@@ -50,21 +42,20 @@ const FormAutoCalculator = () => {
 
     const avgRate =
       totalAmount > 0 ? (weightedSum / totalAmount).toFixed(4) : "0";
+    const nextDrawdownAmount = totalAmount.toFixed(2);
 
     if (Number(values.drawdownAmount) !== totalAmount) {
-      setFieldValue("drawdownAmount", totalAmount.toFixed(2));
+      setFieldValue("drawdownAmount", nextDrawdownAmount, false);
     }
 
-    if (values.drawdownRate !== avgRate) {
-      setFieldValue("drawdownRate", avgRate);
+    if (String(values.drawdownRate) !== avgRate) {
+      setFieldValue("drawdownRate", avgRate, false);
     }
   }, [
     values.isSpotEnabled,
     values.isForwardEnabled,
     values.spotList,
     values.forwardList,
-    values.drawdownAmount,
-    values.drawdownRate,
     setFieldValue,
   ]);
 

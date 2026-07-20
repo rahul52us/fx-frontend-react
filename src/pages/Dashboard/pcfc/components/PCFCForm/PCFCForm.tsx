@@ -1,6 +1,6 @@
 import { Box, Button, Flex, SimpleGrid, useToast, VStack } from "@chakra-ui/react";
 import { Formik, Form as FormikForm } from "formik";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import * as Yup from "yup";
 import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput"; // Adjust path as needed
@@ -15,13 +15,17 @@ import ConversionManager from "./ConversionManager";
 import FormAutoCalculator from "./FormAutoCalculator";
 import ModeOfConversion from "./ModeOfConversion";
 import { getPcfcInitialValues } from "./utils/constant";
+import {
+  computeSpotNetRate,
+  getBankMarginFromForm,
+} from "./utils/spotHelpers";
 
 const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const [showError, setShowError] = useState(false); // Initially false, true on submit
   const isEdit = Boolean(editData);
   const {storeEdited, editLoading} = useStoreEdited();
   const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
-  const validationSchema = Yup.object().shape({
+  const validationSchema = useMemo(() => Yup.object().shape({
     drawdownDate: Yup.string().required("Drawdown Date is required"),
     dueDate: Yup.string().required("Due Date is required"),
     businessUnit: Yup.mixed().required("Business Unit is required"),
@@ -91,15 +95,15 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
           .min(1, "At least one Forward entry is required"),
       otherwise: (schema) => schema.notRequired(),
     }),
-  });
+  }), []);
 
   const toast = useToast();
-  const handleFormSubmit = (handleSubmit: any, errors: any) => {
+  const handleFormSubmit = async (handleSubmit: any, validateForm: any) => {
     setShowError(true);
 
-    // Check if there are errors
-    if (Object.keys(errors).length > 0) {
-      const firstError = Object.values(errors)[0] as string;
+    const validationErrors = await validateForm();
+    if (validationErrors && Object.keys(validationErrors).length > 0) {
+      const firstError = Object.values(validationErrors)[0] as string;
       toast({
         title: "Validation Error",
         description: firstError || "Please fill all required fields correctly",
@@ -108,6 +112,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
         isClosable: true,
         position: "top-right",
       });
+      return;
     }
 
     handleSubmit();
@@ -119,9 +124,10 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
       <Box px={2}>
         <Formik
           initialValues={getPcfcInitialValues(editData)}
-          //  initialValues={pcfcInitialValues}
           validationSchema={validationSchema}
-          enableReinitialize// Prevent resets on typing
+          validateOnChange={false}
+          validateOnBlur={false}
+          enableReinitialize
             // onSubmit={async (values, actions) => {
             //                     values = extractFieldValue(values)
             //                     if (isEdit) {
@@ -215,7 +221,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   await submitForm(values, actions, "form");
 }}
         >
-          {({ values, handleChange, setFieldValue, isSubmitting, errors, touched, handleSubmit }: any) => (
+          {({ values, handleChange, setFieldValue, isSubmitting, errors, touched, handleSubmit, validateForm }: any) => (
             <FormikForm>
               {/* Insert the Logic Component Here */}
               <FormAutoCalculator />
@@ -274,25 +280,21 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   options={banksData}
   value={values.bank}
   onChange={(opt: any) => {
-    setFieldValue("bank", opt);
+    setFieldValue("bank", opt, false);
 
-    // ✅ Auto-populate bankMargin into every existing spot row
-    const selectedBank = banksData.find((b: any) => b.value === opt?.value);
-    const margin = selectedBank?.bankMargin ?? "";
+    const margin = getBankMarginFromForm(opt, banksData);
 
     if (values.spotList?.length > 0) {
-      const updatedSpotList = values.spotList.map((spot: any) => {
-        const spotBooked = parseFloat(spot.spotBooked) || 0;
-        const cashTom = parseFloat(spot.cashTomSpot) || 0;
-        const marginNum = parseFloat(margin) || 0;
-        const netRate = spotBooked - cashTom - marginNum;
-        return {
-          ...spot,
-          bankMargin: margin,
-          netConversionRate: netRate ? netRate.toFixed(4) : "0.0000",
-        };
-      });
-      setFieldValue("spotList", updatedSpotList);
+      const updatedSpotList = values.spotList.map((spot: any) => ({
+        ...spot,
+        bankMargin: margin,
+        netConversionRate: computeSpotNetRate(
+          spot.spotBooked,
+          spot.cashTomSpot,
+          margin
+        ),
+      }));
+      setFieldValue("spotList", updatedSpotList, false);
     }
   }}
   error={touched.bank && errors.bank}
@@ -393,7 +395,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                     transition="transform 0.3s ease-in-out"
                     size="lg"
                     isLoading={isSubmitting || editLoading}
-                    onClick={() => handleFormSubmit(handleSubmit, errors)}
+                    onClick={() => handleFormSubmit(handleSubmit, validateForm)}
                   >
                     {isEdit ? "Update" : "Submit"}
                   </Button>

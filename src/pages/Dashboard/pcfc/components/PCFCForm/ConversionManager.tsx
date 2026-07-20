@@ -14,6 +14,11 @@ import CustomInput from "../../../../../config/component/CustomInput/CustomInput
 import store from "../../../../../store/store";
 import { forwardRegDataAllData } from "./dummyData";
 import HedgeDealSelector from "./HedgeDealSelector";
+import {
+  computeSpotNetRate,
+  createEmptySpotRow,
+  getBankMarginFromForm,
+} from "./utils/spotHelpers";
 
 const ConversionManager = ({ showError }: any) => {
   // const { values, setFieldValue, errors, touched }: any = useFormikContext();
@@ -26,101 +31,70 @@ const ConversionManager = ({ showError }: any) => {
     field: string,
     value: any
   ) => {
-    // build updated row first (avoids race-cond)
     const currentRow = values.spotList?.[index] || {};
     const updatedRow = {
       ...currentRow,
       [field]: value,
     };
 
-    const spot = parseFloat(updatedRow.spotBooked) || 0;
-    const cashTom = parseFloat(updatedRow.cashTomSpot) || 0;
-    const margin = parseFloat(updatedRow.bankMargin) || 0;
+    updatedRow.netConversionRate = computeSpotNetRate(
+      updatedRow.spotBooked,
+      updatedRow.cashTomSpot,
+      updatedRow.bankMargin
+    );
 
-    // Excel: Net Conversion Rate = Spot + Cash/Tom - Bank Margin
-    const netRate = spot - cashTom - margin;
-    updatedRow.netConversionRate = netRate ? netRate.toFixed(4) : "0.0000";
-
-    setFieldValue(`spotList.${index}`, updatedRow);
+    setFieldValue(`spotList.${index}`, updatedRow, false);
   };
 
-  const getBankMargin = useCallback(() => {
-    const bankValue = typeof values.bank === "string"
-      ? values.bank
-      : values.bank?.value;
-    const found = banksData.find((b: any) => b.value === bankValue);
-    return found?.bankMargin ?? "";
-  }, [values.bank, banksData]);
+  const getBankMargin = useCallback(
+    () => getBankMarginFromForm(values.bank, banksData),
+    [values.bank, banksData]
+  );
 
+  // Sync bank margin when spot is enabled, bank changes, or rows are added.
+  // Intentionally omits full spotList from deps to avoid re-running on every keystroke.
   useEffect(() => {
-    if (!values.isSpotEnabled) return;
+    if (!values.isSpotEnabled || !values.spotList?.length) return;
 
     const margin = getBankMargin();
     if (!margin) return;
 
     let hasChanges = false;
-    const updatedSpotList = values.spotList?.map((row: any) => {
-      if (!row.bankMargin) {
-        hasChanges = true;
-        const spot = parseFloat(row.spotBooked) || 0;
-        const cashTom = parseFloat(row.cashTomSpot) || 0;
-        const marginNum = parseFloat(margin) || 0;
-        const netRate = spot - cashTom - marginNum;
-        return {
-          ...row,
-          bankMargin: margin,
-          netConversionRate: netRate ? netRate.toFixed(4) : "0.0000",
-        };
-      }
-      return row;
-    });
+    const updatedSpotList = values.spotList.map((row: any) => {
+      const computedNetRate = computeSpotNetRate(
+        row.spotBooked,
+        row.cashTomSpot,
+        margin
+      );
+      const normalizedMargin = String(margin);
 
-    if (hasChanges) {
-      setFieldValue("spotList", updatedSpotList);
-    }
-  }, [values.isSpotEnabled, getBankMargin, values.spotList, setFieldValue]); // ← fires when spot section is toggled on
-
-  // ✅ Also patch when bank changes while spot is already enabled
-  useEffect(() => {
-    if (!values.isSpotEnabled) return;
-
-    const margin = getBankMargin();
-    if (!margin) return;
-
-    let hasChanges = false;
-    const updatedSpotList = values.spotList?.map((row: any) => {
-      const spot = parseFloat(row.spotBooked) || 0;
-      const cashTom = parseFloat(row.cashTomSpot) || 0;
-      const marginNum = parseFloat(margin) || 0;
-      const netRate = spot - cashTom - marginNum;
-      const computedNetRate = netRate ? netRate.toFixed(4) : "0.0000";
-
-      if (row.bankMargin !== margin || row.netConversionRate !== computedNetRate) {
+      if (
+        String(row.bankMargin ?? "") !== normalizedMargin ||
+        String(row.netConversionRate ?? "") !== computedNetRate
+      ) {
         hasChanges = true;
         return {
           ...row,
-          bankMargin: margin,
+          bankMargin: normalizedMargin,
           netConversionRate: computedNetRate,
         };
       }
+
       return row;
     });
 
     if (hasChanges) {
-      setFieldValue("spotList", updatedSpotList);
+      setFieldValue("spotList", updatedSpotList, false);
     }
-  }, [values.bank, getBankMargin, values.isSpotEnabled, values.spotList, setFieldValue]); // ← fires when bank changes
+  }, [
+    values.isSpotEnabled,
+    values.bank,
+    values.spotList?.length,
+    getBankMargin,
+    setFieldValue,
+  ]);
 
-  // ✅ Pre-fill new rows with bank margin
-  const getEmptySpotRow = () => ({
-    conversionRefNo: "",
-    amountConverted: "",
-    spotBooked: "",
-    cashTomSpot: "",
-    bankMargin: getBankMargin(),
-    netConversionRate: "0.0000",
-  });
-  
+  const getEmptySpotRow = () => createEmptySpotRow(getBankMargin());
 
   /* ------------ FORWARD ROW CALCULATION ----------- */
   const handleForwardFieldChange = (
