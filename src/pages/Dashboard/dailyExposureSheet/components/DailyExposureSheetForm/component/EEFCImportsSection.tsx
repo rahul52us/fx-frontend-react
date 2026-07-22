@@ -25,31 +25,76 @@ const EEFCImportsSection = ({ showError }: any) => {
     setFieldValue(`eefcImportsList.${index}`, updatedRow);
   };
 
+  // useEffect(() => {
+  // const fetchEEFCData = async () => {
+  //   try {
+  //     setLoading(true)
+  //     const res = await axios.post(`${url}/eefcregister/eefcdata/`);
+
+  //     const { prevClosingBalance,prevClosingBalanceInInr,weigtedAverageRate } = res?.data?.data || {};
+
+  //     // Ensure at least one row exists
+  //     if (!values.eefcImportsList || values.eefcImportsList.length === 0) {
+  //       setFieldValue("eefcImportsList", [
+  //         {
+  //           amount: "",
+  //           // settlementRate: "",
+  //           closingAmount: prevClosingBalance ?? 0,
+  //           closingAmountInr:prevClosingBalanceInInr ?? 0,
+  //           settlementRate: weigtedAverageRate ?? 0
+  //         },
+  //       ]);
+  //     } else {
+  //       // Only update 0th index
+  //       setFieldValue(
+  //         "eefcImportsList.0.closingAmount",
+  //         prevClosingBalance ?? 0
+  //       );
+  //       setFieldValue(
+  //         "eefcImportsList.0.closingAmountInr",
+  //         prevClosingBalanceInInr ?? 0
+  //       );
+  //       setFieldValue(
+  //         "eefcImportsList.0.settlementRate",
+  //         weigtedAverageRate ?? 0
+  //       );
+  //     }
+  //   } catch (err) {
+  //     console.error("EEFC fetch error", err);
+  //   }finally{
+  //     setLoading(false)
+  //   }
+  // };
+
+  // fetchEEFCData();
+  // }, [url, values.eefcImportsList, setFieldValue]);
+
+
+
   useEffect(() => {
   const fetchEEFCData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
+
       const res = await axios.post(`${url}/eefcregister/eefcdata/`);
 
-      const { prevClosingBalance,prevClosingBalanceInInr,weigtedAverageRate } = res?.data?.data || {};
+      const {
+        prevClosingBalance,
+        prevClosingBalanceInInr,
+        weigtedAverageRate,
+      } = res.data.data || {};
 
-      // Ensure at least one row exists
-      if (!values.eefcImportsList || values.eefcImportsList.length === 0) {
+      if (!values.eefcImportsList?.length) {
         setFieldValue("eefcImportsList", [
           {
             amount: "",
-            // settlementRate: "",
             closingAmount: prevClosingBalance ?? 0,
-            closingAmountInr:prevClosingBalanceInInr ?? 0,
-            settlementRate: weigtedAverageRate ?? 0
+            closingAmountInr: prevClosingBalanceInInr ?? 0,
+            settlementRate: weigtedAverageRate ?? 0,
           },
         ]);
       } else {
-        // Only update 0th index
-        setFieldValue(
-          "eefcImportsList.0.closingAmount",
-          prevClosingBalance ?? 0
-        );
+        setFieldValue("eefcImportsList.0.closingAmount", prevClosingBalance ?? 0);
         setFieldValue(
           "eefcImportsList.0.closingAmountInr",
           prevClosingBalanceInInr ?? 0
@@ -59,17 +104,13 @@ const EEFCImportsSection = ({ showError }: any) => {
           weigtedAverageRate ?? 0
         );
       }
-    } catch (err) {
-      console.error("EEFC fetch error", err);
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
   fetchEEFCData();
-  }, [url, values.eefcImportsList, setFieldValue]);
-
-
+}, []); // or [url]
 
 
   return (
