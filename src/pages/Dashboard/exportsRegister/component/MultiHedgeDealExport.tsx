@@ -25,7 +25,8 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     try {
       setLoading(true);
       const res = await axios.post(`${url}/forwardregister/hedgedealid/`, {
-        exposureType: exposureType,
+        exposureType,
+        documentDueDate: values?.dueDate || "",
       });
       if (res?.data?.status === "success") {
         setHedgeDealsMaster(res.data.data);
@@ -39,7 +40,7 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [hedgeDealsMaster.length, url, exposureType, toast]);
+  }, [hedgeDealsMaster.length, url, exposureType, values?.dueDate, toast]);
 
   const handleAddClick = async (push: any) => {
     if (hedgeDealsMaster.length === 0) {
