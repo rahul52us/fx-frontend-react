@@ -21,7 +21,7 @@ const ForwardContractSection = ({
   businessUnit,
   bank,
   exposureType,
-  documentDueDate
+  // documentDueDate
 }: any) => {
   const { values, setFieldValue, touched, errors }: any =
     useFormikContext();
@@ -54,7 +54,8 @@ const ForwardContractSection = ({
           bank,
           businessUnit,
           exposureType,
-          documentDueDate
+          // documentDueDate,
+          transactionDate: values?.settlementDate || "",
         }
       );
 
@@ -73,7 +74,7 @@ const ForwardContractSection = ({
     } finally {
       setLoading(false);
     }
-  }, [bank, businessUnit, exposureType, documentDueDate, url, toast]);
+  }, [bank, businessUnit, exposureType, values?.settlementDate, url, toast]);
 
   useEffect(() => {
     fetchHedgeDeals();

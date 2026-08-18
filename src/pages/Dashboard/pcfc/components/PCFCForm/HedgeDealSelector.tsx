@@ -42,7 +42,8 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
         bank: typeof bank === "object" ? bank?.value ?? "" : bank ?? "",
         businessUnit: typeof businessUnit === "object" ? businessUnit?.value ?? "" : businessUnit ?? "",
         exposureType: "export",
-        documentDueDate: dueDate ?? "",
+        // documentDueDate: dueDate ?? "",
+        transactionDate: dueDate ?? "",
       });
       // const response = await axios.post(`${url}/forwardregister/hedgedealid/`,{
       //   bank: bank,

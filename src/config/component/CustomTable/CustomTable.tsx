@@ -10,6 +10,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Portal,
   Table,
   Tbody,
   Td,
@@ -167,7 +168,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   serial,
   loading,
   actions,
-  variant,
+  variant="striped",
   tableProps = {},
 }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -219,6 +220,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
               <MenuButton as={Button} variant="outline" borderRadius="full">
                 <Icon as={HiDotsVertical} />
               </MenuButton>
+            <Portal>
 
               <MenuList>
                 {actions?.actionBtn?.addKey?.showAddButton && (
@@ -261,6 +263,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   </MenuItem>
                 )}
               </MenuList>
+            </Portal>
             </Menu>
           )}
         </Flex>
@@ -281,7 +284,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
           tableLayout="fixed"
           {...tableProps.table}
         >
-          <Thead bgGradient={`linear(to-r, ${primaryColor}, #1A365D)`}>
+          <Thead bgGradient={`linear(to-r, ${primaryColor}, #1A365D)`} position={'sticky'} top={0} zIndex={1}>
             <Tr h="56px">
               {serial?.show && (
                 <Th color="white" fontSize="xs" whiteSpace="nowrap">

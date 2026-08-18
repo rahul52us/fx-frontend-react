@@ -387,7 +387,7 @@ const ConversionManager = ({ showError }: any) => {
                       w="full"
                       position="relative"
                     >
-                        <SimpleGrid columns={[1, 2, 3]} spacing={4}>
+              <SimpleGrid columns={[1, 2, 3]} spacing={4}>
   {/* New Hedge Deal Component */}
 <HedgeDealSelector
   index={index}
@@ -395,7 +395,7 @@ const ConversionManager = ({ showError }: any) => {
   bank={values.bank}
   businessUnit={values.businessUnit}
   // exposureType={values.exposureType}   // add this
-  dueDate={values.dueDate}             // add this
+  dueDate={values.drawdownDate}             // add this
   setFieldValue={setFieldValue}
   touched={touched.forwardList?.[index]}
   errors={errors.forwardList?.[index]}
