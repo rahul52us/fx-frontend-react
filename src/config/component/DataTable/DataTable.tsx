@@ -20,6 +20,7 @@ import { RiEditCircleFill } from "react-icons/ri";
 import { FcViewDetails } from "react-icons/fc";
 import { FiDelete } from "react-icons/fi";
 import Pagination from "../pagination/Pagination";
+import { formatTableDate, isTableDateColumn } from "../../constant/dateUtils";
 
 interface DataTableInterface {
   columns: any[];
@@ -97,7 +98,17 @@ const TableRow = () => {
           return (
             <Tr key={index}>
               {columns.map((col: any, index: number) => {
-                return <Td key={index}>{item[col.columnName]}</Td>
+                return (
+                  <Td key={index}>
+                    {isTableDateColumn({
+                      key: col.columnName,
+                      headerName: col.headerName,
+                      type: col.type,
+                    })
+                      ? formatTableDate(item[col.columnName])
+                      : item[col.columnName]}
+                  </Td>
+                )
               })}
               <Actions />
             </Tr>

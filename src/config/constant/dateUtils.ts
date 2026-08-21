@@ -4,6 +4,7 @@ export const SHORT_DATE_FORMAT: string = "MMM D, YYYY";
 export const MEDIUM_DATE_FORMAT: string = "MMMM D, YYYY";
 export const LONG_DATE_FORMAT: string = "dddd, MMMM D, YYYY";
 export const DDMMYYYY_FORMAT: string = "DD/MM/YYYY";
+export const DDMMYYYY_DASH_FORMAT: string = "DD-MM-YYYY";
 export const YYYYMMDD_FORMAT: string = "YYYY/MM/DD";
 
 export enum DateTimeOrder {
@@ -58,6 +59,62 @@ export function formatDate(date: Date, format?: string): string {
   catch {
     return "--"
   }
+}
+
+const TABLE_DATE_KEY_PATTERN =
+  /(date|dob|doj|createdat|updatedat|modifiedat|confirmedat|confirmationdate|publishedat|publisheddate|effectiveto|effectivefrom|disbursementfrom|startdate|enddate|duedate|bookingdate|invoicedate|bldate|podate|spotonbmkdate|premiumonbmkdate|drawdowndate|deliverydatefrom|deliverydateto|pcfcinputdate|forwardinputdate|forwardmodificationdate|exposureinputdate|exposuremodificationdate)/i;
+
+export function isTableDateColumn(column?: {
+  key?: string;
+  headerName?: string;
+  type?: string;
+}): boolean {
+  if (!column) return false;
+
+  if (column.type === "date") return true;
+
+  const key = (column.key || "").replace(/[^a-zA-Z]/g, "");
+  const headerName = (column.headerName || "").replace(/[^a-zA-Z]/g, "");
+
+  return TABLE_DATE_KEY_PATTERN.test(key) || TABLE_DATE_KEY_PATTERN.test(headerName);
+}
+
+export function formatTableDate(value: any): string {
+  if (value === undefined || value === null || value === "") {
+    return "--";
+  }
+
+  const rawValue =
+    typeof value === "string"
+      ? value.replace(/&#x[0-9a-f]+;?/gi, " ").trim()
+      : value;
+
+  if (typeof rawValue === "string") {
+    const dashSeparatedDateWithTime = rawValue.match(
+      /^(\d{2})-(\d{2})-(\d{4})(?:\s+\d{1,2}:\d{2}(?::\d{2})?.*)?$/
+    );
+    if (dashSeparatedDateWithTime) {
+      return `${dashSeparatedDateWithTime[1]}-${dashSeparatedDateWithTime[2]}-${dashSeparatedDateWithTime[3]}`;
+    }
+
+    const dotSeparatedDate = rawValue.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if (dotSeparatedDate) {
+      return `${dotSeparatedDate[1]}-${dotSeparatedDate[2]}-${dotSeparatedDate[3]}`;
+    }
+
+    const slashSeparatedDate = rawValue.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (slashSeparatedDate) {
+      return `${slashSeparatedDate[1]}-${slashSeparatedDate[2]}-${slashSeparatedDate[3]}`;
+    }
+  }
+
+  const momentDate = moment(rawValue);
+
+  if (!momentDate.isValid()) {
+    return String(value).replace(/\./g, "-");
+  }
+
+  return momentDate.format(DDMMYYYY_DASH_FORMAT);
 }
 
 export function manipulateDateWithMonth(date: Date, numberOfMonths: number, type: 'add' | 'sub'): string {

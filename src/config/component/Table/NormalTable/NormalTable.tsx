@@ -18,10 +18,12 @@ import Pagination from "../../pagination/Pagination";
 import TableLoader from "../../DataTable/TableLoader";
 import { inputBorderColor, inputBorderColorFocus, primaryColor, litePrimaryColor, whiteTextColor } from "../../../../globalColors";
 import { glassCardStyle } from "../../../../globalStyles";
+import { formatTableDate, isTableDateColumn } from "../../../constant/dateUtils";
 
 interface Column {
   headerName: string;
   key: string;
+  type?: string;
 }
 
 interface NormalTableProps {
@@ -132,7 +134,9 @@ const NormalTable = ({
                         textAlign="center"
                         minW={115}
                       >
-                        {row[column.key]}
+                        {isTableDateColumn(column)
+                          ? formatTableDate(row[column.key])
+                          : row[column.key]}
                       </Td>
                     ))}
                   </Tr>

@@ -74,7 +74,7 @@ const ExposureRefsCell = (row: any) => {
                   {/* Details */}
                   <Stack spacing={2}>
                     <LabelValue
-                      label="Outstanding Amount"
+                      label="Unhedged Amount"
                       value={ref.outStandingAmount}
                     />
                     <LabelValue

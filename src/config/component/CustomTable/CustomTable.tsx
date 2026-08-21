@@ -29,7 +29,10 @@ import { HiDotsVertical } from "react-icons/hi";
 import { IoMdInformationCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { litePrimaryColor, primaryColor } from "../../../globalColors";
-import { formatDate } from "../../constant/dateUtils";
+import {
+  formatTableDate,
+  isTableDateColumn,
+} from "../../constant/dateUtils";
 import Pagination from "../pagination/Pagination";
 import TableLoader from "./TableLoader";
 
@@ -112,10 +115,11 @@ const TableActions = ({ actions, column, row }: any) => {
 /* -------------------- Cell Renderer -------------------- */
 
 const GenerateRows = ({ column, row, action }: any) => {
-  switch (column.type) {
-    case "date":
-      return <Td whiteSpace="nowrap">{row[column.key] ? formatDate(row[column.key]) : "--"}</Td>;
+  if (isTableDateColumn(column)) {
+    return <Td whiteSpace="nowrap">{formatTableDate(row[column.key])}</Td>;
+  }
 
+  switch (column.type) {
     case "tooltip":
       return (
         <Td maxW="200px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">

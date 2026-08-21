@@ -13,7 +13,7 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import TableLoader from "../../../../../config/component/DataTable/TableLoader";
-import { formatDate } from "../../../../../config/constant/dateUtils";
+import { formatTableDate } from "../../../../../config/constant/dateUtils";
 
 const QuizTable = observer(({addData} : any) => {
   const {
@@ -65,7 +65,7 @@ const QuizTable = observer(({addData} : any) => {
                   <Td>{item.description?.length > 30 ? `${item.description?.substring(0,30)}...` : item.description}</Td>
                   <Td>{item?.totalChildData}</Td>
                   <Td>{item?.thumbnail?.name}</Td>
-                  <Td>{formatDate(item?.createdAt)}</Td>
+                  <Td>{formatTableDate(item?.createdAt)}</Td>
                 </Tr>
               )})
             }

@@ -243,7 +243,7 @@ export const dummyImportRegisterData = [
 export const dummyExporPOtData = [
   {
     poNo: "899",
-    poDate: "15.10.2025",
+    poDate: "15-10-2025",
     partyName: "name",
     bank: "bank name",
     businessUnit: "7",
@@ -254,7 +254,7 @@ export const dummyExporPOtData = [
   },
   {
     poNo: "8996666",
-    poDate: "15.10.2025",
+    poDate: "15-10-2025",
     partyName: "name",
     bank: "bank name",
     businessUnit: "7",

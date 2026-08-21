@@ -17,7 +17,7 @@ import store from "../../../../store/store";
 import StarRatingIcon from "../../../../config/component/StarRatingIcon/StarRatingIcon";
 import VideosList from "./VideosList";
 import TableLoader from "../../../../config/component/DataTable/TableLoader";
-import { formatDate } from "../../../../config/constant/dateUtils";
+import { formatTableDate } from "../../../../config/constant/dateUtils";
 
 interface IVideoList {
   title: string;
@@ -178,7 +178,7 @@ const VideosCategoryList = observer(({ title, open, close, setSelectedCategory, 
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {video.createdAt ? formatDate(video.createdAt) : "-"}
+                      {video.createdAt ? formatTableDate(video.createdAt) : "-"}
                     </Td>
                   </Tr>
                 ))}

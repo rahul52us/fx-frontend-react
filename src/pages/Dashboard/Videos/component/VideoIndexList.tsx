@@ -13,6 +13,7 @@ import {
 import { FaFilePdf, FaStar } from "react-icons/fa";
 import React, { useState } from "react";
 import VideoCategoryForm from "./VideoCategoryForm";
+import { formatTableDate } from "../../../../config/constant/dateUtils";
 
 interface IVideoList {
   title: string;
@@ -116,8 +117,8 @@ const VideosList = observer(({ title, open, close }: IVideoList) => {
                 </Td>
                 <Td>{video.details}</Td>
                 <Td>{video.description}</Td>
-                <Td>{video.createdAt.toLocaleDateString()}</Td>
-                <Td>{video.updatedAt.toLocaleDateString()}</Td>
+                <Td>{formatTableDate(video.createdAt)}</Td>
+                <Td>{formatTableDate(video.updatedAt)}</Td>
               </Tr>
             ))}
           </Tbody>
