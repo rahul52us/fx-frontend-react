@@ -2,17 +2,17 @@
 import { Box, Button, Flex, SimpleGrid, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as Yup from "yup";
+import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
+import { extractFieldValue } from "../../../../config/constant/function";
 import {
   primaryButtonHoverStyle,
   primaryButtonStyle,
 } from "../../../../globalStyles";
-import AutoCalculation from "./AutoCalculate";
-import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import { pickMatchedFields } from "../../utils/function";
-import { extractFieldValue } from "../../../../config/constant/function";
+import AutoCalculation from "./AutoCalculate";
 import { getForwardCancellationInitialValues } from "./utils/constant";
 
 const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: any) => {
@@ -20,6 +20,23 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
   const url = process.env.REACT_APP_FX_BASE_URL;
     const {storeEdited, editLoading} = useStoreEdited();
   const isEdit = Boolean(editData);
+
+  const currencyHasINR = (currency: any) => {
+    const currencyValue =
+      typeof currency === "object"
+        ? currency?.value ?? currency?.label ?? ""
+        : currency ?? "";
+
+    return String(currencyValue).toUpperCase().includes("INR");
+  };
+
+  const initialValues = getForwardCancellationInitialValues(editData);
+  const formInitialValues = {
+    ...initialValues,
+    washRate: currencyHasINR(initialValues?.currency)
+      ? 1
+      : initialValues?.washRate,
+  };
 
   // ---------------- Validation Schema ----------------
   const validationSchema = Yup.object().shape({
@@ -68,7 +85,7 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
     <Box bg="whiteAlpha.700">
       <Box p={5} mx="auto" px={2}>
         <Formik
-          initialValues={getForwardCancellationInitialValues(editData)}
+          initialValues={formInitialValues}
           validationSchema={validationSchema}
           enableReinitialize
                       onSubmit={async (values, actions) => {
@@ -161,6 +178,11 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
                         Object.entries(selected).forEach(([key, value]) => {
                           setFieldValue(key, value);
                         });
+
+                        setFieldValue(
+                          "washRate",
+                          currencyHasINR(selected.currency) ? 1 : ""
+                        );
                       }
 
                       setFieldValue("forwardDealId", option.value);
@@ -203,7 +225,14 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
                     name="fwdPremium"
                     placeholder="Enter Forward Premium"
                     value={values.fwdPremium}
-                    onChange={handleChange}
+                    onChange={(e: any) => {
+                      handleChange(e);
+
+                      const nextValue = e?.target?.value;
+                      if (nextValue !== "" && Number(nextValue) !== 0) {
+                        setFieldValue("cashTomSpot", 0);
+                      }
+                    }}
                     error={touched.fwdPremium && errors.fwdPremium}
                   />
 
@@ -212,7 +241,14 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
                     name="cashTomSpot"
                     placeholder="Enter Cash/Tom Spot"
                     value={values.cashTomSpot}
-                    onChange={handleChange}
+                    onChange={(e: any) => {
+                      handleChange(e);
+
+                      const nextValue = e?.target?.value;
+                      if (nextValue !== "" && Number(nextValue) !== 0) {
+                        setFieldValue("fwdPremium", 0);
+                      }
+                    }}
                     error={touched.cashTomSpot && errors.cashTomSpot}
                   />
 
@@ -225,25 +261,25 @@ const ForwardCancellationForm = ({ submitForm, editData,originalData,onClose }: 
                     disabled
                   />
                   <CustomInput label="Bank Margin" name="bankMargin" value={values.bankMargin} disabled />
+
+                  <CustomInput
+                    label="Wash Rate"
+                    name="washRate"
+                    placeholder="Enter Wash Rate"
+                    value={currencyHasINR(values.currency) ? 1 : values.washRate}
+                    onChange={handleChange}
+                    disabled={currencyHasINR(values.currency)}
+                  />
+
                   {/* Conditional: Non-INR Currencies */}
                   {values.currency !== "INR" && (
-                    <>
-                      <CustomInput
-                        label="Wash Rate"
-                        name="washRate"
-                        placeholder="Enter Wash Rate"
-                        value={values.washRate}
-                        onChange={handleChange}
-                      />
-
-                      <CustomInput
-                        label="Profit & Loss on Cancellation (in FCY)"
-                        name="plInFCY"
-                        value={values.plInFCY}
-                        placeholder="Auto-calculated"
-                        disabled
-                      />
-                    </>
+                    <CustomInput
+                      label="Profit & Loss on Cancellation (in FCY)"
+                      name="plInFCY"
+                      value={values.plInFCY}
+                      placeholder="Auto-calculated"
+                      disabled
+                    />
                   )}
 
                   {/* Always Visible */}
