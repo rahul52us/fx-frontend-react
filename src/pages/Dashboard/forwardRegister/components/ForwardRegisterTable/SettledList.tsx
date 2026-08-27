@@ -758,7 +758,7 @@ const SettledList = ({
                                         <Thead bg="gray.50">
                                           <Tr>
                                             <Th
-                                              minW="150px"
+                                              // minW="150px"
                                               py={3}
                                               pl={{
                                                 base: 4,
@@ -774,7 +774,7 @@ const SettledList = ({
                                               Reference
                                             </Th>
 
-                                            <Th
+                                            {/* <Th
                                               minW="150px"
                                               py={3}
                                               color="gray.500"
@@ -785,7 +785,7 @@ const SettledList = ({
                                               letterSpacing="0.05em"
                                             >
                                               Exposure
-                                            </Th>
+                                            </Th> */}
 
                                             <Th
                                               minW="120px"
@@ -862,7 +862,7 @@ const SettledList = ({
                                                   </Text>
                                                 </Td>
 
-                                                <Td py={3.5}>
+                                                {/* <Td py={3.5}>
                                                   <Badge
                                                     variant="subtle"
                                                     colorScheme="blue"
@@ -878,7 +878,7 @@ const SettledList = ({
                                                     {item.exposureType ||
                                                       section.category}
                                                   </Badge>
-                                                </Td>
+                                                </Td> */}
 
                                                 <Td
                                                   py={3.5}

@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Button,
   Drawer,
@@ -7,163 +8,812 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-  Grid,
-  GridItem,
-  Stack,
+  Flex,
+  SimpleGrid,
+  Table,
+  Tbody,
+  Td,
   Text,
-  Badge,
-  Divider,
+  Th,
+  Thead,
+  Tr,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useMemo } from "react";
+import { formatTableDate } from "../../../../../config/constant/dateUtils";
 
-const LabelValue = ({ label, value }: any) => (
-  <Grid templateColumns="140px 1fr" gap={2} fontSize="sm">
-    <GridItem color="gray.500">{label}</GridItem>
-    <GridItem fontWeight="500">{value || "--"}</GridItem>
-  </Grid>
-);
-
-// Instrument type → badge color mapping
-const INSTRUMENT_COLORS: Record<string, string> = {
-  Spot: "blue",
-  EEFC: "purple",
-  PCFC: "orange",
-  Forward: "green",
+type SettledRow = {
+  amount?: number;
+  rate?: number | string;
+  referenceNumber?: string;
+  refrenceNumber?: string;
+  [key: string]: any;
 };
 
-const AmountSettledList = (row: any) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const amountSettledList: Record<string, any>[] = row.amountSettledList || [];
+type SettledSection = {
+  category: string;
+  group: string;
+  rows: SettledRow[];
+};
 
-  if (!amountSettledList.length) {
-    return <Text fontSize="sm" color="gray.400">--</Text>;
+type SettledEntry = {
+  dateKey: string;
+  sections: SettledSection[];
+};
+
+type TotalSummary = {
+  settledAmount?: number;
+  settlementRate?: number | string;
+};
+
+type AmountSettledListProps = {
+  amountSettledList?: Record<string, any>[];
+};
+
+type SummaryCardProps = {
+  label: string;
+  value: string | number;
+  helperText?: string;
+};
+
+const toArray = (value: any): any[] => {
+  if (Array.isArray(value)) {
+    return value;
   }
 
-  // Separate date entries from the "Total" entry
-  const dateEntries = amountSettledList.filter((item) => !item["Total"]);
-  const totalEntry = amountSettledList.find((item) => item["Total"]);
+  if (value && typeof value === "object") {
+    return [value];
+  }
 
-  // Count unique dates for button label
-  const dateCount = dateEntries.length;
+  return [];
+};
+
+const formatNumber = (value: any) => {
+  if (value === null || value === undefined || value === "") {
+    return "--";
+  }
+
+  const numericValue = Number(value);
+
+  if (Number.isNaN(numericValue)) {
+    return String(value);
+  }
+
+  return numericValue.toLocaleString("en-IN", {
+    maximumFractionDigits: 6,
+  });
+};
+
+const formatValue = (value: any) => {
+  if (value === null || value === undefined || value === "") {
+    return "--";
+  }
+
+  const numericValue = Number(value);
+
+  if (!Number.isNaN(numericValue)) {
+    return numericValue.toLocaleString("en-IN", {
+      maximumFractionDigits: 6,
+    });
+  }
+
+  return String(value);
+};
+
+const getReferenceNumber = (row: SettledRow) =>
+  row.refrenceNumber || row.referenceNumber || "--";
+
+const normalizeSettledEntries = (
+  amountSettledList: Record<string, any>[] = []
+): {
+  dateEntries: SettledEntry[];
+  totalSummary: TotalSummary | null;
+} => {
+  const dateEntries: SettledEntry[] = [];
+  let totalSummary: TotalSummary | null = null;
+
+  amountSettledList.forEach((item) => {
+    if (!item || typeof item !== "object") {
+      return;
+    }
+
+    Object.entries(item).forEach(([topLevelKey, topLevelValue]) => {
+      if (topLevelKey === "Total") {
+        totalSummary = topLevelValue || null;
+        return;
+      }
+
+      if (!topLevelValue || typeof topLevelValue !== "object") {
+        dateEntries.push({
+          dateKey: topLevelKey,
+          sections: [],
+        });
+        return;
+      }
+
+      const sections: SettledSection[] = [];
+
+      Object.entries(topLevelValue).forEach(([group, groupValue]) => {
+        if (!groupValue || typeof groupValue !== "object") {
+          return;
+        }
+
+        Object.entries(groupValue).forEach(([category, categoryValue]) => {
+          const rows = toArray(categoryValue).filter(
+            (row) => row && typeof row === "object"
+          );
+
+          if (!rows.length) {
+            return;
+          }
+
+          sections.push({
+            group,
+            category,
+            rows,
+          });
+        });
+      });
+
+      dateEntries.push({
+        dateKey: topLevelKey,
+        sections,
+      });
+    });
+  });
+
+  return {
+    dateEntries,
+    totalSummary,
+  };
+};
+
+const getSectionTotal = (rows: SettledRow[]) =>
+  rows.reduce((sum, row) => {
+    const amount = Number(row.amount);
+    return sum + (Number.isNaN(amount) ? 0 : amount);
+  }, 0);
+
+const getEntryDealCount = (sections: SettledSection[]) =>
+  sections.reduce((sum, section) => sum + section.rows.length, 0);
+
+const getEntryTotal = (sections: SettledSection[]) =>
+  sections.reduce(
+    (sum, section) => sum + getSectionTotal(section.rows),
+    0
+  );
+
+const SummaryCard = ({
+  label,
+  value,
+  helperText,
+}: SummaryCardProps) => (
+  <Box
+    bg="white"
+    border="1px solid"
+    borderColor="gray.200"
+    borderRadius="lg"
+    px={4}
+    py={3.5}
+    minW={0}
+  >
+    <Text
+      fontSize="11px"
+      fontWeight={600}
+      color="gray.500"
+      textTransform="uppercase"
+      letterSpacing="0.04em"
+      mb={1.5}
+    >
+      {label}
+    </Text>
+
+    <Text
+      fontSize={{ base: "md", md: "lg" }}
+      fontWeight={700}
+      color="gray.800"
+      lineHeight="short"
+      noOfLines={1}
+      title={String(value)}
+    >
+      {value}
+    </Text>
+
+    {helperText && (
+      <Text
+        fontSize="11px"
+        color="gray.400"
+        mt={1}
+        noOfLines={1}
+      >
+        {helperText}
+      </Text>
+    )}
+  </Box>
+);
+
+const AmountSettledList = ({
+  amountSettledList = [],
+}: AmountSettledListProps) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const { dateEntries, totalSummary } = useMemo(
+    () => normalizeSettledEntries(amountSettledList),
+    [amountSettledList]
+  );
+
+  const visibleDateEntries = useMemo(
+    () => dateEntries.filter((entry) => entry.sections.length > 0),
+    [dateEntries]
+  );
+
+  const summary = useMemo(() => {
+    const totalDeals = visibleDateEntries.reduce(
+      (sum, entry) => sum + getEntryDealCount(entry.sections),
+      0
+    );
+
+    const calculatedAmount = visibleDateEntries.reduce(
+      (sum, entry) => sum + getEntryTotal(entry.sections),
+      0
+    );
+
+    return {
+      totalDeals,
+      totalDates: visibleDateEntries.length,
+      calculatedAmount,
+    };
+  }, [visibleDateEntries]);
+
+  const hasData = summary.totalDeals > 0;
+  const settledAmount =
+    totalSummary?.settledAmount ?? summary.calculatedAmount;
 
   return (
     <>
-      <Button
-        size="xs"
-        variant="outline"
-        colorScheme="pink"
-        fontWeight="500"
-        onClick={onOpen}
+      {!hasData ? (
+        <Text
+          color="gray.500"
+          fontSize="sm"
+          fontWeight={500}
+        >
+          No settled deals
+        </Text>
+      ) : (
+        <Button
+          onClick={onOpen}
+          variant="outline"
+          size="sm"
+          bg="white"
+          color="gray.700"
+          borderColor="gray.300"
+          borderRadius="md"
+          fontWeight={600}
+          px={3.5}
+          _hover={{
+            bg: "gray.50",
+            borderColor: "gray.400",
+          }}
+          _active={{
+            bg: "gray.100",
+          }}
+        >
+          <Flex align="center" gap={2}>
+            <Text>Settled deals</Text>
+
+            <Badge
+              bg="green.50"
+              color="green.700"
+              borderRadius="full"
+              px={2}
+              fontSize="10px"
+              fontWeight={700}
+            >
+              {summary.totalDeals}
+            </Badge>
+          </Flex>
+        </Button>
+      )}
+
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={onClose}
+        size="xl"
       >
-        Settled Amount ({dateCount})
-      </Button>
+        <DrawerOverlay bg="blackAlpha.400" />
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>Settled Amount List</DrawerHeader>
-          <DrawerBody p={4}>
-            <Stack spacing={5}>
-              {/* Date sections */}
-              {dateEntries.map((dateObj, dateIndex) => {
-                // Each object has one date key + optional Total key
-                const dateKey = Object.keys(dateObj).find((k) => k !== "Total")!;
-                const instruments: Record<string, any[]> = dateObj[dateKey]?.Instrument || {};
+        <DrawerContent bg="gray.50">
+          <DrawerCloseButton
+            top={4}
+            right={4}
+            color="gray.500"
+            _hover={{
+              bg: "gray.100",
+              color: "gray.800",
+            }}
+          />
 
-                return (
-                  <Box
-                    key={dateIndex}
-                    border="1px solid"
-                    borderColor="gray.200"
-                    borderRadius="lg"
-                    overflow="hidden"
+          <DrawerHeader
+            bg="white"
+            borderBottom="1px solid"
+            borderColor="gray.200"
+            px={{ base: 4, md: 6 }}
+            py={4}
+          >
+            <Box pr={10}>
+              <Text
+                fontSize="lg"
+                fontWeight={700}
+                color="gray.900"
+                lineHeight="short"
+              >
+                Settled Deals
+              </Text>
+
+              <Text
+                mt={1}
+                fontSize="sm"
+                fontWeight={400}
+                color="gray.500"
+              >
+                Review settlement details grouped by date
+                and exposure.
+              </Text>
+            </Box>
+          </DrawerHeader>
+
+          <DrawerBody
+            px={{ base: 3, md: 5 }}
+            py={5}
+          >
+            {!hasData ? (
+              <Box
+                bg="white"
+                border="1px dashed"
+                borderColor="gray.300"
+                borderRadius="xl"
+                px={6}
+                py={12}
+                textAlign="center"
+              >
+                <Text
+                  fontSize="sm"
+                  fontWeight={600}
+                  color="gray.600"
+                >
+                  No settled records found
+                </Text>
+
+                <Text
+                  fontSize="xs"
+                  color="gray.400"
+                  mt={1}
+                >
+                  Settlement records will appear here when
+                  available.
+                </Text>
+              </Box>
+            ) : (
+              <Flex direction="column" gap={5}>
+                <Box>
+                  <Flex
+                    align="center"
+                    justify="space-between"
+                    mb={3}
                   >
-                    {/* Date Header */}
-                    <Box px={3} py={2} bg="gray.100">
-                      <Text fontWeight="600" fontSize="sm">
-                        📅 {dateKey}
-                      </Text>
-                    </Box>
+                    <Text
+                      fontSize="xs"
+                      fontWeight={700}
+                      color="gray.500"
+                      textTransform="uppercase"
+                      letterSpacing="0.05em"
+                    >
+                      Overview
+                    </Text>
+                  </Flex>
 
-                    <Stack spacing={3} p={3}>
-                      {Object.entries(instruments).map(([instrumentType, entries]) => {
-                        if (!Array.isArray(entries) || !entries.length) return null;
+                  <SimpleGrid
+                    columns={{
+                      base: 2,
+                      md: 3,
+                    }}
+                    spacing={3}
+                  >
+                    <SummaryCard
+                      label="Settled amount"
+                      value={formatNumber(settledAmount)}
+                      helperText="Total settled value"
+                    />
+
+                  
+
+                    <SummaryCard
+                      label="Total deals"
+                      value={summary.totalDeals}
+                      helperText={
+                        summary.totalDeals === 1
+                          ? "1 settlement"
+                          : `${summary.totalDeals} settlements`
+                      }
+                    />
+
+                    <SummaryCard
+                      label="Settlement dates"
+                      value={summary.totalDates}
+                      helperText={
+                        summary.totalDates === 1
+                          ? "1 date"
+                          : `${summary.totalDates} dates`
+                      }
+                    />
+                  </SimpleGrid>
+                </Box>
+
+                <Box>
+                  <Text
+                    fontSize="xs"
+                    fontWeight={700}
+                    color="gray.500"
+                    textTransform="uppercase"
+                    letterSpacing="0.05em"
+                    mb={3}
+                  >
+                    Settlement details
+                  </Text>
+
+                  <Flex direction="column" gap={4}>
+                    {visibleDateEntries.map(
+                      ({ dateKey, sections }, dateIndex) => {
+                        const dateDealCount =
+                          getEntryDealCount(sections);
+                        const dateTotal =
+                          getEntryTotal(sections);
 
                         return (
-                          <Box key={instrumentType}>
-                            {/* Instrument Type Badge */}
-                            <Badge
-                              colorScheme={INSTRUMENT_COLORS[instrumentType] || "gray"}
-                              mb={2}
-                              fontSize="xs"
-                              px={2}
-                              py={0.5}
-                              borderRadius="md"
+                          <Box
+                            key={`${dateKey}-${dateIndex}`}
+                            bg="white"
+                            border="2px solid"
+                            borderColor="gray.200"
+                            borderRadius="xl"
+                            overflow="hidden"
+                            boxShadow="sm"
+                          >
+                            <Flex
+                              px={{ base: 4, md: 5 }}
+                              py={3.5}
+                              bg="gray.50"
+                              borderBottom="1px solid"
+                              borderColor="gray.200"
+                              justify="space-between"
+                              align={{
+                                base: "flex-start",
+                                sm: "center",
+                              }}
+                              direction={{
+                                base: "column",
+                                sm: "row",
+                              }}
+                              gap={2}
                             >
-                              {instrumentType}
-                            </Badge>
-
-                            <Stack spacing={2}>
-                              {entries.map((entry: any, entryIndex: number) => (
-                                <Box
-                                  key={entryIndex}
-                                  p={2}
-                                  bg="gray.50"
-                                  borderRadius="md"
-                                  border="1px solid"
-                                  borderColor="gray.100"
+                              <Box>
+                                <Text
+                                  fontSize="sm"
+                                  fontWeight={700}
+                                  color="gray.800"
                                 >
-                                  <Stack spacing={1}>
-                                    {/* Only Spot, PCFC, Forward have referenceNumber */}
-                                    {"refrenceNumber" in entry && (
-                                      <LabelValue
-                                        label="Reference No."
-                                        value={entry.refrenceNumber}
-                                      />
-                                    )}
-                                    <LabelValue label="Amount" value={entry.amount} />
-                                    <LabelValue label="Rate" value={entry.rate} />
-                                  </Stack>
-                                </Box>
-                              ))}
-                            </Stack>
+                                  {formatTableDate(dateKey)}
+                                </Text>
+
+                                <Text
+                                  mt={0.5}
+                                  fontSize="xs"
+                                  color="gray.500"
+                                >
+                                  {dateDealCount}{" "}
+                                  {dateDealCount === 1
+                                    ? "deal"
+                                    : "deals"}
+                                </Text>
+                              </Box>
+
+                              <Box
+                                textAlign={{
+                                  base: "left",
+                                  sm: "right",
+                                }}
+                              >
+                                <Text
+                                  fontSize="10px"
+                                  color="gray.400"
+                                  fontWeight={600}
+                                  textTransform="uppercase"
+                                  letterSpacing="0.04em"
+                                >
+                                  Date total
+                                </Text>
+
+                                <Text
+                                  mt={0.5}
+                                  fontSize="sm"
+                                  color="gray.800"
+                                  fontWeight={700}
+                                >
+                                  {formatNumber(dateTotal)}
+                                </Text>
+                              </Box>
+                            </Flex>
+
+                            {sections.map(
+                              (section, sectionIndex) => {
+                                const sectionTotal =
+                                  getSectionTotal(
+                                    section.rows
+                                  );
+
+                                return (
+                                  <Box
+                                    key={`${dateKey}-${section.group}-${section.category}-${sectionIndex}`}
+                                    borderTop={
+                                      sectionIndex === 0
+                                        ? "none"
+                                        : "1px solid"
+                                    }
+                                    borderColor="gray.200"
+                                  >
+                                    <Flex
+                                      px={{
+                                        base: 4,
+                                        md: 5,
+                                      }}
+                                      py={3.5}
+                                      justify="space-between"
+                                      align={{
+                                        base: "flex-start",
+                                        md: "center",
+                                      }}
+                                      direction={{
+                                        base: "column",
+                                        md: "row",
+                                      }}
+                                      gap={3}
+                                    >
+                                      <Box minW={0}>
+                                        <Text
+                                          fontSize="10px"
+                                          color="gray.400"
+                                          fontWeight={700}
+                                          textTransform="uppercase"
+                                          letterSpacing="0.06em"
+                                        >
+                                          {section.group}
+                                        </Text>
+
+                                        <Flex
+                                          align="center"
+                                          gap={2}
+                                          mt={1}
+                                          wrap="wrap"
+                                        >
+                                          <Text
+                                            fontSize="sm"
+                                            fontWeight={700}
+                                            color="gray.800"
+                                            textTransform="capitalize"
+                                          >
+                                            {section.category}
+                                          </Text>
+
+                                          <Text
+                                            fontSize="xs"
+                                            color="gray.400"
+                                          >
+                                            •
+                                          </Text>
+
+                                          <Text
+                                            fontSize="xs"
+                                            color="gray.500"
+                                          >
+                                            {
+                                              section.rows
+                                                .length
+                                            }{" "}
+                                            {section.rows
+                                              .length ===
+                                            1
+                                              ? "entry"
+                                              : "entries"}
+                                          </Text>
+                                        </Flex>
+                                      </Box>
+
+                                      <Box
+                                        textAlign={{
+                                          base: "left",
+                                          md: "right",
+                                        }}
+                                      >
+                                        <Text
+                                          fontSize="10px"
+                                          fontWeight={600}
+                                          color="gray.400"
+                                          textTransform="uppercase"
+                                          letterSpacing="0.04em"
+                                        >
+                                          Section total
+                                        </Text>
+
+                                        <Text
+                                          mt={0.5}
+                                          fontSize="sm"
+                                          fontWeight={700}
+                                          color="gray.800"
+                                        >
+                                          {formatNumber(
+                                            sectionTotal
+                                          )}
+                                        </Text>
+                                      </Box>
+                                    </Flex>
+
+                                    <Box
+                                      overflowX="auto"
+                                      borderTop="1px solid"
+                                      borderColor="gray.100"
+                                    >
+                                      <Table
+                                        size="sm"
+                                        variant="simple"
+                                      >
+                                        <Thead bg="gray.50">
+                                          <Tr>
+                                            <Th
+                                              py={3}
+                                              pl={{
+                                                base: 4,
+                                                md: 5,
+                                              }}
+                                              color="gray.500"
+                                              fontSize="10px"
+                                              fontWeight={
+                                                700
+                                              }
+                                              letterSpacing="0.05em"
+                                            >
+                                              Reference
+                                            </Th>
+
+                                            <Th
+                                              minW="120px"
+                                              py={3}
+                                              color="gray.500"
+                                              fontSize="10px"
+                                              fontWeight={
+                                                700
+                                              }
+                                              letterSpacing="0.05em"
+                                              isNumeric
+                                            >
+                                              Amount
+                                            </Th>
+
+                                            <Th
+                                              minW="100px"
+                                              py={3}
+                                              pr={{
+                                                base: 4,
+                                                md: 5,
+                                              }}
+                                              color="gray.500"
+                                              fontSize="10px"
+                                              fontWeight={
+                                                700
+                                              }
+                                              letterSpacing="0.05em"
+                                              isNumeric
+                                            >
+                                              Rate
+                                            </Th>
+                                          </Tr>
+                                        </Thead>
+
+                                        <Tbody>
+                                          {section.rows.map(
+                                            (
+                                              item,
+                                              rowIndex
+                                            ) => (
+                                              <Tr
+                                                key={`${dateKey}-${section.group}-${section.category}-${rowIndex}`}
+                                                _hover={{
+                                                  bg: "gray.50",
+                                                }}
+                                                transition="background 0.15s ease"
+                                                sx={{
+                                                  "&:last-of-type td":
+                                                    {
+                                                      borderBottom:
+                                                        "none",
+                                                    },
+                                                }}
+                                              >
+                                                <Td
+                                                  py={3.5}
+                                                  pl={{
+                                                    base: 4,
+                                                    md: 5,
+                                                  }}
+                                                >
+                                                  <Text
+                                                    fontSize="xs"
+                                                    fontWeight={
+                                                      600
+                                                    }
+                                                    color="gray.700"
+                                                    whiteSpace="nowrap"
+                                                  >
+                                                    {getReferenceNumber(
+                                                      item
+                                                    )}
+                                                  </Text>
+                                                </Td>
+
+                                                <Td
+                                                  py={3.5}
+                                                  isNumeric
+                                                >
+                                                  <Text
+                                                    fontSize="sm"
+                                                    fontWeight={
+                                                      600
+                                                    }
+                                                    color="gray.800"
+                                                    whiteSpace="nowrap"
+                                                  >
+                                                    {formatNumber(
+                                                      item.amount
+                                                    )}
+                                                  </Text>
+                                                </Td>
+
+                                                <Td
+                                                  py={3.5}
+                                                  pr={{
+                                                    base: 4,
+                                                    md: 5,
+                                                  }}
+                                                  isNumeric
+                                                >
+                                                  <Text
+                                                    fontSize="sm"
+                                                    color="gray.600"
+                                                    whiteSpace="nowrap"
+                                                  >
+                                                    {formatValue(
+                                                      item.rate
+                                                    )}
+                                                  </Text>
+                                                </Td>
+                                              </Tr>
+                                            )
+                                          )}
+                                        </Tbody>
+                                      </Table>
+                                    </Box>
+                                  </Box>
+                                );
+                              }
+                            )}
                           </Box>
                         );
-                      })}
-                    </Stack>
-                  </Box>
-                );
-              })}
-
-              {/* Total Section */}
-              {totalEntry?.Total && (
-                <>
-                  <Divider />
-                  <Box
-                    p={3}
-                    bg="pink.50"
-                    borderRadius="lg"
-                    border="1px solid"
-                    borderColor="pink.200"
-                  >
-                    <Text fontWeight="600" fontSize="sm" mb={2} color="pink.700">
-                      Total
-                    </Text>
-                    <Stack spacing={1}>
-                      <LabelValue
-                        label="Settled Amount"
-                        value={totalEntry.Total.settledAmount}
-                      />
-                      <LabelValue
-                        label="Settlement Rate"
-                        value={totalEntry.Total.settlementRate}
-                      />
-                    </Stack>
-                  </Box>
-                </>
-              )}
-            </Stack>
+                      }
+                    )}
+                  </Flex>
+                </Box>
+              </Flex>
+            )}
           </DrawerBody>
         </DrawerContent>
       </Drawer>

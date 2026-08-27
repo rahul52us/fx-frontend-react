@@ -16,6 +16,7 @@ import {
 import { autoToken } from "../../../utils/constant";
 import PCFCForm from "../PCFCForm/PCFCForm";
 import PCFCViewDrawer from "./PCFCViewDrawer";
+import PCFCSettlementView from "./PCFCSettlementView";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import store from "../../../../../store/store";
@@ -394,6 +395,20 @@ const PCFCTable = () => {
   {
     headerName: "Outstanding Amount (INR)",
     key: "outstandingAmountInInr",
+  },
+  {
+    headerName: "Settlements",
+    key: "settlementView",
+    type: "component",
+    metaData: {
+      component: (row: any) => (
+        <PCFCSettlementView settlementView={row?.settlementView} />
+      ),
+    },
+    props: {
+      row: { minW: 180, textAlign: "center" },
+      column: { textAlign: "center" },
+    },
   },
    {
       headerName: "Actions",
