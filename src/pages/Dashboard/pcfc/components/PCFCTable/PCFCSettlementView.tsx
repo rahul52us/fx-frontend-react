@@ -63,29 +63,50 @@ const formatNumber = (value: any) => {
 const SummaryCard = ({
   label,
   value,
+  bg = "white",
+  borderColor = "gray.200",
+  textColor = "gray.900",
+  accentColor = "blue.500",
 }: {
   label: string;
   value: string | number;
+  bg?: string;
+  borderColor?: string;
+  textColor?: string;
+  accentColor?: string;
 }) => (
   <Box
-    bg="white"
+    bg={bg}
     border="1px solid"
-    borderColor="gray.200"
-    borderRadius="lg"
+    borderColor={borderColor}
+    borderRadius="xl"
     px={4}
-    py={3.5}
+    py={4}
+    position="relative"
+    overflow="hidden"
+    boxShadow="sm"
+    transition="all 0.2s ease"
+    _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
   >
+    <Box
+      position="absolute"
+      top={0}
+      left={0}
+      right={0}
+      h="3px"
+      bg={accentColor}
+    />
     <Text
       fontSize="11px"
-      fontWeight={600}
+      fontWeight={700}
       color="gray.500"
       textTransform="uppercase"
-      letterSpacing="0.04em"
+      letterSpacing="0.05em"
       mb={1.5}
     >
       {label}
     </Text>
-    <Text fontSize={{ base: "md", md: "lg" }} fontWeight={700} color="gray.800">
+    <Text fontSize={{ base: "lg", md: "xl" }} fontWeight={800} color={textColor}>
       {value}
     </Text>
   </Box>
@@ -187,10 +208,21 @@ const PCFCSettlementView = ({
           <DrawerBody px={{ base: 3, md: 5 }} py={5}>
             <Flex direction="column" gap={5}>
               <SimpleGrid columns={{ base: 2, md: 2 }} spacing={3}>
-                <SummaryCard label="Total settlements" value={rows.length} />
+                <SummaryCard
+                  label="Total settlements"
+                  value={rows.length}
+                  bg="blue.50"
+                  borderColor="blue.200"
+                  textColor="blue.900"
+                  accentColor="blue.500"
+                />
                 <SummaryCard
                   label="Settled amount"
                   value={formatNumber(totalSettledAmount)}
+                  bg="green.50"
+                  borderColor="green.200"
+                  textColor="green.900"
+                  accentColor="green.500"
                 />
               </SimpleGrid>
 
@@ -204,12 +236,12 @@ const PCFCSettlementView = ({
               >
                 <Box overflowX="auto">
                   <Table size="sm" variant="simple">
-                    <Thead bg="gray.50">
+                    <Thead bg="blue.50">
                       <Tr>
                         <Th
                           py={3}
                           pl={{ base: 4, md: 5 }}
-                          color="gray.500"
+                          color="blue.700"
                           fontSize="10px"
                           fontWeight={700}
                           letterSpacing="0.05em"
@@ -218,7 +250,7 @@ const PCFCSettlementView = ({
                         </Th>
                         <Th
                           py={3}
-                          color="gray.500"
+                          color="blue.700"
                           fontSize="10px"
                           fontWeight={700}
                           letterSpacing="0.05em"
@@ -228,7 +260,7 @@ const PCFCSettlementView = ({
                         <Th
                           py={3}
                           pr={{ base: 4, md: 5 }}
-                          color="gray.500"
+                          color="blue.700"
                           fontSize="10px"
                           fontWeight={700}
                           letterSpacing="0.05em"
@@ -243,11 +275,11 @@ const PCFCSettlementView = ({
                       {rows.map((item, index) => (
                         <Tr
                           key={`${item.invoiceBcNumber || "settlement"}-${index}`}
-                          _hover={{ bg: "gray.50" }}
+                          _hover={{ bg: "blue.50" }}
                           transition="background 0.15s ease"
                         >
                           <Td py={3.5} pl={{ base: 4, md: 5 }}>
-                            <Text fontSize="sm" fontWeight={600} color="gray.700">
+                            <Text fontSize="sm" fontWeight={600} color="blue.700">
                               {item.invoiceBcNumber || "--"}
                             </Text>
                           </Td>

@@ -187,31 +187,53 @@ const SummaryCard = ({
   label,
   value,
   helperText,
-}: SummaryCardProps) => (
+  bg = "white",
+  borderColor = "gray.200",
+  textColor = "gray.900",
+  accentColor = "blue.500",
+}: SummaryCardProps & {
+  bg?: string;
+  borderColor?: string;
+  textColor?: string;
+  accentColor?: string;
+}) => (
   <Box
-    bg="white"
+    bg={bg}
     border="1px solid"
-    borderColor="gray.200"
-    borderRadius="lg"
+    borderColor={borderColor}
+    borderRadius="xl"
     px={4}
-    py={3.5}
+    py={4}
     minW={0}
+    position="relative"
+    overflow="hidden"
+    boxShadow="sm"
+    transition="all 0.2s ease"
+    _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
   >
+    <Box
+      position="absolute"
+      top={0}
+      left={0}
+      right={0}
+      h="3px"
+      bg={accentColor}
+    />
     <Text
       fontSize="11px"
-      fontWeight={600}
+      fontWeight={700}
       color="gray.500"
       textTransform="uppercase"
-      letterSpacing="0.04em"
+      letterSpacing="0.05em"
       mb={1.5}
     >
       {label}
     </Text>
 
     <Text
-      fontSize={{ base: "md", md: "lg" }}
-      fontWeight={700}
-      color="gray.800"
+      fontSize={{ base: "lg", md: "xl" }}
+      fontWeight={800}
+      color={textColor}
       lineHeight="short"
       noOfLines={1}
       title={String(value)}
@@ -222,8 +244,9 @@ const SummaryCard = ({
     {helperText && (
       <Text
         fontSize="11px"
-        color="gray.400"
-        mt={1}
+        color="gray.500"
+        fontWeight={500}
+        mt={1.5}
         noOfLines={1}
       >
         {helperText}
@@ -424,9 +447,11 @@ const AmountSettledList = ({
                       label="Settled amount"
                       value={formatNumber(settledAmount)}
                       helperText="Total settled value"
+                      bg="green.50"
+                      borderColor="green.200"
+                      textColor="green.900"
+                      accentColor="green.500"
                     />
-
-                  
 
                     <SummaryCard
                       label="Total deals"
@@ -436,6 +461,10 @@ const AmountSettledList = ({
                           ? "1 settlement"
                           : `${summary.totalDeals} settlements`
                       }
+                      bg="blue.50"
+                      borderColor="blue.200"
+                      textColor="blue.900"
+                      accentColor="blue.500"
                     />
 
                     <SummaryCard
@@ -446,6 +475,10 @@ const AmountSettledList = ({
                           ? "1 date"
                           : `${summary.totalDates} dates`
                       }
+                      bg="orange.50"
+                      borderColor="orange.200"
+                      textColor="orange.900"
+                      accentColor="orange.500"
                     />
                   </SimpleGrid>
                 </Box>
@@ -474,8 +507,8 @@ const AmountSettledList = ({
                           <Box
                             key={`${dateKey}-${dateIndex}`}
                             bg="white"
-                            border="2px solid"
-                            borderColor="gray.200"
+                            border="1px solid"
+                            borderColor="blue.100"
                             borderRadius="xl"
                             overflow="hidden"
                             boxShadow="sm"
@@ -483,9 +516,9 @@ const AmountSettledList = ({
                             <Flex
                               px={{ base: 4, md: 5 }}
                               py={3.5}
-                              bg="gray.50"
+                              bg="blue.50"
                               borderBottom="1px solid"
-                              borderColor="gray.200"
+                              borderColor="blue.100"
                               justify="space-between"
                               align={{
                                 base: "flex-start",
@@ -498,24 +531,18 @@ const AmountSettledList = ({
                               gap={2}
                             >
                               <Box>
-                                <Text
-                                  fontSize="sm"
-                                  fontWeight={700}
-                                  color="gray.800"
-                                >
-                                  {formatTableDate(dateKey)}
-                                </Text>
-
-                                <Text
-                                  mt={0.5}
-                                  fontSize="xs"
-                                  color="gray.500"
-                                >
-                                  {dateDealCount}{" "}
-                                  {dateDealCount === 1
-                                    ? "deal"
-                                    : "deals"}
-                                </Text>
+                                <Flex align="center" gap={2}>
+                                  <Text
+                                    fontSize="sm"
+                                    fontWeight={700}
+                                    color="blue.900"
+                                  >
+                                    {formatTableDate(dateKey)}
+                                  </Text>
+                                  <Badge colorScheme="blue" variant="subtle" borderRadius="md" px={2} fontSize="10px">
+                                    {dateDealCount} {dateDealCount === 1 ? "deal" : "deals"}
+                                  </Badge>
+                                </Flex>
                               </Box>
 
                               <Box
@@ -526,8 +553,8 @@ const AmountSettledList = ({
                               >
                                 <Text
                                   fontSize="10px"
-                                  color="gray.400"
-                                  fontWeight={600}
+                                  color="blue.600"
+                                  fontWeight={700}
                                   textTransform="uppercase"
                                   letterSpacing="0.04em"
                                 >
@@ -537,7 +564,7 @@ const AmountSettledList = ({
                                 <Text
                                   mt={0.5}
                                   fontSize="sm"
-                                  color="gray.800"
+                                  color="blue.900"
                                   fontWeight={700}
                                 >
                                   {formatNumber(dateTotal)}
@@ -568,6 +595,7 @@ const AmountSettledList = ({
                                         md: 5,
                                       }}
                                       py={3.5}
+                                      bg="gray.50"
                                       justify="space-between"
                                       align={{
                                         base: "flex-start",
@@ -580,20 +608,24 @@ const AmountSettledList = ({
                                       gap={3}
                                     >
                                       <Box minW={0}>
-                                        <Text
+                                        <Badge
+                                          colorScheme="teal"
+                                          variant="outline"
                                           fontSize="10px"
-                                          color="gray.400"
                                           fontWeight={700}
                                           textTransform="uppercase"
                                           letterSpacing="0.06em"
+                                          px={1.5}
+                                          py={0.5}
+                                          borderRadius="md"
                                         >
                                           {section.group}
-                                        </Text>
+                                        </Badge>
 
                                         <Flex
                                           align="center"
                                           gap={2}
-                                          mt={1}
+                                          mt={1.5}
                                           wrap="wrap"
                                         >
                                           <Text
@@ -614,7 +646,8 @@ const AmountSettledList = ({
 
                                           <Text
                                             fontSize="xs"
-                                            color="gray.500"
+                                            fontWeight={600}
+                                            color="teal.600"
                                           >
                                             {
                                               section.rows
@@ -638,7 +671,7 @@ const AmountSettledList = ({
                                         <Text
                                           fontSize="10px"
                                           fontWeight={600}
-                                          color="gray.400"
+                                          color="gray.500"
                                           textTransform="uppercase"
                                           letterSpacing="0.04em"
                                         >
@@ -649,7 +682,7 @@ const AmountSettledList = ({
                                           mt={0.5}
                                           fontSize="sm"
                                           fontWeight={700}
-                                          color="gray.800"
+                                          color="teal.700"
                                         >
                                           {formatNumber(
                                             sectionTotal
@@ -661,13 +694,13 @@ const AmountSettledList = ({
                                     <Box
                                       overflowX="auto"
                                       borderTop="1px solid"
-                                      borderColor="gray.100"
+                                      borderColor="gray.200"
                                     >
                                       <Table
                                         size="sm"
                                         variant="simple"
                                       >
-                                        <Thead bg="gray.50">
+                                        <Thead bg="blue.50">
                                           <Tr>
                                             <Th
                                               py={3}
@@ -675,7 +708,7 @@ const AmountSettledList = ({
                                                 base: 4,
                                                 md: 5,
                                               }}
-                                              color="gray.500"
+                                              color="blue.700"
                                               fontSize="10px"
                                               fontWeight={
                                                 700
@@ -688,7 +721,7 @@ const AmountSettledList = ({
                                             <Th
                                               minW="120px"
                                               py={3}
-                                              color="gray.500"
+                                              color="blue.700"
                                               fontSize="10px"
                                               fontWeight={
                                                 700
@@ -706,7 +739,7 @@ const AmountSettledList = ({
                                                 base: 4,
                                                 md: 5,
                                               }}
-                                              color="gray.500"
+                                              color="blue.700"
                                               fontSize="10px"
                                               fontWeight={
                                                 700
@@ -728,7 +761,7 @@ const AmountSettledList = ({
                                               <Tr
                                                 key={`${dateKey}-${section.group}-${section.category}-${rowIndex}`}
                                                 _hover={{
-                                                  bg: "gray.50",
+                                                  bg: "blue.50",
                                                 }}
                                                 transition="background 0.15s ease"
                                                 sx={{
@@ -751,7 +784,7 @@ const AmountSettledList = ({
                                                     fontWeight={
                                                       600
                                                     }
-                                                    color="gray.700"
+                                                    color="blue.700"
                                                     whiteSpace="nowrap"
                                                   >
                                                     {getReferenceNumber(

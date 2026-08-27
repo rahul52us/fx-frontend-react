@@ -214,37 +214,57 @@ const SummaryCard = ({
   label,
   value,
   helperText,
-}: SummaryCardProps) => {
+  bg = "white",
+  borderColor = "gray.200",
+  textColor = "gray.900",
+  accentColor = "blue.500",
+}: SummaryCardProps & {
+  bg?: string;
+  borderColor?: string;
+  textColor?: string;
+  accentColor?: string;
+}) => {
   return (
     <Box
-      bg="white"
+      bg={bg}
       border="1px solid"
-      borderColor="gray.200"
-      borderRadius="lg"
+      borderColor={borderColor}
+      borderRadius="xl"
       px={4}
-      py={3.5}
+      py={4}
       minW={0}
+      position="relative"
+      overflow="hidden"
+      boxShadow="sm"
+      transition="all 0.2s ease"
+      _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
     >
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        h="3px"
+        bg={accentColor}
+      />
       <Text
         fontSize="11px"
-        fontWeight={600}
+        fontWeight={700}
         color="gray.500"
         textTransform="uppercase"
-        letterSpacing="0.04em"
+        letterSpacing="0.05em"
         mb={1.5}
       >
         {label}
       </Text>
 
       <Text
-        fontSize={{ base: "md", md: "lg" }}
-        fontWeight={700}
-        color="gray.800"
+        fontSize={{ base: "lg", md: "xl" }}
+        fontWeight={800}
+        color={textColor}
         lineHeight="short"
         noOfLines={1}
-        
         title={String(value)}
-        // fontVariantNumeric="tabular-nums"
       >
         {value}
       </Text>
@@ -252,8 +272,9 @@ const SummaryCard = ({
       {helperText && (
         <Text
           fontSize="11px"
-          color="gray.400"
-          mt={1}
+          color="gray.500"
+          fontWeight={500}
+          mt={1.5}
           noOfLines={1}
         >
           {helperText}
@@ -477,6 +498,10 @@ const SettledList = ({
                       label="Settled amount"
                       value={formatNumber(settledAmount)}
                       helperText="Total settled value"
+                      bg="green.50"
+                      borderColor="green.200"
+                      textColor="green.900"
+                      accentColor="green.500"
                     />
 
                     <SummaryCard
@@ -485,6 +510,10 @@ const SettledList = ({
                         totalSummary?.settlementRate
                       )}
                       helperText="Overall rate"
+                      bg="purple.50"
+                      borderColor="purple.200"
+                      textColor="purple.900"
+                      accentColor="purple.500"
                     />
 
                     <SummaryCard
@@ -495,6 +524,10 @@ const SettledList = ({
                           ? "1 settlement"
                           : `${summary.totalDeals} settlements`
                       }
+                      bg="blue.50"
+                      borderColor="blue.200"
+                      textColor="blue.900"
+                      accentColor="blue.500"
                     />
 
                     <SummaryCard
@@ -505,6 +538,10 @@ const SettledList = ({
                           ? "1 date"
                           : `${summary.totalDates} dates`
                       }
+                      bg="orange.50"
+                      borderColor="orange.200"
+                      textColor="orange.900"
+                      accentColor="orange.500"
                     />
                   </SimpleGrid>
                 </Box>
@@ -542,7 +579,7 @@ const SettledList = ({
                             key={`${dateKey}-${dateIndex}`}
                             bg="white"
                             border="1px solid"
-                            borderColor="gray.200"
+                            borderColor="blue.100"
                             borderRadius="xl"
                             overflow="hidden"
                             boxShadow="sm"
@@ -551,9 +588,9 @@ const SettledList = ({
                             <Flex
                               px={{ base: 4, md: 5 }}
                               py={3.5}
-                              bg="gray.50"
+                              bg="blue.50"
                               borderBottom="1px solid"
-                              borderColor="gray.200"
+                              borderColor="blue.100"
                               justify="space-between"
                               align={{
                                 base: "flex-start",
@@ -566,26 +603,20 @@ const SettledList = ({
                               gap={2}
                             >
                               <Box>
-                                <Text
-                                  fontSize="sm"
-                                  fontWeight={700}
-                                  color="gray.800"
-                                >
-                                  {formatTableDate(
-                                    dateKey
-                                  )}
-                                </Text>
-
-                                <Text
-                                  mt={0.5}
-                                  fontSize="xs"
-                                  color="gray.500"
-                                >
-                                  {dateDealCount}{" "}
-                                  {dateDealCount === 1
-                                    ? "deal"
-                                    : "deals"}
-                                </Text>
+                                <Flex align="center" gap={2}>
+                                  <Text
+                                    fontSize="sm"
+                                    fontWeight={700}
+                                    color="blue.900"
+                                  >
+                                    {formatTableDate(
+                                      dateKey
+                                    )}
+                                  </Text>
+                                  <Badge colorScheme="blue" variant="subtle" borderRadius="md" px={2} fontSize="10px">
+                                    {dateDealCount} {dateDealCount === 1 ? "deal" : "deals"}
+                                  </Badge>
+                                </Flex>
                               </Box>
 
                               <Box
@@ -596,8 +627,8 @@ const SettledList = ({
                               >
                                 <Text
                                   fontSize="10px"
-                                  color="gray.400"
-                                  fontWeight={600}
+                                  color="blue.600"
+                                  fontWeight={700}
                                   textTransform="uppercase"
                                   letterSpacing="0.04em"
                                 >
@@ -607,9 +638,8 @@ const SettledList = ({
                                 <Text
                                   mt={0.5}
                                   fontSize="sm"
-                                  color="gray.800"
+                                  color="blue.900"
                                   fontWeight={700}
-                                  // fontVariantNumeric="tabular-nums"
                                 >
                                   {formatNumber(
                                     dateTotal
@@ -646,6 +676,7 @@ const SettledList = ({
                                         md: 5,
                                       }}
                                       py={3.5}
+                                      bg="gray.50"
                                       justify="space-between"
                                       align={{
                                         base: "flex-start",
@@ -658,35 +689,33 @@ const SettledList = ({
                                       gap={3}
                                     >
                                       <Box minW={0}>
-                                        <Text
+                                        <Badge
+                                          colorScheme="teal"
+                                          variant="outline"
                                           fontSize="10px"
-                                          color="gray.400"
                                           fontWeight={700}
                                           textTransform="uppercase"
                                           letterSpacing="0.06em"
+                                          px={1.5}
+                                          py={0.5}
+                                          borderRadius="md"
                                         >
-                                          {
-                                            section.group
-                                          }
-                                        </Text>
+                                          {section.group}
+                                        </Badge>
 
                                         <Flex
                                           align="center"
                                           gap={2}
-                                          mt={1}
+                                          mt={1.5}
                                           wrap="wrap"
                                         >
                                           <Text
                                             fontSize="sm"
-                                            fontWeight={
-                                              700
-                                            }
+                                            fontWeight={700}
                                             color="gray.800"
                                             textTransform="capitalize"
                                           >
-                                            {
-                                              section.category
-                                            }
+                                            {section.category}
                                           </Text>
 
                                           <Text
@@ -698,17 +727,13 @@ const SettledList = ({
 
                                           <Text
                                             fontSize="xs"
-                                            color="gray.500"
+                                            fontWeight={600}
+                                            color="teal.600"
                                           >
                                             {
-                                              section
-                                                .rows
-                                                .length
+                                              section.rows.length
                                             }{" "}
-                                            {section
-                                              .rows
-                                              .length ===
-                                            1
+                                            {section.rows.length === 1
                                               ? "entry"
                                               : "entries"}
                                           </Text>
@@ -724,7 +749,7 @@ const SettledList = ({
                                         <Text
                                           fontSize="10px"
                                           fontWeight={600}
-                                          color="gray.400"
+                                          color="gray.500"
                                           textTransform="uppercase"
                                           letterSpacing="0.04em"
                                         >
@@ -735,8 +760,7 @@ const SettledList = ({
                                           mt={0.5}
                                           fontSize="sm"
                                           fontWeight={700}
-                                          color="gray.800"
-                                          // fontVariantNumeric="tabular-nums"
+                                          color="teal.700"
                                         >
                                           {formatNumber(
                                             sectionTotal
@@ -749,52 +773,34 @@ const SettledList = ({
                                     <Box
                                       overflowX="auto"
                                       borderTop="1px solid"
-                                      borderColor="gray.100"
+                                      borderColor="gray.200"
                                     >
                                       <Table
                                         size="sm"
                                         variant="simple"
                                       >
-                                        <Thead bg="gray.50">
+                                        <Thead bg="blue.50">
                                           <Tr>
                                             <Th
-                                              // minW="150px"
                                               py={3}
                                               pl={{
                                                 base: 4,
                                                 md: 5,
                                               }}
-                                              color="gray.500"
+                                              color="blue.700"
                                               fontSize="10px"
-                                              fontWeight={
-                                                700
-                                              }
+                                              fontWeight={700}
                                               letterSpacing="0.05em"
                                             >
                                               Reference
                                             </Th>
 
-                                            {/* <Th
-                                              minW="150px"
-                                              py={3}
-                                              color="gray.500"
-                                              fontSize="10px"
-                                              fontWeight={
-                                                700
-                                              }
-                                              letterSpacing="0.05em"
-                                            >
-                                              Exposure
-                                            </Th> */}
-
                                             <Th
                                               minW="120px"
                                               py={3}
-                                              color="gray.500"
+                                              color="blue.700"
                                               fontSize="10px"
-                                              fontWeight={
-                                                700
-                                              }
+                                              fontWeight={700}
                                               letterSpacing="0.05em"
                                               isNumeric
                                             >
@@ -808,11 +814,9 @@ const SettledList = ({
                                                 base: 4,
                                                 md: 5,
                                               }}
-                                              color="gray.500"
+                                              color="blue.700"
                                               fontSize="10px"
-                                              fontWeight={
-                                                700
-                                              }
+                                              fontWeight={700}
                                               letterSpacing="0.05em"
                                               isNumeric
                                             >
@@ -830,7 +834,7 @@ const SettledList = ({
                                               <Tr
                                                 key={`${dateKey}-${section.group}-${section.category}-${rowIndex}`}
                                                 _hover={{
-                                                  bg: "gray.50",
+                                                  bg: "blue.50",
                                                 }}
                                                 transition="background 0.15s ease"
                                                 sx={{
@@ -850,10 +854,8 @@ const SettledList = ({
                                                 >
                                                   <Text
                                                     fontSize="xs"
-                                                    fontWeight={
-                                                      600
-                                                    }
-                                                    color="gray.700"
+                                                    fontWeight={600}
+                                                    color="blue.700"
                                                     whiteSpace="nowrap"
                                                   >
                                                     {getReferenceNumber(
