@@ -394,6 +394,7 @@ const ConversionManager = ({ showError }: any) => {
   values={fw}
   bank={values.bank}
   businessUnit={values.businessUnit}
+  currency={values.currency}
   // exposureType={values.exposureType}   // add this
   dueDate={values.drawdownDate}             // add this
   setFieldValue={setFieldValue}

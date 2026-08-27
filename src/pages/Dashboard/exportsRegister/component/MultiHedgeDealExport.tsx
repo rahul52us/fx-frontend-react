@@ -28,6 +28,10 @@ export const MultiHedgeDealExport: React.FC<MultiHedgeDealExportProps> = ({
         exposureType,
         // documentDueDate: values?.dueDate || "",
         transactionDate: values?.dueDate || "",
+        currency:
+          typeof values?.currency === "object"
+            ? values?.currency?.value ?? ""
+            : values?.currency ?? "",
       });
       if (res?.data?.status === "success") {
         setHedgeDealsMaster(res.data.data);

@@ -13,6 +13,7 @@ interface HedgeDealSelectorProps {
   showError: boolean;
   bank: any;           // can be string or object
   businessUnit: any;   // can be string or object
+  currency: any;
   // exposureType: any;   // add this
   dueDate: string;     // add this (documentDueDate)
 }
@@ -27,6 +28,7 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
   showError,
   bank,
   businessUnit,
+  currency,
   // exposureType,
   dueDate
 }) => {
@@ -44,6 +46,8 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
         exposureType: "export",
         // documentDueDate: dueDate ?? "",
         transactionDate: dueDate ?? "",
+        currency:
+          typeof currency === "object" ? currency?.value ?? "" : currency ?? "",
       });
       // const response = await axios.post(`${url}/forwardregister/hedgedealid/`,{
       //   bank: bank,
@@ -64,7 +68,7 @@ const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [url, bank, businessUnit, dueDate, toast]);
+  }, [url, bank, businessUnit, currency, dueDate, toast]);
 
  
 

@@ -56,6 +56,10 @@ const ForwardContractSection = ({
           exposureType,
           // documentDueDate,
           transactionDate: values?.settlementDate || "",
+          currency:
+            typeof values?.currency === "object"
+              ? values?.currency?.value ?? ""
+              : values?.currency ?? "",
         }
       );
 

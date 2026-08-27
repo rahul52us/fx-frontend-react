@@ -30,6 +30,10 @@ export const HedgeDealSelector: React.FC<HedgeDealSelectorProps> = ({
       setLoading(true);
       const response = await axios.post(`${url}/forwardregister/hedgedealid/`, {
         transactionDate: values?.dueDate || "",
+        currency:
+          typeof values?.currency === "object"
+            ? values?.currency?.value ?? ""
+            : values?.currency ?? "",
       });
       if (response?.data?.status === "success") {
         setHedgeDeals(response.data.data);
