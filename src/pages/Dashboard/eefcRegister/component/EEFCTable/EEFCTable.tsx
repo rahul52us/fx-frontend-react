@@ -37,7 +37,7 @@ const EEFCTable = () => {
         data: type === "excel" ? values : [values],
       };
       const response = await axios.post(
-        "https://kzen.co.in/crudapi/eefcregister/form/",
+        `${url}/eefcregister/form/`,
         payload
       );
 

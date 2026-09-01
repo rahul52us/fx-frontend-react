@@ -82,7 +82,7 @@ const RpTable = () => {
       };
 
       const response = await axios.post(
-        "https://kzen.co.in/crudapi/rp/form/",
+        `${process.env.REACT_APP_FX_BASE_URL}/rp/form/`,
         payload
       );
 

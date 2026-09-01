@@ -118,6 +118,7 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
         bankName: b.bankName || "",
         currency: b.currency || "",
         margin: b.margin || "",
+        bankSpread: b.bankSpread || "",
         location: ""
       }))
     };
@@ -142,6 +143,7 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
           bankName: b.bankName || "",
           currency: b.currency || "",
           margin: b.margin || "",
+          bankSpread: b.bankSpread || "",
           location: ""
         }))
       }
@@ -179,6 +181,7 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
       bankName: bank.bankName,
       currency: bank.currency,
       margin: bank.margin,
+      bankSpread: bank.bankSpread || "",
       location: ""
     });
     setBusinessUnits(updated);
@@ -358,10 +361,11 @@ const AddForm = observer(({ onSubmit, onCancel }: any) => {
                 </FormControl>
 
                 {selectedUnit && bu.banks.map((bank, bankIndex) => (
-                  <Grid key={bankIndex} templateColumns="2fr 2fr 2fr 3fr 40px" gap={3} mb={2}>
+                  <Grid key={bankIndex} templateColumns="2fr 2fr 2fr 2fr 3fr 40px" gap={3} mb={2}>
                     <Input value={bank.bankName} isReadOnly />
                     <Input value={bank.currency} isReadOnly />
                     <Input value={bank.margin} isReadOnly />
+                    <Input value={bank.bankSpread || ""} isReadOnly />
                     <Input
                       placeholder="Location"
                       value={bank.location}

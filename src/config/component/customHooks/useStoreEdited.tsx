@@ -19,9 +19,10 @@ export const useStoreEdited = () => {
 
     try {
       //   const token = localStorage.getItem("accessToken"); // or wherever you store it
+      const baseUrl = process.env.REACT_APP_FX_BASE_URL;
 
       const response: any = await axios.post(
-        "https://kzen.co.in/crudapi/api/storeedited/",
+        `${baseUrl}/api/storeedited/`,
         payload,
         // {
         //   headers: {

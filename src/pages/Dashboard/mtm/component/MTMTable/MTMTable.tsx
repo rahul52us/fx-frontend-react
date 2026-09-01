@@ -85,10 +85,9 @@ const BookingRegisterTableColumns = [
   const fetchmtmData = useCallback(async (currentPage = 1) => {
     // setLoading(true);
     try {
+      const baseUrl = process.env.REACT_APP_FX_BASE_URL;
       const response = await axios.post(
-        // "https://kzen.co.in/crudapi/mtm/view/",
-        "https://kzen.co.in/crudapi/mtmview/view/",
-
+        `${baseUrl}/mtmview/view/`,
         { condition: "", page: currentPage, limit: rowsPerPage, userId: viewAsUserId }
       );
 
