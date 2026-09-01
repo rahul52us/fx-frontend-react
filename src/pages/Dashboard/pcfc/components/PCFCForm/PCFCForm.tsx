@@ -1,6 +1,6 @@
 import { Box, Button, Flex, SimpleGrid, useToast, VStack } from "@chakra-ui/react";
-import { Formik, Form as FormikForm } from "formik";
-import { useMemo, useState } from "react";
+import { Formik, Form as FormikForm, useFormikContext } from "formik";
+import { useEffect, useMemo, useState } from "react";
 import * as Yup from "yup";
 import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput"; // Adjust path as needed
@@ -18,7 +18,26 @@ import { getPcfcInitialValues } from "./utils/constant";
 import {
   computeSpotNetRate,
   getBankMarginFromForm,
+  getBankSpreadFromForm,
 } from "./utils/spotHelpers";
+
+const BankSpreadAutoFiller = ({ selectedBusinessUnits }: { selectedBusinessUnits: any[] }) => {
+  const { values, setFieldValue }: any = useFormikContext();
+
+  useEffect(() => {
+    const nextBankSpread = getBankSpreadFromForm(
+      values?.businessUnit,
+      values?.bank,
+      selectedBusinessUnits
+    );
+
+    if (String(values?.bankSpread ?? "") !== String(nextBankSpread ?? "")) {
+      setFieldValue("bankSpread", nextBankSpread, false);
+    }
+  }, [values?.businessUnit, values?.bank, values?.bankSpread, selectedBusinessUnits, setFieldValue]);
+
+  return null;
+};
 
 const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const [showError, setShowError] = useState(false); // Initially false, true on submit
@@ -98,6 +117,8 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   }), []);
 
   const toast = useToast();
+  const selectedBusinessUnits = store.auth.user?.businessUnits || [];
+
   const handleFormSubmit = async (handleSubmit: any, validateForm: any) => {
     setShowError(true);
 
@@ -224,6 +245,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
           {({ values, handleChange, setFieldValue, isSubmitting, errors, touched, handleSubmit, validateForm }: any) => (
             <FormikForm>
               {/* Insert the Logic Component Here */}
+              <BankSpreadAutoFiller selectedBusinessUnits={selectedBusinessUnits} />
               <FormAutoCalculator />
               <VStack spacing={6} align="stretch">
                 {/* --- Section 1: Universal Headers --- */}
@@ -265,7 +287,9 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                     name="businessUnit"
                     placeholder="Add Business Unit"
                     value={values.businessUnit}
-                    onChange={(e) => setFieldValue('businessUnit', e)}
+                    onChange={(e) => {
+                      setFieldValue("businessUnit", e);
+                    }}
                     error={touched.businessUnit && errors.businessUnit}
                     showError={showError}
                     required
@@ -373,6 +397,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                       label="Bank Spread (%)"
                       name="bankSpread"
                       type="number"
+                      disabled
                       value={values.bankSpread}
                       onChange={handleChange}
                       error={touched.bankSpread && errors.bankSpread}
