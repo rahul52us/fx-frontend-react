@@ -1,16 +1,20 @@
 import * as Yup from "yup";
 
-export const getExportRegisterValidationSchema = (isEdit: boolean = false, poBalance: number = Infinity) => {
+export const getExportRegisterValidationSchema = (
+  isEdit: boolean = false,
+  poBalance: number = Infinity
+) => {
   return Yup.object({
     exposureType: Yup.mixed().required("Exposure Type is required"),
 
-    // ✅ Business Unit (only required for forecast & others except confirmed_order logic if needed)
+    // Business Unit - required only for forecast
     businessUnit: Yup.mixed().when("exposureType", {
       is: (val: string) => val === "forecast",
       then: (schema) => schema.required("Business Unit is required"),
       otherwise: (schema) => schema.notRequired(),
     }),
 
+    // Currency - required only for forecast
     currency: Yup.mixed().when("exposureType", {
       is: (val: string) => val === "forecast",
       then: (schema) => schema.required("Currency is required"),
@@ -19,31 +23,44 @@ export const getExportRegisterValidationSchema = (isEdit: boolean = false, poBal
 
     amount: Yup.number()
       .required("Amount is required")
-      // Shipment validation
+
+      // Shipment validation - Amount <= Outstanding Amount
       .when(["exposureType", "outStandingAmount"], {
         is: (exposureType: string, outStandingAmount: any) =>
           exposureType === "shipment" && !!outStandingAmount,
         then: (schema) =>
           schema.test("max-outStandingAmount", function (value) {
             const { outStandingAmount } = this.parent;
-            if (value && outStandingAmount && value > outStandingAmount) {
+
+            if (
+              value &&
+              outStandingAmount &&
+              value > outStandingAmount
+            ) {
               return this.createError({
                 message: `Amount must be ≤ Outstanding Amount (${outStandingAmount})`,
               });
             }
+
             return true;
           }),
       })
-      // LC/BC shifting validation using poBalance
+
+      // Shipment validation - Amount <= PO Balance
       .when("exposureType", {
         is: (exposureType: string) => exposureType === "shipment",
         then: (schema) =>
           schema.test("max-poBalance", function (value) {
-            if (value && poBalance !== Infinity && value > poBalance) {
+            if (
+              value &&
+              poBalance !== Infinity &&
+              value > poBalance
+            ) {
               return this.createError({
                 message: `Amount must be ≤ PO Balance (${poBalance})`,
               });
             }
+
             return true;
           }),
       }),
@@ -51,30 +68,56 @@ export const getExportRegisterValidationSchema = (isEdit: boolean = false, poBal
     dueDate: Yup.date()
       .nullable()
       .transform((value, originalValue) =>
-        originalValue === "" ? null : (originalValue ? new Date(originalValue) : value)
+        originalValue === ""
+          ? null
+          : originalValue
+          ? new Date(originalValue)
+          : value
       )
       .when("exposureType", {
         is: (val: string) => val === "forecast",
-        then: (schema) => schema.required("Due Date is required"),
+
+        then: (schema) =>
+          schema.required("Due Date is required"),
+
         otherwise: (schema) =>
-          schema.required("Due Date is required")
+          schema
+            .required("Due Date is required")
+
             .when("blDate", (blDate: any, schema: any) => {
-              const dateValue = Array.isArray(blDate) ? blDate[0] : blDate;
+              const dateValue = Array.isArray(blDate)
+                ? blDate[0]
+                : blDate;
+
               return dateValue
-                ? schema.min(new Date(dateValue), "Due Date must be after BL Date")
+                ? schema.min(
+                    new Date(dateValue),
+                    "Due Date must be after BL Date"
+                  )
                 : schema;
             })
+
             .when("poDate", (poDate: any, schema: any) => {
-              const dateValue = Array.isArray(poDate) ? poDate[0] : poDate;
+              const dateValue = Array.isArray(poDate)
+                ? poDate[0]
+                : poDate;
+
               return dateValue
-                ? schema.min(new Date(dateValue), "Due Date must be after PO Date")
+                ? schema.min(
+                    new Date(dateValue),
+                    "Due Date must be after PO Date"
+                  )
                 : schema;
             }),
       }),
 
+    // ============================================================
+    // INVOICE NO
+    // Required ONLY for shipment
+    // Optional for forecast, confirmed_order, and all other types
+    // ============================================================
     invoiceNo: Yup.string().when("exposureType", {
-      is: (val: string) =>
-        val !== "forecast" && val !== "confirmed_order",
+      is: (val: string) => val === "shipment",
       then: (schema) => schema.required("Invoice No is required"),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -115,14 +158,22 @@ export const getExportRegisterValidationSchema = (isEdit: boolean = false, poBal
       otherwise: (schema) => schema.notRequired(),
     }),
 
+    // ============================================================
+    // INVOICE DATE
+    // Required ONLY for shipment
+    // Optional for forecast, confirmed_order, and all other types
+    // ============================================================
     invoiceDate: Yup.date()
       .nullable()
       .transform((value, originalValue) =>
-        originalValue === "" ? null : (originalValue ? new Date(originalValue) : value)
+        originalValue === ""
+          ? null
+          : originalValue
+          ? new Date(originalValue)
+          : value
       )
       .when("exposureType", {
-        is: (val: string) =>
-          val !== "forecast" && val !== "confirmed_order",
+        is: (val: string) => val === "shipment",
         then: (schema) => schema.required("Invoice Date is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
@@ -130,14 +181,18 @@ export const getExportRegisterValidationSchema = (isEdit: boolean = false, poBal
     blDate: Yup.string().when("exposureType", {
       is: (val: string) => val !== "forecast",
       then: (schema) =>
-        schema.required("BL Date is required")
+        schema
+          .required("BL Date is required")
           .test(
             "bl-date-range",
             "BL Date must be between PO Date and Due Date",
             function (value) {
               const { poDate, dueDate } = this.parent;
+
               if (!value || !poDate || !dueDate) return true;
+
               const blDate = new Date(value);
+
               return (
                 blDate >= new Date(poDate) &&
                 blDate <= new Date(dueDate)
@@ -147,61 +202,70 @@ export const getExportRegisterValidationSchema = (isEdit: boolean = false, poBal
       otherwise: (schema) => schema.notRequired(),
     }),
 
-    hedgeDeals: Yup.array().of(
-      Yup.object({
-        hedgeAmount: Yup.number()
-          .notRequired()
-          .test("max-balance", function (value) {
-            const { balanceAmount } = this.parent;
-            const balance = parseFloat(balanceAmount) || 0;
+    hedgeDeals: Yup.array()
+      .of(
+        Yup.object({
+          hedgeAmount: Yup.number()
+            .notRequired()
+            .test("max-balance", function (value) {
+              const { balanceAmount } = this.parent;
+              const balance = parseFloat(balanceAmount) || 0;
 
-            // ✅ Balance amount must be positive
-            if (balance <= 0) {
-              return this.createError({
-                message: `Balance Amount must be positive (current: ${balance})`,
-              });
-            }
+              // Balance amount must be positive
+              if (balance <= 0) {
+                return this.createError({
+                  message: `Balance Amount must be positive (current: ${balance})`,
+                });
+              }
 
-            // ✅ Hedge amount must be ≤ balance amount
-            if (value && value > balance) {
+              // Hedge amount must be <= balance amount
+              if (value && value > balance) {
+                return this.createError({
+                  message: `Hedge Amount (${value}) must be ≤ Balance Amount (${balance})`,
+                });
+              }
+
+              return true;
+            }),
+        })
+      )
+      .test(
+        "total-hedge-amount",
+        "Total Hedge Amount must not exceed the Outstanding Amount",
+        function (hedgeDeals) {
+          const { amount, outstandingAmount } = this.parent;
+
+          if (!hedgeDeals || hedgeDeals.length === 0) return true;
+
+          const totalHedge = hedgeDeals.reduce(
+            (sum: number, deal: any) => {
+              return sum + (parseFloat(deal.hedgeAmount) || 0);
+            },
+            0
+          );
+
+          if (isEdit) {
+            if (
+              totalHedge > parseFloat(outstandingAmount)
+            ) {
               return this.createError({
-                message: `Hedge Amount (${value}) must be ≤ Balance Amount (${balance})`,
+                message: `Total Hedge Amount (${totalHedge}) must not exceed Outstanding Amount (${outstandingAmount})`,
               });
             }
 
             return true;
-          }),
-      })
-    ).test(
-      "total-hedge-amount",
-      "Total Hedge Amount must not exceed the Outstanding Amount",
-      function (hedgeDeals) {
-        const { amount, outstandingAmount } = this.parent;
+          }
 
-        if (!hedgeDeals || hedgeDeals.length === 0) return true;
+          const amountVal = parseFloat(amount);
 
-        const totalHedge = hedgeDeals.reduce((sum: number, deal: any) => {
-          return sum + (parseFloat(deal.hedgeAmount) || 0);
-        }, 0);
-
-        if (isEdit) {
-          if (totalHedge > parseFloat(outstandingAmount)) {
+          if (amountVal && totalHedge > amountVal) {
             return this.createError({
-              message: `Total Hedge Amount (${totalHedge}) must not exceed Outstanding Amount (${outstandingAmount})`,
+              message: `Total Hedge Amount (${totalHedge}) must not exceed Amount (${amountVal})`,
             });
           }
+
           return true;
         }
-
-        const amountVal = parseFloat(amount);
-        if (amountVal && totalHedge > amountVal) {
-          return this.createError({
-            message: `Total Hedge Amount (${totalHedge}) must not exceed Amount (${amountVal})`,
-          });
-        }
-
-        return true;
-      }
-    ),
+      ),
   });
 };

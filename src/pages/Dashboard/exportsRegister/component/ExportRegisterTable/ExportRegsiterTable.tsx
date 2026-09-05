@@ -166,12 +166,14 @@ const ExportRegisterTable = () => {
   /* ---------------- Excel Upload ---------------- */
 
   const handleFileUpload = async (event: any) => {
+    console.log("File upload triggered", event.target.files);
     const file = event.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
     try {
       const data = await importFromExcel(file);
+      console.log('data',data);
       const schema = getExportRegisterValidationSchema(false); // isEdit=false
 
       const validatedData = [];
