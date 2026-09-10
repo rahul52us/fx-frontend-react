@@ -24,7 +24,7 @@ import {
   calculateDueDate,
   exportToExcel,
   importFromExcel,
-  normalizeDate,
+  normalizeExcelDate,
 } from "../../../exportsRegister/component/utils/function";
 import ImportRegistrationForm from "../ImportRegisterForm";
 import AmountSettledList from "../../../exportsRegister/component/ExportRegisterTable/AmountSettledList";
@@ -480,18 +480,26 @@ const ImportRegisterTable = () => {
       for (let i = 0; i < data.length; i++) {
         const row = data[i];
 
-        // Normalize dates before validation
+        const paymentTerms = Number(row.paymentTerms);
+
+        // Convert Excel dates BEFORE validation
+        const poDate = normalizeExcelDate(row.poDate);
+        const invoiceDate = normalizeExcelDate(row.invoiceDate);
+        const blDate = normalizeExcelDate(row.blDate);
+
+        const dueDate = row.dueDate
+          ? normalizeExcelDate(row.dueDate)
+          : calculateDueDate(blDate, paymentTerms);
+
         const normalizedRow: any = {
           ...row,
-          poDate: normalizeDate(row.poDate),
-          invoiceDate: normalizeDate(row.invoiceDate),
-          blDate: normalizeDate(row.blDate),
-          paymentTerms: Number(row.paymentTerms),
-          dueDate: normalizeDate(row.dueDate) || calculateDueDate(normalizeDate(row.blDate), Number(row.paymentTerms)),
+          poDate: String(poDate),
+          invoiceDate: String(invoiceDate),
+          blDate: String(blDate),
+          dueDate: String(dueDate || ""),
+          paymentTerms,
+          hedgeDeals: [],
         };
-
-        // Keep hedgeDeals empty for excel upload
-        normalizedRow.hedgeDeals = [];
 
         try {
           await schema.validate(normalizedRow, { abortEarly: false });

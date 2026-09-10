@@ -11,7 +11,7 @@ import { dummyForwardRegisterData } from "../../../exportsRegister/component/uti
 import {
   exportToExcel,
   importFromExcel,
-  normalizeDate,
+  normalizeExcelDate,
 } from "../../../exportsRegister/component/utils/function";
 import ForwardRegisterForm from "../ForwardRegisterForm/ForwardRegisterForm";
 import ExposureRefsCell from "./ExposureRefsCell";
@@ -185,12 +185,11 @@ const ForwardRegisterTable = () => {
       for (let i = 0; i < data.length; i++) {
         const row = data[i];
 
-        // Normalize dates before validation
         const normalizedRow: any = {
           ...row,
-          bookingDate: normalizeDate(row.bookingDate),
-          dueDateFrom: normalizeDate(row.dueDateFrom),
-          dueDateTo: normalizeDate(row.dueDateTo),
+          bookingDate: String(normalizeExcelDate(row.bookingDate)),
+          dueDateFrom: String(normalizeExcelDate(row.dueDateFrom)),
+          dueDateTo: String(normalizeExcelDate(row.dueDateTo)),
         };
 
         // Keep exposureRefs, cancelledList, settledList empty for excel upload
