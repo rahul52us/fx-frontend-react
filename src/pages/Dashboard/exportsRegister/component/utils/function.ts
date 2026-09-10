@@ -252,3 +252,44 @@ export const updateDueDate = (
     setFieldValue("dueDate", "");
   }
 };
+
+export const normalizeExcelDate = (value: any): string => {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  // Excel serial date number
+  if (typeof value === "number") {
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+    const date = new Date(
+      excelEpoch.getTime() + value * 24 * 60 * 60 * 1000
+    );
+
+    return date.toISOString().slice(0, 10);
+  }
+
+  // JS Date object
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return value.toISOString().slice(0, 10);
+  }
+
+  // String date
+  const stringValue = String(value).trim();
+
+  if (!stringValue) {
+    return "";
+  }
+
+  // Already YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(stringValue)) {
+    return stringValue;
+  }
+
+  const date = new Date(stringValue);
+
+  if (!isNaN(date.getTime())) {
+    return date.toISOString().slice(0, 10);
+  }
+
+  return "";
+};

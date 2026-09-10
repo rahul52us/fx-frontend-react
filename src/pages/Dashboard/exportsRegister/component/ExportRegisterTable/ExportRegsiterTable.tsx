@@ -24,7 +24,7 @@ import Loader from "../../../../../config/component/Loader/Loader";
 import store from "../../../../../store/store";
 import ExposureForm from "../ExportsRegisterForm";
 import { dummyExportRegisterData } from "../utils/constant";
-import { calculateDueDate, exportToExcel, importFromExcel, normalizeDate } from "../utils/function";
+import { calculateDueDate, exportToExcel, importFromExcel, normalizeExcelDate } from "../utils/function";
 import { getExportRegisterValidationSchema } from "../utils/validationSchema";
 import AmountSettledList from "./AmountSettledList";
 import HedgeDealsDrawer from "./HedgeDealsDrawer";
@@ -165,75 +165,192 @@ const ExportRegisterTable = () => {
 
   /* ---------------- Excel Upload ---------------- */
 
-  const handleFileUpload = async (event: any) => {
-    console.log("File upload triggered", event.target.files);
-    const file = event.target.files?.[0];
-    if (!file) return;
+  // const handleFileUpload = async (event: any) => {
+  //   console.log("File upload triggered", event.target.files);
+  //   const file = event.target.files?.[0];
+  //   if (!file) return;
 
-    setIsUploading(true);
-    try {
-      const data = await importFromExcel(file);
-      console.log('data',data);
-      const schema = getExportRegisterValidationSchema(false); // isEdit=false
+  //   setIsUploading(true);
+  //   try {
+  //     const data = await importFromExcel(file);
+  //     console.log('data',data);
+  //     const schema = getExportRegisterValidationSchema(false); // isEdit=false
 
-      const validatedData = [];
-      const validationErrors = [];
+  //     const validatedData = [];
+  //     const validationErrors = [];
 
-      for (let i = 0; i < data.length; i++) {
-        const row = data[i];
+  //     for (let i = 0; i < data.length; i++) {
+  //       const row = data[i];
 
-        // Normalize dates before validation
-        const normalizedRow: any = {
-          ...row,
-          poDate: normalizeDate(row.poDate),
-          invoiceDate: normalizeDate(row.invoiceDate),
-          blDate: normalizeDate(row.blDate),
-          paymentTerms: Number(row.paymentTerms),
-          dueDate: normalizeDate(row.dueDate) || calculateDueDate(normalizeDate(row.blDate), Number(row.paymentTerms)),
-        };
+  //       // Normalize dates before validation
+  //       const normalizedRow: any = {
+  //         ...row,
+  //         poDate: normalizeDate(row.poDate),
+  //         invoiceDate: normalizeDate(row.invoiceDate),
+  //         blDate: normalizeDate(row.blDate),
+  //         paymentTerms: Number(row.paymentTerms),
+  //         dueDate: normalizeDate(row.dueDate) || calculateDueDate(normalizeDate(row.blDate), Number(row.paymentTerms)),
+  //       };
 
-        // Keep hedgeDeals empty for excel upload
-        normalizedRow.hedgeDeals = [];
+  //       // Keep hedgeDeals empty for excel upload
+  //       normalizedRow.hedgeDeals = [];
 
-        try {
-          await schema.validate(normalizedRow, { abortEarly: false });
-          validatedData.push(normalizedRow);
-        } catch (error: any) {
-          validationErrors.push({
-            row: i + 1,
-            message: error.errors.join(", "),
-          });
-        }
-      }
+  //       try {
+  //         await schema.validate(normalizedRow, { abortEarly: false });
+  //         validatedData.push(normalizedRow);
+  //       } catch (error: any) {
+  //         validationErrors.push({
+  //           row: i + 1,
+  //           message: error.errors.join(", "),
+  //         });
+  //       }
+  //     }
 
-      if (validationErrors.length > 0) {
-        setUploadResults({
-          success: validatedData.length,
-          failures: validationErrors.length,
-          errors: validationErrors,
+  //     if (validationErrors.length > 0) {
+  //       setUploadResults({
+  //         success: validatedData.length,
+  //         failures: validationErrors.length,
+  //         errors: validationErrors,
+  //       });
+  //       onStatusOpen();
+  //       setIsUploading(false);
+  //       return;
+  //     }
+
+  //     if (validatedData.length > 0) {
+  //       await submitExportForm(validatedData, {}, "excel");
+  //     }
+  //   } catch (err: any) {
+  //     console.error("Excel import failed", err);
+  //     setUploadResults({
+  //       success: 0,
+  //       failures: 0,
+  //       errors: [{ row: 0, message: err.message || "Failed to process excel file" }],
+  //     });
+  //     onStatusOpen();
+  //   } finally {
+  //     setIsUploading(false);
+  //     // Reset input value so same file can be uploaded again if needed
+  //     event.target.value = "";
+  //   }
+  // };
+
+
+
+
+
+const handleFileUpload = async (event: any) => {
+  console.log("File upload triggered", event.target.files);
+
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  setIsUploading(true);
+
+  try {
+    const data = await importFromExcel(file);
+    console.log("Raw Excel data:", data);
+
+    const schema = getExportRegisterValidationSchema(false);
+
+    const validatedData = [];
+    const validationErrors = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+
+      const paymentTerms = Number(row.paymentTerms);
+
+      // Convert Excel dates BEFORE validation
+      const poDate = normalizeExcelDate(row.poDate);
+      const invoiceDate = normalizeExcelDate(row.invoiceDate);
+      const blDate = normalizeExcelDate(row.blDate);
+
+      // Use Excel dueDate if provided, otherwise calculate it
+      const dueDate = row.dueDate
+        ? normalizeExcelDate(row.dueDate)
+        : calculateDueDate(blDate, paymentTerms);
+
+      const normalizedRow: any = {
+        ...row,
+
+        // All dates are now YYYY-MM-DD strings
+        poDate: String(poDate),
+        invoiceDate: String(invoiceDate),
+        blDate: String(blDate),
+        dueDate: String(dueDate || ""),
+
+        paymentTerms,
+
+        // Keep empty for Excel upload
+        hedgeDeals: [],
+      };
+
+      console.log(
+        `Row ${i + 1} after conversion:`,
+        normalizedRow
+      );
+
+      try {
+        // Validate ONLY after conversion
+        await schema.validate(normalizedRow, {
+          abortEarly: false,
         });
-        onStatusOpen();
-        setIsUploading(false);
-        return;
-      }
 
-      if (validatedData.length > 0) {
-        await submitExportForm(validatedData, {}, "excel");
+        validatedData.push(normalizedRow);
+      } catch (error: any) {
+        validationErrors.push({
+          row: i + 1,
+          message: error.errors.join(", "),
+        });
       }
-    } catch (err: any) {
-      console.error("Excel import failed", err);
-      setUploadResults({
-        success: 0,
-        failures: 0,
-        errors: [{ row: 0, message: err.message || "Failed to process excel file" }],
-      });
-      onStatusOpen();
-    } finally {
-      setIsUploading(false);
-      // Reset input value so same file can be uploaded again if needed
-      event.target.value = "";
     }
-  };
+
+    if (validationErrors.length > 0) {
+      setUploadResults({
+        success: validatedData.length,
+        failures: validationErrors.length,
+        errors: validationErrors,
+      });
+
+      onStatusOpen();
+      return;
+    }
+
+    if (validatedData.length > 0) {
+      console.log("Final data before submit:", validatedData);
+
+      await submitExportForm(
+        validatedData,
+        {},
+        "excel"
+      );
+    }
+  } catch (err: any) {
+    console.error("Excel import failed", err);
+
+    setUploadResults({
+      success: 0,
+      failures: 0,
+      errors: [
+        {
+          row: 0,
+          message: err.message || "Failed to process excel file",
+        },
+      ],
+    });
+
+    onStatusOpen();
+  } finally {
+    setIsUploading(false);
+
+    // Allow same file to be uploaded again
+    event.target.value = "";
+  }
+};
+
+
+
 
   /* ---------------- Fetch Data ---------------- */
 
