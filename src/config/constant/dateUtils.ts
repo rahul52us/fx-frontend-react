@@ -62,7 +62,7 @@ export function formatDate(date: Date, format?: string): string {
 }
 
 const TABLE_DATE_KEY_PATTERN =
-  /(date|dob|doj|createdat|updatedat|modifiedat|confirmedat|confirmationdate|publishedat|publisheddate|effectiveto|effectivefrom|disbursementfrom|startdate|enddate|duedate|bookingdate|invoicedate|bldate|podate|spotonbmkdate|premiumonbmkdate|drawdowndate|deliverydatefrom|deliverydateto|pcfcinputdate|forwardinputdate|forwardmodificationdate|exposureinputdate|exposuremodificationdate)/i;
+  /(date|dob|doj|createdat|updatedat|modifiedat|confirmedat|confirmationdate|publishedat|publisheddate|effectiveto|effectivefrom|disbursementfrom|startdate|enddate|duedate|bookingdate|invoicedate|bldate|podate|drawdowndate|deliverydatefrom|deliverydateto|pcfcinputdate|forwardinputdate|forwardmodificationdate|exposureinputdate|exposuremodificationdate)/i;
 
 export function isTableDateColumn(column?: {
   key?: string;
@@ -75,6 +75,10 @@ export function isTableDateColumn(column?: {
 
   const key = (column.key || "").replace(/[^a-zA-Z]/g, "");
   const headerName = (column.headerName || "").replace(/[^a-zA-Z]/g, "");
+
+  if (/(spotonbmkdate|premiumonbmkdate|bmkdate)/i.test(key) || /(spotonbmkdate|premiumonbmkdate|bmkdate)/i.test(headerName)) {
+    return false;
+  }
 
   return TABLE_DATE_KEY_PATTERN.test(key) || TABLE_DATE_KEY_PATTERN.test(headerName);
 }
@@ -89,7 +93,15 @@ export function formatTableDate(value: any): string {
       ? value.replace(/&#x[0-9a-f]+;?/gi, " ").trim()
       : value;
 
+  if (typeof rawValue === "number") {
+    return String(rawValue);
+  }
+
   if (typeof rawValue === "string") {
+    if (/^-?\d+(\.\d+)?$/.test(rawValue)) {
+      return rawValue;
+    }
+
     const dashSeparatedDateWithTime = rawValue.match(
       /^(\d{2})-(\d{2})-(\d{4})(?:\s+\d{1,2}:\d{2}(?::\d{2})?.*)?$/
     );

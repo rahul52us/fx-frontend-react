@@ -571,7 +571,7 @@ const handleFileUpload = async (event: any) => {
   { headerName: "Settlement Rate", key: "settlementRate" },
   { headerName: "Settlement Rate 1", key: "settlementRate1" },
 
-  { headerName: "P/L in INR", key: "PlInINR" },
+  // { headerName: "P/L in INR", key: "PlInINR" },
 
   { headerName: "Advance Allotment", key: "advaceAllotment" },
   { headerName: "Advance Rate", key: "advanceRate" },

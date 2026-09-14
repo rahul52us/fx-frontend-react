@@ -424,7 +424,7 @@ const ImportRegisterTable = () => {
 
     { headerName: "Amount Settled", key: "amountSettled" },
     { headerName: "Settlement Rate", key: "settlementRate" },
-    { headerName: "P/L in INR", key: "PlInINR" },
+    // { headerName: "P/L in INR", key: "PlInINR" },
 
     { headerName: "Value in INR", key: "valueInInr" },
     { headerName: "Import Hedged Rate", key: "importHedgedRate" },
