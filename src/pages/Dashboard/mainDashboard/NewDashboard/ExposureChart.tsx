@@ -11,31 +11,42 @@ import { Bar } from "react-chartjs-2";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const data = [
-  { month: "Jan", exports: 4200, imports: 3800 },
-  { month: "Feb", exports: 3900, imports: 4100 },
-  { month: "Mar", exports: 5100, imports: 3500 },
-  { month: "Apr", exports: 4700, imports: 4300 },
-  { month: "May", exports: 5500, imports: 3900 },
-  { month: "Jun", exports: 6100, imports: 4600 },
-];
+const toPercentage = (value?: string) => Number.parseFloat(value || "0") || 0;
 
-const ExposureChart = () => {
+const ExposureChart = ({ data }: { data?: any }) => {
+  const categories = [
+    {
+      label: "Exports",
+      hedged: toPercentage(data?.totalExportHedgeStatus?.totalExportHedgeStatus),
+      unhedged: toPercentage(data?.totalExportHedgeStatus?.totalExportUnhedgeStatus)
+    },
+    {
+      label: "Imports",
+      hedged: toPercentage(data?.totalImportHedgeStatus?.totalImportHedgeStatus),
+      unhedged: toPercentage(data?.totalImportHedgeStatus?.totalImportUnedgeStatus)
+    },
+    {
+      label: "Net exposure",
+      hedged: toPercentage(data?.totalNetExposureHedgeStatus?.netExposureHedgeStatus),
+      unhedged: Math.max(0, 100 - toPercentage(data?.totalNetExposureHedgeStatus?.netExposureHedgeStatus))
+    }
+  ];
+
   const chartData = {
-    labels: data.map((d) => d.month),
+    labels: categories.map((item) => item.label),
     datasets: [
       {
-        label: "Exports",
-        data: data.map((d) => d.exports),
+        label: "Hedged",
+        data: categories.map((item) => item.hedged),
         backgroundColor: "#38A169", // green
         borderRadius: 4,
         barPercentage: 0.6,
         categoryPercentage: 0.5
       },
       {
-        label: "Imports",
-        data: data.map((d) => d.imports),
-        backgroundColor: "#3182CE", // blue
+        label: "Unhedged",
+        data: categories.map((item) => item.unhedged),
+        backgroundColor: "#3182CE",
         borderRadius: 4,
         barPercentage: 0.6,
         categoryPercentage: 0.5
@@ -76,9 +87,12 @@ const ExposureChart = () => {
           borderDash: [3, 3],
           color: "#E2E8F0"
         },
+        min: 0,
+        max: 100,
         ticks: {
           color: "#718096",
-          font: { size: 12 }
+          font: { size: 12 },
+          callback: (value: string | number) => `${value}%`
         }
       }
     }
@@ -95,10 +109,10 @@ const ExposureChart = () => {
     >
       <VStack align="start" spacing="1" mb="4">
         <Text fontWeight="semibold" color="gray.800">
-          Exposure Overview
+          Hedge Status
         </Text>
         <Text fontSize="xs" color="gray.500">
-          Monthly export vs import exposure (USD '000)
+          Hedged vs unhedged exposure (%)
         </Text>
       </VStack>
 

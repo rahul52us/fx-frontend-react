@@ -20,7 +20,6 @@ import store from "../../../../store/store";
 
 import {
   FiActivity,
-  FiBarChart2,
   FiBookOpen,
   FiClipboard,
   FiDollarSign,
@@ -31,12 +30,12 @@ import {
   FiTrendingDown,
   FiTrendingUp
 } from "react-icons/fi";
-import CurrencyPieChart from "./CurrencyPieChart";
+import CurrencyDistributionCharts from "./CurrencyDistributionCharts";
 import ExposureChart from "./ExposureChart";
+// import HedgingSummaryTable from "./HedgingSummaryTable";
+import HedgingSummaryTable from "./HedgingSummaryTable";
 import KpiCard from "./KpiCard";
-import MaturityChart from "./MaturityChart";
 import ModuleCard from "./ModuleCard";
-import RecentActivity from "./RecentActivity";
 
 // import KpiCard from "@/components/dashboard/KpiCard";
 // import ModuleCard from "@/components/dashboard/ModuleCard";
@@ -46,45 +45,6 @@ import RecentActivity from "./RecentActivity";
 // import RecentActivity from "@/components/dashboard/RecentActivity";
 
 // import { toast } from "";
-
-const kpis = [
-  {
-    title: "Total Export Exposure",
-    value: "$12.4M",
-    change: "+8.2% from last month",
-    changeType: "positive" as const,
-    icon: FiTrendingUp,
-    color: "green.500",
-    bg: "green.100"
-  },
-  {
-    title: "Total Import Exposure",
-    value: "$9.8M",
-    change: "+3.1% from last month",
-    changeType: "negative" as const,
-    icon: FiTrendingDown,
-    color: "blue.500",
-    bg: "blue.100"
-  },
-  {
-    title: "Open Forwards",
-    value: "47",
-    change: "12 maturing this month",
-    changeType: "neutral" as const,
-    icon: FiRepeat,
-    color: "orange.400",
-    bg: "orange.100"
-  },
-  {
-    title: "Hedged Exposure",
-    value: "72%",
-    change: "+5% vs target",
-    changeType: "positive" as const,
-    icon: FiShield,
-    color: "purple.500",
-    bg: "purple.100"
-  }
-];
 
 const modules = [
   {
@@ -171,6 +131,8 @@ const NewDashboard = observer(() => {
 
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [dashboardData, setDashboardData] = useState<any>(null);
+    const [dashboardLoading, setDashboardLoading] = useState(true);
 
     // USD Summary States
     const [usdSummaryData, setUsdSummaryData] = useState<any>(null);
@@ -178,6 +140,7 @@ const NewDashboard = observer(() => {
     const [usdFilters, setUsdFilters] = useState({
       currency: "",
       bank: "",
+      businessUnit: "",
       year: new Date().getFullYear().toString(),
       financialYear: ""
     });
@@ -206,9 +169,33 @@ const NewDashboard = observer(() => {
         const user = usersList.find((u: any) => u.userId === viewAsUserId);
         setSelectedUserDetails(user);
         // Reset filters when user changes
-        setUsdFilters(prev => ({ ...prev, currency: "", bank: "" }));
+        setUsdFilters(prev => ({ ...prev, currency: "", bank: "", businessUnit: "" }));
       }
     }, [viewAsUserId, usersList]);
+
+    useEffect(() => {
+      const fetchDashboard = async () => {
+        setDashboardLoading(true);
+        try {
+          const response = await axios.post("/api/dashboard/", {
+            currency: usdFilters.currency,
+            businessUnit: usdFilters.businessUnit,
+            bank: usdFilters.bank
+          });
+          const result = response.data?.chartData
+            ? response.data
+            : response.data?.data;
+          setDashboardData(result || null);
+        } catch (error) {
+          console.error("Failed to fetch dashboard data", error);
+          setDashboardData(null);
+        } finally {
+          setDashboardLoading(false);
+        }
+      };
+
+      fetchDashboard();
+    }, [usdFilters.currency, usdFilters.businessUnit, usdFilters.bank, viewAsUserId]);
 
     // Fetch USD Summary Data
     useEffect(() => {
@@ -221,7 +208,7 @@ const NewDashboard = observer(() => {
             currency: usdFilters.currency,
             year: usdFilters.financialYear ? "" : usdFilters.year,
             financialYear: usdFilters.financialYear,
-            businessUnit: "",
+            businessUnit: usdFilters.businessUnit,
             bank: usdFilters.bank
           };
           const { data } = await axios.post(`/mtmview/summary/`, payload);
@@ -337,6 +324,53 @@ const NewDashboard = observer(() => {
        };
     });
 
+  const chartData = dashboardData?.chartData;
+  const tableInformation = dashboardData?.tableInformation;
+  const policyEntries =
+    selectedUserDetails?.policyCriteria?.entries || store.auth.user?.policyCriteria?.entries || [];
+  const selectedPolicy =
+    policyEntries.find((entry: any) =>
+      usdFilters.businessUnit && entry.businessUnitCode === usdFilters.businessUnit
+    ) || policyEntries.find((entry: any) => !entry.businessUnitCode) || policyEntries[0];
+  const dashboardBasis = selectedPolicy?.basis?.toLowerCase() === "net" ? "net" : "gross";
+  const kpis = [
+    {
+      title: "Export Hedge Status",
+      value: chartData?.totalExportHedgeStatus?.totalExportHedgeStatus || "0 %",
+      change: `Hedged forward: ${Number(chartData?.totalExportHedgeStatus?.totalHedgeForward || 0).toLocaleString()}`,
+      icon: FiTrendingUp,
+      color: "green.500",
+      bg: "green.100"
+    },
+    {
+      title: "Import Hedge Status",
+      value: chartData?.totalImportHedgeStatus?.totalImportHedgeStatus || "0 %",
+      change: `Hedged forward: ${Number(chartData?.totalImportHedgeStatus?.totalHedgeForward || 0).toLocaleString()}`,
+      icon: FiTrendingDown,
+      color: "blue.500",
+      bg: "blue.100"
+    },
+    {
+      title: "Net Exposure Hedge Status",
+      value: chartData?.totalNetExposureHedgeStatus?.netExposureHedgeStatus || "0 %",
+      change: `Net exposure: ${Number(chartData?.totalNetExposureHedgeStatus?.netExposure || 0).toLocaleString()}`,
+      icon: FiShield,
+      color: "purple.500",
+      bg: "purple.100"
+    },
+    {
+      title: "Forward MTM (INR)",
+      value: Number(tableInformation?.currencyWiseForwardMtm?.currency?.mtmInInr || 0).toLocaleString(),
+      change: `Total: INR ${Number(tableInformation?.currencyWiseForwardMtm?.totalInrValue || 0).toLocaleString()}`,
+      icon: FiRepeat,
+      color: "orange.400",
+      bg: "orange.100"
+    }
+  ];
+
+  const formatAmount = (value: unknown) =>
+    Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+
   const financialYears: string[] = [];
   const currentYear = new Date().getFullYear();
   for (let i = 0; i < 6; i++) {
@@ -349,8 +383,7 @@ const NewDashboard = observer(() => {
     <Box minH="100vh" bg="gray.50">
       
       {/* Header */}
-      <Box
-        // position="sticky"
+      {/* <Box
         top="0"
         zIndex="50"
         bg="whiteAlpha.800"
@@ -361,7 +394,6 @@ const NewDashboard = observer(() => {
         <Box >
           <Flex justify="space-between" align="center">
             
-            {/* Left */}
             <HStack spacing="3">
               <Box p="2" borderRadius="xl" bg="blue.100">
                 <Box as={FiBarChart2} boxSize="6" color="blue.500" />
@@ -377,7 +409,6 @@ const NewDashboard = observer(() => {
               </Box>
             </HStack>
 
-            {/* Right */}
             <HStack
               display={{ base: "none", sm: "flex" }}
               spacing="2"
@@ -395,7 +426,7 @@ const NewDashboard = observer(() => {
 
           </Flex>
         </Box>
-      </Box>
+      </Box> */}
 
       {/* Main */}
       <Container maxW="8xl" py="8">
@@ -414,7 +445,9 @@ const NewDashboard = observer(() => {
             </Text>
 
             <Grid templateColumns={{ base: "1fr", sm: "repeat(2,1fr)", lg: "repeat(4,1fr)" }} gap="4">
-              {kpis.map((kpi, i) => (
+              {dashboardLoading ? Array(4).fill(0).map((_, index) => (
+                <Skeleton key={index} height="120px" borderRadius="xl" />
+              )) : kpis.map((kpi, i) => (
                 <KpiCard
                   key={kpi.title}
                   {...kpi}
@@ -459,7 +492,7 @@ const NewDashboard = observer(() => {
                 <Select
                   size="sm"
                   borderRadius="md"
-                  placeholder="All Currencies"
+                  placeholder="Currency"
                   value={usdFilters.currency}
                   onChange={(e) => setUsdFilters(prev => ({ ...prev, currency: e.target.value }))}
                   bg="white"
@@ -474,6 +507,21 @@ const NewDashboard = observer(() => {
                 <Select
                   size="sm"
                   borderRadius="md"
+                  placeholder="All business units"
+                  value={usdFilters.businessUnit}
+                  onChange={(e) => setUsdFilters(prev => ({ ...prev, businessUnit: e.target.value, bank: "" }))}
+                  bg="white"
+                  w="160px"
+                  isDisabled={!viewAsUserId}
+                  borderColor="purple.200"
+                >
+                  {selectedUserDetails?.businessUnits?.map((unit: any) => (
+                    <option key={unit.unitCode} value={unit.unitCode}>{unit.unitCode}</option>
+                  ))}
+                </Select>
+                <Select
+                  size="sm"
+                  borderRadius="md"
                   placeholder="All Banks"
                   value={usdFilters.bank}
                   onChange={(e) => setUsdFilters(prev => ({ ...prev, bank: e.target.value }))}
@@ -482,7 +530,9 @@ const NewDashboard = observer(() => {
                   isDisabled={!viewAsUserId}
                   borderColor="purple.200"
                 >
-                  {Array.from(new Set(selectedUserDetails?.businessUnits?.flatMap((bu: any) => bu.banks || []).map((b: any) => b.bankName)))
+                  {Array.from(new Set(selectedUserDetails?.businessUnits
+                    ?.filter((unit: any) => !usdFilters.businessUnit || unit.unitCode === usdFilters.businessUnit)
+                    .flatMap((bu: any) => bu.banks || []).map((b: any) => b.bankName)))
                     .map((bankName: any, idx: number) => (
                       <option key={`${bankName}-${idx}`} value={bankName}>
                         {bankName}
@@ -558,23 +608,59 @@ const NewDashboard = observer(() => {
             </Grid>
           </Box>
 
+          <HedgingSummaryTable
+            data={usdSummaryData}
+            loading={usdLoading}
+            basis={dashboardBasis}
+          />
+
           {/* Charts */}
           <Box>
             <Text fontSize="sm" fontWeight="semibold" color="gray.500" textTransform="uppercase" mb="4">
               Analytics
             </Text>
 
-            <Grid templateColumns={{ base: "1fr", lg: "repeat(2,1fr)" }} gap="4">
-              <ExposureChart />
-              <CurrencyPieChart />
+            <Grid templateColumns="1fr" gap="4">
+              <ExposureChart data={chartData} />
+              <CurrencyDistributionCharts
+                data={chartData?.currencyDistribution}
+                basis={dashboardBasis}
+              />
             </Grid>
           </Box>
 
-          {/* Middle */}
-          <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap="4">
-            <MaturityChart />
-            <RecentActivity />
-          </Grid>
+          <Box>
+            <Text fontSize="sm" fontWeight="semibold" color="gray.500" textTransform="uppercase" mb="4">
+              Financial Position
+            </Text>
+            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap="4">
+              <Box p="5" borderRadius="xl" bg="white" boxShadow="sm">
+                <Text fontWeight="semibold" color="gray.800" mb="4">Currency-wise Forward MTM</Text>
+                <VStack align="stretch" spacing="2">
+                  <Flex justify="space-between"><Text color="gray.500">Outstanding amount</Text><Text>{formatAmount(tableInformation?.currencyWiseForwardMtm?.currency?.outStandingAmount)}</Text></Flex>
+                  <Flex justify="space-between"><Text color="gray.500">Hedge rate</Text><Text>{formatAmount(tableInformation?.currencyWiseForwardMtm?.currency?.hedgeRate)}</Text></Flex>
+                  <Flex justify="space-between"><Text color="gray.500">Current forward rate</Text><Text>{formatAmount(tableInformation?.currencyWiseForwardMtm?.currency?.currentForwardRate)}</Text></Flex>
+                  <Flex justify="space-between"><Text color="gray.500">MTM in INR</Text><Text fontWeight="semibold">{formatAmount(tableInformation?.currencyWiseForwardMtm?.currency?.mtmInInr)}</Text></Flex>
+                </VStack>
+              </Box>
+              <Box p="5" borderRadius="xl" bg="white" boxShadow="sm">
+                <Text fontWeight="semibold" color="gray.800" mb="4">Closing Balance</Text>
+                <VStack align="stretch" spacing="2">
+                  <Flex justify="space-between"><Text color="gray.500">INR balance</Text><Text>{formatAmount(tableInformation?.closingBalance?.INR?.closingBalance)}</Text></Flex>
+                  <Flex justify="space-between"><Text color="gray.500">INR closing rate</Text><Text>{formatAmount(tableInformation?.closingBalance?.INR?.closingRate)}</Text></Flex>
+                  <Flex justify="space-between"><Text color="gray.500">{usdFilters.currency || "Currency"} balance</Text><Text>{formatAmount(tableInformation?.closingBalance?.currency?.closingBalance)}</Text></Flex>
+                  <Flex justify="space-between"><Text color="gray.500">Currency closing rate</Text><Text>{formatAmount(tableInformation?.closingBalance?.currency?.closingRate)}</Text></Flex>
+                </VStack>
+              </Box>
+              <Box p="5" borderRadius="xl" bg="white" boxShadow="sm">
+                <Text fontWeight="semibold" color="gray.800" mb="4">PCFC Outstanding</Text>
+                <VStack align="stretch" spacing="2">
+                  <Flex justify="space-between"><Text color="gray.500">Outstanding</Text><Text>{formatAmount(tableInformation?.totalPcfcOutstanding?.outstanding)}</Text></Flex>
+                  <Flex justify="space-between"><Text color="gray.500">Drawdown rate</Text><Text>{formatAmount(tableInformation?.totalPcfcOutstanding?.drawdownRate)}</Text></Flex>
+                </VStack>
+              </Box>
+            </Grid>
+          </Box>
 
           {/* Modules */}
           <Box>
