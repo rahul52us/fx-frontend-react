@@ -32,10 +32,12 @@ import {
 } from "react-icons/fi";
 import CurrencyDistributionCharts from "./CurrencyDistributionCharts";
 import ExposureChart from "./ExposureChart";
-// import HedgingSummaryTable from "./HedgingSummaryTable";
+import UnhedgedExposureChart, { normalizeUnhedgedData } from "./UnhedgedExposureChart";
 import HedgingSummaryTable from "./HedgingSummaryTable";
 import KpiCard from "./KpiCard";
 import ModuleCard from "./ModuleCard";
+import TransactionWithin15Days from "./TransactionWithin15Days";
+import ForwardMtmSummary from "./ForwardMtmSummary";
 
 // import KpiCard from "@/components/dashboard/KpiCard";
 // import ModuleCard from "@/components/dashboard/ModuleCard";
@@ -333,6 +335,18 @@ const NewDashboard = observer(() => {
       usdFilters.businessUnit && entry.businessUnitCode === usdFilters.businessUnit
     ) || policyEntries.find((entry: any) => !entry.businessUnitCode) || policyEntries[0];
   const dashboardBasis = selectedPolicy?.basis?.toLowerCase() === "net" ? "net" : "gross";
+  const unhedgedChartData = normalizeUnhedgedData(
+    chartData,
+    usdSummaryData,
+    dashboardBasis
+  );
+  const formatAmount = (value: unknown) => {
+    if (value === null || value === undefined || value === "") return "0";
+    const num = Number(value);
+    if (isNaN(num)) return "0";
+    return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  };
+
   const kpis = [
     {
       title: "Export Hedge Status",
@@ -360,16 +374,13 @@ const NewDashboard = observer(() => {
     },
     {
       title: "Forward MTM (INR)",
-      value: Number(tableInformation?.currencyWiseForwardMtm?.currency?.mtmInInr || 0).toLocaleString(),
-      change: `Total: INR ${Number(tableInformation?.currencyWiseForwardMtm?.totalInrValue || 0).toLocaleString()}`,
+      value: formatAmount(tableInformation?.currencyWiseForwardMtm?.totalInrValue),
+      change: `Total: INR ${formatAmount(tableInformation?.currencyWiseForwardMtm?.totalInrValue)}`,
       icon: FiRepeat,
       color: "orange.400",
       bg: "orange.100"
     }
   ];
-
-  const formatAmount = (value: unknown) =>
-    Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
   const financialYears: string[] = [];
   const currentYear = new Date().getFullYear();
@@ -622,6 +633,14 @@ const NewDashboard = observer(() => {
 
             <Grid templateColumns="1fr" gap="4">
               <ExposureChart data={chartData} />
+              <TransactionWithin15Days
+                data={dashboardData?.transactionWithin15days}
+                loading={dashboardLoading}
+              />
+              <UnhedgedExposureChart
+                data={unhedgedChartData}
+                loading={dashboardLoading || usdLoading}
+              />
               <CurrencyDistributionCharts
                 data={chartData?.currencyDistribution}
                 basis={dashboardBasis}
@@ -629,38 +648,10 @@ const NewDashboard = observer(() => {
             </Grid>
           </Box>
 
-          <Box>
-            <Text fontSize="sm" fontWeight="semibold" color="gray.500" textTransform="uppercase" mb="4">
-              Financial Position
-            </Text>
-            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap="4">
-              <Box p="5" borderRadius="xl" bg="white" boxShadow="sm">
-                <Text fontWeight="semibold" color="gray.800" mb="4">Currency-wise Forward MTM</Text>
-                <VStack align="stretch" spacing="2">
-                  <Flex justify="space-between"><Text color="gray.500">Outstanding amount</Text><Text>{formatAmount(tableInformation?.currencyWiseForwardMtm?.currency?.outStandingAmount)}</Text></Flex>
-                  <Flex justify="space-between"><Text color="gray.500">Hedge rate</Text><Text>{formatAmount(tableInformation?.currencyWiseForwardMtm?.currency?.hedgeRate)}</Text></Flex>
-                  <Flex justify="space-between"><Text color="gray.500">Current forward rate</Text><Text>{formatAmount(tableInformation?.currencyWiseForwardMtm?.currency?.currentForwardRate)}</Text></Flex>
-                  <Flex justify="space-between"><Text color="gray.500">MTM in INR</Text><Text fontWeight="semibold">{formatAmount(tableInformation?.currencyWiseForwardMtm?.currency?.mtmInInr)}</Text></Flex>
-                </VStack>
-              </Box>
-              <Box p="5" borderRadius="xl" bg="white" boxShadow="sm">
-                <Text fontWeight="semibold" color="gray.800" mb="4">Closing Balance</Text>
-                <VStack align="stretch" spacing="2">
-                  <Flex justify="space-between"><Text color="gray.500">INR balance</Text><Text>{formatAmount(tableInformation?.closingBalance?.INR?.closingBalance)}</Text></Flex>
-                  <Flex justify="space-between"><Text color="gray.500">INR closing rate</Text><Text>{formatAmount(tableInformation?.closingBalance?.INR?.closingRate)}</Text></Flex>
-                  <Flex justify="space-between"><Text color="gray.500">{usdFilters.currency || "Currency"} balance</Text><Text>{formatAmount(tableInformation?.closingBalance?.currency?.closingBalance)}</Text></Flex>
-                  <Flex justify="space-between"><Text color="gray.500">Currency closing rate</Text><Text>{formatAmount(tableInformation?.closingBalance?.currency?.closingRate)}</Text></Flex>
-                </VStack>
-              </Box>
-              <Box p="5" borderRadius="xl" bg="white" boxShadow="sm">
-                <Text fontWeight="semibold" color="gray.800" mb="4">PCFC Outstanding</Text>
-                <VStack align="stretch" spacing="2">
-                  <Flex justify="space-between"><Text color="gray.500">Outstanding</Text><Text>{formatAmount(tableInformation?.totalPcfcOutstanding?.outstanding)}</Text></Flex>
-                  <Flex justify="space-between"><Text color="gray.500">Drawdown rate</Text><Text>{formatAmount(tableInformation?.totalPcfcOutstanding?.drawdownRate)}</Text></Flex>
-                </VStack>
-              </Box>
-            </Grid>
-          </Box>
+          <ForwardMtmSummary
+            data={tableInformation}
+            loading={dashboardLoading}
+          />
 
           {/* Modules */}
           <Box>
