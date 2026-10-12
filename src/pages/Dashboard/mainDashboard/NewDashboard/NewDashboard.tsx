@@ -640,6 +640,7 @@ const NewDashboard = observer(() => {
               <UnhedgedExposureChart
                 data={unhedgedChartData}
                 loading={dashboardLoading || usdLoading}
+                isDummyData={true}
               />
               <CurrencyDistributionCharts
                 data={chartData?.currencyDistribution}

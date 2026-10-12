@@ -75,6 +75,7 @@
     "react-slick": "^0.29.0",
     "react-syntax-highlighter": "^15.5.0",
     "react-webcam": "^7.1.1",
+    "recharts": "^3.10.1",
     "simplex-noise": "^4.0.1",
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.7.1",

@@ -1,13 +1,12 @@
-import React from "react";
 import {
   Badge,
   Box,
   Flex,
   Grid,
   HStack,
-  SimpleGrid,
   Skeleton,
   Table,
+  Tag,
   Tbody,
   Td,
   Text,
@@ -16,6 +15,7 @@ import {
   Tr,
   VStack
 } from "@chakra-ui/react";
+import React from "react";
 
 export interface ForwardMtmSummaryProps {
   data?: {
@@ -38,24 +38,134 @@ export interface ForwardMtmSummaryProps {
   loading?: boolean;
 }
 
-const formatAmount = (value: unknown): string => {
-  if (value === null || value === undefined || value === "") return "—";
+/* ----------------------------- formatters ----------------------------- */
+
+const toNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined || value === "") return null;
   const num = Number(value);
-  if (isNaN(num)) return "—";
-  return num.toLocaleString(undefined, {
+  return isNaN(num) ? null : num;
+};
+
+/** 12345678.9 -> "12.35 M"  |  -2500000 -> "-2.50 M" */
+const formatMillion = (value: unknown): string => {
+  const num = toNumber(value);
+  if (num === null) return "—";
+  return `${(num / 1_000_000).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  });
+  })} M`;
 };
 
 const formatRate = (value: unknown): string => {
-  if (value === null || value === undefined || value === "") return "—";
-  const num = Number(value);
-  if (isNaN(num)) return "—";
-  return num.toLocaleString(undefined, {
+  const num = toNumber(value);
+  if (num === null) return "—";
+  return num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4
   });
 };
+
+const tone = (num: number | null) =>
+  num === null || num === 0 ? "neutral" : num < 0 ? "negative" : "positive";
+
+const TONES = {
+  positive: { fg: "green.600", bg: "green.50", bar: "green.400", arrow: "▲" },
+  negative: { fg: "red.600", bg: "red.50", bar: "red.400", arrow: "▼" },
+  neutral: { fg: "gray.700", bg: "gray.50", bar: "gray.300", arrow: "" }
+} as const;
+
+/* ------------------------------ shared UI ------------------------------ */
+
+const NUM_STYLE = { fontVariantNumeric: "tabular-nums" } as const;
+
+const Panel: React.FC<React.ComponentProps<typeof Box>> = ({
+  children,
+  ...rest
+}) => (
+  <Box
+    bg="white"
+    borderRadius="2xl"
+    borderWidth="1px"
+    borderColor="gray.100"
+    boxShadow="0 1px 2px rgba(16, 24, 40, 0.04)"
+    overflow="hidden"
+    {...rest}
+  >
+    {children}
+  </Box>
+);
+
+const PanelHeader: React.FC<{
+  title: string;
+  subtitle?: string;
+  right?: React.ReactNode;
+}> = ({ title, subtitle, right }) => (
+  <Flex
+    justify="space-between"
+    align="center"
+    px="5"
+    py="4"
+    borderBottomWidth="1px"
+    borderColor="gray.100"
+    gap="3"
+  >
+    <Box>
+      <Text fontWeight="semibold" fontSize="sm" color="gray.800">
+        {title}
+      </Text>
+      {subtitle && (
+        <Text fontSize="xs" color="gray.500" mt="0.5">
+          {subtitle}
+        </Text>
+      )}
+    </Box>
+    {right}
+  </Flex>
+);
+
+const CurrencyChip: React.FC<{ code: string; scheme?: string }> = ({
+  code,
+  scheme = "purple"
+}) => (
+  <Tag
+  colorScheme={scheme}
+    // align="center"
+    // justify="center"
+    // minW="44px"
+    size={'sm'}
+    // h="20px"
+    // px="2"
+    // borderRadius="md"
+    // bg={`${scheme}.50`}
+    // color={`${scheme}.700`}
+    // fontSize="xs"
+    // fontWeight="bold"
+    // letterSpacing="0.02em"
+  >
+    {code}
+  </Tag>
+);
+
+const headStyle = {
+  fontSize: "xs",
+  fontWeight: "medium",
+  color: "gray.500",
+  textTransform: "none" as const,
+  letterSpacing: "normal",
+  bg: "gray.50",
+  borderColor: "gray.100",
+  py: "3"
+};
+
+const EmptyState: React.FC<{ message: string }> = ({ message }) => (
+  <Flex py="12" justify="center" align="center">
+    <Text fontSize="sm" color="gray.400">
+      {message}
+    </Text>
+  </Flex>
+);
+
+/* ------------------------------ component ------------------------------ */
 
 export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
   data,
@@ -65,74 +175,31 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
   const closingBalance = data?.closingBalance;
   const totalPcfcOutstanding = data?.totalPcfcOutstanding;
 
-  // Extract dynamic currencies excluding metadata "totalInrValue"
+  // Dynamic currencies (skip the "totalInrValue" metadata key)
   const mtmEntries = Object.entries(currencyWiseForwardMtm || {}).filter(
     ([key, value]) =>
-      key !== "totalInrValue" &&
-      typeof value === "object" &&
-      value !== null
+      key !== "totalInrValue" && typeof value === "object" && value !== null
   );
 
-  const totalInrValue = currencyWiseForwardMtm?.totalInrValue;
-  const hasTotalMtm =
-    totalInrValue !== undefined &&
-    totalInrValue !== null &&
-    !isNaN(Number(totalInrValue));
-  const numericTotalMtm = hasTotalMtm ? Number(totalInrValue) : 0;
+  const totalMtm = toNumber(currencyWiseForwardMtm?.totalInrValue);
+  const totalTone = TONES[tone(totalMtm)];
 
-  // Extract dynamic closing balance currencies
+  // Dynamic closing balance currencies (INR, USD, EUR, ... any number)
   const closingEntries = Object.entries(closingBalance || {}).filter(
     ([, value]) => typeof value === "object" && value !== null
   );
 
+  const outstanding = totalPcfcOutstanding?.outstanding;
+  const drawdownRate = totalPcfcOutstanding?.drawdownRate;
+
   if (loading) {
     return (
       <Box>
-        <Text
-          fontSize="sm"
-          fontWeight="semibold"
-          color="gray.500"
-          textTransform="uppercase"
-          mb="4"
-        >
-          Financial Position
-        </Text>
+        <Skeleton height="22px" width="160px" mb="4" />
+        <Skeleton height="96px" borderRadius="2xl" mb="4" />
         <Grid templateColumns={{ base: "1fr", lg: "7fr 5fr" }} gap="4">
-          <Box
-            p="5"
-            borderRadius="xl"
-            bg="white"
-            boxShadow="sm"
-            borderWidth="1px"
-            borderColor="gray.100"
-          >
-            <Skeleton height="24px" width="180px" mb="4" />
-            <Skeleton height="200px" borderRadius="md" />
-          </Box>
-          <VStack spacing="4" align="stretch">
-            <Box
-              p="5"
-              borderRadius="xl"
-              bg="white"
-              boxShadow="sm"
-              borderWidth="1px"
-              borderColor="gray.100"
-            >
-              <Skeleton height="20px" width="140px" mb="3" />
-              <Skeleton height="100px" borderRadius="md" />
-            </Box>
-            <Box
-              p="5"
-              borderRadius="xl"
-              bg="white"
-              boxShadow="sm"
-              borderWidth="1px"
-              borderColor="gray.100"
-            >
-              <Skeleton height="20px" width="140px" mb="3" />
-              <Skeleton height="70px" borderRadius="md" />
-            </Box>
-          </VStack>
+          <Skeleton height="280px" borderRadius="2xl" />
+          <Skeleton height="280px" borderRadius="2xl" />
         </Grid>
       </Box>
     );
@@ -140,146 +207,151 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
 
   return (
     <Box>
-      <Text
-        fontSize="sm"
-        fontWeight="semibold"
-        color="gray.500"
-        textTransform="uppercase"
-        mb="4"
-      >
-        Financial Position
-      </Text>
+      {/* Section title */}
+      <Flex align="baseline" justify="space-between" mb="4" wrap="wrap" gap="2">
+        <Text fontSize="lg" fontWeight="semibold" color="gray.800">
+          Financial position
+        </Text>
+        <Text fontSize="xs" color="gray.500">
+          Amounts in millions (M) · Rates as quoted
+        </Text>
+      </Flex>
 
-      <Grid templateColumns={{ base: "1fr", lg: "7fr 5fr" }} gap="4">
-        {/* 1 & 2: Dynamic Currency-wise Forward MTM Table & Total MTM */}
-        <Box
-          p="5"
-          borderRadius="xl"
-          bg="white"
-          boxShadow="sm"
-          borderWidth="1px"
-          borderColor="gray.100"
-          display="flex"
-          flexDirection="column"
-        >
+      {/* Headline strip: Total MTM + PCFC */}
+      <Panel mb="4">
+        <Grid templateColumns={{ base: "1fr", md: "5fr 4fr 3fr" }}>
+          {/* Total MTM — the one emphasised element */}
           <Flex
-            justify="space-between"
-            align={{ base: "flex-start", sm: "center" }}
-            direction={{ base: "column", sm: "row" }}
-            gap="2"
-            mb="4"
-            pb="3"
-            borderBottomWidth="1px"
+            direction="column"
+            justify="center"
+            px="6"
+            py="4"
+            bg={totalTone.bg}
+            borderLeftWidth="4px"
+            borderLeftColor={totalTone.bar}
+          >
+            <Text fontSize="sm" color="gray.600">
+              Total forward MTM (INR)
+            </Text>
+            <HStack spacing="2" align="baseline" mt="1">
+              <Text
+                fontSize="2xl"
+                fontWeight="bold"
+                lineHeight="1.1"
+                color={totalTone.fg}
+                sx={NUM_STYLE}
+              >
+                {formatMillion(totalMtm)}
+              </Text>
+              {totalTone.arrow && (
+                <Text fontSize="sm" color={totalTone.fg}>
+                  {totalTone.arrow}
+                </Text>
+              )}
+            </HStack>
+          </Flex>
+
+          <Flex
+            direction="column"
+            justify="center"
+            px="6"
+            py="5"
+            borderTopWidth={{ base: "1px", md: "0" }}
+            borderLeftWidth={{ base: "0", md: "1px" }}
             borderColor="gray.100"
           >
-            <VStack align="start" spacing="0.5">
-              <Text fontWeight="semibold" color="gray.800" fontSize="sm">
-                Currency-wise Forward MTM
-              </Text>
-              <Text fontSize="xs" color="gray.400">
-                Mark-to-market status across currencies
-              </Text>
-            </VStack>
-
-            {hasTotalMtm && (
-              <HStack
-                spacing="2"
-                bg={numericTotalMtm < 0 ? "red.50" : numericTotalMtm > 0 ? "green.50" : "gray.50"}
-                px="3"
-                py="1.5"
-                borderRadius="md"
-                borderWidth="1px"
-                borderColor={
-                  numericTotalMtm < 0
-                    ? "red.200"
-                    : numericTotalMtm > 0
-                    ? "green.200"
-                    : "gray.200"
-                }
-              >
-                <Text
-                  fontSize="xs"
-                  fontWeight="medium"
-                  color={
-                    numericTotalMtm < 0
-                      ? "red.700"
-                      : numericTotalMtm > 0
-                      ? "green.700"
-                      : "gray.600"
-                  }
-                >
-                  Total MTM (INR):
-                </Text>
-                <Text
-                  fontSize="xs"
-                  fontWeight="bold"
-                  color={
-                    numericTotalMtm < 0
-                      ? "red.700"
-                      : numericTotalMtm > 0
-                      ? "green.700"
-                      : "gray.800"
-                  }
-                >
-                  {formatAmount(totalInrValue)}
-                </Text>
-              </HStack>
-            )}
+            <Text fontSize="sm" color="gray.600">
+              PCFC outstanding
+            </Text>
+            <Text
+              fontSize="2xl"
+              fontWeight="semibold"
+              color="gray.800"
+              mt="1"
+              lineHeight="1.1"
+              sx={NUM_STYLE}
+            >
+              {formatMillion(outstanding)}
+            </Text>
           </Flex>
+
+          <Flex
+            direction="column"
+            justify="center"
+            px="6"
+            py="5"
+            borderTopWidth={{ base: "1px", md: "0" }}
+            borderLeftWidth={{ base: "0", md: "1px" }}
+            borderColor="gray.100"
+          >
+            <Text fontSize="sm" color="gray.600">
+              Drawdown rate
+            </Text>
+            <Text
+              fontSize="2xl"
+              fontWeight="semibold"
+              color="teal.600"
+              mt="1"
+              lineHeight="1.1"
+              sx={NUM_STYLE}
+            >
+              {formatRate(drawdownRate)}
+            </Text>
+          </Flex>
+        </Grid>
+      </Panel>
+
+      <Grid templateColumns={{ base: "1fr", lg: "7fr 5fr" }} gap="4">
+        {/* Currency-wise forward MTM */}
+        <Panel display="flex" flexDirection="column">
+          <PanelHeader
+            title="Currency-wise forward MTM"
+            subtitle="Outstanding hedges marked to the current forward rate"
+            right={
+              mtmEntries.length > 0 ? (
+                <Badge
+                  colorScheme="purple"
+                  variant="subtle"
+                  borderRadius="full"
+                  px="2.5"
+                  py="0.5"
+                  fontSize="xs"
+                  textTransform="none"
+                  fontWeight="medium"
+                >
+                  {mtmEntries.length}{" "}
+                  {mtmEntries.length === 1 ? "currency" : "currencies"}
+                </Badge>
+              ) : undefined
+            }
+          />
 
           <Box overflowX="auto" flex="1">
             {mtmEntries.length === 0 ? (
-              <Flex py="10" justify="center" align="center">
-                <Text fontSize="xs" color="gray.400">
-                  No forward MTM records available
-                </Text>
-              </Flex>
+              <EmptyState message="No forward MTM records available" />
             ) : (
-              <Table size="sm" variant="simple">
-                <Thead bg="gray.50">
+              <Table size="md" variant="simple">
+                <Thead>
                   <Tr>
-                    <Th fontSize="2xs" color="gray.600" textTransform="none">
-                      Currency
+                    <Th {...headStyle}>Currency</Th>
+                    <Th {...headStyle} isNumeric>
+                      Outstanding
                     </Th>
-                    <Th
-                      fontSize="2xs"
-                      color="gray.600"
-                      textTransform="none"
-                      isNumeric
-                    >
-                      Outstanding Amount
+                    <Th {...headStyle} isNumeric>
+                      Hedge rate
                     </Th>
-                    <Th
-                      fontSize="2xs"
-                      color="gray.600"
-                      textTransform="none"
-                      isNumeric
-                    >
-                      Hedge Rate
+                    <Th {...headStyle} isNumeric>
+                      Forward rate
                     </Th>
-                    <Th
-                      fontSize="2xs"
-                      color="gray.600"
-                      textTransform="none"
-                      isNumeric
-                    >
-                      Current Forward Rate
-                    </Th>
-                    <Th
-                      fontSize="2xs"
-                      color="gray.600"
-                      textTransform="none"
-                      isNumeric
-                    >
+                    <Th {...headStyle} isNumeric>
                       MTM (INR)
                     </Th>
                   </Tr>
                 </Thead>
                 <Tbody>
                   {mtmEntries.map(([currency, item]: [string, any]) => {
-                    const mtmVal = Number(item?.mtmInInr);
-                    const isNeg = !isNaN(mtmVal) && mtmVal < 0;
-                    const isPos = !isNaN(mtmVal) && mtmVal > 0;
+                    const mtmVal = toNumber(item?.mtmInInr);
+                    const t = TONES[tone(mtmVal)];
 
                     return (
                       <Tr
@@ -287,27 +359,57 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
                         _hover={{ bg: "gray.50" }}
                         transition="background-color 0.15s ease"
                       >
-                        <Td fontWeight="semibold" fontSize="xs" color="gray.800">
-                          <Badge colorScheme="purple" variant="subtle" fontSize="2xs">
-                            {currency}
-                          </Badge>
-                        </Td>
-                        <Td fontSize="xs" color="gray.700" isNumeric>
-                          {formatAmount(item?.outStandingAmount)}
-                        </Td>
-                        <Td fontSize="xs" color="gray.700" isNumeric>
-                          {formatRate(item?.hedgeRate)}
-                        </Td>
-                        <Td fontSize="xs" color="gray.700" isNumeric>
-                          {formatRate(item?.currentForwardRate)}
+                        <Td borderColor="gray.100">
+                          <CurrencyChip code={currency} scheme="purple" />
                         </Td>
                         <Td
-                          fontSize="xs"
-                          fontWeight="semibold"
-                          color={isNeg ? "red.600" : isPos ? "green.600" : "gray.800"}
+                          fontSize="sm"
+                          color="gray.700"
+                          borderColor="gray.100"
                           isNumeric
+                          sx={NUM_STYLE}
                         >
-                          {formatAmount(item?.mtmInInr)}
+                          {formatMillion(item?.outStandingAmount)}
+                        </Td>
+                        <Td
+                          fontSize="sm"
+                          color="gray.700"
+                          borderColor="gray.100"
+                          isNumeric
+                          sx={NUM_STYLE}
+                        >
+                          {formatRate(item?.hedgeRate)}
+                        </Td>
+                        <Td
+                          fontSize="sm"
+                          color="gray.700"
+                          borderColor="gray.100"
+                          isNumeric
+                          sx={NUM_STYLE}
+                        >
+                          {formatRate(item?.currentForwardRate)}
+                        </Td>
+                        <Td borderColor="gray.100" isNumeric>
+                          <Box
+                            display="inline-flex"
+                            alignItems="center"
+                            gap="1.5"
+                            px="2.5"
+                            py="0.5"
+                            borderRadius="md"
+                            bg={t.bg}
+                            color={t.fg}
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            sx={NUM_STYLE}
+                          >
+                            {t.arrow && (
+                              <Text as="span" fontSize="2xs">
+                                {t.arrow}
+                              </Text>
+                            )}
+                            {formatMillion(item?.mtmInInr)}
+                          </Box>
                         </Td>
                       </Tr>
                     );
@@ -316,153 +418,84 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
               </Table>
             )}
           </Box>
-        </Box>
+        </Panel>
 
-        {/* Right column: Dynamic Closing Balance & PCFC Outstanding */}
-        <VStack spacing="4" align="stretch">
-          {/* 3: Dynamic Closing Balance Table */}
-          <Box
-            p="5"
-            borderRadius="xl"
-            bg="white"
-            boxShadow="sm"
-            borderWidth="1px"
-            borderColor="gray.100"
-          >
-            <Flex
-              justify="space-between"
-              align="center"
-              mb="3"
-              pb="2.5"
-              borderBottomWidth="1px"
-              borderColor="gray.100"
-            >
-              <Text fontWeight="semibold" color="gray.800" fontSize="sm">
-                Closing Balance
-              </Text>
-              <Text fontSize="xs" color="gray.400">
-                {closingEntries.length > 0
-                  ? `${closingEntries.length} currencies`
-                  : "No data"}
-              </Text>
-            </Flex>
+        {/* Closing balance — dynamic list: INR, USD, EUR, ... */}
+        <Panel display="flex" flexDirection="column">
+          <PanelHeader
+            title="Closing balance"
+            subtitle="Balance and closing rate by currency"
+            right={
+              closingEntries.length > 0 ? (
+                <Badge
+                  colorScheme="blue"
+                  variant="subtle"
+                  borderRadius="full"
+                  px="2.5"
+                  py="0.5"
+                  fontSize="xs"
+                  textTransform="none"
+                  fontWeight="medium"
+                >
+                  {closingEntries.length}{" "}
+                  {closingEntries.length === 1 ? "currency" : "currencies"}
+                </Badge>
+              ) : undefined
+            }
+          />
 
-            <Box overflowX="auto">
-              {closingEntries.length === 0 ? (
-                <Flex py="6" justify="center" align="center">
-                  <Text fontSize="xs" color="gray.400">
-                    No closing balance records available
-                  </Text>
+          {closingEntries.length === 0 ? (
+            <EmptyState message="No closing balance records available" />
+          ) : (
+            <VStack spacing="0" align="stretch" flex="1">
+              {closingEntries.map(([currency, item]: [string, any], idx) => (
+                <Flex
+                  key={currency}
+                  align="center"
+                  justify="space-between"
+                  gap="3"
+                  px="5"
+                  py="3.5"
+                  borderTopWidth={idx === 0 ? "0" : "1px"}
+                  borderColor="gray.100"
+                  _hover={{ bg: "gray.50" }}
+                  transition="background-color 0.15s ease"
+                >
+                  <HStack spacing="3">
+                    <CurrencyChip code={currency} scheme="blue" />
+                    <Box>
+                      <Text fontSize="xs" color="gray.500">
+                        Closing rate
+                      </Text>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="medium"
+                        color="gray.700"
+                        sx={NUM_STYLE}
+                      >
+                        {formatRate(item?.closingRate)}
+                      </Text>
+                    </Box>
+                  </HStack>
+
+                  <Box textAlign="right">
+                    <Text fontSize="xs" color="gray.500">
+                      Balance
+                    </Text>
+                    <Text
+                      fontSize="md"
+                      fontWeight="semibold"
+                      color="gray.800"
+                      sx={NUM_STYLE}
+                    >
+                      {formatMillion(item?.closingBalance)}
+                    </Text>
+                  </Box>
                 </Flex>
-              ) : (
-                <Table size="sm" variant="simple">
-                  <Thead bg="gray.50">
-                    <Tr>
-                      <Th fontSize="2xs" color="gray.600" textTransform="none">
-                        Currency
-                      </Th>
-                      <Th
-                        fontSize="2xs"
-                        color="gray.600"
-                        textTransform="none"
-                        isNumeric
-                      >
-                        Closing Balance
-                      </Th>
-                      <Th
-                        fontSize="2xs"
-                        color="gray.600"
-                        textTransform="none"
-                        isNumeric
-                      >
-                        Closing Rate
-                      </Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {closingEntries.map(([currency, item]: [string, any]) => (
-                      <Tr
-                        key={currency}
-                        _hover={{ bg: "gray.50" }}
-                        transition="background-color 0.15s ease"
-                      >
-                        <Td fontWeight="semibold" fontSize="xs" color="gray.800">
-                          <Badge colorScheme="blue" variant="subtle" fontSize="2xs">
-                            {currency}
-                          </Badge>
-                        </Td>
-                        <Td fontSize="xs" color="gray.700" isNumeric>
-                          {formatAmount(item?.closingBalance)}
-                        </Td>
-                        <Td fontSize="xs" color="gray.700" isNumeric>
-                          {formatRate(item?.closingRate)}
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              )}
-            </Box>
-          </Box>
-
-          {/* 4: PCFC Outstanding Summary Card */}
-          <Box
-            p="5"
-            borderRadius="xl"
-            bg="white"
-            boxShadow="sm"
-            borderWidth="1px"
-            borderColor="gray.100"
-          >
-            <Flex
-              justify="space-between"
-              align="center"
-              mb="3"
-              pb="2.5"
-              borderBottomWidth="1px"
-              borderColor="gray.100"
-            >
-              <Text fontWeight="semibold" color="gray.800" fontSize="sm">
-                PCFC Outstanding
-              </Text>
-              <Badge colorScheme="teal" variant="subtle" fontSize="2xs">
-                Active
-              </Badge>
-            </Flex>
-
-            <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="3">
-              <Box
-                p="3"
-                borderRadius="lg"
-                bg="gray.50"
-                borderWidth="1px"
-                borderColor="gray.100"
-              >
-                <Text fontSize="2xs" color="gray.500" mb="1" fontWeight="medium">
-                  Outstanding
-                </Text>
-                <Text fontSize="sm" fontWeight="bold" color="gray.800">
-                  {formatAmount(totalPcfcOutstanding?.outstanding)}
-                </Text>
-              </Box>
-
-              <Box
-                p="3"
-                borderRadius="lg"
-                bg="gray.50"
-                borderWidth="1px"
-                borderColor="gray.100"
-              >
-                <Text fontSize="2xs" color="gray.500" mb="1" fontWeight="medium">
-                  Drawdown Rate
-                </Text>
-                <Text fontSize="sm" fontWeight="bold" color="teal.600">
-                  {formatRate(totalPcfcOutstanding?.drawdownRate)}
-                </Text>
-              </Box>
-            </SimpleGrid>
-          </Box>
-        </VStack>
+              ))}
+            </VStack>
+          )}
+        </Panel>
       </Grid>
     </Box>
   );
