@@ -39,7 +39,6 @@ export interface ForwardMtmSummaryProps {
 }
 
 /* ----------------------------- formatters ----------------------------- */
-
 const toNumber = (value: unknown): number | null => {
   if (value === null || value === undefined || value === "") return null;
   const num = Number(value);
@@ -67,7 +66,6 @@ const formatRate = (value: unknown): string => {
 
 const tone = (num: number | null) =>
   num === null || num === 0 ? "neutral" : num < 0 ? "negative" : "positive";
-
 const TONES = {
   positive: { fg: "green.600", bg: "green.50", bar: "green.400", arrow: "▲" },
   negative: { fg: "red.600", bg: "red.50", bar: "red.400", arrow: "▼" },
@@ -132,7 +130,7 @@ const CurrencyChip: React.FC<{ code: string; scheme?: string }> = ({
     // align="center"
     // justify="center"
     // minW="44px"
-    size={'sm'}
+    size="sm"
     // h="20px"
     // px="2"
     // borderRadius="md"
@@ -174,24 +172,18 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
   const currencyWiseForwardMtm = data?.currencyWiseForwardMtm;
   const closingBalance = data?.closingBalance;
   const totalPcfcOutstanding = data?.totalPcfcOutstanding;
-
   // Dynamic currencies (skip the "totalInrValue" metadata key)
   const mtmEntries = Object.entries(currencyWiseForwardMtm || {}).filter(
     ([key, value]) =>
       key !== "totalInrValue" && typeof value === "object" && value !== null
   );
-
   const totalMtm = toNumber(currencyWiseForwardMtm?.totalInrValue);
-  const totalTone = TONES[tone(totalMtm)];
-
   // Dynamic closing balance currencies (INR, USD, EUR, ... any number)
   const closingEntries = Object.entries(closingBalance || {}).filter(
     ([, value]) => typeof value === "object" && value !== null
   );
-
   const outstanding = totalPcfcOutstanding?.outstanding;
   const drawdownRate = totalPcfcOutstanding?.drawdownRate;
-
   if (loading) {
     return (
       <Box>
@@ -204,7 +196,6 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
       </Box>
     );
   }
-
   return (
     <Box>
       {/* Section title */}
@@ -216,48 +207,16 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
           Amounts in millions (M) · Rates as quoted
         </Text>
       </Flex>
-
-      {/* Headline strip: Total MTM + PCFC */}
+      {/* Headline strip: PCFC + drawdown rate */}
       <Panel mb="4">
-        <Grid templateColumns={{ base: "1fr", md: "5fr 4fr 3fr" }}>
-          {/* Total MTM — the one emphasised element */}
-          <Flex
-            direction="column"
-            justify="center"
-            px="6"
-            py="4"
-            bg={totalTone.bg}
-            borderLeftWidth="4px"
-            borderLeftColor={totalTone.bar}
-          >
-            <Text fontSize="sm" color="gray.600">
-              Total forward MTM (INR)
-            </Text>
-            <HStack spacing="2" align="baseline" mt="1">
-              <Text
-                fontSize="2xl"
-                fontWeight="bold"
-                lineHeight="1.1"
-                color={totalTone.fg}
-                sx={NUM_STYLE}
-              >
-                {formatMillion(totalMtm)}
-              </Text>
-              {totalTone.arrow && (
-                <Text fontSize="sm" color={totalTone.fg}>
-                  {totalTone.arrow}
-                </Text>
-              )}
-            </HStack>
-          </Flex>
-
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }}>
           <Flex
             direction="column"
             justify="center"
             px="6"
             py="5"
             borderTopWidth={{ base: "1px", md: "0" }}
-            borderLeftWidth={{ base: "0", md: "1px" }}
+            borderLeftWidth={{ base: "0", md: "0" }}
             borderColor="gray.100"
           >
             <Text fontSize="sm" color="gray.600">
@@ -274,7 +233,6 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
               {formatMillion(outstanding)}
             </Text>
           </Flex>
-
           <Flex
             direction="column"
             justify="center"
@@ -300,7 +258,6 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
           </Flex>
         </Grid>
       </Panel>
-
       <Grid templateColumns={{ base: "1fr", lg: "7fr 5fr" }} gap="4">
         {/* Currency-wise forward MTM */}
         <Panel display="flex" flexDirection="column">
@@ -325,7 +282,6 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
               ) : undefined
             }
           />
-
           <Box overflowX="auto" flex="1">
             {mtmEntries.length === 0 ? (
               <EmptyState message="No forward MTM records available" />
@@ -352,7 +308,6 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
                   {mtmEntries.map(([currency, item]: [string, any]) => {
                     const mtmVal = toNumber(item?.mtmInInr);
                     const t = TONES[tone(mtmVal)];
-
                     return (
                       <Tr
                         key={currency}
@@ -414,12 +369,36 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
                       </Tr>
                     );
                   })}
+                  <Tr bg="gray.50">
+                    <Td borderColor="gray.100" fontWeight="bold">
+                      Total
+                    </Td>
+                    <Td borderColor="gray.100" />
+                    <Td borderColor="gray.100" />
+                    <Td borderColor="gray.100" />
+                    <Td
+                      borderColor="gray.100"
+                      isNumeric
+                      fontWeight="bold"
+                      color={
+                        totalMtm === null
+                          ? "gray.500"
+                          : totalMtm < 0
+                            ? "red.600"
+                            : totalMtm > 0
+                              ? "green.600"
+                              : "gray.700"
+                      }
+                      sx={NUM_STYLE}
+                    >
+                      {formatMillion(totalMtm)}
+                    </Td>
+                  </Tr>
                 </Tbody>
               </Table>
             )}
           </Box>
         </Panel>
-
         {/* Closing balance — dynamic list: INR, USD, EUR, ... */}
         <Panel display="flex" flexDirection="column">
           <PanelHeader
@@ -443,7 +422,6 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
               ) : undefined
             }
           />
-
           {closingEntries.length === 0 ? (
             <EmptyState message="No closing balance records available" />
           ) : (
@@ -477,7 +455,6 @@ export const ForwardMtmSummary: React.FC<ForwardMtmSummaryProps> = ({
                       </Text>
                     </Box>
                   </HStack>
-
                   <Box textAlign="right">
                     <Text fontSize="xs" color="gray.500">
                       Balance

@@ -1,4 +1,27 @@
-import { Badge, Box, Flex, HStack, Skeleton, Text, VStack } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Skeleton,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
 import {
   BarElement,
   CategoryScale,
@@ -8,10 +31,10 @@ import {
   LineElement,
   PointElement,
   Title,
-  Tooltip
+  Tooltip,
 } from "chart.js";
+import { useState, type ReactNode } from "react";
 import { Chart } from "react-chartjs-2";
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -20,7 +43,7 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 export interface MonthlyUnhedgedData {
@@ -43,10 +66,10 @@ export interface UnhedgedExposureChartProps {
   loading?: boolean;
   isDummyData?: boolean;
 }
-
 /* ------------------------------------------------------------------ */
 /* Demo data: realistic USD/INR levels, mix of gains and losses        */
 /* ------------------------------------------------------------------ */
+
 const dummyGrossChartData: UnhedgedChartData = {
   policyType: "gross",
   months: ["Nov 2026", "Dec 2026", "Jan 2027", "Feb 2027", "Mar 2027", "Apr 2027", "May 2027", "Jun 2027"],
@@ -77,10 +100,10 @@ const safeNumber = (val: unknown): number => {
   const num = typeof val === "number" ? val : Number(val);
   return Number.isFinite(num) ? num : 0;
 };
-
 /* ------------------------------------------------------------------ */
 /* Data normalisation (logic unchanged)                                */
 /* ------------------------------------------------------------------ */
+
 export const normalizeUnhedgedData = (
   chartData: any,
   usdSummaryData: any,
@@ -89,20 +112,17 @@ export const normalizeUnhedgedData = (
   const rawPolicy = chartData?.unhedgedData?.policyType;
   const policyType: "gross" | "net" =
     typeof rawPolicy === "string" &&
-    (rawPolicy.toLowerCase() === "gross" || rawPolicy.toLowerCase() === "net")
+      (rawPolicy.toLowerCase() === "gross" || rawPolicy.toLowerCase() === "net")
       ? (rawPolicy.toLowerCase() as "gross" | "net")
       : fallbackBasis === "net"
-      ? "net"
-      : "gross";
-
+        ? "net"
+        : "gross";
   if (policyType === "gross") {
     const exportData = chartData?.unhedgedData?.export || {};
     const importData = chartData?.unhedgedData?.import || {};
-
     const exportMonths = Object.keys(exportData);
     const importMonths = Object.keys(importData);
     const months = Array.from(new Set([...exportMonths, ...importMonths]));
-
     if (months.length === 0) {
       return {
         policyType: "gross",
@@ -111,10 +131,8 @@ export const normalizeUnhedgedData = (
         import: {}
       };
     }
-
     const exportMap: Record<string, MonthlyUnhedgedData> = {};
     const importMap: Record<string, MonthlyUnhedgedData> = {};
-
     months.forEach((month) => {
       const exp = exportData[month];
       exportMap[month] = {
@@ -123,7 +141,6 @@ export const normalizeUnhedgedData = (
         currentFwdrate: safeNumber(exp?.currentFwdrate),
         difference: safeNumber(exp?.difference)
       };
-
       const imp = importData[month];
       importMap[month] = {
         unhedgedAmount: safeNumber(imp?.unhedgedAmount),
@@ -132,7 +149,6 @@ export const normalizeUnhedgedData = (
         difference: safeNumber(imp?.difference)
       };
     });
-
     return {
       policyType: "gross",
       months,
@@ -140,11 +156,9 @@ export const normalizeUnhedgedData = (
       import: importMap
     };
   }
-
   const netExposure = usdSummaryData?.netUnhedgeExposure || {};
   const breakevenRates = usdSummaryData?.breakevenRatenetUnhedgeExposure || {};
   const currentForwardRates = usdSummaryData?.currentFwdrate || {};
-
   const months = Array.from(
     new Set([
       ...Object.keys(netExposure),
@@ -152,7 +166,6 @@ export const normalizeUnhedgedData = (
       ...Object.keys(currentForwardRates)
     ])
   );
-
   if (months.length === 0) {
     return {
       policyType: "net",
@@ -160,9 +173,7 @@ export const normalizeUnhedgedData = (
       net: {}
     };
   }
-
   const netMap: Record<string, MonthlyUnhedgedData> = {};
-
   months.forEach((month) => {
     netMap[month] = {
       unhedgedAmount: safeNumber(netExposure[month]),
@@ -170,17 +181,16 @@ export const normalizeUnhedgedData = (
       currentFwdrate: safeNumber(currentForwardRates[month])
     };
   });
-
   return {
     policyType: "net",
     months,
     net: netMap
   };
 };
-
 /* ------------------------------------------------------------------ */
 /* Visual tokens                                                       */
 /* ------------------------------------------------------------------ */
+
 const C = {
   text: "#1A202C",
   muted: "#718096",
@@ -200,11 +210,13 @@ const C = {
 };
 
 const compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
-const formatCompact = (v: number) => (v === 0 ? "0" : compact.format(v));
-const formatSigned = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toLocaleString()}`;
 
+const formatCompact = (v: number) => (v === 0 ? "0" : compact.format(v));
+
+const formatSigned = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toLocaleString()}`;
 /* Small legend marker used in the "how to read" strip */
-const Swatch = ({ color, tint, dashed, line }: { color: string; tint?: string; dashed?: boolean; line?: boolean }) =>
+
+const Swatch = ({ color, tint, dashed, line }: { color: string; tint?: string; dashed?: boolean; line?: boolean; }) =>
   line ? (
     <Box
       as="span"
@@ -230,7 +242,7 @@ const Swatch = ({ color, tint, dashed, line }: { color: string; tint?: string; d
     />
   );
 
-const HintItem = ({ children }: { children: React.ReactNode }) => (
+const HintItem = ({ children }: { children: ReactNode; }) => (
   <HStack spacing="2" fontSize="xs" color="gray.600" flexWrap="wrap">
     {children}
   </HStack>
@@ -239,11 +251,13 @@ const HintItem = ({ children }: { children: React.ReactNode }) => (
 const UnhedgedExposureChart = ({
   data,
   loading = false,
-  isDummyData = true
+  isDummyData = true,
 }: UnhedgedExposureChartProps) => {
+  // Hooks must run unconditionally, before any early return.
+  const [viewMode, setViewMode] = useState<"chart" | "table">("chart");
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const resolvedData = isDummyData ? dummyGrossChartData : data;
   const chartDataReady = Boolean(resolvedData?.months?.length);
-
   if (loading) {
     return (
       <Box p="6" borderRadius="xl" bg="white" borderWidth="1px" borderColor="gray.100">
@@ -258,10 +272,8 @@ const UnhedgedExposureChart = ({
       </Box>
     );
   }
-
   const months = chartDataReady ? resolvedData!.months : [];
   const isGross = resolvedData?.policyType === "gross";
-
   /* Shared line styling: solid = weighted avg, dashed = current forward */
   const lineBase = {
     type: "line" as const,
@@ -290,96 +302,94 @@ const UnhedgedExposureChart = ({
     pointBackgroundColor: "#fff",
     pointBorderColor: color
   });
-
   const chartData: any = {
     labels: months,
     datasets: isGross
       ? [
-          {
-            // Export bars: green. Darker = positive, lighter = negative
-            type: "bar" as const,
-            label: "Export Difference",
-            data: months.map((m) => resolvedData?.export?.[m]?.difference ?? 0),
-            yAxisID: "y",
-            legendColor: C.exportBar,
-            legendFillNeg: C.exportBarNeg,
-            backgroundColor: (context: any) => (context.raw < 0 ? C.exportBarNeg : C.exportBar),
-            borderColor: C.exportBar,
-            borderWidth: 2,
-            borderRadius: 6,
-            borderSkipped: false,
-            barPercentage: 0.9,
-            categoryPercentage: 0.62,
-            order: 2
-          },
-          {
-            // Import bars: blue. Darker = positive, lighter = negative
-            type: "bar" as const,
-            label: "Import Difference",
-            data: months.map((m) => resolvedData?.import?.[m]?.difference ?? 0),
-            yAxisID: "y",
-            legendColor: C.importBar,
-            legendFillNeg: C.importBarNeg,
-            backgroundColor: (context: any) => (context.raw < 0 ? C.importBarNeg : C.importBar),
-            borderColor: C.importBar,
-            borderWidth: 2,
-            borderRadius: 6,
-            borderSkipped: false,
-            barPercentage: 0.9,
-            categoryPercentage: 0.62,
-            order: 2
-          },
-          {
-            ...solidLine(C.exportLine),
-            label: "Export Wtd Avg Rate",
-            data: months.map((m) => resolvedData?.export?.[m]?.weightedAvgRate ?? 0)
-          },
-          {
-            ...dashedLine(C.exportLine),
-            label: "Export Current Fwd Rate",
-            data: months.map((m) => resolvedData?.export?.[m]?.currentFwdrate ?? 0)
-          },
-          {
-            ...solidLine(C.importLine),
-            label: "Import Wtd Avg Rate",
-            data: months.map((m) => resolvedData?.import?.[m]?.weightedAvgRate ?? 0)
-          },
-          {
-            ...dashedLine(C.importLine),
-            label: "Import Current Fwd Rate",
-            data: months.map((m) => resolvedData?.import?.[m]?.currentFwdrate ?? 0)
-          }
-        ]
+        {
+          // Export bars: green. Darker = positive, lighter = negative
+          type: "bar" as const,
+          label: "Export Difference",
+          data: months.map((m) => resolvedData?.export?.[m]?.difference ?? 0),
+          yAxisID: "y",
+          legendColor: C.exportBar,
+          legendFillNeg: C.exportBarNeg,
+          backgroundColor: (context: any) => (context.raw < 0 ? C.exportBarNeg : C.exportBar),
+          borderColor: C.exportBar,
+          borderWidth: 2,
+          borderRadius: 6,
+          borderSkipped: false,
+          barPercentage: 0.9,
+          categoryPercentage: 0.62,
+          order: 2
+        },
+        {
+          // Import bars: blue. Darker = positive, lighter = negative
+          type: "bar" as const,
+          label: "Import Difference",
+          data: months.map((m) => resolvedData?.import?.[m]?.difference ?? 0),
+          yAxisID: "y",
+          legendColor: C.importBar,
+          legendFillNeg: C.importBarNeg,
+          backgroundColor: (context: any) => (context.raw < 0 ? C.importBarNeg : C.importBar),
+          borderColor: C.importBar,
+          borderWidth: 2,
+          borderRadius: 6,
+          borderSkipped: false,
+          barPercentage: 0.9,
+          categoryPercentage: 0.62,
+          order: 2
+        },
+        {
+          ...solidLine(C.exportLine),
+          label: "Export Wtd Avg Rate",
+          data: months.map((m) => resolvedData?.export?.[m]?.weightedAvgRate ?? 0)
+        },
+        {
+          ...dashedLine(C.exportLine),
+          label: "Export Current Fwd Rate",
+          data: months.map((m) => resolvedData?.export?.[m]?.currentFwdrate ?? 0)
+        },
+        {
+          ...solidLine(C.importLine),
+          label: "Import Wtd Avg Rate",
+          data: months.map((m) => resolvedData?.import?.[m]?.weightedAvgRate ?? 0)
+        },
+        {
+          ...dashedLine(C.importLine),
+          label: "Import Current Fwd Rate",
+          data: months.map((m) => resolvedData?.import?.[m]?.currentFwdrate ?? 0)
+        }
+      ]
       : [
-          {
-            type: "bar" as const,
-            label: "Net Unhedged Amount",
-            data: months.map((m) => resolvedData?.net?.[m]?.unhedgedAmount ?? 0),
-            yAxisID: "y",
-            legendColor: C.netBar,
-            legendFillNeg: C.netBarNeg,
-            backgroundColor: (context: any) => (context.raw < 0 ? C.netBarNeg : C.netBar),
-            borderColor: C.netBar,
-            borderWidth: 2,
-            borderRadius: 6,
-            borderSkipped: false,
-            barPercentage: 0.9,
-            categoryPercentage: 0.5,
-            order: 2
-          },
-          {
-            ...solidLine(C.netLine),
-            label: "Breakeven / Wtd Avg Rate",
-            data: months.map((m) => resolvedData?.net?.[m]?.weightedAvgRate ?? 0)
-          },
-          {
-            ...dashedLine(C.netLine2),
-            label: "Current Forward Rate",
-            data: months.map((m) => resolvedData?.net?.[m]?.currentFwdrate ?? 0)
-          }
-        ]
+        {
+          type: "bar" as const,
+          label: "Net Unhedged Amount",
+          data: months.map((m) => resolvedData?.net?.[m]?.unhedgedAmount ?? 0),
+          yAxisID: "y",
+          legendColor: C.netBar,
+          legendFillNeg: C.netBarNeg,
+          backgroundColor: (context: any) => (context.raw < 0 ? C.netBarNeg : C.netBar),
+          borderColor: C.netBar,
+          borderWidth: 2,
+          borderRadius: 6,
+          borderSkipped: false,
+          barPercentage: 0.9,
+          categoryPercentage: 0.5,
+          order: 2
+        },
+        {
+          ...solidLine(C.netLine),
+          label: "Breakeven / Wtd Avg Rate",
+          data: months.map((m) => resolvedData?.net?.[m]?.weightedAvgRate ?? 0)
+        },
+        {
+          ...dashedLine(C.netLine2),
+          label: "Current Forward Rate",
+          data: months.map((m) => resolvedData?.net?.[m]?.currentFwdrate ?? 0)
+        }
+      ]
   };
-
   /* Tight right-axis range so the rate lines stay readable above the bars */
   const rateValues: number[] = chartData.datasets
     .filter((d: any) => d.yAxisID === "y1")
@@ -388,7 +398,6 @@ const UnhedgedExposureChart = ({
   const rateMin = rateValues.length ? Math.min(...rateValues) : undefined;
   const rateMax = rateValues.length ? Math.max(...rateValues) : undefined;
   const ratePad = rateMin !== undefined && rateMax !== undefined ? Math.max((rateMax - rateMin) * 0.25, 0.3) : 0;
-
   const options: any = {
     responsive: true,
     maintainAspectRatio: false,
@@ -466,7 +475,7 @@ const UnhedgedExposureChart = ({
           color: C.muted,
           font: { size: 12 },
           // "Nov 2026" -> two lines ("Nov" / "2026") so 8 months fit cleanly
-          callback: function (this: any, value: any) {
+          callback: function(this: any, value: any) {
             return String(this.getLabelForValue(value)).split(" ");
           }
         }
@@ -508,7 +517,83 @@ const UnhedgedExposureChart = ({
       }
     }
   };
-
+  const tableView = (
+    <TableContainer
+      width="100%"
+      maxW="85vw"
+      overflowX="auto"
+      overflowY="auto"
+      maxH={{ base: "450px", md: "550px", lg: "650px" }}
+      borderWidth="1px"
+      borderColor="gray.100"
+      borderRadius="md"
+    >
+      <Table size="sm" variant="simple">
+        <Thead>
+          <Tr>
+            <Th>Month</Th>
+            {isGross ? (
+              <>
+                <Th isNumeric>Export Difference</Th>
+                <Th isNumeric>Export Unhedged Amount</Th>
+                <Th isNumeric>Export Weighted Avg Rate</Th>
+                <Th isNumeric>Export Current Fwd Rate</Th>
+                <Th isNumeric>Import Difference</Th>
+                <Th isNumeric>Import Unhedged Amount</Th>
+                <Th isNumeric>Import Weighted Avg Rate</Th>
+                <Th isNumeric>Import Current Fwd Rate</Th>
+              </>
+            ) : (
+              <>
+                <Th isNumeric>Net Unhedged Amount</Th>
+                <Th isNumeric>Breakeven / Weighted Avg Rate</Th>
+                <Th isNumeric>Current Forward Rate</Th>
+              </>
+            )}
+          </Tr>
+        </Thead>
+        <Tbody>
+          {months.map((month) => {
+            const exportItem = resolvedData?.export?.[month];
+            const importItem = resolvedData?.import?.[month];
+            const netItem = resolvedData?.net?.[month];
+            return (
+              <Tr key={month}>
+                <Td whiteSpace="nowrap">{month}</Td>
+                {isGross ? (
+                  <>
+                    <Td isNumeric>{formatSigned(exportItem?.difference ?? 0)}</Td>
+                    <Td isNumeric>{formatCompact(exportItem?.unhedgedAmount ?? 0)}</Td>
+                    <Td isNumeric>{(exportItem?.weightedAvgRate ?? 0).toFixed(4)}</Td>
+                    <Td isNumeric>{(exportItem?.currentFwdrate ?? 0).toFixed(4)}</Td>
+                    <Td isNumeric>{formatSigned(importItem?.difference ?? 0)}</Td>
+                    <Td isNumeric>{formatCompact(importItem?.unhedgedAmount ?? 0)}</Td>
+                    <Td isNumeric>{(importItem?.weightedAvgRate ?? 0).toFixed(4)}</Td>
+                    <Td isNumeric>{(importItem?.currentFwdrate ?? 0).toFixed(4)}</Td>
+                  </>
+                ) : (
+                  <>
+                    <Td isNumeric>{formatCompact(netItem?.unhedgedAmount ?? 0)}</Td>
+                    <Td isNumeric>{(netItem?.weightedAvgRate ?? 0).toFixed(4)}</Td>
+                    <Td isNumeric>{(netItem?.currentFwdrate ?? 0).toFixed(4)}</Td>
+                  </>
+                )}
+              </Tr>
+            );
+          })}
+          {months.length === 0 && (
+            <Tr>
+              <Td colSpan={isGross ? 9 : 4}>
+                <Text color="gray.500" textAlign="center" py="4">
+                  No unhedged exposure data available
+                </Text>
+              </Td>
+            </Tr>
+          )}
+        </Tbody>
+      </Table>
+    </TableContainer>
+  );
   return (
     <Box p={{ base: "4", md: "6" }} borderRadius="xl" bg="white" borderWidth="1px" borderColor="gray.100">
       <Flex justify="space-between" align="flex-start" mb="3" flexWrap="wrap" gap="2">
@@ -520,11 +605,25 @@ const UnhedgedExposureChart = ({
             {isGross ? "Gross unhedged amounts and rates" : "Net unhedged amount and rates"}
           </Text>
         </VStack>
-        <Badge colorScheme={isGross ? "blue" : "purple"} textTransform="uppercase" px="2.5" py="0.5" borderRadius="full">
-          {isGross ? "Gross Policy" : "Net Policy"}
-        </Badge>
+        <HStack spacing="2" flexWrap="wrap">
+          <Badge colorScheme={isGross ? "blue" : "purple"} textTransform="uppercase" px="2.5" py="0.5" borderRadius="full">
+            {isGross ? "Gross Policy" : "Net Policy"}
+          </Badge>
+          <Button
+            size="sm"
+            variant="outline"
+            colorScheme="blue"
+            onClick={() =>
+              setViewMode((current) => (current === "chart" ? "table" : "chart"))
+            }
+          >
+            {viewMode === "chart" ? "View Table" : "View Chart"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={onOpen}>
+            Full Screen
+          </Button>
+        </HStack>
       </Flex>
-
       {/* How to read this chart */}
       {chartDataReady && (
         <Flex bg="gray.50" borderRadius="lg" px="4" py="3" mb="4" gap="2" direction="column">
@@ -561,18 +660,71 @@ const UnhedgedExposureChart = ({
           </HintItem>
         </Flex>
       )}
-
-      {/* position relative + w="100%" prevents Chart.js canvas collapse */}
-      <Box h={{ base: "380px", md: "440px" }} w="100%" position="relative">
-        {chartDataReady ? (
-          <Chart type="bar" data={chartData} options={options} />
-        ) : (
-          <Flex h="100%" align="center" justify="center">
-            <Text fontSize="sm" color="gray.500">No unhedged exposure data available</Text>
-          </Flex>
-        )}
-      </Box>
+      {viewMode === "table" ? (
+        <Box maxW="100%" overflow="hidden">
+          {tableView}
+        </Box>
+      ) : (
+        <Box h={{ base: "380px", md: "440px" }} w="100%" position="relative">
+          {chartDataReady ? (
+            <Chart type="bar" data={chartData} options={options} />
+          ) : (
+            <Flex h="100%" align="center" justify="center">
+              <Text fontSize="sm" color="gray.500">
+                No unhedged exposure data available
+              </Text>
+            </Flex>
+          )}
+        </Box>
+      )}
+      <Modal isOpen={isOpen} onClose={onClose} size="full">
+        <ModalOverlay />
+        <ModalContent m={{ base: 2, md: 5 }} borderRadius="xl">
+          <ModalHeader pr="16">
+            <Flex justify="space-between" align="center" gap="3" flexWrap="wrap">
+              <Text>Month-wise Unhedged Exposure</Text>
+              <Button
+                size="sm"
+                variant="outline"
+                colorScheme="blue"
+                onClick={() =>
+                  setViewMode((current) =>
+                    current === "chart" ? "table" : "chart"
+                  )
+                }
+              >
+                {viewMode === "chart" ? "View Table" : "View Chart"}
+              </Button>
+            </Flex>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb="6" overflow="auto" maxW="100%">
+            {viewMode === "table" ? (
+              <Box maxW="100%" overflow="hidden">
+                {tableView}
+              </Box>
+            ) : (
+              <Box
+                h={{ base: "70vh", md: "78vh" }}
+                w="100%"
+                position="relative"
+              >
+                {chartDataReady ? (
+                  <Chart type="bar" data={chartData} options={options} />
+                ) : (
+                  <Flex h="100%" align="center" justify="center">
+                    <Text fontSize="sm" color="gray.500">
+                      No unhedged exposure data available
+                    </Text>
+                  </Flex>
+                )}
+              </Box>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
+
 export default UnhedgedExposureChart;

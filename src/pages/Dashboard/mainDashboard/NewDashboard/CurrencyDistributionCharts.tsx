@@ -1,9 +1,10 @@
+
 import { Box, SimpleGrid, Tag, Text, VStack } from "@chakra-ui/react";
 import {
   ArcElement,
   Chart as ChartJS,
   Legend,
-  Tooltip
+  Tooltip,
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 
@@ -36,26 +37,32 @@ const getCurrencyColor = (index: number) => {
     "#38A169",
     "#D69E2E",
     "#805AD5",
-    "#319795"
+    "#319795",
   ];
 
-  return (
-    colors[index] ||
-    `hsl(${(index * 67) % 360}, 58%, 48%)`
-  );
+  return colors[index] || `hsl(${(index * 67) % 360}, 58%, 48%)`;
 };
+
+const formatAmount = (value: number) =>
+  value.toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+  });
 
 const CurrencyDonut = ({
   title,
-  values
+  values,
 }: {
   title: string;
   values?: CurrencyValues;
 }) => {
   const slices = getCurrencySlices(values);
 
-  const totalInrValue = Number(
-    values?.totalInrValue || 0
+  const totalInrValue = Number(values?.totalInrValue || 0);
+
+  // Calculate percentages using the sum of the displayed currency amounts.
+  const distributionTotal = slices.reduce(
+    (sum, [, amount]) => sum + Number(amount),
+    0
   );
 
   const chartData = {
@@ -63,23 +70,21 @@ const CurrencyDonut = ({
 
     datasets: [
       {
-        data: slices.map(([, amount]) =>
-          Number(amount)
-        ),
-
+        data: slices.map(([, amount]) => Number(amount)),
         backgroundColor: slices.map((_, index) =>
           getCurrencyColor(index)
         ),
-
         borderWidth: 0,
         spacing: 3,
-        hoverOffset: 6
-      }
-    ]
+        hoverOffset: 6,
+      },
+    ],
   };
 
   const options: any = {
     cutout: "60%",
+    responsive: true,
+    maintainAspectRatio: false,
 
     plugins: {
       legend: {
@@ -87,9 +92,33 @@ const CurrencyDonut = ({
 
         labels: {
           font: {
-            size: 12
-          }
-        }
+            size: 12,
+          },
+
+          // Show currency and its percentage in the legend.
+          generateLabels: (chart: any) => {
+            const dataset = chart.data.datasets[0];
+
+            return chart.data.labels.map(
+              (currency: string, index: number) => {
+                const amount = Number(dataset.data[index]);
+                const percentage =
+                  distributionTotal > 0
+                    ? (amount / distributionTotal) * 100
+                    : 0;
+
+                return {
+                  text: `${currency} (${percentage.toFixed(2)}%)`,
+                  fillStyle: dataset.backgroundColor[index],
+                  strokeStyle: dataset.backgroundColor[index],
+                  lineWidth: 0,
+                  hidden: !chart.getDataVisibility(index),
+                  index,
+                };
+              }
+            );
+          },
+        },
       },
 
       tooltip: {
@@ -101,13 +130,20 @@ const CurrencyDonut = ({
         cornerRadius: 8,
 
         callbacks: {
-          label: (context: any) =>
-            `${context.label}: ${Number(
-              context.raw
-            ).toLocaleString()}`
-        }
-      }
-    }
+          label: (context: any) => {
+            const amount = Number(context.raw);
+            const percentage =
+              distributionTotal > 0
+                ? (amount / distributionTotal) * 100
+                : 0;
+
+            return `${context.label}: ${formatAmount(
+              amount
+            )} (${percentage.toFixed(2)}%)`;
+          },
+        },
+      },
+    },
   };
 
   return (
@@ -118,26 +154,15 @@ const CurrencyDonut = ({
       boxShadow="sm"
       animation="fadeInUp 0.4s ease forwards"
     >
-      <VStack
-        align="start"
-        spacing="1"
-        mb="4"
-      >
-        <Text
-          fontWeight="semibold"
-          color="gray.800"
-        >
+      <VStack align="start" spacing="1" mb="4">
+        <Text fontWeight="semibold" color="gray.800">
           {title}
         </Text>
 
-        <Text
-          // fontSize="sm"
-          color="gray.500"
-        >
+        <Text color="gray.500">
           Total INR:{" "}
-          <Tag colorScheme="blue" rounded={'full'}>
-
-          {totalInrValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          <Tag colorScheme="blue" rounded="full">
+            {formatAmount(totalInrValue)}
           </Tag>
         </Text>
       </VStack>
@@ -149,15 +174,9 @@ const CurrencyDonut = ({
         justifyContent="center"
       >
         {slices.length > 0 ? (
-          <Doughnut
-            data={chartData}
-            options={options}
-          />
+          <Doughnut data={chartData} options={options} />
         ) : (
-          <Text
-            fontSize="sm"
-            color="gray.500"
-          >
+          <Text fontSize="sm" color="gray.500">
             No currency distribution available
           </Text>
         )}
@@ -168,15 +187,14 @@ const CurrencyDonut = ({
 
 const CurrencyDistributionCharts = ({
   data,
-  basis
+  basis,
 }: CurrencyDistributionChartsProps) => {
-  // GROSS
   if (basis === "gross") {
     return (
       <SimpleGrid
         columns={{
           base: 1,
-          md: 2
+          md: 2,
         }}
         spacing="4"
       >
@@ -193,7 +211,6 @@ const CurrencyDistributionCharts = ({
     );
   }
 
-  // NET
   const netValues =
     data?.net ||
     (() => {
@@ -203,7 +220,7 @@ const CurrencyDistributionCharts = ({
       const combined: CurrencyValues = {
         totalInrValue:
           Number(data?.export?.totalInrValue || 0) +
-          Number(data?.import?.totalInrValue || 0)
+          Number(data?.import?.totalInrValue || 0),
       };
 
       [...exportCurrencies, ...importCurrencies].forEach(
