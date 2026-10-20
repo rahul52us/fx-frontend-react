@@ -376,11 +376,14 @@ const fetchPoBalance = async (poNumber: string) => {
                           type="select"
                           options={bussinessUnitsData}
                           value={values.businessUnit}
-                          onChange={(option) =>
+                          onChange={(option) => {
                             handleChange({
                               target: { name: "businessUnit", value: option },
-                            })
-                          }
+                            });
+                            handleChange({
+                              target: { name: "bank", value: null },
+                            });
+                          }}
                           error={touched.businessUnit && errors.businessUnit}
                           showError={showError}
                           required={true}
@@ -407,7 +410,7 @@ const fetchPoBalance = async (poNumber: string) => {
                         type="select"
                         name="bank"
                         placeholder="Enter Bank Name"
-                        options={banksData}
+                        options={store.auth.getBanksByBusinessUnit(values.businessUnit)}
                         value={values.bank}
                         onChange={(option) =>
                           handleChange({

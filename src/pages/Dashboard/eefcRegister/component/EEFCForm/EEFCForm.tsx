@@ -18,7 +18,7 @@ import store from "../../../../../store/store";
 import { extractFieldValue } from "../../../../../config/constant/function";
 
 const EEFCForm = ({ submitForm }: any) => {
-  const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
+  const { auth: { bussinessUnitsData, currenciesData } } = store
   const validationSchema = Yup.object().shape({
     settlementDate: Yup.string().required("Settlement Date is required"),
     exposureType: Yup.mixed().required("Exposure Type is required"),
@@ -65,7 +65,10 @@ const EEFCForm = ({ submitForm }: any) => {
                     type="select"
                     options={bussinessUnitsData}
                     value={values.bussinessUnit}
-                    onChange={(e: any) => setFieldValue('bussinessUnit', e)}
+                    onChange={(e: any) => {
+                      setFieldValue('bussinessUnit', e);
+                      setFieldValue('bank', null);
+                    }}
                     error={touched.bussinessUnit && errors.bussinessUnit}
                   />
                   <CustomInput
@@ -108,7 +111,7 @@ const EEFCForm = ({ submitForm }: any) => {
                     label="Bank"
                     name="bank"
                     type="select"
-                    options={banksData}
+                    options={store.auth.getBanksByBusinessUnit(values.bussinessUnit)}
                     value={values.bank}
                     onChange={(e: any) => setFieldValue('bank', e)}
                     error={touched.bank && errors.bank}

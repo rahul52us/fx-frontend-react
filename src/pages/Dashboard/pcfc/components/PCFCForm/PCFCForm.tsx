@@ -43,7 +43,7 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const [showError, setShowError] = useState(false); // Initially false, true on submit
   const isEdit = Boolean(editData);
   const {storeEdited, editLoading} = useStoreEdited();
-  const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
+  const { auth: { bussinessUnitsData, currenciesData } } = store
   const validationSchema = useMemo(() => Yup.object().shape({
     drawdownDate: Yup.string().required("Drawdown Date is required"),
     dueDate: Yup.string().required("Due Date is required"),
@@ -289,41 +289,43 @@ const PCFCForm = ({ submitForm, editData, originalData,onClose }: any) => {
                     value={values.businessUnit}
                     onChange={(e) => {
                       setFieldValue("businessUnit", e);
+                      setFieldValue("bank", null);
+                      setFieldValue("bankSpread", "");
                     }}
                     error={touched.businessUnit && errors.businessUnit}
                     showError={showError}
                     required
                   />
 
-<CustomInput
-  label="Bank"
-  name="bank"
-  type="select"
-  required
-  placeholder="Select Bank"
-  options={banksData}
-  value={values.bank}
-  onChange={(opt: any) => {
-    setFieldValue("bank", opt, false);
+                  <CustomInput
+                    label="Bank"
+                    name="bank"
+                    type="select"
+                    required
+                    placeholder="Select Bank"
+                    options={store.auth.getBanksByBusinessUnit(values.businessUnit)}
+                    value={values.bank}
+                    onChange={(opt: any) => {
+                      setFieldValue("bank", opt, false);
 
-    const margin = getBankMarginFromForm(opt, banksData);
+                      const margin = getBankMarginFromForm(opt, store.auth.getBanksByBusinessUnit(values.businessUnit));
 
-    if (values.spotList?.length > 0) {
-      const updatedSpotList = values.spotList.map((spot: any) => ({
-        ...spot,
-        bankMargin: margin,
-        netConversionRate: computeSpotNetRate(
-          spot.spotBooked,
-          spot.cashTomSpot,
-          margin
-        ),
-      }));
-      setFieldValue("spotList", updatedSpotList, false);
-    }
-  }}
-  error={touched.bank && errors.bank}
-  showError={showError}
-/>
+                      if (values.spotList?.length > 0) {
+                        const updatedSpotList = values.spotList.map((spot: any) => ({
+                          ...spot,
+                          bankMargin: margin,
+                          netConversionRate: computeSpotNetRate(
+                            spot.spotBooked,
+                            spot.cashTomSpot,
+                            margin
+                          ),
+                        }));
+                        setFieldValue("spotList", updatedSpotList, false);
+                      }
+                    }}
+                    error={touched.bank && errors.bank}
+                    showError={showError}
+                  />
 
                
                   <CustomInput

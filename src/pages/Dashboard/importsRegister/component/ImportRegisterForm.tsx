@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useStoreEdited } from "../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../config/component/CustomInput/CustomInput";
 import Loader from "../../../../config/component/Loader/Loader";
@@ -22,7 +22,7 @@ import DueDateSync from "../../exportsRegister/component/DueDateSync";
 import { MultiHedgeDealExport } from "../../exportsRegister/component/MultiHedgeDealExport";
 import { calculateDueDate, normalizeDate } from "../../exportsRegister/component/utils/function";
 import { pickMatchedFields } from "../../utils/function";
-import { dummyPoData, importExposureTypeOptions } from "./utils/constant";
+import { importExposureTypeOptions } from "./utils/constant";
 import { getImportRegisterValidationSchema } from "./utils/validationSchema";
 
 import ForecastExposureFields from "../../exportsRegister/component/ForecastExposureFields";
@@ -77,7 +77,7 @@ const fetchPoBalance = async (poNumber: string) => {
       if (response.status === "success" || response.status === 200) {
         setPoData(exportRegOptions);
       } else {
-        setPoData(dummyPoData);
+        setPoData([]);
       }
     } catch (error) {
       setPoData([]);
@@ -346,7 +346,10 @@ const fetchPoBalance = async (poNumber: string) => {
                       placeholder="Unit"
                       options={bussinessUnitsData}
                       value={values.businessUnit}
-                      onChange={(e: any) => setFieldValue("businessUnit", e)}
+                      onChange={(e: any) => {
+                        setFieldValue("businessUnit", e);
+                        setFieldValue("bank", null);
+                      }}
                       error={touched.businessUnit && errors.businessUnit}
                       showError={showError}
                       required={true}
@@ -363,7 +366,7 @@ const fetchPoBalance = async (poNumber: string) => {
                           : "select"
                       } 
                         placeholder="Bank"
-                        options={banksData}
+                        options={store.auth.getBanksByBusinessUnit(values.businessUnit)}
                         value={values.bank}
                         onChange={(selectedOption: any) =>
                           setFieldValue("bank", selectedOption)
@@ -379,7 +382,7 @@ const fetchPoBalance = async (poNumber: string) => {
                         type="select"
                         name="bank"
                         placeholder="Select Bank"
-                        options={banksData}
+                        options={store.auth.getBanksByBusinessUnit(values.businessUnit)}
                         value={values.bank}
                         onChange={(selectedOption: any) =>
                           setFieldValue("bank", selectedOption)

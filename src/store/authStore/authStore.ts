@@ -242,11 +242,45 @@ class AuthStore {
     }
   };
 
-// ✅ Helper to get margin by bank name
-getBankMargin = (bankName: string): string => {
-  const bank = this.banksData.find((b: any) => b.value === bankName);
-  return (bank as any)?.bankMargin ?? "";
-};
+  getBanksByBusinessUnit = (businessUnit: any): any[] => {
+    const unitCode = typeof businessUnit === "string" ? businessUnit : businessUnit?.value;
+    if (!unitCode) return [];
+
+    const rawUnits = this.user?.businessUnits;
+    if (!Array.isArray(rawUnits)) return [];
+
+    const matchedUnit = rawUnits.find((u: any) => {
+      const code = typeof u === "string" ? u : u?.unitCode;
+      return code === unitCode;
+    });
+
+    if (!matchedUnit || !matchedUnit.banks || !Array.isArray(matchedUnit.banks)) {
+      return [];
+    }
+
+    const bankMarginMap = new Map<string, string>();
+    matchedUnit.banks.forEach((b: any) => {
+      if (b?.bankName && !bankMarginMap.has(b.bankName)) {
+        bankMarginMap.set(b.bankName, b.margin ?? "");
+      }
+    });
+
+    const uniqueBankNames = Array.from(
+      new Set<string>(matchedUnit.banks.map((b: any) => b?.bankName).filter(Boolean))
+    );
+
+    return uniqueBankNames.map((bankName) => ({
+      label: bankName,
+      value: bankName,
+      bankMargin: bankMarginMap.get(bankName) ?? "",
+    }));
+  };
+
+  // ✅ Helper to get margin by bank name
+  getBankMargin = (bankName: string): string => {
+    const bank = this.banksData.find((b: any) => b.value === bankName);
+    return (bank as any)?.bankMargin ?? "";
+  };
 
   clearLocalStorage = () => {
     localStorage.removeItem(
@@ -336,6 +370,7 @@ getBankMargin = (bankName: string): string => {
           );
           const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
           this.user = JSON.parse(decryptedData);
+          this.setBanksDetailsData(this.user?.businessUnits || []);
           return true;
         } else {
           this.doLogout();

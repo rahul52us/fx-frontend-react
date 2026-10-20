@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form as FormikForm } from "formik";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useStoreEdited } from "../../../../../config/component/customHooks/useStoreEdited";
 import CustomInput from "../../../../../config/component/CustomInput/CustomInput";
 import { extractFieldValue } from "../../../../../config/constant/function";
@@ -17,16 +17,16 @@ import store from "../../../../../store/store";
 import { exportRegisterexposureTypeOptions } from "../../../exportsRegister/component/utils/constant";
 import { importExposureTypeOptions, mainExposureTypeOptions } from "../../../importsRegister/component/utils/constant";
 import { pickMatchedFields } from "../../../utils/function";
+import { getForwardRegisterValidationSchema } from "../utils/validationSchema";
 import { calculateHedgeRate, getForwardRegisterInitialValues } from "./constant";
 import ExposureRefSelector from "./ExposureRefSelector";
-import { getForwardRegisterValidationSchema } from "../utils/validationSchema";
 
 const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any) => {
   const toast = useToast();
   const [showError, setShowError] = useState(false);
   const [exposureRefOptions, setExposureRefOptions] = useState<any[]>([]);
   const isEdit = Boolean(editData);
-  const { auth: { bussinessUnitsData, currenciesData, banksData } } = store
+  const { auth: { bussinessUnitsData, currenciesData } } = store
   const [selectedMainExposureType, setSelectedMainExposureType] = useState('');
   const url = process.env.REACT_APP_FX_BASE_URL;
   const { storeEdited, editLoading } = useStoreEdited();
@@ -184,39 +184,7 @@ onSubmit={async (values, actions) => {
   setShowError(true);
   await submitForm(values, actions, "form");
 }}
-          //  onSubmit={async (values, actions) => {
-            //           values = extractFieldValue(values)
-            //           if (isEdit) {
-            //             const { original, updated } = pickMatchedFields(
-            //               originalData,
-            //               values,
-            //               editData?.rowId
-            //             );
-          
-            //             const payload = {
-            //               register: "forwardRegister",
-            //               data: [
-            //                 {
-            //                   original,
-            //                   updated,
-            //                   rowId: editData?.rowId, // optional if backend still expects it here
-            //                 },
-            //               ],
-            //             };
-          
-            //             try {
-            //               await storeEdited(payload, onClose);
-            //               actions.resetForm();
-            //               actions.setSubmitting(false);
-            //             } catch (error) {
-            //               actions.setSubmitting(false);
-            //             }
-          
-            //             return;
-            //           }
-            //           setShowError(true);
-            //           submitForm(values, actions, "form");
-            //         }}
+
         >
           {({
             values,
@@ -281,85 +249,42 @@ onSubmit={async (values, actions) => {
                     placeholder="Enter Business Unit"
                     value={values.bussinessUnit}
                     options={bussinessUnitsData}
-                    onChange={(e: any) => setFieldValue('bussinessUnit', e)}
+                    onChange={(e: any) => {
+                      setFieldValue('bussinessUnit', e);
+                      // Clear bank if business unit changed
+                      setFieldValue('bank', null);
+                      setFieldValue('bankMargin', '');
+                    }}
                     showError={showError}
                     error={touched.bussinessUnit && errors.bussinessUnit}
                     required={true}
                   />
 
-                  {/* <CustomInput
+                  <CustomInput
                     label="Bank"
                     type="select"
                     name="bank"
                     placeholder="Enter Bank Name"
-                    options={banksData}
-                    value={values.bank}
-                    onChange={(option) =>
-                      handleChange({
-                        target: { name: "bank", value: option },
-                      })
-                    }
+                    options={store.auth.getBanksByBusinessUnit(values.bussinessUnit)}
+                    value={values.bank || null}   // ✅ pass full object
+                    onChange={(option) => {
+                      setFieldValue("bank", option); // ✅ store full object
+
+                      const margin = option?.bankMargin ?? "";
+
+                      setFieldValue("bankMargin", margin);
+
+                      const calculatedRate = calculateHedgeRate({
+                        ...values,
+                        bank: option,
+                        bankMargin: margin,
+                      });
+
+                      setFieldValue("hedgeRate", calculatedRate);
+                    }}
                     showError={showError}
                     error={touched.bank && errors.bank}
-                  /> */}
-
-                  <CustomInput
-  label="Bank"
-  type="select"
-  name="bank"
-  placeholder="Enter Bank Name"
-  options={banksData}
-  value={values.bank || null}   // ✅ pass full object
-  onChange={(option) => {
-    setFieldValue("bank", option); // ✅ store full object
-
-    const margin = option?.bankMargin ?? "";
-
-    setFieldValue("bankMargin", margin);
-
-    const calculatedRate = calculateHedgeRate({
-      ...values,
-      bank: option,
-      bankMargin: margin,
-    });
-
-    setFieldValue("hedgeRate", calculatedRate);
-  }}
-  showError={showError}
-  error={touched.bank && errors.bank}
-/>
-{/* 
-<CustomInput
-  label="Bank"
-  type="select"
-  name="bank"
-  placeholder="Enter Bank Name"
-  options={banksData}
-  value={values.bank.value}
-  onChange={(option) => {
-    handleChange({
-      target: { name: "bank", value: option },
-    });
-
-    // ✅ Auto-populate bankMargin from selected bank's margin
-    const selectedBank = banksData.find((b: any) => b.value === option?.value);
-    const margin = selectedBank?.bankMargin ?? "";
-
-    setFieldValue("bankMargin", margin);
-
-    // ✅ Recalculate hedgeRate with new bankMargin
-    const calculatedRate = calculateHedgeRate({
-      ...values,
-      bank: option,
-      bankMargin: margin,
-    });
-    setFieldValue("hedgeRate", calculatedRate);
-  }}
-  showError={showError}
-  error={touched.bank && errors.bank}
-/> */}
-
-
+                  />
                   <CustomInput
                     label="Hedge Deal Reference Number"
                     name="hedgeDealReferenceNumber"
@@ -456,6 +381,7 @@ onSubmit={async (values, actions) => {
                     }}
                     error={touched.bankMargin && errors.bankMargin}
                     required={true}
+                    disabled
                     showError={showError}
                   />
 
