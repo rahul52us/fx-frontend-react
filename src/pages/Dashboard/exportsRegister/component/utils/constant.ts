@@ -100,6 +100,24 @@ export const dummyExportRegisterData = [
     remark: "Remarks",
     hedgeDeals: [],
   },
+  {
+    exposureType: "forecast",
+    poNo: "",
+    poDate: "1999-01-01",
+    invoiceDate: "1999-01-01",
+    blDate: "1999-01-01",
+    dueDate: "2026-06-30",
+    partyName: "",
+    bank: "",
+    businessUnit: "Delhi",
+    currency: "USDINR",
+    invoiceNo: "",
+    paymentTerms: 0,
+    amount: "50000",
+    budgetRate: 0,
+    remark: "",
+    hedgeDeals: [],
+  },
 ];
 // export const dummyExportRegisterData = [
 //   {

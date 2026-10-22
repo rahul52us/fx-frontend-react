@@ -83,6 +83,49 @@ const ExportRegisterTable = () => {
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     if (type === "excel") setIsUploading(true);
+
+    const parseErrors = (rawMessage: any, fallbackFailures: number) => {
+      let errorList: { row: number; message: string }[] = [];
+      if (Array.isArray(rawMessage)) {
+        errorList = rawMessage.map((msg: any, idx: number) => {
+          const strMsg = typeof msg === "string" ? msg : JSON.stringify(msg);
+          const rowMatch = strMsg.match(/row(?:\s+number)?(?:\s*:-|\s*:|\s*-|\s+)+(\d+)/i);
+          const parsedRow = rowMatch ? parseInt(rowMatch[1], 10) - 1 : idx;
+          return {
+            row: parsedRow >= 0 ? parsedRow : idx,
+            message: strMsg,
+          };
+        });
+      } else if (typeof rawMessage === "string") {
+        const lines = rawMessage.split(/\r?\n/).filter((l) => l.trim().length > 0);
+        if (lines.length > 1) {
+          errorList = lines.map((line, idx) => {
+            const rowMatch = line.match(/row(?:\s+number)?(?:\s*:-|\s*:|\s*-|\s+)+(\d+)/i);
+            const parsedRow = rowMatch ? parseInt(rowMatch[1], 10) - 1 : idx;
+            return {
+              row: parsedRow >= 0 ? parsedRow : idx,
+              message: line,
+            };
+          });
+        } else {
+          const rowMatch = rawMessage.match(/row(?:\s+number)?(?:\s*:-|\s*:|\s*-|\s+)+(\d+)/i);
+          const parsedRow = rowMatch ? parseInt(rowMatch[1], 10) - 1 : 0;
+          errorList = [{ row: parsedRow >= 0 ? parsedRow : 0, message: rawMessage }];
+        }
+      } else if (rawMessage && typeof rawMessage === "object") {
+        errorList = [{ row: 0, message: JSON.stringify(rawMessage) }];
+      }
+
+      if (errorList.length === 0) {
+        errorList = [{ row: 0, message: "Failed to upload excel data" }];
+      }
+
+      return {
+        errors: errorList,
+        failures: Math.max(fallbackFailures, errorList.length),
+      };
+    };
+
     try {
       const payload = {
         userToken: "abcxyz",
@@ -121,16 +164,17 @@ const ExportRegisterTable = () => {
         actions?.resetForm?.();
       } else {
         if (type === "excel") {
+          const { errors, failures } = parseErrors(response.data.message, values.length);
           setUploadResults({
             success: 0,
-            failures: values.length,
-            errors: [{ row: 0, message: response.data.message || "Failed to upload excel data" }],
+            failures: failures,
+            errors: errors,
           });
           onStatusOpen();
         } else {
           toast({
             title: "Submission failed",
-            description: "Unexpected server response.",
+            description: typeof response.data.message === "string" ? response.data.message : "Unexpected server response.",
             status: "error",
             duration: 5000,
             isClosable: true,
@@ -141,16 +185,19 @@ const ExportRegisterTable = () => {
     } catch (error: any) {
       console.error("Submit error", error.message);
       if (type === "excel") {
+        const rawMsg = error.response?.data?.message || error.message || "An error occurred during upload";
+        const { errors, failures } = parseErrors(rawMsg, values.length);
         setUploadResults({
           success: 0,
-          failures: values.length,
-          errors: [{ row: 0, message: error.response?.data?.message || error.message || "An error occurred during upload" }],
+          failures: failures,
+          errors: errors,
         });
         onStatusOpen();
       } else {
+        const desc = error?.response?.data?.message;
         toast({
           title: "Error",
-          description: error?.response?.data?.message || "Something went wrong.",
+          description: Array.isArray(desc) ? desc.join(", ") : (desc || "Something went wrong."),
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -259,32 +306,61 @@ const handleFileUpload = async (event: any) => {
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
 
-      const paymentTerms = Number(row.paymentTerms);
+      const rawExposureType = String(row.exposureType || "").trim().toLowerCase();
+      const isForecast = rawExposureType === "forecast";
 
-      // Convert Excel dates BEFORE validation
-      const poDate = normalizeExcelDate(row.poDate);
-      const invoiceDate = normalizeExcelDate(row.invoiceDate);
-      const blDate = normalizeExcelDate(row.blDate);
+      let normalizedRow: any;
 
-      // Use Excel dueDate if provided, otherwise calculate it
-      const dueDate = row.dueDate
-        ? normalizeExcelDate(row.dueDate)
-        : calculateDueDate(blDate, paymentTerms);
+      if (isForecast) {
+        const dueDate = normalizeExcelDate(row.dueDate);
+        normalizedRow = {
+          ...row,
+          exposureType: "forecast",
+          poNo: row.poNo ? String(row.poNo).trim() : "",
+          poDate: "1999-01-01",
+          invoiceDate: "1999-01-01",
+          blDate: "1999-01-01",
+          dueDate: String(dueDate || ""),
+          partyName: row.partyName ? String(row.partyName).trim() : "",
+          bank: row.bank ? String(row.bank).trim() : "",
+          businessUnit: row.businessUnit ? String(row.businessUnit).trim() : "",
+          currency: row.currency ? String(row.currency).trim() : "",
+          invoiceNo: row.invoiceNo ? String(row.invoiceNo).trim() : "",
+          paymentTerms: 0,
+          budgetRate: 0,
+          outstandingAmount: 0,
+          amount: row.amount !== undefined && row.amount !== null && row.amount !== "" ? Number(row.amount) : "",
+          remark: row.remark || "",
+          hedgeDeals: [],
+        };
+      } else {
+        const paymentTerms = Number(row.paymentTerms);
 
-      const normalizedRow: any = {
-        ...row,
+        // Convert Excel dates BEFORE validation
+        const poDate = normalizeExcelDate(row.poDate);
+        const invoiceDate = normalizeExcelDate(row.invoiceDate);
+        const blDate = normalizeExcelDate(row.blDate);
 
-        // All dates are now YYYY-MM-DD strings
-        poDate: String(poDate),
-        invoiceDate: String(invoiceDate),
-        blDate: String(blDate),
-        dueDate: String(dueDate || ""),
+        // Use Excel dueDate if provided, otherwise calculate it
+        const dueDate = row.dueDate
+          ? normalizeExcelDate(row.dueDate)
+          : calculateDueDate(blDate, paymentTerms);
 
-        paymentTerms,
+        normalizedRow = {
+          ...row,
+          exposureType: rawExposureType,
+          // All dates are now YYYY-MM-DD strings
+          poDate: String(poDate),
+          invoiceDate: String(invoiceDate),
+          blDate: String(blDate),
+          dueDate: String(dueDate || ""),
 
-        // Keep empty for Excel upload
-        hedgeDeals: [],
-      };
+          paymentTerms,
+
+          // Keep empty for Excel upload
+          hedgeDeals: [],
+        };
+      }
 
       console.log(
         `Row ${i + 1} after conversion:`,

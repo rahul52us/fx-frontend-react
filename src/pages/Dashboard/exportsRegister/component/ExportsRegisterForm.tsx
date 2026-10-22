@@ -26,7 +26,6 @@ import {
 } from "./utils/constant";
 import { normalizeDate } from "./utils/function";
 import { getExportRegisterValidationSchema } from "./utils/validationSchema";
-// import { toJS } from "mobx";
 import { extractFieldValue } from "../../../../config/constant/function";
 import ForecastExposureFields from "./ForecastExposureFields";
 
@@ -42,10 +41,7 @@ const ExposureForm = ({ submitExportForm, editData, originalData, onClose }: any
   const isEdit = Boolean(editData);
   const { storeEdited, editLoading } = useStoreEdited();
   const [poBalance, setPoBalance] = useState<number>(0);
-  
-
   const validationSchema = getExportRegisterValidationSchema(isEdit, poBalance);
-
 const fetchPoBalance = async (poNumber: string) => {
   try {
     const response: any = await axios.post(`${url}/exportregister/pobalance/`, {
@@ -59,8 +55,6 @@ const fetchPoBalance = async (poNumber: string) => {
     console.error("Error fetching PO balance:", error.message);
   }
 };
-
- 
 
   const fetchPoDetails = useCallback(async () => {
     setLoading(true);
@@ -151,15 +145,35 @@ const fetchPoBalance = async (poNumber: string) => {
             remark: editData?.remark || "",
              hedgeDeals: editData?.hedgeDeals || [],
   outstandingAmount: editData?.outstandingAmount || "",
-            // hedgeDeals: editData?.hedgeDeals || [],
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
           onSubmit={async (values, actions) => {
-            values = extractFieldValue(values)
-             if (values.bank && typeof values.bank === "object") {
-    values.bank = values.bank.value;  // "HDFC"
-  }
+            values = extractFieldValue(values);
+            if (values.bank && typeof values.bank === "object") {
+              values.bank = values.bank.value; // "HDFC"
+            }
+
+            if (values.exposureType === "forecast") {
+              values = {
+                ...values,
+                poNo: values.poNo || "0",
+                poDate: "1999-01-01",
+                invoiceDate: "1999-01-01",
+                blDate: "1999-01-01",
+                dueDate: values.dueDate || "1999-01-01",
+                partyName: values.partyName || "0",
+                bank: values.bank || "0",
+                businessUnit: values.businessUnit || "",
+                currency: values.currency || "",
+                invoiceNo: values.invoiceNo || "0",
+                paymentTerms: values.paymentTerms !== "" && values.paymentTerms !== undefined && values.paymentTerms !== null ? values.paymentTerms : 0,
+                budgetRate: values.budgetRate !== "" && values.budgetRate !== undefined && values.budgetRate !== null ? values.budgetRate : 0,
+                outstandingAmount: values.outstandingAmount !== "" && values.outstandingAmount !== undefined && values.outstandingAmount !== null ? values.outstandingAmount : 0,
+                remark: values.remark || "",
+                hedgeDeals: values.hedgeDeals || [],
+              };
+            }
             if (isEdit) {
               const { original, updated } = pickMatchedFields(
                 originalData,
@@ -242,8 +256,6 @@ const fetchPoBalance = async (poNumber: string) => {
                           setFieldValue("budgetRate", "");
                         }
                         setSelectedExposureType(selectedOption.value);
-                      
-                        // fetchPoBalance(selectedOption.value);
                       }}
                       showError={showError}
                       error={touched.exposureType && errors.exposureType}
@@ -576,5 +588,4 @@ const fetchPoBalance = async (poNumber: string) => {
     </Box>
   );
 };
-
 export default ExposureForm;
