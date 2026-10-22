@@ -91,6 +91,50 @@ const ForwardRegisterTable = () => {
 
   const submitExportForm = async (values: any, actions: any, type: string) => {
     if (type === "excel") setIsUploading(true);
+
+    const parseErrors = (rawMessage: any, fallbackFailures: number) => {
+      let errorList: { row: number; message: string }[] = [];
+      if (Array.isArray(rawMessage)) {
+        errorList = rawMessage.map((msg: any, idx: number) => {
+          const strMsg = typeof msg === "string" ? msg : JSON.stringify(msg);
+          const rowMatch = strMsg.match(/row(?:\s+number)?(?:\s*:-|\s*:|\s*-|\s+)+(\d+)/i);
+          const parsedRow = rowMatch ? parseInt(rowMatch[1], 10) - 1 : idx;
+          return {
+            row: parsedRow >= 0 ? parsedRow : idx,
+            message: strMsg,
+          };
+        });
+      } else if (typeof rawMessage === "string") {
+        // If message contains multiple row errors in a single string, split by lines or row patterns
+        const lines = rawMessage.split(/\r?\n/).filter((l) => l.trim().length > 0);
+        if (lines.length > 1) {
+          errorList = lines.map((line, idx) => {
+            const rowMatch = line.match(/row(?:\s+number)?(?:\s*:-|\s*:|\s*-|\s+)+(\d+)/i);
+            const parsedRow = rowMatch ? parseInt(rowMatch[1], 10) - 1 : idx;
+            return {
+              row: parsedRow >= 0 ? parsedRow : idx,
+              message: line,
+            };
+          });
+        } else {
+          const rowMatch = rawMessage.match(/row(?:\s+number)?(?:\s*:-|\s*:|\s*-|\s+)+(\d+)/i);
+          const parsedRow = rowMatch ? parseInt(rowMatch[1], 10) - 1 : 0;
+          errorList = [{ row: parsedRow >= 0 ? parsedRow : 0, message: rawMessage }];
+        }
+      } else if (rawMessage && typeof rawMessage === "object") {
+        errorList = [{ row: 0, message: JSON.stringify(rawMessage) }];
+      }
+
+      if (errorList.length === 0) {
+        errorList = [{ row: 0, message: "Failed to upload excel data" }];
+      }
+
+      return {
+        errors: errorList,
+        failures: Math.max(fallbackFailures, errorList.length),
+      };
+    };
+
     try {
       let payload = {
         userToken: "abcxyz",
@@ -128,16 +172,17 @@ const ForwardRegisterTable = () => {
         actions?.resetForm?.();
       } else {
         if (type === "excel") {
+          const { errors, failures } = parseErrors(response.data.message, values.length);
           setUploadResults({
             success: 0,
-            failures: values.length,
-            errors: [{ row: 0, message: response.data.message || "Failed to upload excel data" }],
+            failures: failures,
+            errors: errors,
           });
           onStatusOpen();
         } else {
           toast({
             title: "Submission failed",
-            description: "Unexpected server response.",
+            description: typeof response.data.message === "string" ? response.data.message : "Unexpected server response.",
             status: "error",
             duration: 5000,
             isClosable: true,
@@ -148,16 +193,19 @@ const ForwardRegisterTable = () => {
     } catch (error: any) {
       console.error("Submit error", error.message);
       if (type === "excel") {
+        const rawMsg = error.response?.data?.message || error.message || "An error occurred during upload";
+        const { errors, failures } = parseErrors(rawMsg, values.length);
         setUploadResults({
           success: 0,
-          failures: values.length,
-          errors: [{ row: 0, message: error.response?.data?.message || error.message || "An error occurred during upload" }],
+          failures: failures,
+          errors: errors,
         });
         onStatusOpen();
       } else {
+        const desc = error?.response?.data?.message;
         toast({
           title: "Error",
-          description: error?.response?.data?.message || "Something went wrong.",
+          description: Array.isArray(desc) ? desc.join(", ") : (desc || "Something went wrong."),
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -187,6 +235,8 @@ const ForwardRegisterTable = () => {
 
         const normalizedRow: any = {
           ...row,
+          exposureType: typeof row.exposureType === "string" ? row.exposureType.trim().toLowerCase() : row.exposureType,
+          subExposureType: typeof row.subExposureType === "string" ? row.subExposureType.trim().toLowerCase() : row.subExposureType,
           bookingDate: String(normalizeExcelDate(row.bookingDate)),
           dueDateFrom: String(normalizeExcelDate(row.dueDateFrom)),
           dueDateTo: String(normalizeExcelDate(row.dueDateTo)),

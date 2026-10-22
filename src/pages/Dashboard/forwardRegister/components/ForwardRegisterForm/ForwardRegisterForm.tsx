@@ -77,10 +77,11 @@ const ForwardRegisterForm = ({ submitForm, editData, originalData,onClose }: any
     }
   };
 
-  const getSubExposureTypeOptions = () => {
-    if (selectedMainExposureType === 'import') {
+  const getSubExposureTypeOptions = (exposureType?: string) => {
+    const type = exposureType || selectedMainExposureType;
+    if (type === 'import') {
       return importExposureTypeOptions;
-    } else if (selectedMainExposureType === 'export') {
+    } else if (type === 'export') {
       return exportRegisterexposureTypeOptions;
     }
     return [];
@@ -218,8 +219,8 @@ onSubmit={async (values, actions) => {
                       label={values.exposureType === 'import' ? 'Import Type' : 'Export Type'}
                       name="subExposureType"
                       type="select"
-                      options={getSubExposureTypeOptions()}
-                      value={getSubExposureTypeOptions().find(
+                      options={getSubExposureTypeOptions(values.exposureType)}
+                      value={getSubExposureTypeOptions(values.exposureType).find(
                         (opt) => opt.value === values.subExposureType
                       )}
                       onChange={(option) => {

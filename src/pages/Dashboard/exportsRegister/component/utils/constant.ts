@@ -28,8 +28,8 @@ export const exposureTypeOptions = [
 
 export const exportRegisterexposureTypeOptions = [
   { label: "Shipment", value: "shipment" },
-  { label: "Confirmed Order", value: "confirmed_order" }
-  // { label: "Forecast", value: "forecast" },
+  { label: "Confirmed Order", value: "confirmed_order" },
+  { label: "Forecast", value: "forecast" },
 ];
 
 export const priorityOptions = [
@@ -176,12 +176,12 @@ export const dummyEefcData = [
 export const dummyForwardRegisterData = [
   {
     exposureType: "import",
+    subExposureType: "da_dp",
     bookingDate: "2025-07-10",
     dueDateFrom: "2025-07-20",
     dueDateTo: "2025-07-25",
-    bank: "HDFC Bank",
-    bussinessUnit: "1",
-    exposureRefNumber: "REF-001",
+    bank: "HDFC",
+    bussinessUnit: "Delhi",
     currency: "USD",
     hedgeAmount: "50000",
     hedgeDealReferenceNumber: "HDR-1001",
@@ -189,7 +189,22 @@ export const dummyForwardRegisterData = [
     spotBooked: "82.9",
     forwardPoints: "0.6",
     bankMargin: "1.2",
+  },
+  {
+    exposureType: "export",
     subExposureType: "shipment",
+    bookingDate: "2025-07-10",
+    dueDateFrom: "2025-07-20",
+    dueDateTo: "2025-07-25",
+    bank: "HDFC",
+    bussinessUnit: "Delhi",
+    currency: "USD",
+    hedgeAmount: "50000",
+    hedgeDealReferenceNumber: "HDR-1002",
+    hedgeRate: "83.5",
+    spotBooked: "82.9",
+    forwardPoints: "0.6",
+    bankMargin: "1.2",
   },
 ];
 

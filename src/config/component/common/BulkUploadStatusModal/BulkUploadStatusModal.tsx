@@ -95,7 +95,13 @@ const BulkUploadStatusModal = ({ isOpen, onClose, results, title = "Bulk Upload 
                         <Text fontSize="xs" fontWeight="bold" color="blue.600" px={2} py={0.5} bg="blue.50" borderRadius="full" w="fit-content">
                           ROW {err.row + 1}
                         </Text>
-                        <Text fontSize="sm" color="gray.700">{err.message}</Text>
+                        <Text fontSize="sm" color="gray.700">
+                          {Array.isArray(err.message)
+                            ? err.message.join(", ")
+                            : typeof err.message === "object"
+                            ? JSON.stringify(err.message)
+                            : err.message}
+                        </Text>
                       </VStack>
                     </Box>
                   ))}

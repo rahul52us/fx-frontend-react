@@ -11,11 +11,28 @@ export const getForwardRegisterValidationSchema = (isEdit: boolean = false) => {
     
     exposureType: Yup.string().required("Exposure Type is required"),
     
-    subExposureType: Yup.string().when('exposureType', {
-      is: (exposureType: string) => exposureType === 'import' || exposureType === 'export',
-      then: (schema) => schema.required("Sub Exposure Type is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+    subExposureType: Yup.string()
+      .when('exposureType', {
+        is: (exposureType: string) => exposureType === 'import',
+        then: (schema) =>
+          schema
+            .required("Sub Exposure Type is required")
+            .oneOf(
+              ['da_dp', 'lc_bc_shifting', 'lc_bc_direct'],
+              "Sub Exposure Type must be one of: da_dp, lc_bc_shifting, lc_bc_direct for Import"
+            ),
+      })
+      .when('exposureType', {
+        is: (exposureType: string) => exposureType === 'export',
+        then: (schema) =>
+          schema
+            .required("Sub Exposure Type is required")
+            .oneOf(
+              ['shipment', 'confirmed_order'],
+              "Sub Exposure Type must be one of: shipment, confirmed_order for Export"
+            ),
+        otherwise: (schema) => schema.notRequired(),
+      }),
     
     bank: Yup.mixed().required("Bank is required"),
     
