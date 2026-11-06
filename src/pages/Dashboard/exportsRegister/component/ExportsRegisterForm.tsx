@@ -143,8 +143,8 @@ const fetchPoBalance = async (poNumber: string) => {
             amount: editData?.amount || "",
             budgetRate: editData?.budgetRate || "",
             remark: editData?.remark || "",
-             hedgeDeals: editData?.hedgeDeals || [],
-  outstandingAmount: editData?.outstandingAmount || "",
+            hedgeDeals: editData?.hedgeDeals || [],
+            outstandingAmount: editData?.outstandingAmount || "",
           }}
           validationSchema={validationSchema}
           enableReinitialize={true}
