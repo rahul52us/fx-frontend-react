@@ -100,6 +100,8 @@ const denominations = [
 
 const formatValue = (val: any, isRate: boolean, factor: number = 1, isPercentage: boolean = false) => {
   if (val === undefined || val === null) return "—";
+  // Summary cells must be scalar; never let a nested API object become a React child.
+  if (typeof val === "object") return "—";
   const num = parseFloat(val);
   if (isNaN(num)) return val;
   if (num === 0) return "—";
@@ -112,6 +114,26 @@ const formatValue = (val: any, isRate: boolean, factor: number = 1, isPercentage
     minimumFractionDigits: factor === 1 ? 0 : 2,
     maximumFractionDigits: factor === 1 ? 0 : 2,
   }).format(converted);
+};
+
+const getMetricValue = (data: any, metric: any, column: string) => {
+  const metricValue = data?.[metric.key];
+  if (metric.isINR) {
+    if (metricValue !== null && typeof metricValue === "object") {
+      return metricValue[column];
+    }
+    return column === "total" ? metricValue : undefined;
+  }
+
+  let value = metricValue?.[column];
+  let depth = 0;
+  while (value !== null && typeof value === "object" && depth < 3) {
+    if (Object.prototype.hasOwnProperty.call(value, column)) value = value[column];
+    else if (column === "total" && Object.prototype.hasOwnProperty.call(value, "total")) value = value.total;
+    else return undefined;
+    depth += 1;
+  }
+  return value;
 };
 
 const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
@@ -168,16 +190,10 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
         return;
       }
 
-      const metricData = data[metric.key as string] || {};
       const rowValues: any = { metric: metric.label };
 
       columns.forEach((col) => {
-        let value;
-        if (metric.isINR) {
-          value = col === "total" ? data[metric.key as string] : undefined;
-        } else {
-          value = metricData[col];
-        }
+        const value = getMetricValue(data, metric, col);
 
         if (value === undefined || value === null || value === 0) {
           rowValues[col] = "-";
@@ -256,22 +272,14 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
   const columns = useMemo(() => {
     if (!data) return [];
 
-    // Find first metric that is an object and has keys
-    const firstObjMetric = Object.values(data).find(
-      (v) => v !== null && typeof v === "object" && Object.keys(v).length > 0
-    ) as any;
-
-    if (!firstObjMetric) return [];
-
-    const keys = Object.keys(firstObjMetric).filter(
-      (col) => col !== "dueWithIn15Days" && col !== "overDueExposure"
-    );
-
-    // Sort: Months first, then total
-    const months = keys.filter((k) => k !== "total");
-    const hasTotal = keys.includes("total");
-
-    return hasTotal ? [...months, "total"] : months;
+    const keys = Array.from(new Set(
+      Object.values(data)
+        .filter((value) => value !== null && typeof value === "object" && !Array.isArray(value))
+        .flatMap((value: any) => Object.keys(value))
+        .filter((key) => key !== "dueWithIn15Days" && key !== "overDueExposure")
+    ));
+    const months = keys.filter((key) => key !== "total");
+    return keys.includes("total") ? [...months, "total"] : months;
   }, [data]);
 
   const formatColumnHeader = (col: string) => {
@@ -386,7 +394,6 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
                 );
               }
 
-              const metricData = data[metric.key as string] || {};
               const isHighlight = metric.highlight;
               const isSticky = (metric as any).key === "currentFwdrate";
 
@@ -414,13 +421,7 @@ const USDSummaryTable: React.FC<USDSummaryTableProps> = ({ data, loading }) => {
                     {metric.label}
                   </Td>
                   {columns.map((col) => {
-                    let value;
-                    if (metric.isINR) {
-                      // For INR fields which are single numbers in the API
-                      value = col === "total" ? data[metric.key as string] : undefined;
-                    } else {
-                      value = metricData[col];
-                    }
+                    const value = getMetricValue(data, metric, col);
 
                     const numVal = parseFloat(value);
                     const color = !metric.isRate && !metric.isPercentage && numVal < 0 ? "red.500" : undefined;
