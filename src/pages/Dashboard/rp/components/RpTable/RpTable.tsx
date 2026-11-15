@@ -139,6 +139,22 @@ const RpTable = () => {
     }
   };
 
+  const handleClearFilter = async () => {
+    setSearchDate("");
+    setLoading(true);
+    setRows([]);
+    setColumns([]);
+    setHasSearched(true);
+    try {
+      await fetchRpData("");
+    } catch (error: any) {
+      console.error("Failed to clear RP filter", error);
+      toast({ title: "Could not load RP data", description: error?.response?.data?.message || error?.message || "Failed to connect to the server.", status: "error", duration: 5000, isClosable: true });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -222,6 +238,9 @@ const RpTable = () => {
         </Box>
         <Button colorScheme="blue" onClick={handleSearch} isLoading={loading}>
           Filter data
+        </Button>
+        <Button variant="outline" onClick={handleClearFilter} isLoading={loading}>
+          Clear filter
         </Button>
       </Flex>
 
