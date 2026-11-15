@@ -73,7 +73,6 @@ const metrics = [
   { label: "Net Unhedged Exposure", key: "netUnhedgeExposure", isTotal: true, highlight: true },
   { label: "Breakeven Rate", key: "breakevenRatenetUnhedgeExposure", isRate: true },
   { divider: true },
-  { label: "Current Hedging %", key: "currentHedging", isPercentage: true },
   { label: "Export Current Hedging", key: "exportCurrentHedging" },
   { label: "Import Current Hedging", key: "importCurrentHedging" },
   { label: "Net Current Hedging", key: "netCurrentHedging" },

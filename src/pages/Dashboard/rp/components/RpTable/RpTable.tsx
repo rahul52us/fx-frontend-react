@@ -6,7 +6,6 @@ import {
   Flex,
   Heading,
   Input,
-  Icon,
   Spinner,
   Table,
   Tbody,
@@ -21,7 +20,6 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useRef, useState } from "react";
-import { FaCloudUploadAlt, FaFileExcel } from "react-icons/fa";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import { primaryColor } from "../../../../../globalColors";
@@ -65,6 +63,14 @@ const formatHeader = (value: string) => {
   return tokens.map((token) => token === "USDINR" || token.endsWith("INR") ? token : token.charAt(0) + token.slice(1).toLowerCase()).join(" ");
 };
 
+const formatCellValue = (value: any) => {
+  if (value === null || value === undefined || value === "") return "—";
+  if (typeof value === "number" || (typeof value === "string" && /^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(value.trim()))) {
+    return Number(value).toFixed(4).replace(/\.?0+$/, "");
+  }
+  return String(value);
+};
+
 const getResponseRows = (responseData: any): Record<string, any>[] => {
   let payload = responseData?.data?.data ?? responseData?.data?.rows ?? responseData?.data ?? responseData?.rows ?? responseData?.results;
   if (payload && !Array.isArray(payload) && typeof payload === "object" && payload.data && typeof payload.data === "object") {
@@ -93,19 +99,15 @@ const RpTable = () => {
   const [loading, setLoading] = useState(false);
   const [searchDate, setSearchDate] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
-  const [fileName, setFileName] = useState("");
   const [rows, setRows] = useState<Record<string, any>[]>([]);
   const [columns, setColumns] = useState<TableColumn[]>([]);
   const [page, setPage] = useState(1);
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { canView } = usePermission("rp");
-  const cardBg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const tableHeaderBg = useColorModeValue("teal.500", "gray.700");
   const tableBg = useColorModeValue("white", "gray.800");
-  const uploadBoxBg = useColorModeValue("gray.50", "gray.700");
-  const uploadBoxHoverBg = useColorModeValue("blue.50", "gray.600");
 
   const fetchRpData = async (search: string) => {
     const baseUrl = process.env.REACT_APP_FX_BASE_URL;
@@ -158,7 +160,6 @@ const RpTable = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setFileName(file.name);
     setLoading(true);
     setRows([]);
     setColumns([]);
@@ -226,52 +227,42 @@ const RpTable = () => {
         </Button>
       </Flex>
 
-      <Flex mb={5} gap={3} align="end" maxW="600px">
-        <Box flex="1">
-          <Text mb={2} fontSize="sm" fontWeight="medium" color="gray.600">Filter RP data by date</Text>
-          <Input
-            type="date"
-            value={searchDate}
-            onChange={(event) => setSearchDate(event.target.value)}
-            aria-label="Filter RP data by date"
-          />
-        </Box>
-        <Button colorScheme="blue" onClick={handleSearch} isLoading={loading}>
-          Filter data
-        </Button>
-        <Button variant="outline" onClick={handleClearFilter} isLoading={loading}>
-          Clear filter
-        </Button>
-      </Flex>
-
-      <Box bg={cardBg} p={8} borderRadius="xl" boxShadow="sm" border="1px solid" borderColor={borderColor} textAlign="center">
-        <VStack spacing={6}>
-          <Icon as={FaFileExcel} w={12} h={12} color="green.500" />
-          <VStack spacing={2}>
-            <Heading size="md">Upload your RP Excel File</Heading>
-            <Text color="gray.500" maxW="md">Select your Excel file to upload and process realized profit data. Ensure you are using the correct template format.</Text>
-          </VStack>
-          <Box p={10} border="2px dashed" borderColor="gray.300" borderRadius="lg" w="100%" maxW="600px" bg={uploadBoxBg} cursor="pointer" onClick={() => fileInputRef.current?.click()} _hover={{ borderColor: primaryColor, bg: uploadBoxHoverBg }} transition="all 0.2s">
-            <VStack spacing={3}>
-              <Icon as={FaCloudUploadAlt} w={10} h={10} color="gray.400" />
-              <Text fontWeight="bold" color="gray.600">Click to upload or drag and drop</Text>
-              <Text fontSize="sm" color="gray.400">XLSX files only</Text>
-            </VStack>
+      <Flex mb={5} gap={4} align="end" justify="space-between" wrap="wrap">
+        <Flex gap={3} align="end" wrap="wrap">
+          <Box w={{ base: "100%", sm: "320px" }}>
+            <Text mb={2} fontSize="sm" fontWeight="medium" color="gray.600">Filter RP data by date</Text>
+            <Input
+              type="date"
+              value={searchDate}
+              onChange={(event) => setSearchDate(event.target.value)}
+              aria-label="Filter RP data by date"
+            />
           </Box>
-          {fileName && <Flex align="center" gap={2} p={2} bg="blue.50" borderRadius="md" color="blue.700"><AttachmentIcon /><Text fontSize="sm" fontWeight="medium">{fileName}</Text></Flex>}
-          <Button size="lg" colorScheme="blue" isLoading={loading} loadingText="Uploading..." w="200px" onClick={() => fileInputRef.current?.click()}>
-            {fileName && !loading ? "Select another file" : "Select File"}
+          <Button colorScheme="blue" onClick={handleSearch} isLoading={loading}>
+            Filter data
           </Button>
-          <input accept=".xlsx" ref={fileInputRef} type="file" onChange={handleFileUpload} style={{ display: "none" }} />
-        </VStack>
-      </Box>
+          <Button variant="outline" onClick={handleClearFilter} isLoading={loading}>
+            Clear filter
+          </Button>
+        </Flex>
+        <Button
+          colorScheme="teal"
+          leftIcon={<AttachmentIcon />}
+          onClick={() => fileInputRef.current?.click()}
+          isLoading={loading}
+          loadingText="Uploading..."
+        >
+          Upload data
+        </Button>
+        <input accept=".xlsx" ref={fileInputRef} type="file" onChange={handleFileUpload} style={{ display: "none" }} />
+      </Flex>
 
       {hasSearched && !loading && rows.length === 0 && (
         <Text mt={4} color="gray.500">No RP data found for this filter.</Text>
       )}
 
       {columns.length > 0 && hasSearched && (
-        <Box mt={6} bg={tableBg} rounded="2xl" shadow="xl" overflow="hidden" border="1px solid" borderColor={borderColor}>
+        <Box mt={2} bg={tableBg} rounded="2xl" shadow="xl" overflow="hidden" border="1px solid" borderColor={borderColor}>
           <Flex p={6} borderBottom="1px solid" borderColor={borderColor} justify="space-between" align="center">
             <Heading size="md" color="teal.700">Realized Profit Data</Heading>
             <Text fontSize="sm" color="gray.500">{rows.length} rows</Text>
@@ -293,7 +284,7 @@ const RpTable = () => {
                   <Tr key={rowIndex} _hover={{ bg: "teal.50" }}>
                     {columns.map((column, columnIndex) => (
                       <Td key={column.key} whiteSpace="nowrap" position={columnIndex === 0 ? "sticky" : "static"} left={0} zIndex={columnIndex === 0 ? 1 : "auto"} bg={columnIndex === 0 ? tableBg : undefined} borderRight={columnIndex === 0 ? "1px solid" : undefined} borderColor={borderColor}>
-                        {row[column.key] === null || row[column.key] === undefined || row[column.key] === "" ? "—" : String(row[column.key])}
+                        {formatCellValue(row[column.key])}
                       </Td>
                     ))}
                   </Tr>
@@ -312,6 +303,17 @@ const RpTable = () => {
             </Flex>
           )}
         </Box>
+      )}
+
+      {!hasSearched && (
+        <Center minH="320px" bg={tableBg} rounded="2xl" border="1px solid" borderColor={borderColor}>
+          <Text color="gray.500">Choose a date and click Filter data, or clear the date to view all RP data.</Text>
+        </Center>
+      )}
+      {hasSearched && loading && columns.length === 0 && (
+        <Center minH="320px" bg={tableBg} rounded="2xl" border="1px solid" borderColor={borderColor}>
+          <Spinner size="xl" color="teal.500" />
+        </Center>
       )}
     </Box>
   );
