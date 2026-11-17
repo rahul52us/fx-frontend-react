@@ -23,6 +23,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import { primaryColor } from "../../../../../globalColors";
+import store from "../../../../../store/store";
 import { autoToken } from "../../../utils/constant";
 
 type TableColumn = { headerName: string; key: string };
@@ -105,6 +106,7 @@ const RpTable = () => {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { canView } = usePermission("rp");
+  const isSuperAdmin = store.auth.user?.role === "superadmin";
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const tableHeaderBg = useColorModeValue("teal.500", "gray.700");
   const tableBg = useColorModeValue("white", "gray.800");
@@ -240,9 +242,11 @@ const RpTable = () => {
           <Heading size="lg" color={primaryColor}>Realized Profit (RP)</Heading>
           <Text color="gray.500" fontSize="sm">Manage and upload your realized profit data.</Text>
         </VStack>
-        <Button onClick={handleDownload} leftIcon={<DownloadIcon />} colorScheme="blue" variant="outline" size="sm">
-          Download Sample Template
-        </Button>
+        {isSuperAdmin && (
+          <Button onClick={handleDownload} leftIcon={<DownloadIcon />} colorScheme="blue" variant="outline" size="sm">
+            Download Sample Template
+          </Button>
+        )}
       </Flex>
 
       <Flex mb={5} gap={4} align="end" justify="space-between" wrap="wrap">
@@ -263,15 +267,17 @@ const RpTable = () => {
             Clear filter
           </Button>
         </Flex>
-        <Button
-          colorScheme="teal"
-          leftIcon={<AttachmentIcon />}
-          onClick={() => fileInputRef.current?.click()}
-          isLoading={loading}
-          loadingText="Uploading..."
-        >
-          Upload data
-        </Button>
+        {isSuperAdmin && (
+          <Button
+            colorScheme="teal"
+            leftIcon={<AttachmentIcon />}
+            onClick={() => fileInputRef.current?.click()}
+            isLoading={loading}
+            loadingText="Uploading..."
+          >
+            Upload data
+          </Button>
+        )}
         <input accept=".xlsx" ref={fileInputRef} type="file" onChange={handleFileUpload} style={{ display: "none" }} />
       </Flex>
 
