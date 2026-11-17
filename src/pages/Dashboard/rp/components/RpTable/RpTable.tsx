@@ -19,7 +19,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import RestrictedAccess from "../../../../../config/component/common/RestrictedAccess/RestrictedAccess";
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import { primaryColor } from "../../../../../globalColors";
@@ -109,7 +109,7 @@ const RpTable = () => {
   const tableHeaderBg = useColorModeValue("teal.500", "gray.700");
   const tableBg = useColorModeValue("white", "gray.800");
 
-  const fetchRpData = async (search: string) => {
+  const fetchRpData = useCallback(async (search: string) => {
     const baseUrl = process.env.REACT_APP_FX_BASE_URL;
     const response = await axios.post(`${baseUrl}/rp/view/`, {
       userToken: "abcxyz",
@@ -122,7 +122,25 @@ const RpTable = () => {
     setColumns(resultRows.length ? Object.keys(resultRows[0]).map((key) => ({ headerName: key, key })) : []);
     setPage(1);
     return resultRows;
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!canView) return;
+    setLoading(true);
+    setHasSearched(true);
+    fetchRpData("")
+      .catch((error: any) => {
+        console.error("Failed to load RP data", error);
+        toast({
+          title: "Could not load RP data",
+          description: error?.response?.data?.message || error?.message || "Failed to connect to the server.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      })
+      .finally(() => setLoading(false));
+  }, [canView, fetchRpData, toast]);
 
   const handleSearch = async () => {
     const [year, month, day] = searchDate.split("-");
@@ -182,7 +200,7 @@ const RpTable = () => {
       }
       toast({
         title: "Upload processed",
-        description: response.data?.message || "File uploaded successfully. Enter a filter value to load matching data.",
+        description: response.data?.message || "File uploaded successfully.",
         status: "success",
         duration: 5000,
         isClosable: true,
