@@ -24,7 +24,6 @@ import RestrictedAccess from "../../../../../config/component/common/RestrictedA
 import { usePermission } from "../../../../../config/component/customHooks/usePermission";
 import { primaryColor } from "../../../../../globalColors";
 import store from "../../../../../store/store";
-import { autoToken } from "../../../utils/constant";
 
 type TableColumn = { headerName: string; key: string };
 const PAGE_SIZE = 10;
@@ -116,8 +115,6 @@ const RpTable = () => {
     const response = await axios.post(`${baseUrl}/rp/view/`, {
       userToken: "abcxyz",
       filters: { isFilter: Boolean(search), search },
-    }, {
-      headers: { Authorization: autoToken },
     });
     const resultRows = getResponseRows(response.data).map(flattenRow);
     setRows(resultRows);
@@ -194,9 +191,7 @@ const RpTable = () => {
       });
       const base64 = dataUrl.substring(dataUrl.indexOf(",") + 1);
       const baseUrl = process.env.REACT_APP_FX_BASE_URL;
-      const response = await axios.post(`${baseUrl}/rp/form/`, { data: base64 }, {
-        headers: { Authorization: autoToken },
-      });
+      const response = await axios.post(`${baseUrl}/rp/form/`, { data: base64 });
       if (response.data?.status === "error" || response.data?.status === "failed") {
         throw new Error(response.data?.message || "The server could not process this workbook.");
       }

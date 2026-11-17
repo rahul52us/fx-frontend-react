@@ -223,16 +223,7 @@ const sidebarDatas: SidebarItem[] = [
     name: "RP",
     icon: <GrDocumentPerformance />,
     url: dashboard.rp,
-    role: ["user", "admin"],
-    children: [
-      {
-        id: 1001,
-        name: "Index / List",
-        icon: <CalendarIcon />,
-        url: dashboard.rp,
-        role: ["user"],
-      },
-    ],
+    role: ["user", "admin", "superadmin"],
   },
 
   // ───────────────────────────────────────────────
