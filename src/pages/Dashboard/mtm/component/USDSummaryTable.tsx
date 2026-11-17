@@ -106,7 +106,7 @@ const formatValue = (val: any, isRate: boolean, factor: number = 1, isPercentage
   if (num === 0) return "—";
 
   if (isRate) return num.toFixed(4);
-  if (isPercentage) return (num * 100).toFixed(2) + "%";
+  if (isPercentage) return (num  + "%");
 
   const converted = num / factor;
   return new Intl.NumberFormat("en-US", {
