@@ -5,7 +5,7 @@ import CustomInput from "../../../../../../../config/component/CustomInput/Custo
 import store from "../../../../../../../store/store";
 import { useEffect, useState } from "react";
 import SubmitFormBtn from "../../../../../../../config/component/Button/SubmitFormBtn";
-import { LeaveRequestValidation } from "../../utils/validation";
+// import { LeaveRequestValidation } from "../../utils/validation";
 import { LeaveRequestI } from "../../utils/interface";
 import { leavesTypes } from "../../utils/constant";
 
@@ -74,7 +74,7 @@ const LeaveRequestForm = observer(
             let val = { ...values, status: requestType };
             handleSubmit({ values: val, setSubmitting, resetForm });
           }}
-          validationSchema={LeaveRequestValidation}
+          // validationSchema={LeaveRequestValidation}
         >
           {({ handleChange, values, errors, isSubmitting, setFieldValue }) => {
             return (

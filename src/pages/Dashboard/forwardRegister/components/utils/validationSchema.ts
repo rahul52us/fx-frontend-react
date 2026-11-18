@@ -1,12 +1,11 @@
 import * as Yup from "yup";
+import { parseDateValue, transformDate } from "../../../../../config/constant/yupDateHelpers";
 
 export const getForwardRegisterValidationSchema = (isEdit: boolean = false) => {
   return Yup.object({
     bookingDate: Yup.date()
       .nullable()
-      .transform((value, originalValue) =>
-        originalValue === "" ? null : (originalValue ? new Date(originalValue) : value)
-      )
+      .transform(transformDate)
       .required("Booking Date is required"),
     
     exposureType: Yup.string().required("Exposure Type is required"),
@@ -56,16 +55,19 @@ export const getForwardRegisterValidationSchema = (isEdit: boolean = false) => {
     
     dueDateFrom: Yup.date()
       .nullable()
-      .transform((value, originalValue) =>
-        originalValue === "" ? null : (originalValue ? new Date(originalValue) : value)
-      )
+      .transform(transformDate)
       .required("Due Date From is required"),
       
     dueDateTo: Yup.date()
       .nullable()
-      .transform((value, originalValue) =>
-        originalValue === "" ? null : (originalValue ? new Date(originalValue) : value)
-      )
+      .transform(transformDate)
+      .when("dueDateFrom", (dueDateFrom: any, schema: any) => {
+        const rawVal = Array.isArray(dueDateFrom) ? dueDateFrom[0] : dueDateFrom;
+        const targetDate = parseDateValue(rawVal);
+        return targetDate && !isNaN(targetDate.getTime())
+          ? schema.min(targetDate, "Due Date To must be after or equal to Due Date From")
+          : schema;
+      })
       .required("Due Date To is required"),
 
     exposureRefs: Yup.array().of(

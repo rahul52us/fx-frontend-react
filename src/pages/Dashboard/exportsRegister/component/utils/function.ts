@@ -202,6 +202,12 @@ export const normalizeDate = (value?: string | Date) => {
       return `${year}-${month}-${day}`;
     }
 
+    // 3.1️⃣ dd/mm/yyyy → yyyy-mm-dd
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(trimmed)) {
+      const [day, month, year] = trimmed.split("/");
+      return `${year}-${month}-${day}`;
+    }
+
     // 4️⃣ yyyy-mm-dd → accept ONLY this
     if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
       return trimmed;

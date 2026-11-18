@@ -1,4 +1,5 @@
 import * as Yup from "yup";
+import { parseDateValue, transformDate } from "../../../../../config/constant/yupDateHelpers";
 
 const UservalidationSchema = Yup.object().shape({
   user: Yup.mixed()
@@ -14,13 +15,22 @@ const ProjectCreateValidation = Yup.object().shape({
     .trim()
     .min(2, "Description must have a minimum length of 2."),
   logo: Yup.mixed().required(),
-  dueDate: Yup.date(),
+  dueDate: Yup.date().nullable().transform(transformDate),
   priority: Yup.mixed().required(),
-  startDate: Yup.date().typeError('start date is required'),
-  endDate: Yup.date().min(
-    Yup.ref("startDate"),
-    "End date must be greater than or equal to the start date."
-  ),
+  startDate: Yup.date()
+    .nullable()
+    .transform(transformDate)
+    .typeError('start date is required'),
+  endDate: Yup.date()
+    .nullable()
+    .transform(transformDate)
+    .when("startDate", (startDate: any, schema: any) => {
+      const rawVal = Array.isArray(startDate) ? startDate[0] : startDate;
+      const targetDate = parseDateValue(rawVal);
+      return targetDate && !isNaN(targetDate.getTime())
+        ? schema.min(targetDate, "End date must be greater than or equal to the start date.")
+        : schema;
+    }),
   status: Yup.mixed().required('please select the status'),
   customers: Yup.array()
   .of(UservalidationSchema),

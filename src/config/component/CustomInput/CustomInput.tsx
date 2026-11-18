@@ -1,3 +1,28 @@
+import {
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Icon,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Radio,
+  RadioGroup,
+  Switch,
+  Tag,
+  TagCloseButton,
+  TagLabel,
+  Textarea,
+  useColorMode,
+  useColorModeValue,
+  useTheme,
+  Wrap,
+  WrapItem,
+} from "@chakra-ui/react";
 import React, {
   useCallback,
   useEffect,
@@ -5,64 +30,236 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-  Switch,
-  Textarea,
-  useTheme,
-  Button,
-  Icon,
-  Flex,
-  Radio,
-  RadioGroup,
-  InputRightElement,
-  InputGroup,
-  useColorMode,
-  useColorModeValue,
-  Box,
-  Wrap,
-  WrapItem,
-  Tag,
-  TagLabel,
-  TagCloseButton,
-  Checkbox,
-} from "@chakra-ui/react";
-import { RiCloseFill, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import { RiCalendarLine, RiCloseFill, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import Select from "react-select";
-// import { SingleDatepicker } from "chakra-dayzed-datepicker";
+import { format, isAfter, isBefore, isValid, parse, startOfDay } from "date-fns";
+import { Field } from "formik";
+import debounce from "lodash/debounce";
 import "react-datepicker/dist/react-datepicker.css";
-import AdvancedEditor from "../Editor/Editor";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import debounce from "lodash/debounce";
-import store from "../../../store/store";
 import { inputBorderColor, inputBorderColorFocus } from "../../../globalColors";
-import { Field } from "formik";
-import { format } from "date-fns";
+import store from "../../../store/store";
+import AdvancedEditor from "../Editor/Editor";
+
+interface CustomDatePickerInputProps {
+  name: string;
+  fieldValue: string;
+  setFieldValue: (name: string, value: any) => void;
+  setFieldTouched: (name: string, isTouched?: boolean) => void;
+  minDate?: any;
+  maxDate?: any;
+  disabled?: boolean;
+  placeholder?: string;
+  isClear?: boolean;
+  style?: any;
+  inputBg?: string;
+}
+
+const CustomDatePickerInput: React.FC<CustomDatePickerInputProps> = ({
+  name,
+  fieldValue,
+  setFieldValue,
+  setFieldTouched,
+  minDate,
+  maxDate,
+  disabled,
+  placeholder,
+  isClear,
+  style,
+  inputBg,
+}) => {
+  const hiddenDateInputRef = useRef<HTMLInputElement>(null);
+
+  // Convert "yyyy-MM-dd" stored format to "dd/MM/yyyy" for display
+  const toDisplay = (val: string) => {
+    if (!val) return "";
+    const parsed = parse(val, "yyyy-MM-dd", new Date());
+    return isValid(parsed) ? format(parsed, "dd/MM/yyyy") : val;
+  };
+
+  const [displayValue, setDisplayValue] = useState(() => toDisplay(fieldValue));
+
+  useEffect(() => {
+    setDisplayValue(toDisplay(fieldValue));
+  }, [fieldValue]);
+
+  // Handle manual typing with auto-masking (dd/MM/yyyy)
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let input = e.target.value.replace(/[^\d/]/g, "");
+
+    const digits = input.replace(/\D/g, "");
+    if (digits.length > 2 && digits.length <= 4) {
+      input = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    } else if (digits.length > 4) {
+      input = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+    }
+
+    setDisplayValue(input);
+
+    if (input.length === 10) {
+      const parsedDate = parse(input, "dd/MM/yyyy", new Date());
+
+      if (isValid(parsedDate)) {
+        const dateOnly = startOfDay(parsedDate);
+
+        if (minDate && isBefore(dateOnly, startOfDay(new Date(minDate)))) return;
+        if (maxDate && isAfter(dateOnly, startOfDay(new Date(maxDate)))) return;
+
+        setFieldValue(name, format(parsedDate, "yyyy-MM-dd"));
+        return;
+      }
+    }
+
+    if (!input) {
+      setFieldValue(name, "");
+    }
+  };
+
+  // Handle selection from the native calendar popup
+  const handlePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = e.target.value; // "yyyy-MM-dd"
+    if (selectedDate) {
+      setDisplayValue(toDisplay(selectedDate));
+      setFieldValue(name, selectedDate);
+    }
+  };
+
+  // Open the native browser calendar popup
+  const openCalendar = () => {
+    if (disabled) return;
+    if (hiddenDateInputRef.current) {
+      if (typeof hiddenDateInputRef.current.showPicker === "function") {
+        hiddenDateInputRef.current.showPicker();
+      } else {
+        hiddenDateInputRef.current.focus();
+        hiddenDateInputRef.current.click();
+      }
+    }
+  };
+
+  return (
+    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+      {/* 1. Visible Text Input for dd/MM/yyyy typing */}
+      <Input
+        type="text"
+        name={name}
+        value={displayValue}
+        onChange={handleTextChange}
+        onBlur={() => {
+          setDisplayValue(toDisplay(fieldValue));
+          setFieldTouched(name, true);
+        }}
+        disabled={disabled}
+        placeholder={placeholder || "dd/mm/yyyy"}
+        maxLength={10}
+        bg={inputBg}
+        style={style}
+        pr={isClear && fieldValue ? "4.5rem" : "2.5rem"}
+        fontSize="sm"
+        border={`1px solid ${inputBorderColor}`}
+        _focus={{ borderColor: "white" }}
+        _focusVisible={{
+          outline: "none",
+          borderColor: `${inputBorderColorFocus}`,
+        }}
+        _placeholder={{ fontSize: "12px" }}
+      />
+
+      {/* 2. Clear Button */}
+      {fieldValue && isClear && (
+        <Button
+          size="sm"
+          colorScheme="red"
+          variant="link"
+          onClick={() => {
+            setDisplayValue("");
+            setFieldValue(name, "");
+          }}
+          style={{
+            position: "absolute",
+            top: "50%",
+            right: "2.2rem",
+            transform: "translateY(-50%)",
+            zIndex: 2,
+            minWidth: "auto",
+            padding: "0 4px",
+          }}
+        >
+          <Icon as={RiCloseFill} fontSize="18px" />
+        </Button>
+      )}
+
+      {/* 3. Calendar Icon button to trigger the picker */}
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={openCalendar}
+        disabled={disabled}
+        style={{
+          position: "absolute",
+          top: "50%",
+          right: "0.3rem",
+          transform: "translateY(-50%)",
+          zIndex: 2,
+          minWidth: "auto",
+          padding: "0 6px",
+          cursor: disabled ? "not-allowed" : "pointer",
+        }}
+        _hover={{ bg: "transparent" }}
+        _active={{ bg: "transparent" }}
+      >
+        <Icon as={RiCalendarLine} fontSize="18px" color="gray.500" />
+      </Button>
+
+      {/* 4. Hidden Native Date Picker synced to form value */}
+      <input
+        ref={hiddenDateInputRef}
+        type="date"
+        tabIndex={-1}
+        aria-hidden="true"
+        value={fieldValue || ""}
+        onChange={handlePickerChange}
+        min={minDate ? format(new Date(minDate), "yyyy-MM-dd") : undefined}
+        max={maxDate ? format(new Date(maxDate), "yyyy-MM-dd") : undefined}
+        disabled={disabled}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          right: "0.5rem",
+          width: 0,
+          height: 0,
+          opacity: 0,
+          pointerEvents: "none",
+          border: 0,
+          padding: 0,
+          margin: 0,
+        }}
+      />
+    </div>
+  );
+};
 
 interface CustomInputProps {
   type?:
-  | "editor"
-  | "password"
-  | "number"
-  | "text"
-  | "radio"
-  | "file"
-  | "switch"
-  | "textarea"
-  | "select"
-  | "date"
-  | "time"
-  | "checkbox"
-  | "url"
-  | "phone"
-  | "dateAndTime"
-  | "file-drag"
-  | "tags"
-  | "real-time-user-search";
+    | "editor"
+    | "password"
+    | "number"
+    | "text"
+    | "radio"
+    | "file"
+    | "switch"
+    | "textarea"
+    | "select"
+    | "date"
+    | "time"
+    | "checkbox"
+    | "url"
+    | "phone"
+    | "dateAndTime"
+    | "file-drag"
+    | "tags"
+    | "real-time-user-search";
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -121,7 +318,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
   readOnly,
   labelcolor,
   isPortal,
-  // Added onFileDrop prop
   ...rest
 }) => {
   const isMounted = useRef(false);
@@ -136,12 +332,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
-
-  // useEffect(() => {
-  //   if (type === 'real-time-user-search') {
-  //     setUserOptions(options || []);
-  //   }
-  // }, [options, type]);
 
   const fetchSearchUsers = useCallback(async (query: string) => {
     if (query?.trim() === "") {
@@ -160,7 +350,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
       );
     } catch (error) {
       // console.error("Error fetching search results:", error);
-      // setOptions([]);
     }
   }, []);
 
@@ -168,13 +357,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
     () => debounce(fetchSearchUsers, 800),
     [fetchSearchUsers]
   );
-
-  // const handleSelectChange = (selectedOption: any) => {
-  //   if (onChange) {
-  //     onChange(selectedOption ? selectedOption.value : "");
-  //   }
-  //   setSearchInput(selectedOption ? selectedOption.label : "");
-  // };
 
   useEffect(() => {
     if (isMounted?.current && searchInput?.trim() !== "") {
@@ -230,7 +412,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
               {...rest}
               _focus={{ borderColor: "white" }}
               border={`1px solid ${inputBorderColor}`}
-              // _active={{outline:"none"}}
               _focusVisible={{
                 outline: "none",
                 borderColor: `${inputBorderColorFocus}`,
@@ -261,7 +442,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
             value={value}
             _focus={{ borderColor: "white" }}
             border={`1px solid ${inputBorderColor}`}
-            // _active={{outline:"none"}}
             _focusVisible={{
               outline: "none",
               borderColor: `${inputBorderColorFocus}`,
@@ -311,7 +491,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
             {...rest}
             _focus={{ borderColor: "white" }}
             border={`1px solid ${inputBorderColor}`}
-            // _active={{outline:"none"}}
             _focusVisible={{
               outline: "none",
               borderColor: `${inputBorderColorFocus}`,
@@ -334,7 +513,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
             {...rest}
             _focus={{ borderColor: "white" }}
             border={`1px solid ${inputBorderColor}`}
-            // _active={{outline:"none"}}
             _focusVisible={{
               outline: "none",
               borderColor: `${inputBorderColorFocus}`,
@@ -393,8 +571,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
             onChange={onChange}
             placeholder={placeholder}
             isClearable={isClear ? true : undefined}
-            className={`chakra-select ${theme ? theme.components.Select.baseStyle : ""
-              }`}
+            className={`chakra-select ${
+              theme ? theme.components.Select.baseStyle : ""
+            }`}
             isMulti={isMulti}
             isSearchable={isSearchable}
             getOptionLabel={getOptionLabel}
@@ -414,15 +593,15 @@ const CustomInput: React.FC<CustomInputProps> = ({
                     ? isSelected
                       ? "#4299e1"
                       : isFocused
-                        ? "gray.100"
-                        : "white"
+                      ? "gray.100"
+                      : "white"
                     : isSelected
-                      ? "#2b6cb0"
-                      : isFocused
-                        ? "gray.700"
-                        : "#2D3748",
+                    ? "#2b6cb0"
+                    : isFocused
+                    ? "gray.700"
+                    : "#2D3748",
                 color: colorMode === "light" ? "black" : "white",
-                border: "none", // Remove the border to avoid white lines
+                border: "none",
                 padding: "8px 12px",
                 ":hover": {
                   backgroundColor:
@@ -432,16 +611,16 @@ const CustomInput: React.FC<CustomInputProps> = ({
               menu: (baseStyles) => ({
                 ...baseStyles,
                 backgroundColor: colorMode === "light" ? "white" : "#2D3748",
-                borderColor: colorMode === "light" ? "gray.200" : "#4A5568", // Match the border color to the dark mode
+                borderColor: colorMode === "light" ? "gray.200" : "#4A5568",
               }),
               multiValue: (styles) => ({
                 ...styles,
-                backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0", // Blue with transparency
+                backgroundColor: colorMode === "light" ? "#bee3f8" : "#2b6cb0",
                 color: colorMode === "light" ? "black" : "white",
               }),
               multiValueLabel: (styles) => ({
                 ...styles,
-                color: colorMode === "light" ? "blue.400" : "blue.200", // Blue color for the label
+                color: colorMode === "light" ? "blue.400" : "blue.200",
               }),
               singleValue: (styles) => ({
                 ...styles,
@@ -485,7 +664,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
             {...rest}
             _focus={{ borderColor: "white" }}
             border={`1px solid ${inputBorderColor}`}
-            // _active={{outline:"none"}}
             _focusVisible={{
               outline: "none",
               borderColor: `${inputBorderColorFocus}`,
@@ -508,173 +686,31 @@ const CustomInput: React.FC<CustomInputProps> = ({
             {...rest}
             _focus={{ borderColor: "white" }}
             border={`1px solid ${inputBorderColor}`}
-            // _active={{outline:"none"}}
             _focusVisible={{
               outline: "none",
               borderColor: `${inputBorderColorFocus}`,
             }}
           />
         );
-      // case "date":
-      //   return (
-      //     <div style={{ position: "relative" }}>
-      //       <SingleDatepicker
-      //         name={name}
-      //         date={value}
-      //         onDateChange={onChange ? onChange : () => {}}
-      //         maxDate={maxDate}
-      //         minDate={minDate}
-      //         disabled={disabled}
-      //         disabledDates={disabledDates}
-      //         usePortal={false}
-      //         configs={{
-      //           dateFormat: "dd-MM-yyyy",
-      //         }}
-      //         propsConfigs={{
-      //           dayOfMonthBtnProps: {
-      //             defaultBtnProps: {
-      //               _hover: {
-      //                 background: "blue.500",
-      //               },
-      //             },
-      //             selectedBtnProps: {
-      //               background: "blue.300",
-      //             },
-      //             todayBtnProps: {
-      //               border: "1px solid #38B2AC",
-      //             },
-      //           },
-      //           inputProps: {
-      //             size: "md",
-      //             fontSize: "14px",
-      //             placeholder: placeholder,
-      //           },
-      //         }}
-      //       />
-      //       {value && isClear && (
-      //         <Button
-      //           colorScheme="red"
-      //           variant="link"
-      //           onClick={() => onChange && onChange(undefined)}
-      //           style={{
-      //             position: "absolute",
-      //             top: "50%",
-      //             right: "0.2rem",
-      //             transform: "translateY(-50%)",
-      //           }}
-      //         >
-      //           <Icon as={RiCloseFill} />
-      //         </Button>
-      //       )}
-      //     </div>
-      //   );
-      // case "date":
-      // return (
-      //   <Field name={name}>
-      //     {({ field, form }: any) => {
-      //       const selectedDate = field.value ? new Date(field.value) : undefined;
-      //       return (
-      //         <div style={{ position: "relative" }}>
-      //           <SingleDatepicker
-      //             name={name}
-      //             date={selectedDate}
-      //             onDateChange={(date: Date | undefined) => {
-      //               const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
-      //               form.setFieldValue(name, formattedDate);
-      //             }}
-      //             maxDate={maxDate}
-      //             minDate={minDate}
-      //             disabled={disabled}
-      //             disabledDates={disabledDates}
-      //             usePortal={false}
-      //             configs={{
-      //               dateFormat: "dd-MM-yyyy",
-      //             }}
-      //             propsConfigs={{
-      //               dayOfMonthBtnProps: {
-      //                 defaultBtnProps: {
-      //                   _hover: { background: "blue.500" },
-      //                 },
-      //                 selectedBtnProps: {
-      //                   background: "blue.300",
-      //                 },
-      //                 todayBtnProps: {
-      //                   border: "1px solid #38B2AC",
-      //                 },
-      //               },
-      //               inputProps: {
-      //                 size: "md",
-      //                 fontSize: "14px",
-      //                 placeholder: placeholder || "Select Date",
-      //               },
-      //             }}
-      //           />
-      //           {field.value && isClear && (
-      //             <Button
-      //               colorScheme="red"
-      //               variant="link"
-      //               onClick={() => form.setFieldValue(name, "")}
-      //               style={{
-      //                 position: "absolute",
-      //                 top: "50%",
-      //                 right: "0.2rem",
-      //                 transform: "translateY(-50%)",
-      //               }}
-      //             >
-      //               <Icon as={RiCloseFill} />
-      //             </Button>
-      //           )}
-      //         </div>
-      //       );
-      //     }}
-      //   </Field>
-      // );
+
       case "date":
         return (
           <Field name={name}>
-            {({ field, form }: any) => {
-              return (
-                <div style={{ position: "relative" }}>
-                  <input
-                    type="date"
-                    name={name}
-                    value={field.value || ""}
-                    onChange={(e) => {
-                      const value = e.target.value; // already yyyy-MM-dd
-                      form.setFieldValue(name, value);
-                    }}
-                    max={maxDate ? format(maxDate, "yyyy-MM-dd") : undefined}
-                    min={minDate ? format(minDate, "yyyy-MM-dd") : undefined}
-                    disabled={disabled}
-                    placeholder={placeholder || "Select Date"}
-                    style={{
-                      width: "100%",
-                      height: "40px",
-                      padding: "0 12px",
-                      fontSize: "14px",
-                      border: "1px solid #CBD5E0",
-                      borderRadius: "6px",
-                    }}
-                  />
-
-                  {field.value && isClear && (
-                    <Button
-                      colorScheme="red"
-                      variant="link"
-                      onClick={() => form.setFieldValue(name, "")}
-                      style={{
-                        position: "absolute",
-                        top: "50%",
-                        right: "0.2rem",
-                        transform: "translateY(-50%)",
-                      }}
-                    >
-                      <Icon as={RiCloseFill} />
-                    </Button>
-                  )}
-                </div>
-              );
-            }}
+            {({ field, form }: any) => (
+              <CustomDatePickerInput
+                name={name}
+                fieldValue={field.value || ""}
+                setFieldValue={form.setFieldValue}
+                setFieldTouched={form.setFieldTouched}
+                minDate={minDate}
+                maxDate={maxDate}
+                disabled={disabled}
+                placeholder={placeholder}
+                isClear={isClear}
+                style={style}
+                inputBg={inputBg}
+              />
+            )}
           </Field>
         );
 
@@ -724,14 +760,12 @@ const CustomInput: React.FC<CustomInputProps> = ({
             {...rest}
             _focus={{ borderColor: "white" }}
             border={`1px solid ${inputBorderColor}`}
-            // _active={{outline:"none"}}
             _focusVisible={{
               outline: "none",
               borderColor: `${inputBorderColorFocus}`,
             }}
           />
         );
-      // New case for file drag-and-drop
       case "file-drag":
         return (
           <div
@@ -783,7 +817,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
             {...rest}
             _focus={{ borderColor: "white" }}
             border={`1px solid ${inputBorderColor}`}
-            // _active={{outline:"none"}}
             _focusVisible={{
               outline: "none",
               borderColor: `${inputBorderColorFocus}`,
@@ -805,7 +838,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
               {...rest}
               _focus={{ borderColor: "white" }}
               border={`1px solid ${inputBorderColor}`}
-              // _active={{outline:"none"}}
               _focusVisible={{
                 outline: "none",
                 borderColor: `${inputBorderColorFocus}`,
@@ -883,13 +915,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
                     ? isSelected
                       ? "#4299e1"
                       : isFocused
-                        ? "gray.100"
-                        : "white"
+                      ? "gray.100"
+                      : "white"
                     : isSelected
-                      ? "#2b6cb0"
-                      : isFocused
-                        ? "gray.700"
-                        : "#2D3748",
+                    ? "#2b6cb0"
+                    : isFocused
+                    ? "gray.700"
+                    : "#2D3748",
                 color: colorMode === "light" ? "black" : "white",
                 padding: "8px 12px",
                 ":hover": {
@@ -953,7 +985,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
             _placeholder={{ fontSize: "12px" }}
             _focus={{ borderColor: "white" }}
             border={`1px solid ${inputBorderColor}`}
-            // _active={{outline:"none"}}
             _focusVisible={{
               outline: "none",
               borderColor: `${inputBorderColorFocus}`,

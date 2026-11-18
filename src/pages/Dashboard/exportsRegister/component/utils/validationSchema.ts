@@ -1,4 +1,7 @@
 import * as Yup from "yup";
+import { parseDateValue, transformDate } from "../../../../../config/constant/yupDateHelpers";
+
+export { parseDateValue, transformDate };
 
 export const getExportRegisterValidationSchema = (
   isEdit: boolean = false,
@@ -67,13 +70,7 @@ export const getExportRegisterValidationSchema = (
 
     dueDate: Yup.date()
       .nullable()
-      .transform((value, originalValue) =>
-        originalValue === ""
-          ? null
-          : originalValue
-          ? new Date(originalValue)
-          : value
-      )
+      .transform(transformDate)
       .when("exposureType", {
         is: (val: string) => val === "forecast",
 
@@ -85,26 +82,28 @@ export const getExportRegisterValidationSchema = (
             .required("Due Date is required")
 
             .when("blDate", (blDate: any, schema: any) => {
-              const dateValue = Array.isArray(blDate)
+              const rawVal = Array.isArray(blDate)
                 ? blDate[0]
                 : blDate;
+              const targetDate = parseDateValue(rawVal);
 
-              return dateValue
+              return targetDate && !isNaN(targetDate.getTime())
                 ? schema.min(
-                    new Date(dateValue),
+                    targetDate,
                     "Due Date must be after BL Date"
                   )
                 : schema;
             })
 
             .when("poDate", (poDate: any, schema: any) => {
-              const dateValue = Array.isArray(poDate)
+              const rawVal = Array.isArray(poDate)
                 ? poDate[0]
                 : poDate;
+              const targetDate = parseDateValue(rawVal);
 
-              return dateValue
+              return targetDate && !isNaN(targetDate.getTime())
                 ? schema.min(
-                    new Date(dateValue),
+                    targetDate,
                     "Due Date must be after PO Date"
                   )
                 : schema;
@@ -165,13 +164,7 @@ export const getExportRegisterValidationSchema = (
     // ============================================================
     invoiceDate: Yup.date()
       .nullable()
-      .transform((value, originalValue) =>
-        originalValue === ""
-          ? null
-          : originalValue
-          ? new Date(originalValue)
-          : value
-      )
+      .transform(transformDate)
       .when("exposureType", {
         is: (val: string) => val === "shipment",
         then: (schema) => schema.required("Invoice Date is required"),
@@ -189,13 +182,15 @@ export const getExportRegisterValidationSchema = (
             function (value) {
               const { poDate, dueDate } = this.parent;
 
-              if (!value || !poDate || !dueDate) return true;
+              const parsedBL = parseDateValue(value);
+              const parsedPO = parseDateValue(poDate);
+              const parsedDue = parseDateValue(dueDate);
 
-              const blDate = new Date(value);
+              if (!parsedBL || !parsedPO || !parsedDue) return true;
 
               return (
-                blDate >= new Date(poDate) &&
-                blDate <= new Date(dueDate)
+                parsedBL >= parsedPO &&
+                parsedBL <= parsedDue
               );
             }
           ),

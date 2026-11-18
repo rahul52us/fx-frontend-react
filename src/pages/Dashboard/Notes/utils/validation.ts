@@ -1,4 +1,5 @@
 import * as Yup from "yup";
+import { parseDateValue, transformDate } from "../../../../config/constant/yupDateHelpers";
 
 const categoryValidation = Yup.object().shape({
   title: Yup.string()
@@ -16,10 +17,21 @@ const categoryValidation = Yup.object().shape({
   amountType: Yup.mixed().required("Amount Type is required"),
   discountPrice: Yup.number().required("Discount Price is required"),
   originalPrice: Yup.number().required("Original Price is required"),
-  startYear: Yup.date().required("Start Year is required"),
+  startYear: Yup.date()
+    .nullable()
+    .transform(transformDate)
+    .required("Start Year is required"),
   endYear: Yup.date()
+    .nullable()
+    .transform(transformDate)
     .required("End Year is required")
-    .min(Yup.ref("startYear"), "End Year must be later than Start Year"),
+    .when("startYear", (startYear: any, schema: any) => {
+      const rawVal = Array.isArray(startYear) ? startYear[0] : startYear;
+      const targetDate = parseDateValue(rawVal);
+      return targetDate && !isNaN(targetDate.getTime())
+        ? schema.min(targetDate, "End Year must be later than Start Year")
+        : schema;
+    }),
 });
 
 export const mainCourseValidation = Yup.object().shape({

@@ -1,4 +1,5 @@
 import * as Yup from "yup";
+import { parseDateValue, transformDate } from "../../../../../../config/constant/yupDateHelpers";
 
 const attach_files = Yup.object().shape({
   title: Yup.string()
@@ -21,12 +22,21 @@ const TaskCreateValidation = Yup.object().shape({
   description: Yup.string()
     .trim()
     .min(2, "Description must have a minimum length of 2."),
-  dueDate: Yup.date(),
-  startDate: Yup.date().typeError("Start date is required"),
-  endDate: Yup.date().min(
-    Yup.ref("startDate"),
-    "End date must be greater than or equal to the start date."
-  ),
+  dueDate: Yup.date().nullable().transform(transformDate),
+  startDate: Yup.date()
+    .nullable()
+    .transform(transformDate)
+    .typeError("Start date is required"),
+  endDate: Yup.date()
+    .nullable()
+    .transform(transformDate)
+    .when("startDate", (startDate: any, schema: any) => {
+      const rawVal = Array.isArray(startDate) ? startDate[0] : startDate;
+      const targetDate = parseDateValue(rawVal);
+      return targetDate && !isNaN(targetDate.getTime())
+        ? schema.min(targetDate, "End date must be greater than or equal to the start date.")
+        : schema;
+    }),
   priority: Yup.mixed().required(),
   team_members: Yup.array().of(UservalidationSchema),
   dependencies: Yup.array().of(UservalidationSchema),

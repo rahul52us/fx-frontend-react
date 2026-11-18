@@ -1,4 +1,5 @@
 import * as Yup from "yup";
+import { transformDate } from "../../../../../config/constant/yupDateHelpers";
 
 export const getImportRegisterValidationSchema = (isEdit: boolean = false, poBalance: number = Infinity) => {
   return Yup.object({
@@ -27,9 +28,7 @@ export const getImportRegisterValidationSchema = (isEdit: boolean = false, poBal
 
     dueDate: Yup.date()
       .nullable()
-      .transform((value, originalValue) =>
-        originalValue === "" ? null : (originalValue ? new Date(originalValue) : value)
-      )
+      .transform(transformDate)
       .required("Due Date is required"),
 
     poDate: Yup.string().when("exposureType", {
@@ -82,9 +81,7 @@ export const getImportRegisterValidationSchema = (isEdit: boolean = false, poBal
 
     invoiceDate: Yup.date()
       .nullable()
-      .transform((value, originalValue) =>
-        originalValue === "" ? null : (originalValue ? new Date(originalValue) : value)
-      )
+      .transform(transformDate)
       .when("exposureType", {
         is: (val: string) => val !== "da_dp" && val !== "forecast",
         then: (schema) => schema.required("Invoice Date is required"),
