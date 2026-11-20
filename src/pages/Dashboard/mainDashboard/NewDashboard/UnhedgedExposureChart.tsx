@@ -251,7 +251,7 @@ const HintItem = ({ children }: { children: ReactNode; }) => (
 const UnhedgedExposureChart = ({
   data,
   loading = false,
-  isDummyData = true,
+  isDummyData = false,
 }: UnhedgedExposureChartProps) => {
   // Hooks must run unconditionally, before any early return.
   const [viewMode, setViewMode] = useState<"chart" | "table">("chart");
