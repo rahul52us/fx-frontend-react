@@ -63,7 +63,7 @@ type ChartConfig = {
   prescribedKey: string;
 };
 
-const USE_DUMMY_DATA = true;
+const USE_DUMMY_DATA = false;
 
 const grossMetrics = [
   { label: "Export Hedging Gap", key: "exportHedgingGap", group: "Export" },
@@ -138,12 +138,12 @@ const EXCLUDED_COLUMNS = ["total", "dueWithIn15Days", "overDueExposure"];
 
 const dummyGrossData: SummaryData = {
   exportHedgingGap: {
-    "Oct 2026": 310000,
-    "Nov 2026": 220000,
-    "Dec 2026": 580000,
-    "Jan 2027": 55000,
-    "Feb 2027": 15000,
-    "Mar 2027": 470000,
+    "Oct 2026": 310,
+    "Nov 2026": 220,
+    "Dec 2026": 580,
+    "Jan 2027": 550,
+    "Feb 2027": 150,
+    "Mar 2027": 470,
     total: 1650000,
   },
   exportCurrentHedging: {
@@ -165,12 +165,12 @@ const dummyGrossData: SummaryData = {
     total: 0.35,
   },
   importHedgingGap: {
-    "Oct 2026": 150000,
-    "Nov 2026": 90000,
-    "Dec 2026": 300000,
-    "Jan 2027": 40000,
-    "Feb 2027": 10000,
-    "Mar 2027": 200000,
+    "Oct 2026": 150,
+    "Nov 2026": 900,
+    "Dec 2026": 300,
+    "Jan 2027": 400,
+    "Feb 2027": 100,
+    "Mar 2027": 200,
     total: 790000,
   },
   importCurrentHedging: {
@@ -195,11 +195,11 @@ const dummyGrossData: SummaryData = {
 
 const dummyNetData: SummaryData = {
   netHedgingGap: {
-    "Oct 2026": 200000,
-    "Nov 2026": 150000,
-    "Dec 2026": 400000,
-    "Jan 2027": 50000,
-    total: 800000,
+    "Oct 2026": 200,
+    "Nov 2026": 150,
+    "Dec 2026": 400,
+    "Jan 2027": 500,
+    total: 800,
   },
   netCurrentHedging: {
     "Oct 2026": 0.3,
@@ -372,7 +372,7 @@ const HedgeGapChart = ({
   const tableView = (
     <TableContainer width="100%" overflowX="auto">
       <Table size="sm" variant="simple">
-        <Thead>
+        <Thead bg={'gray.300'}>
           <Tr>
             <Th>Metric</Th>
             {months.map((month) => (
