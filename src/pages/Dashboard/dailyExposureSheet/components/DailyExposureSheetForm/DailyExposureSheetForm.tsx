@@ -93,6 +93,24 @@ const ExposureSettlementForm = ({ submitForm, editData, originalData,onClose }: 
       .typeError("Settlement Amount is required")
       .required("Settlement Amount is required")
       .test(
+        "amount-within-outstanding",
+        "Settlement Amount cannot exceed Outstanding Amount",
+        function (value) {
+          const outstandingAmount = Number(this.parent.outstandingAmount);
+
+          if (
+            value === undefined ||
+            value === null ||
+            this.parent.outstandingAmount === "" ||
+            !Number.isFinite(outstandingAmount)
+          ) {
+            return true; // required/type validation handles missing values
+          }
+
+          return Number(value) <= outstandingAmount;
+        },
+      )
+      .test(
         "match-settled-amount",
         "Settlement Amount must match the calculated Settled Amount",
         function (value) {

@@ -9,15 +9,28 @@ import store from "../../../../../../store/store";
 
 const SpotConversionSection = ({ showError }: any) => {
   const { values, setFieldValue, errors, touched }: any = useFormikContext();
-  const { auth: { banksData } } = store;
+  const { auth } = store;
+  const { banksData } = auth;
 
   const getBankMargin = useCallback(() => {
+    const normalize = (value: any) => String(value ?? "").trim().toLocaleLowerCase();
     const bankValue = typeof values.bank === "string"
       ? values.bank
       : values.bank?.value;
-    const found = banksData.find((b: any) => b.value === bankValue);
+    const businessUnitValue = typeof values.businessUnit === "string"
+      ? values.businessUnit
+      : values.businessUnit?.value;
+    const businessUnitBanks = businessUnitValue
+      ? auth.getBanksByBusinessUnit(businessUnitValue)
+      : [];
+    const found = businessUnitBanks.find(
+      (b: any) => normalize(b.value) === normalize(bankValue),
+    ) ?? banksData.find((b: any) => normalize(b.value) === normalize(bankValue));
     return found?.bankMargin ?? "";
-  }, [values.bank, banksData]);
+  }, [values.bank, values.businessUnit, banksData, auth]);
+
+  const hasBankMargin = (value: any) =>
+    value !== undefined && value !== null && String(value).trim() !== "";
 
   // Recalculate all rows when bank or exposureType changes
   useEffect(() => {
@@ -30,7 +43,7 @@ const SpotConversionSection = ({ showError }: any) => {
       let updatedRow = { ...row };
 
       // Set default margin for rows that don't have one yet
-      if (!updatedRow.bankMargin && bankMargin !== undefined && bankMargin !== "") {
+      if (!hasBankMargin(updatedRow.bankMargin) && hasBankMargin(bankMargin)) {
         updatedRow.bankMargin = bankMargin;
       }
 
@@ -50,7 +63,7 @@ const SpotConversionSection = ({ showError }: any) => {
     });
 
     setFieldValue("spotList", updatedList);
-  }, [values.bank, values.exposureType, getBankMargin, setFieldValue, values.spotList]); // ✅ Re‑run when bank or exposureType changes
+  }, [values.bank, values.businessUnit, values.exposureType, getBankMargin, setFieldValue, values.spotList]);
 
   // Create a new row with correct net rate based on current exposureType and bank margin
   const getEmptySpotRow = () => {
@@ -71,7 +84,7 @@ const SpotConversionSection = ({ showError }: any) => {
       conversionReferenceNumber: "",
       spotBooked: "",
       cashTomSpot: "",
-      bankMargin: bankMargin,
+      bankMargin: hasBankMargin(bankMargin) ? bankMargin : "",
       amountConverted: "",
       netConversionRate: netRate ? netRate.toFixed(4) : "0.0000",
     };

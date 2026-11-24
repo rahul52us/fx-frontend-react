@@ -60,7 +60,7 @@ export const getExportRegisterValidationSchema = (
               value > poBalance
             ) {
               return this.createError({
-                message: `Amount must be ≤ PO Balance (${poBalance})`,
+                message: `Amount cannot exceed Remaining Balance (${poBalance})`,
               });
             }
 

@@ -64,10 +64,38 @@ export function exportToExcel({
   // Get headers directly from the first row's keys
   const headers = Object.keys(data[0]);
   const keys = headers;
+  const dateHeader = /date$/i;
+  const parseExcelDate = (value: any): Date | null => {
+    if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+    if (typeof value !== "string") return null;
+
+    const trimmed = value.trim();
+    let year: number;
+    let month: number;
+    let day: number;
+    let match = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+
+    if (match) {
+      [, year, month, day] = [match[0], Number(match[1]), Number(match[2]), Number(match[3])];
+    } else {
+      match = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+      if (!match) return null;
+      [, day, month, year] = [match[0], Number(match[1]), Number(match[2]), Number(match[3])];
+    }
+
+    const date = new Date(year, month - 1, day);
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) return null;
+    return date;
+  };
 
   const rows = data.map((row) =>
     keys.map((key) => {
       const value = row[key];
+      if (dateHeader.test(key)) return parseExcelDate(value) ?? value ?? "";
       return typeof value === "string" || typeof value === "number"
         ? value
         : JSON.stringify(value ?? "");
@@ -76,6 +104,19 @@ export function exportToExcel({
 
   const worksheetData = [headers, ...rows];
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+  // Store dates as Excel date cells and make their display format explicit.
+  headers.forEach((header, columnIndex) => {
+    if (!dateHeader.test(header)) return;
+    for (let rowIndex = 1; rowIndex < worksheetData.length; rowIndex += 1) {
+      const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex });
+      const cell = worksheet[cellAddress];
+      if (cell?.v instanceof Date) {
+        cell.t = "d";
+        cell.z = "dd-mm-yyyy";
+      }
+    }
+  });
 
   // Auto column widths
   const colWidths = headers.map((header, colIndex) => {
@@ -91,7 +132,7 @@ export function exportToExcel({
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Export");
 
-  XLSX.writeFile(workbook, fileName);
+  XLSX.writeFile(workbook, fileName, { cellDates: true });
 }
 
 
