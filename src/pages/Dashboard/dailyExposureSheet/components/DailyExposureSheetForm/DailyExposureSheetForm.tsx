@@ -303,6 +303,7 @@ const getFirstErrorMessage = (errorObj: unknown): string | null => {
             values,
             handleChange,
             setFieldValue,
+            setFieldTouched,
             errors,
             touched,
             isSubmitting,
@@ -469,9 +470,22 @@ const getFirstErrorMessage = (errorObj: unknown): string | null => {
                     required
                     placeholder="Enter Amount To Settle"
                     value={values.settlementAmount}
-                    onChange={handleChange}
-                    error={touched.settlementAmount && errors.settlementAmount}
-                    showError={showError}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      setFieldValue("settlementAmount", event.target.value);
+                      if (!touched.settlementAmount) {
+                        setFieldTouched("settlementAmount", true, false);
+                      }
+                    }}
+                    error={
+                      touched.settlementAmount &&
+                      (Number(values.settlementAmount) > Number(values.outstandingAmount)
+                        ? `Settlement Amount cannot exceed Outstanding Amount (${values.outstandingAmount})`
+                        : values.settlementAmount !== "" &&
+                            errors.settlementAmount === "Settlement Amount is required"
+                          ? undefined
+                          : errors.settlementAmount)
+                    }
+                    showError={showError || Boolean(touched.settlementAmount)}
                   />
 
                   <ExposureSettlementAutoCalculator />
