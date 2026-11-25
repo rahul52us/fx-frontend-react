@@ -554,7 +554,7 @@ const handleFileUpload = async (event: any) => {
       const result = response.data?.data?.data || [];
       if (result.length > 0) {
         // Remove unwanted fields before export
-        const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettled, amountSettledList, ...rest }: any) => rest);
+        const exportData = result.map(({ _id, __v, userId, hedgeDeals, amountSettledList, ...rest }: any) => rest);
 
         exportToExcel({
           data: exportData,
