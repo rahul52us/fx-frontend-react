@@ -14,6 +14,7 @@ export const getImportRegisterValidationSchema = (isEdit: boolean = false, poBal
       .test(
         "po-balance-check",
         function (value: any) {
+          if (isEdit) return true;
           const { exposureType } = this.parent;
           if (exposureType === "lc_bc_shifting") {
             if (value > poBalance) {

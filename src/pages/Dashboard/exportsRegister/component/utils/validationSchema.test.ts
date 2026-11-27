@@ -85,4 +85,29 @@ describe("Export Register Validation Schema and Date Helpers", () => {
       })
     ).rejects.toThrow(/(Due Date must be after BL Date|BL Date must be between PO Date and Due Date)/);
   });
+
+  it("enforces PO Balance check on create but skips it in edit mode", async () => {
+    const basePayload = {
+      exposureType: "shipment",
+      amount: 1000,
+      partyName: "ABC Corp",
+      bank: "HDFC",
+      poNo: "PO123",
+      poDate: "10-05-2025",
+      invoiceNo: "INV001",
+      invoiceDate: "11-05-2025",
+      blDate: "12-05-2025",
+      dueDate: "15-05-2025",
+      paymentTerms: 30,
+      budgetRate: "83.5",
+    };
+
+    const createSchema = getExportRegisterValidationSchema(false, 500);
+    await expect(createSchema.validate(basePayload)).rejects.toThrow(
+      "Amount cannot exceed Remaining Balance (500)"
+    );
+
+    const editSchema = getExportRegisterValidationSchema(true, 500);
+    await expect(editSchema.validate(basePayload)).resolves.toBeDefined();
+  });
 });

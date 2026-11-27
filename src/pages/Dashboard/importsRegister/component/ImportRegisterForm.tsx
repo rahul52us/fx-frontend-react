@@ -52,7 +52,6 @@ const fetchPoBalance = async (poNumber: string) => {
       exposureType: selectedExposureType,
       poNumber,
     });
-    // setPoBalance(response?.data?.data?.remainingBalance || 0);
     setPoBalance(response?.data?.data?.remainingBalance || 0);
   } catch (error:any) {
     console.error("Error fetching PO balance:", error.message);

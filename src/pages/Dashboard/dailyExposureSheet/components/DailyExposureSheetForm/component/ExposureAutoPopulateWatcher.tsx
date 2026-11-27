@@ -10,6 +10,7 @@ const url = process.env.REACT_APP_FX_BASE_URL
     settlementType,
     poNumber,
     invoiceBcNumber,
+    exposureType
   } = values;
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const url = process.env.REACT_APP_FX_BASE_URL
         const res = await axios.post(
           `${url}/exportregister/expimpexposuredata/`,
           {
+            exposureType:exposureType,
             settlementType,
             poNum: poNumber || "",
             invNum: invoiceBcNumber || "",

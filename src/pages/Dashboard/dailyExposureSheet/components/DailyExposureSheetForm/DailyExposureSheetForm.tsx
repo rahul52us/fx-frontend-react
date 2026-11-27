@@ -25,7 +25,7 @@ import { pickMatchedFields } from "../../../utils/function";
 import ConversionTypeSelector from "./component/ConversionTypeSelector";
 import EEFCExportsSection from "./component/EEFCExportsSection";
 import EEFCImportsSection from "./component/EEFCImportsSection";
-import ExposureAutoPopulateWatcher from "./component/ExposureAutoPopulateWatcher";
+// import ExposureAutoPopulateWatcher from "./component/ExposureAutoPopulateWatcher";
 import ExposureSettlementAutoCalculator from "./component/ExposureSettlementAutoCalculator";
 import ExposureSettlementController from "./component/ExposureSettlementController";
 import ForwardContractSection from "./component/ForwardContractSection";
@@ -311,7 +311,7 @@ const getFirstErrorMessage = (errorObj: unknown): string | null => {
             submitForm,
           }) => (
             <FormikForm>
-              <ExposureAutoPopulateWatcher />
+              {/* <ExposureAutoPopulateWatcher /> */}
               <ExposureSettlementController
   setPoOptions={setPoOptions}
   setInvoiceOptions={setInvoiceOptions}

@@ -49,9 +49,9 @@ export const getExportRegisterValidationSchema = (
           }),
       })
 
-      // Shipment validation - Amount <= PO Balance
+      // Shipment validation - Amount <= PO Balance (only when creating a new entry)
       .when("exposureType", {
-        is: (exposureType: string) => exposureType === "shipment",
+        is: (exposureType: string) => !isEdit && exposureType === "shipment",
         then: (schema) =>
           schema.test("max-poBalance", function (value) {
             if (
