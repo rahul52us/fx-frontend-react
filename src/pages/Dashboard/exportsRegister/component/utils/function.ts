@@ -64,38 +64,58 @@ export function exportToExcel({
   // Get headers directly from the first row's keys
   const headers = Object.keys(data[0]);
   const keys = headers;
-  const dateHeader = /date$/i;
-  const parseExcelDate = (value: any): Date | null => {
-    if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
-    if (typeof value !== "string") return null;
-
-    const trimmed = value.trim();
+  const dateHeader = /(?:Date(?:$|[A-Z])|At$)|^date$|(?:^|[_-])date(?:$|[_-])/;
+  const formatExcelDate = (value: any): string | null => {
     let year: number;
     let month: number;
     let day: number;
-    let match = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    let time = "";
 
-    if (match) {
-      [, year, month, day] = [match[0], Number(match[1]), Number(match[2]), Number(match[3])];
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+      year = value.getFullYear();
+      month = value.getMonth() + 1;
+      day = value.getDate();
+    } else if (typeof value === "number" && Number.isFinite(value)) {
+      // Excel serial date (1900 date system).
+      const date = new Date(Date.UTC(1899, 11, 30) + Math.floor(value) * 86400000);
+      year = date.getUTCFullYear();
+      month = date.getUTCMonth() + 1;
+      day = date.getUTCDate();
+    } else if (typeof value === "string") {
+      const trimmed = value.trim();
+      let match = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+      if (match) {
+        year = Number(match[1]);
+        month = Number(match[2]);
+        day = Number(match[3]);
+        time = match[4].trim().replace(/^T/i, "");
+      } else {
+        match = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(.*)$/);
+        if (!match) return null;
+        day = Number(match[1]);
+        month = Number(match[2]);
+        year = Number(match[3]);
+        time = match[4].trim();
+      }
     } else {
-      match = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
-      if (!match) return null;
-      [, day, month, year] = [match[0], Number(match[1]), Number(match[2]), Number(match[3])];
+      return null;
     }
 
-    const date = new Date(year, month - 1, day);
+    const validDate = new Date(year, month - 1, day);
     if (
-      date.getFullYear() !== year ||
-      date.getMonth() !== month - 1 ||
-      date.getDate() !== day
+      validDate.getFullYear() !== year ||
+      validDate.getMonth() !== month - 1 ||
+      validDate.getDate() !== day
     ) return null;
-    return date;
+
+    const formatted = `${String(day).padStart(2, "0")}-${String(month).padStart(2, "0")}-${year}`;
+    return time ? `${formatted} ${time}` : formatted;
   };
 
   const rows = data.map((row) =>
     keys.map((key) => {
       const value = row[key];
-      if (dateHeader.test(key)) return parseExcelDate(value) ?? value ?? "";
+      if (dateHeader.test(key)) return formatExcelDate(value) ?? value ?? "";
       return typeof value === "string" || typeof value === "number"
         ? value
         : JSON.stringify(value ?? "");
@@ -104,19 +124,6 @@ export function exportToExcel({
 
   const worksheetData = [headers, ...rows];
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-  // Store dates as Excel date cells and make their display format explicit.
-  headers.forEach((header, columnIndex) => {
-    if (!dateHeader.test(header)) return;
-    for (let rowIndex = 1; rowIndex < worksheetData.length; rowIndex += 1) {
-      const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex });
-      const cell = worksheet[cellAddress];
-      if (cell?.v instanceof Date) {
-        cell.t = "d";
-        cell.z = "dd-mm-yyyy";
-      }
-    }
-  });
 
   // Auto column widths
   const colWidths = headers.map((header, colIndex) => {
@@ -132,7 +139,7 @@ export function exportToExcel({
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Export");
 
-  XLSX.writeFile(workbook, fileName, { cellDates: true });
+  XLSX.writeFile(workbook, fileName);
 }
 
 
