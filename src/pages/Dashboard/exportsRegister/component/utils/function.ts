@@ -2,25 +2,72 @@ import * as XLSX from "xlsx";
 
 
 // export function exportToExcel({
-//   columns,
 //   data,
 //   fileName = "export.xlsx",
 // }: {
-//   columns: { key: string; headerName: string }[];
 //   data: Record<string, any>[];
 //   fileName?: string;
 // }) {
-//   if (!columns.length || !data.length) {
-//     console.warn("No columns or data to export.");
+//   if (!data.length) {
+//     console.warn("No data to export.");
 //     return;
 //   }
 
-//   const headers = columns.map((col) => col.key);
+//   // Get headers directly from the first row's keys
+//   const headers = Object.keys(data[0]);
 //   const keys = headers;
+//   const dateHeader = /(?:Date(?:$|[A-Z])|At$)|^date$|(?:^|[_-])date(?:$|[_-])/;
+//   const formatExcelDate = (value: any): string | null => {
+//     let year: number;
+//     let month: number;
+//     let day: number;
+//     let time = "";
+
+//     if (value instanceof Date && !Number.isNaN(value.getTime())) {
+//       year = value.getFullYear();
+//       month = value.getMonth() + 1;
+//       day = value.getDate();
+//     } else if (typeof value === "number" && Number.isFinite(value)) {
+//       // Excel serial date (1900 date system).
+//       const date = new Date(Date.UTC(1899, 11, 30) + Math.floor(value) * 86400000);
+//       year = date.getUTCFullYear();
+//       month = date.getUTCMonth() + 1;
+//       day = date.getUTCDate();
+//     } else if (typeof value === "string") {
+//       const trimmed = value.trim();
+//       let match = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+//       if (match) {
+//         year = Number(match[1]);
+//         month = Number(match[2]);
+//         day = Number(match[3]);
+//         time = match[4].trim().replace(/^T/i, "");
+//       } else {
+//         match = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(.*)$/);
+//         if (!match) return null;
+//         day = Number(match[1]);
+//         month = Number(match[2]);
+//         year = Number(match[3]);
+//         time = match[4].trim();
+//       }
+//     } else {
+//       return null;
+//     }
+
+//     const validDate = new Date(year, month - 1, day);
+//     if (
+//       validDate.getFullYear() !== year ||
+//       validDate.getMonth() !== month - 1 ||
+//       validDate.getDate() !== day
+//     ) return null;
+
+//     const formatted = `${String(day).padStart(2, "0")}-${String(month).padStart(2, "0")}-${year}`;
+//     return time ? `${formatted} ${time}` : formatted;
+//   };
 
 //   const rows = data.map((row) =>
 //     keys.map((key) => {
 //       const value = row[key];
+//       if (dateHeader.test(key)) return formatExcelDate(value) ?? value ?? "";
 //       return typeof value === "string" || typeof value === "number"
 //         ? value
 //         : JSON.stringify(value ?? "");
@@ -28,16 +75,15 @@ import * as XLSX from "xlsx";
 //   );
 
 //   const worksheetData = [headers, ...rows];
-
 //   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-//   // Calculate column widths
+//   // Auto column widths
 //   const colWidths = headers.map((header, colIndex) => {
 //     const maxContentWidth = worksheetData.reduce((maxWidth, row) => {
 //       const cellValue = String(row[colIndex] ?? "");
 //       return Math.max(maxWidth, cellValue.length);
 //     }, header.length);
-//     return { wch: maxContentWidth + 2 }; // +2 for padding
+//     return { wch: maxContentWidth + 2 };
 //   });
 
 //   worksheet["!cols"] = colWidths;
@@ -47,6 +93,7 @@ import * as XLSX from "xlsx";
 
 //   XLSX.writeFile(workbook, fileName);
 // }
+
 
 
 export function exportToExcel({
@@ -61,10 +108,12 @@ export function exportToExcel({
     return;
   }
 
-  // Get headers directly from the first row's keys
   const headers = Object.keys(data[0]);
   const keys = headers;
-  const dateHeader = /(?:Date(?:$|[A-Z])|At$)|^date$|(?:^|[_-])date(?:$|[_-])/;
+
+  const dateHeader =
+    /(?:Date(?:$|[A-Z])|At$)|^date$|(?:^|[_-])date(?:$|[_-])/;
+
   const formatExcelDate = (value: any): string | null => {
     let year: number;
     let month: number;
@@ -76,14 +125,17 @@ export function exportToExcel({
       month = value.getMonth() + 1;
       day = value.getDate();
     } else if (typeof value === "number" && Number.isFinite(value)) {
-      // Excel serial date (1900 date system).
-      const date = new Date(Date.UTC(1899, 11, 30) + Math.floor(value) * 86400000);
+      const date = new Date(
+        Date.UTC(1899, 11, 30) + Math.floor(value) * 86400000
+      );
       year = date.getUTCFullYear();
       month = date.getUTCMonth() + 1;
       day = date.getUTCDate();
     } else if (typeof value === "string") {
       const trimmed = value.trim();
+
       let match = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+
       if (match) {
         year = Number(match[1]);
         month = Number(match[2]);
@@ -91,7 +143,9 @@ export function exportToExcel({
         time = match[4].trim().replace(/^T/i, "");
       } else {
         match = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(.*)$/);
+
         if (!match) return null;
+
         day = Number(match[1]);
         month = Number(match[2]);
         year = Number(match[3]);
@@ -102,41 +156,87 @@ export function exportToExcel({
     }
 
     const validDate = new Date(year, month - 1, day);
+
     if (
       validDate.getFullYear() !== year ||
       validDate.getMonth() !== month - 1 ||
       validDate.getDate() !== day
-    ) return null;
+    ) {
+      return null;
+    }
 
-    const formatted = `${String(day).padStart(2, "0")}-${String(month).padStart(2, "0")}-${year}`;
+    const formatted = `${String(day).padStart(2, "0")}-${String(
+      month
+    ).padStart(2, "0")}-${year}`;
+
     return time ? `${formatted} ${time}` : formatted;
+  };
+
+  // Convert numeric strings into actual numbers for Excel.
+  const convertNumericString = (value: string): number | string => {
+    const trimmed = value.trim();
+
+    if (!trimmed) return value;
+
+    // Avoid converting values with leading zeros (e.g. employee IDs).
+    if (/^[+-]?0\d+(\.\d+)?$/.test(trimmed)) return value;
+
+    // Match integers, decimals, negative numbers and scientific notation.
+    const numericRegex = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i;
+
+    if (!numericRegex.test(trimmed)) return value;
+
+    const numberValue = Number(trimmed);
+
+    return Number.isFinite(numberValue) ? numberValue : value;
   };
 
   const rows = data.map((row) =>
     keys.map((key) => {
       const value = row[key];
-      if (dateHeader.test(key)) return formatExcelDate(value) ?? value ?? "";
-      return typeof value === "string" || typeof value === "number"
-        ? value
-        : JSON.stringify(value ?? "");
+
+      // Handle date columns first.
+      if (dateHeader.test(key)) {
+        return formatExcelDate(value) ?? value ?? "";
+      }
+
+      // Convert numeric strings to actual numbers.
+      if (typeof value === "string") {
+        return convertNumericString(value);
+      }
+
+      if (typeof value === "number") {
+        return Number.isFinite(value) ? value : "";
+      }
+
+      if (value === null || value === undefined) {
+        return "";
+      }
+
+      return typeof value === "object"
+        ? JSON.stringify(value)
+        : value;
     })
   );
 
   const worksheetData = [headers, ...rows];
+
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-  // Auto column widths
+  // Auto column widths.
   const colWidths = headers.map((header, colIndex) => {
     const maxContentWidth = worksheetData.reduce((maxWidth, row) => {
       const cellValue = String(row[colIndex] ?? "");
       return Math.max(maxWidth, cellValue.length);
     }, header.length);
+
     return { wch: maxContentWidth + 2 };
   });
 
   worksheet["!cols"] = colWidths;
 
   const workbook = XLSX.utils.book_new();
+
   XLSX.utils.book_append_sheet(workbook, worksheet, "Export");
 
   XLSX.writeFile(workbook, fileName);
